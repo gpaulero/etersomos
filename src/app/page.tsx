@@ -588,9 +588,10 @@ export default function Home() {
         position="bottom-right"
         toastOptions={{
           style: {
-            background: "oklch(0.20 0.03 290)",
-            color: "oklch(0.95 0.01 290)",
-            border: "1px solid oklch(0.35 0.05 290 / 0.3)",
+            background: "oklch(0.15 0.005 285)",
+            color: "oklch(0.93 0.005 285)",
+            border: "1px solid oklch(0.30 0.01 285 / 0.3)",
+            fontFamily: "var(--font-josefin), sans-serif",
           },
         }}
       />
@@ -630,7 +631,7 @@ export default function Home() {
               height={40}
               className="rounded-full"
             />
-            <span className="text-gold-400 font-bold text-lg tracking-widest">
+            <span className="text-gold-400 font-serif font-semibold text-lg tracking-[0.2em] uppercase">
               ETER SOMOS
             </span>
           </a>
@@ -679,7 +680,7 @@ export default function Home() {
                 className="bg-mystic-950/95 backdrop-blur-xl border-mystic-800/30 w-72"
               >
                 <SheetHeader>
-                  <SheetTitle className="text-gold-400 tracking-widest">
+                  <SheetTitle className="text-gold-400 font-serif tracking-[0.2em] uppercase">
                     ETER SOMOS
                   </SheetTitle>
                   <SheetDescription className="text-foreground/60">
@@ -767,7 +768,7 @@ export default function Home() {
             <motion.h1
               variants={fadeInUp}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-gold-400 text-glow-gold tracking-wider mb-4"
+              className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-serif font-semibold text-foreground tracking-wider mb-4"
             >
               Eter Somos
             </motion.h1>
@@ -775,7 +776,7 @@ export default function Home() {
             <motion.p
               variants={fadeInUp}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-xl sm:text-2xl md:text-3xl text-foreground/80 font-light mb-6"
+              className="text-xl sm:text-2xl md:text-3xl text-foreground/60 font-serif font-light mb-6"
             >
               Descubre la sabiduría ancestral de tus Registros Akáshicos
             </motion.p>
@@ -798,7 +799,7 @@ export default function Home() {
               <Button
                 size="lg"
                 onClick={() => scrollTo("#lecturas")}
-                className="bg-gold-500 hover:bg-gold-600 text-mystic-950 font-semibold text-base px-8 py-6 rounded-full glow-gold transition-all duration-300 hover:scale-105"
+                className="bg-foreground hover:bg-foreground/80 text-background font-serif text-base px-8 py-6 rounded-full transition-all duration-300 hover:scale-105"
               >
                 Pedí tu Lectura
                 <ArrowRight className="size-5 ml-2" />
@@ -807,7 +808,7 @@ export default function Home() {
                 size="lg"
                 variant="outline"
                 onClick={() => scrollTo("#cristales")}
-                className="border-gold-400/40 text-gold-400 hover:bg-gold-400/10 hover:text-gold-300 font-semibold text-base px-8 py-6 rounded-full transition-all duration-300 hover:scale-105"
+                className="border-foreground/20 text-foreground/80 hover:bg-foreground/5 hover:text-foreground font-semibold font-serif text-base px-8 py-6 rounded-full transition-all duration-300 hover:scale-105"
               >
                 <Sparkles className="size-5 mr-2" />
                 Ver Cristales
@@ -837,7 +838,7 @@ export default function Home() {
       >
         <div className="max-w-6xl mx-auto">
           <motion.div variants={staggerItem} className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gold-400 text-glow-gold mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-semibold text-gold-400 text-glow-gold mb-4">
               ¿Qué son los Registros Akáshicos?
             </h2>
             <p className="text-foreground/60 max-w-2xl mx-auto text-lg">
@@ -905,7 +906,7 @@ export default function Home() {
 
         <AnimatedSection className="relative z-10 max-w-6xl mx-auto">
           <motion.div variants={staggerItem} className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gold-400 text-glow-gold mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-semibold text-gold-400 text-glow-gold mb-4">
               Pedí tu Lectura Akáshica
             </h2>
             <p className="text-foreground/60 max-w-2xl mx-auto text-lg">
@@ -953,7 +954,7 @@ export default function Home() {
               <DialogTrigger asChild>
                 <Button
                   size="lg"
-                  className="bg-gold-500 hover:bg-gold-600 text-mystic-950 font-bold text-lg px-10 py-7 rounded-full glow-gold transition-all duration-300 hover:scale-105"
+                  className="bg-foreground hover:bg-foreground/80 text-background font-serif font-semibold text-lg px-10 py-7 rounded-full transition-all duration-300 hover:scale-105"
                 >
                   <Calendar className="size-5 mr-2" />
                   Reservar mi Lectura
@@ -961,7 +962,7 @@ export default function Home() {
               </DialogTrigger>
               <DialogContent className="bg-mystic-950/98 backdrop-blur-xl border-mystic-700/40 sm:max-w-lg max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                  <DialogTitle className="text-gold-400 text-2xl flex items-center gap-2">
+                  <DialogTitle className="text-gold-400 font-serif text-2xl flex items-center gap-2">
                     <Sparkles className="size-5" />
                     Reservá tu Lectura
                   </DialogTitle>
@@ -1027,7 +1028,7 @@ export default function Home() {
                   {/* Indicación de plazo */}
                   <div className="flex items-center gap-3 p-3 rounded-xl bg-gold-500/10 border border-gold-400/20">
                     <Clock className="size-5 text-gold-400 shrink-0" />
-                    <p className="text-sm text-gold-300/90 leading-relaxed">
+                    <p className="text-sm text-foreground/70 leading-relaxed">
                       Tu lectura será grabada y enviada por email dentro de los <span className="font-semibold text-gold-300">5 días hábiles</span> posteriores a la solicitud.
                     </p>
                   </div>
@@ -1053,7 +1054,7 @@ export default function Home() {
                   <Button
                     onClick={handleSubmitBooking}
                     disabled={formSubmitting}
-                    className="w-full bg-gold-500 hover:bg-gold-600 text-mystic-950 font-bold text-base py-6 rounded-full glow-gold transition-all duration-300 hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
+                    className="w-full bg-foreground hover:bg-foreground/80 text-background font-serif font-semibold text-base py-6 rounded-full transition-all duration-300 hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
                   >
                     {formSubmitting ? (
                       <>
@@ -1087,7 +1088,7 @@ export default function Home() {
       >
         <div className="max-w-6xl mx-auto">
           <motion.div variants={staggerItem} className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gold-400 text-glow-gold mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-semibold text-gold-400 text-glow-gold mb-4">
               Cursos de Registros Akáshicos
             </h2>
             <p className="text-foreground/60 max-w-2xl mx-auto text-lg">
@@ -1106,7 +1107,7 @@ export default function Home() {
                 >
                   {idx === 2 && (
                     <div className="mx-auto mt-0">
-                      <Badge className="bg-gold-500 text-mystic-950 font-semibold px-3 py-1 text-xs">
+                      <Badge className="bg-gold-500/20 text-gold-300 font-serif font-semibold px-3 py-1 text-xs">
                         Más Popular
                       </Badge>
                     </div>
@@ -1125,7 +1126,7 @@ export default function Home() {
                         <Clock className="size-4 text-gold-400" />
                         {course.duration}
                       </span>
-                      <span className="text-2xl font-bold text-gold-400">
+                      <span className="text-2xl font-serif font-bold text-gold-400">
                         {formatPrice(course.price)}
                       </span>
                     </div>
@@ -1144,7 +1145,7 @@ export default function Home() {
                   </CardContent>
                   <CardFooter className="pt-0">
                     <Button
-                      className="w-full bg-gold-500/10 hover:bg-gold-500/20 text-gold-400 border border-gold-400/30 hover:border-gold-400/50 font-semibold rounded-full py-5 transition-all duration-300"
+                      className="w-full bg-foreground hover:bg-foreground/80 text-background font-serif font-semibold rounded-full py-5 transition-all duration-300"
                       onClick={() => {
                         toast.info(
                           `¡Te interesa ${course.name}! Pronto abriremos inscripciones.`,
@@ -1179,7 +1180,7 @@ export default function Home() {
 
         <AnimatedSection className="relative z-10 max-w-6xl mx-auto">
           <motion.div variants={staggerItem} className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gold-400 text-glow-gold mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-semibold text-gold-400 text-glow-gold mb-4">
               Tienda de Cristales
             </h2>
             <p className="text-foreground/60 max-w-2xl mx-auto text-lg">
@@ -1244,7 +1245,7 @@ export default function Home() {
                         <CardTitle className="text-lg text-gold-300">
                           {product.name}
                         </CardTitle>
-                        <span className="text-gold-400 font-bold text-lg">
+                        <span className="text-gold-400 font-serif font-semibold text-lg">
                           {formatPrice(product.price)}
                         </span>
                       </div>
@@ -1256,7 +1257,7 @@ export default function Home() {
                     </CardContent>
                     <CardFooter>
                       <Button
-                        className="w-full bg-gold-500/10 hover:bg-gold-500/20 text-gold-400 border border-gold-400/30 hover:border-gold-400/50 font-semibold rounded-full py-5 transition-all duration-300"
+                        className="w-full bg-foreground hover:bg-foreground/80 text-background font-serif font-semibold rounded-full py-5 transition-all duration-300"
                         onClick={() => addToCart(product)}
                       >
                         <ShoppingBag className="size-4 mr-2" />
@@ -1277,7 +1278,7 @@ export default function Home() {
       <AnimatedSection className="py-20 sm:py-28 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
           <motion.div variants={staggerItem} className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gold-400 text-glow-gold mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-semibold text-gold-400 text-glow-gold mb-4">
               Lo que dicen nuestros consultantes
             </h2>
             <p className="text-foreground/60 max-w-2xl mx-auto text-lg">
@@ -1336,7 +1337,7 @@ export default function Home() {
                   height={36}
                   className="rounded-full"
                 />
-                <span className="text-gold-400 font-bold tracking-widest text-lg">
+                <span className="text-gold-400 font-serif font-bold tracking-[0.2em] uppercase text-lg">
                   ETER SOMOS
                 </span>
               </div>
@@ -1348,7 +1349,7 @@ export default function Home() {
 
             {/* Quick Links */}
             <div>
-              <h3 className="text-gold-400 font-semibold mb-4 text-sm uppercase tracking-wider">
+              <h3 className="text-gold-400 font-serif font-semibold mb-4 text-sm uppercase tracking-wider">
                 Navegación
               </h3>
               <ul className="space-y-2">
@@ -1367,7 +1368,7 @@ export default function Home() {
 
             {/* Contact */}
             <div>
-              <h3 className="text-gold-400 font-semibold mb-4 text-sm uppercase tracking-wider">
+              <h3 className="text-gold-400 font-serif font-semibold mb-4 text-sm uppercase tracking-wider">
                 Contacto
               </h3>
               <ul className="space-y-3">
@@ -1407,7 +1408,7 @@ export default function Home() {
 
             {/* Legal */}
             <div>
-              <h3 className="text-gold-400 font-semibold mb-4 text-sm uppercase tracking-wider">
+              <h3 className="text-gold-400 font-serif font-semibold mb-4 text-sm uppercase tracking-wider">
                 Legal
               </h3>
               <p className="text-foreground/50 text-sm leading-relaxed">
@@ -1650,7 +1651,7 @@ export default function Home() {
       <Sheet open={!!selectedBooking} onOpenChange={(open) => { if (!open) setSelectedBooking(null); }}>
         <SheetContent side="right" className="bg-mystic-950/98 backdrop-blur-xl border-mystic-700/40 w-[95vw] max-w-[500px] overflow-y-auto">
           <SheetHeader>
-            <SheetTitle className="text-gold-400 text-xl flex items-center gap-2">
+            <SheetTitle className="text-gold-400 font-serif text-xl flex items-center gap-2">
               <Eye className="size-5" />
               Detalle de Reserva
             </SheetTitle>
@@ -1864,7 +1865,7 @@ export default function Home() {
               <SheetTrigger asChild>
                 <Button
                   size="lg"
-                  className="relative bg-gold-500 hover:bg-gold-600 text-mystic-950 font-semibold rounded-full glow-gold h-14 w-14 p-0 transition-all duration-300 hover:scale-110"
+                  className="relative bg-foreground hover:bg-foreground/80 text-background font-semibold rounded-full h-14 w-14 p-0 transition-all duration-300 hover:scale-110"
                 >
                   <ShoppingBag className="size-6" />
                   <Badge className="absolute -top-2 -right-2 bg-mystic-700 text-gold-300 border border-mystic-600 text-xs px-1.5 min-w-[20px]">
@@ -1877,7 +1878,7 @@ export default function Home() {
                 className="bg-mystic-950/95 backdrop-blur-xl border-mystic-800/30 w-full sm:max-w-md flex flex-col"
               >
                 <SheetHeader>
-                  <SheetTitle className="text-gold-400 tracking-wider flex items-center gap-2">
+                  <SheetTitle className="text-gold-400 font-serif tracking-wider flex items-center gap-2">
                     <ShoppingBag className="size-5" />
                     Tu Carrito
                   </SheetTitle>
@@ -1950,7 +1951,7 @@ export default function Home() {
                         <span className="text-foreground/60 font-medium">
                           Total
                         </span>
-                        <span className="text-gold-400 text-xl font-bold">
+                        <span className="text-gold-400 text-xl font-serif font-bold">
                           {formatPrice(cartTotal)}
                         </span>
                       </div>
@@ -1959,7 +1960,7 @@ export default function Home() {
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <Button className="w-full bg-gold-500 hover:bg-gold-600 text-mystic-950 font-bold py-6 rounded-full transition-all duration-300">
+                        <Button className="w-full bg-foreground hover:bg-foreground/80 text-background font-serif font-semibold py-6 rounded-full transition-all duration-300">
                           <MessageCircle className="size-5 mr-2" />
                           Completar compra por WhatsApp
                         </Button>
@@ -1975,7 +1976,7 @@ export default function Home() {
                     </p>
                     <Button
                       variant="outline"
-                      className="mt-4 border-gold-400/30 text-gold-400 hover:bg-gold-400/10 rounded-full"
+                      className="mt-4 border-foreground/20 text-foreground/60 hover:bg-foreground/5 hover:text-foreground rounded-full"
                       onClick={() => {
                         setCartOpen(false);
                         scrollTo("#cristales");

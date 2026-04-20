@@ -67,3 +67,43 @@ Stage Summary:
 - Form now shows clear 5-day delivery indication
 - All references to "lectura de pareja" and "lectura profesional" removed across the site
 - Admin panel, WhatsApp notifications, and Google Calendar updated accordingly
+
+---
+Task ID: 4
+Agent: Main Agent
+Task: Redesign color palette and typography inspired by evaspina.com
+
+Work Log:
+- Analyzed evaspina.com design: monochrome black/white/cream palette, Playfair Display (serif) + Josefin Sans (sans-serif) typography
+- Updated globals.css color theme:
+  - `gold-*` scale redefined: amber/gold → soft lavender (#C4B5FD family) for accent highlights
+  - `mystic-*` scale redefined: bright purple → near-black/charcoal (#0a0a0a to #292524)
+  - Added new `cream-*` scale (#EDE4DF from evaspina) for warm background sections
+  - CSS variables updated from purple oklch to neutral/dark oklch
+  - Glow effects made very subtle (0.08 opacity instead of 0.3)
+  - Star twinkle animation reduced to 0.2-0.7 opacity (more elegant)
+  - Scrollbar colors updated
+  - Glass morphism updated to match new dark palette
+- Updated layout.tsx:
+  - Replaced Geist/Geist_Mono with Playfair_Display + Josefin_Sans
+  - `--font-serif` for headings (Playfair Display), `--font-sans` for body (Josefin Sans)
+- Updated page.tsx:
+  - All section headings now use `font-serif` (Playfair Display)
+  - All buttons changed from gold/dark to foreground (black on transparent / dark bg)
+  - Hero h1 changed from gold to foreground (white/light)
+  - Hero subtitle and paragraph opacity reduced for elegance
+  - CTA buttons: `bg-foreground text-background` (evaspina style)
+  - Secondary buttons: `border-foreground/20 text-foreground/70` (subtle outline)
+  - Course/cart buttons: same dark style
+  - ETER SOMOS logo text: `font-serif tracking-[0.2em] uppercase`
+  - Toast notifications: updated oklch values and added Josefin Sans font
+  - All SheetTitle components updated with `font-serif`
+  - 5-day deadline banner text color adjusted for readability
+  - Cart total and prices use `font-serif`
+- Build successful, zero errors
+
+Stage Summary:
+- New palette: near-black backgrounds, soft lavender accents (#C4B5FD), cream (#EDE4DF) available
+- Typography: Playfair Display for headings, Josefin Sans for body/nav (matching evaspina.com)
+- Buttons: dark/sober style (black text on light, light text on dark) instead of gold
+- Overall mood: elegant, minimalist, sophisticated — aligned with both EterSomos and evaspina aesthetics
