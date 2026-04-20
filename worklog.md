@@ -140,3 +140,23 @@ Stage Summary:
 - Color palette: warm monochrome — true blacks, warm creams, sand accents. Zero yellow, zero purple
 - Fonts: Playfair Display + Josefin Sans (matching evaspina.com)
 - Overall mood: subdued, elegant, spiritual sophistication
+
+---
+Task ID: 6
+Agent: Main Agent
+Task: Fix logo not updating in hero, navbar, and footer
+
+Work Log:
+- Root cause: uploaded logo (upload/361303363_...) was never copied to public/ directory
+- page.tsx still referenced old /images/logowhite.png in 3 places (navbar line 628, hero line 761, footer line 1336)
+- layout.tsx referenced old /images/logowhite.png for favicon (line 34)
+- Copied uploaded logo to public/images/logo-etersomos.jpg (1772x1772 JPEG, 649KB)
+- Updated all 3 Image src references in page.tsx to /images/logo-etersomos.jpg
+- Updated favicon in layout.tsx to /images/logo-etersomos.jpg
+- Removed output:standalone, rebuilt, then restored standalone with proper static file copy
+- Copied public/ to .next/standalone/public/ and .next/static to .next/standalone/.next/static/
+- Started production server successfully: page 200, logo 200, Caddy 200
+
+Stage Summary:
+- Logo now shows correctly in navbar (top left), hero (above ETER SOMOS), footer, and browser tab
+- Server running on port 3000 via Caddy proxy on port 81
