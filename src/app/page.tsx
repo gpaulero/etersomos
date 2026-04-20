@@ -756,19 +756,21 @@ export default function Home() {
             transition={{ duration: 0.8 }}
           >
             <motion.div variants={fadeInUp} transition={{ duration: 0.8 }}>
-              <Image
-                src="/images/logo.png"
-                alt="Eter Somos"
-                width={90}
-                height={90}
-                className="mx-auto rounded-full mb-6 animate-float glow-mystic"
-              />
+              <div className="mx-auto mb-8 w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 p-1.5 rounded-2xl border border-gold-400/20 bg-gold-400/5 animate-float">
+                <Image
+                  src="/images/logo.png"
+                  alt="Eter Somos"
+                  width={200}
+                  height={200}
+                  className="w-full h-full object-contain rounded-xl"
+                />
+              </div>
             </motion.div>
 
             <motion.h1
               variants={fadeInUp}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-serif font-semibold text-foreground tracking-wider mb-4"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif font-semibold text-foreground tracking-wider mb-4"
             >
               Eter Somos
             </motion.h1>
