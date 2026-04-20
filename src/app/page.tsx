@@ -57,9 +57,7 @@ import {
   MessageCircle,
   Mail,
   ArrowRight,
-  Heart,
   Shield,
-  Zap,
   Clock,
   Users,
   Award,
@@ -198,39 +196,16 @@ const courses = [
 
 const readings = [
   {
-    name: "Lectura Individual",
+    name: "Lectura Akáshica Individual",
     description:
-      "Conectamos con tus Registros Akáshicos para descubrir el propósito de tu alma, patrones kármicos y el camino hacia tu mayor potencial.",
+      "Accedemos a los Registros de tu alma para revelar el propósito de tu ser, patrones kármicos y el camino hacia tu mayor potencial. Es una experiencia personal e íntima, grabada especialmente para vos.",
     icon: Eye,
     features: [
-      "Duración: 60 minutos",
-      "Lectura en vivo por videollamada",
-      "Grabación de la sesión incluida",
+      "Lectura personalizada e individual",
+      "Grabación de audio incluida",
+      "Enviada por email dentro de los 5 días hábiles",
       "Guía escrita de los mensajes recibidos",
-    ],
-  },
-  {
-    name: "Lectura de Pareja",
-    description:
-      "Exploramos la conexión akáshica entre dos almas para comprender la dinámica kármica, las lecciones compartidas y el potencial evolutivo juntos.",
-    icon: Heart,
-    features: [
-      "Duración: 90 minutos",
-      "Análisis del vínculo akáshico",
-      "Lectura de vidas pasadas compartidas",
-      "Recomendaciones de crecimiento conjunto",
-    ],
-  },
-  {
-    name: "Lectura Profesional",
-    description:
-      "Accedemos a los Registros de tu alma para revelar tus dones, misión de vida y las oportunidades que el universo tiene para tu carrera profesional.",
-    icon: Zap,
-    features: [
-      "Duración: 75 minutos",
-      "Análisis de misión y propósito",
-      "Bloqueos profesionales kármicos",
-      "Plan de acción espiritual personalizado",
+      "Pregunta focal incluida",
     ],
   },
 ];
@@ -247,7 +222,7 @@ const testimonials = [
     name: "Martín G.",
     location: "Córdoba, Argentina",
     quote:
-      "Increíble experiencia. La lectura de pareja nos ayudó a entender muchas dinámicas de nuestra relación y a sanar heridas que arrastrábamos desde vidas pasadas.",
+      "Increíble experiencia. La lectura me ayudó a entender muchas dinámicas de mi vida y a sanar heridas que arrastraba desde hacía tiempo. La grabación me sirvió para volver a escucharla varias veces.",
     rating: 5,
   },
   {
@@ -344,9 +319,6 @@ export default function Home() {
     name: "",
     email: "",
     phone: "",
-    readingType: "",
-    preferredDate: "",
-    preferredTime: "",
     message: "",
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -445,7 +417,7 @@ export default function Home() {
     if (!formData.phone.trim()) errors.phone = "Ingresá tu teléfono";
     else if (!/^\d{7,15}$/.test(formData.phone.replace(/[\s()-]/g, "")))
       errors.phone = "Ingresá un teléfono válido (solo números)";
-    if (!formData.readingType) errors.readingType = "Seleccioná un tipo de lectura";
+
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -475,17 +447,14 @@ export default function Home() {
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        toast.success("Reserva registrada con éxito", {
-          description: "Nos comunicaremos pronto para confirmar tu turno.",
+        toast.success("Solicitud registrada con éxito", {
+          description: "Recibiremos tu lectura grabada por email en los próximos 5 días hábiles.",
           duration: 6000,
         });
         setFormData({
           name: "",
           email: "",
           phone: "",
-          readingType: "",
-          preferredDate: "",
-          preferredTime: "",
           message: "",
         });
         setFormErrors({});
@@ -946,10 +915,10 @@ export default function Home() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <div className="max-w-lg mx-auto mb-12">
             {readings.map((reading) => (
               <motion.div key={reading.name} variants={staggerItem}>
-                <Card className="glass hover:glow-gold transition-all duration-500 group h-full border-mystic-700/30">
+                <Card className="glass hover:glow-gold transition-all duration-500 group border-mystic-700/30">
                   <CardHeader className="text-center">
                     <div className="mx-auto w-14 h-14 rounded-full bg-gold-500/10 flex items-center justify-center mb-2 group-hover:bg-gold-500/20 transition-colors duration-300">
                       <reading.icon className="size-7 text-gold-400" />
@@ -997,7 +966,7 @@ export default function Home() {
                     Reservá tu Lectura
                   </DialogTitle>
                   <DialogDescription className="text-foreground/60">
-                    Completá el formulario y nos pondremos en contacto para confirmar tu turno.
+                    Completá el formulario y recibiremos tu lectura grabada por email dentro de los próximos 5 días hábiles.
                   </DialogDescription>
                 </DialogHeader>
 
@@ -1055,69 +1024,12 @@ export default function Home() {
                     )}
                   </div>
 
-                  {/* Tipo de Lectura */}
-                  <div className="space-y-2">
-                    <Label className="text-foreground/80 text-sm font-medium">
-                      Tipo de lectura <span className="text-gold-400">*</span>
-                    </Label>
-                    <Select
-                      value={formData.readingType}
-                      onValueChange={(val) => handleFormChange("readingType", val)}
-                    >
-                      <SelectTrigger
-                        className={`bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground ${!formData.readingType ? "text-foreground/30" : ""} ${formErrors.readingType ? "border-red-400/60" : ""}`}
-                      >
-                        <SelectValue placeholder="Seleccioná el tipo de lectura" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-mystic-950 border-mystic-700/40">
-                        <SelectItem value="Lectura Individual" className="text-foreground focus:bg-mystic-800/50 focus:text-gold-300">
-                          Lectura Individual (60 min)
-                        </SelectItem>
-                        <SelectItem value="Lectura de Pareja" className="text-foreground focus:bg-mystic-800/50 focus:text-gold-300">
-                          Lectura de Pareja (90 min)
-                        </SelectItem>
-                        <SelectItem value="Lectura Profesional" className="text-foreground focus:bg-mystic-800/50 focus:text-gold-300">
-                          Lectura Profesional (75 min)
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    {formErrors.readingType && (
-                      <p className="text-red-400 text-xs">{formErrors.readingType}</p>
-                    )}
-                  </div>
-
-                  {/* Fecha y Hora preferida */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-2">
-                      <Label htmlFor="booking-date" className="text-foreground/80 text-sm font-medium">
-                        Fecha preferida
-                      </Label>
-                      <Input
-                        id="booking-date"
-                        type="date"
-                        value={formData.preferredDate}
-                        onChange={(e) => handleFormChange("preferredDate", e.target.value)}
-                        className="bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground [color-scheme:dark]"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="booking-time" className="text-foreground/80 text-sm font-medium">
-                        Horario preferido
-                      </Label>
-                      <Select
-                        value={formData.preferredTime}
-                        onValueChange={(val) => handleFormChange("preferredTime", val)}
-                      >
-                        <SelectTrigger className="bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground">
-                          <SelectValue placeholder="Elegir" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-mystic-950 border-mystic-700/40">
-                          <SelectItem value="Mañana" className="text-foreground focus:bg-mystic-800/50 focus:text-gold-300">Mañana</SelectItem>
-                          <SelectItem value="Tarde" className="text-foreground focus:bg-mystic-800/50 focus:text-gold-300">Tarde</SelectItem>
-                          <SelectItem value="Noche" className="text-foreground focus:bg-mystic-800/50 focus:text-gold-300">Noche</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                  {/* Indicación de plazo */}
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-gold-500/10 border border-gold-400/20">
+                    <Clock className="size-5 text-gold-400 shrink-0" />
+                    <p className="text-sm text-gold-300/90 leading-relaxed">
+                      Tu lectura será grabada y enviada por email dentro de los <span className="font-semibold text-gold-300">5 días hábiles</span> posteriores a la solicitud.
+                    </p>
                   </div>
 
                   {/* Mensaje / Pregunta */}
@@ -1151,13 +1063,13 @@ export default function Home() {
                     ) : (
                       <>
                         <Send className="size-5 mr-2" />
-                        Enviar Solicitud de Reserva
+                        Solicitar mi Lectura
                       </>
                     )}
                   </Button>
 
                   <p className="text-center text-foreground/40 text-xs">
-                    Al enviar, aceptás que nos comuniquemos con vos para coordinar tu lectura.
+                    Al enviar, aceptás que te enviemos la lectura grabada al email indicado.
                   </p>
                 </div>
               </DialogContent>
@@ -1807,21 +1719,11 @@ export default function Home() {
                 </h4>
                 <div className="glass rounded-xl p-4 border border-mystic-700/20 space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-foreground/60">Tipo de lectura</span>
-                    <span className="text-foreground font-medium">{selectedBooking.readingType}</span>
+                    <span className="text-foreground/60">Estado</span>
+                    <span className={`font-medium ${statusConfig[selectedBooking.status]?.text || "text-foreground"}`}>
+                      {statusConfig[selectedBooking.status]?.label || selectedBooking.status}
+                    </span>
                   </div>
-                  {selectedBooking.preferredDate && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-foreground/60">Fecha preferida</span>
-                      <span className="text-foreground font-medium">{selectedBooking.preferredDate}</span>
-                    </div>
-                  )}
-                  {selectedBooking.preferredTime && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-foreground/60">Horario preferido</span>
-                      <span className="text-foreground font-medium">{selectedBooking.preferredTime}</span>
-                    </div>
-                  )}
                   <div className="flex justify-between text-sm">
                     <span className="text-foreground/60">Creada</span>
                     <span className="text-foreground font-medium">{formatBookingDate(selectedBooking.createdAt)}</span>

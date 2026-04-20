@@ -20,8 +20,6 @@ interface BookingData {
   email: string;
   phone: string;
   readingType: string;
-  preferredDate?: string | null;
-  preferredTime?: string | null;
   message?: string | null;
 }
 
@@ -62,24 +60,17 @@ export async function sendWhatsAppNotification(booking: BookingData): Promise<{
 
 function buildWhatsAppMessage(booking: BookingData): string {
   const lines = [
-    "✨ *NUEVA RESERVA - Eter Somos* ✨",
+    "✨ *NUEVA SOLICITUD - Eter Somos* ✨",
     "",
     `👤 *Nombre:* ${booking.name}`,
     `📧 *Email:* ${booking.email}`,
     `📱 *Teléfono:* ${booking.phone}`,
-    `🔮 *Lectura:* ${booking.readingType}`,
   ];
-  if (booking.preferredDate) {
-    lines.push(`📅 *Fecha preferida:* ${booking.preferredDate}`);
-  }
-  if (booking.preferredTime) {
-    lines.push(`🕐 *Horario:* ${booking.preferredTime}`);
-  }
   if (booking.message) {
     lines.push(`💬 *Mensaje:* ${booking.message}`);
   }
   lines.push("");
-  lines.push("⚠️ Recordá: La lectura debe enviarse en un plazo de 5 días.");
+  lines.push("⏰ *Recordá:* Enviar la lectura grabada por email dentro de los 5 días hábiles.");
   return encodeURIComponent(lines.join("\n"));
 }
 
@@ -162,57 +153,38 @@ export function buildClientWhatsAppLink(phone: string, message: string): string 
 
 /**
  * Generates a Google Calendar event link for a confirmed booking.
- * The event is created with a 60/75/90 min duration depending on reading type.
+ * Creates a reminder event with the 5 business day deadline.
  */
 export function generateGoogleCalendarLink(
   booking: BookingData,
   eventDate?: string
 ): string {
-  const durationMap: Record<string, number> = {
-    "Lectura Individual": 60,
-    "Lectura de Pareja": 90,
-    "Lectura Profesional": 75,
-  };
-
-  const duration = durationMap[booking.readingType] || 60;
-
-  // Use preferred date or today
-  let dateStr = eventDate || booking.preferredDate || new Date().toISOString().split("T")[0];
-  // Handle ISO format (has T)
-  if (dateStr.includes("T")) {
-    dateStr = dateStr.split("T")[0];
+  // Calculate deadline: 5 business days from now or provided date
+  const startDate = eventDate ? new Date(eventDate.split("T")[0]) : new Date();
+  const deadline = new Date(startDate);
+  let businessDays = 0;
+  while (businessDays < 5) {
+    deadline.setDate(deadline.getDate() + 1);
+    const dayOfWeek = deadline.getDay();
+    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+      businessDays++;
+    }
   }
-
-  // Parse time preference
-  const timeMap: Record<string, string> = {
-    "Mañana": "10:00",
-    "Tarde": "15:00",
-    "Noche": "19:00",
-  };
-  const startTime = timeMap[booking.preferredTime || ""] || "10:00";
-
-  // Build ISO datetime strings for Google Calendar
-  const [year, month, day] = dateStr.split("-").map(Number);
-  const [hours, mins] = startTime.split(":").map(Number);
-
-  const start = new Date(year, month - 1, day, hours, mins, 0);
-  const end = new Date(start.getTime() + duration * 60 * 1000);
 
   const formatCalendarDate = (d: Date) =>
     d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
 
   const params = new URLSearchParams({
     action: "TEMPLATE",
-    text: `[ETER SOMOS] ${booking.readingType} - ${booking.name}`,
-    dates: `${formatCalendarDate(start)}/${formatCalendarDate(end)}`,
+    text: `[ETER SOMOS] Lectura Akáshica - ${booking.name} - PLAZO`,
+    dates: `${formatCalendarDate(deadline)}/${formatCalendarDate(deadline)}`,
     details: [
       `Lectura Akáshica para ${booking.name}`,
-      `Tipo: ${booking.readingType}`,
       `Email: ${booking.email}`,
       `Teléfono: ${booking.phone}`,
       booking.message ? `Mensaje del consultante: ${booking.message}` : "",
       "",
-      "⚠️ PLAZO: Enviar la lectura grabada por email dentro de los 5 días.",
+      "PLAZO: Hoy vencen los 5 días hábiles para enviar la lectura grabada por email.",
       "",
       "---",
       "Eter Somos | Registros Akáshicos",

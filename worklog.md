@@ -34,3 +34,36 @@ Stage Summary:
 - Google Calendar: generates event links with pre-filled details
 - 5-day deadline tracking from confirmation date
 - Full booking CRUD via API
+
+---
+Task ID: 3
+Agent: Main Agent
+Task: Modify reading section for offline-only model (single reading type, no date/time selection)
+
+Work Log:
+- Updated readings data array: removed "Lectura de Pareja" and "Lectura Profesional", kept only "Lectura Akáshica Individual" with offline features
+- Updated reading card features: personalized reading, audio recording included, 5 business days delivery by email, written guide, focal question included
+- Changed readings section layout from 3-column grid to single centered card (max-w-lg mx-auto)
+- Removed readingType select from booking form (now hardcoded as "Lectura Akáshica Individual")
+- Removed preferredDate and preferredTime fields from form state, validation, JSX, and reset
+- Added "5 business days" info banner in the form dialog with Clock icon
+- Updated DialogDescription text to explain offline delivery process
+- Updated submit button text from "Enviar Solicitud de Reserva" to "Solicitar mi Lectura"
+- Updated success toast message for offline context
+- Updated footer disclaimer text
+- Updated Martín G. testimonial to remove "lectura de pareja" reference
+- Updated API POST route: removed readingType/preferredDate/preferredTime from request body, hardcoded readingType
+- Updated notifications.ts: removed preferredDate/preferredTime from BookingData interface
+- Updated WhatsApp message template for offline model (removed date/time fields, updated reminder)
+- Updated Google Calendar link generation to create deadline reminder event instead of scheduled session
+- Removed date/time display from admin panel booking detail
+- Removed unused Heart and Zap icon imports
+- Cleaned up form validation (removed readingType check)
+- Build successful, no errors
+
+Stage Summary:
+- Single reading type: "Lectura Akáshica Individual" (offline, recorded, sent by email in 5 business days)
+- No date/time selection needed
+- Form now shows clear 5-day delivery indication
+- All references to "lectura de pareja" and "lectura profesional" removed across the site
+- Admin panel, WhatsApp notifications, and Google Calendar updated accordingly

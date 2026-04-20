@@ -12,24 +12,11 @@ import {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, email, phone, readingType, preferredDate, preferredTime, message } = body;
+    const { name, email, phone, message } = body;
 
-    if (!name || !email || !phone || !readingType) {
+    if (!name || !email || !phone) {
       return NextResponse.json(
-        { error: "Faltan campos obligatorios: nombre, email, teléfono y tipo de lectura." },
-        { status: 400 }
-      );
-    }
-
-    const validReadingTypes = [
-      "Lectura Individual",
-      "Lectura de Pareja",
-      "Lectura Profesional",
-    ];
-
-    if (!validReadingTypes.includes(readingType)) {
-      return NextResponse.json(
-        { error: "Tipo de lectura inválido." },
+        { error: "Faltan campos obligatorios: nombre, email y teléfono." },
         { status: 400 }
       );
     }
@@ -39,9 +26,7 @@ export async function POST(request: NextRequest) {
         name: name.trim(),
         email: email.trim().toLowerCase(),
         phone: phone.trim(),
-        readingType,
-        preferredDate: preferredDate?.trim() || null,
-        preferredTime: preferredTime?.trim() || null,
+        readingType: "Lectura Akáshica Individual",
         message: message?.trim() || null,
       },
     });
@@ -52,8 +37,6 @@ export async function POST(request: NextRequest) {
       email: booking.email,
       phone: booking.phone,
       readingType: booking.readingType,
-      preferredDate: booking.preferredDate,
-      preferredTime: booking.preferredTime,
       message: booking.message,
     }).then((result) => {
       console.log(
@@ -67,7 +50,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        message: "Reserva registrada con éxito. Nos comunicaremos pronto para confirmar tu turno.",
+        message: "Solicitud registrada con éxito. Recibirás tu lectura grabada por email en los próximos 5 días hábiles.",
         bookingId: booking.id,
       },
       { status: 201 }
@@ -102,8 +85,6 @@ export async function GET() {
           email: b.email,
           phone: b.phone,
           readingType: b.readingType,
-          preferredDate: b.preferredDate,
-          preferredTime: b.preferredTime,
           message: b.message,
         });
       }
