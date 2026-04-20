@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     "ETER SOMOS",
   ],
   icons: {
-    icon: "/images/logo.png",
+    icon: "/images/logo.png?v=2",
   },
   openGraph: {
     title: "Eter Somos | Registros Akáshicos",

@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   reactStrictMode: false,
+  images: {
+    unoptimized: true,
+  },
   allowedDevOrigins: [
     "*.space.z.ai",
     "preview-chat-326c756f-2bf5-451f-862d-fcf7067dd677.space.z.ai",
