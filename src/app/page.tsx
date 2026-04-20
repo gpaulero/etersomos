@@ -41,6 +41,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Star,
   ShoppingBag,
@@ -68,6 +69,11 @@ import {
   Loader2,
   Calendar,
   Phone,
+  FileText,
+  CalendarCheck,
+  AlertTriangle,
+  ExternalLink,
+  ChevronDown,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -345,6 +351,18 @@ export default function Home() {
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
+  /* ---- Admin state ---- */
+  const [adminOpen, setAdminOpen] = useState(false);
+  const [adminBookings, setAdminBookings] = useState<any[]>([]);
+  const [adminStats, setAdminStats] = useState({ total: 0, pendiente: 0, confirmada: 0, en_progreso: 0, enviada: 0, cancelada: 0 });
+  const [adminLoading, setAdminLoading] = useState(false);
+  const [adminFilter, setAdminFilter] = useState("todos");
+  const [selectedBooking, setSelectedBooking] = useState<any>(null);
+
+  /* ---- Logo triple-click refs ---- */
+  const logoClickCount = useRef(0);
+  const logoClickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   /* ---- Nav scroll effect ---- */
   useEffect(() => {
     const handleScroll = () => setNavScrolled(window.scrollY > 40);
@@ -482,6 +500,115 @@ export default function Home() {
     }
   };
 
+  /* ---- Admin functions ---- */
+  const fetchAdminData = async () => {
+    setAdminLoading(true);
+    try {
+      const res = await fetch("/api/bookings");
+      const data = await res.json();
+      if (res.ok && data.bookings) {
+        const bookings = data.bookings;
+        setAdminBookings(bookings);
+        setAdminStats({
+          total: bookings.length,
+          pendiente: bookings.filter((b: any) => b.status === "pendiente").length,
+          confirmada: bookings.filter((b: any) => b.status === "confirmada").length,
+          en_progreso: bookings.filter((b: any) => b.status === "en_progreso").length,
+          enviada: bookings.filter((b: any) => b.status === "enviada").length,
+          cancelada: bookings.filter((b: any) => b.status === "cancelada").length,
+        });
+      }
+    } catch {
+      toast.error("Error al cargar las reservas");
+    } finally {
+      setAdminLoading(false);
+    }
+  };
+
+  const handleStatusChange = async (id: number, status: string) => {
+    try {
+      const res = await fetch("/api/bookings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success(`Estado actualizado a "${status}"`);
+        fetchAdminData();
+        if (selectedBooking && selectedBooking.id === id) {
+          setSelectedBooking({ ...selectedBooking, status });
+        }
+      } else {
+        toast.error(data.error || "Error al actualizar estado");
+      }
+    } catch {
+      toast.error("Error de conexión");
+    }
+  };
+
+  const handleDeleteBooking = async (id: number) => {
+    if (!window.confirm("¿Estás segura de que querés eliminar esta reserva? Esta acción no se puede deshacer.")) return;
+    try {
+      const res = await fetch(`/api/bookings?id=${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success("Reserva eliminada correctamente");
+        fetchAdminData();
+        if (selectedBooking && selectedBooking.id === id) {
+          setSelectedBooking(null);
+        }
+      } else {
+        toast.error(data.error || "Error al eliminar");
+      }
+    } catch {
+      toast.error("Error de conexión");
+    }
+  };
+
+  const handleOpenAdmin = () => {
+    setAdminOpen(true);
+    fetchAdminData();
+  };
+
+  const statusConfig: Record<string, { label: string; bg: string; text: string; border: string }> = {
+    pendiente: { label: "Pendiente", bg: "bg-yellow-500/20", text: "text-yellow-400", border: "border-yellow-500/30" },
+    confirmada: { label: "Confirmada", bg: "bg-blue-500/20", text: "text-blue-400", border: "border-blue-500/30" },
+    en_progreso: { label: "En Progreso", bg: "bg-orange-500/20", text: "text-orange-400", border: "border-orange-500/30" },
+    enviada: { label: "Enviada", bg: "bg-green-500/20", text: "text-green-400", border: "border-green-500/30" },
+    cancelada: { label: "Cancelada", bg: "bg-red-500/20", text: "text-red-400", border: "border-red-500/30" },
+  };
+
+  const formatBookingDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString("es-AR", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const getDeadlineInfo = (booking: any) => {
+    if (booking.status !== "confirmada" || !booking.confirmedAt) return null;
+    const confirmedDate = new Date(booking.confirmedAt);
+    const deadline = new Date(confirmedDate);
+    deadline.setDate(deadline.getDate() + 7);
+    const now = new Date();
+    const diffMs = deadline.getTime() - now.getTime();
+    const daysRemaining = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    return {
+      deadline,
+      daysRemaining,
+      isOverdue: daysRemaining < 0,
+      formattedDeadline: deadline.toLocaleDateString("es-AR", { day: "2-digit", month: "short", year: "numeric" }),
+    };
+  };
+
+  const filteredBookings = adminFilter === "todos"
+    ? adminBookings
+    : adminBookings.filter((b: any) => b.status === adminFilter);
+
   /* ------------------------------------------------------------------ */
   /*                        RETURN JSX                                   */
   /* ------------------------------------------------------------------ */
@@ -516,6 +643,14 @@ export default function Home() {
             onClick={(e) => {
               e.preventDefault();
               scrollTo("#inicio");
+              logoClickCount.current++;
+              if (logoClickCount.current >= 3) {
+                logoClickCount.current = 0;
+                handleOpenAdmin();
+                return;
+              }
+              if (logoClickTimer.current) clearTimeout(logoClickTimer.current);
+              logoClickTimer.current = setTimeout(() => { logoClickCount.current = 0; }, 800);
             }}
             className="flex items-center gap-2"
           >
@@ -1407,6 +1542,409 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* ============================================================ */}
+      {/*                       ADMIN PANEL                               */}
+      {/* ============================================================ */}
+      <Dialog open={adminOpen} onOpenChange={setAdminOpen}>
+        <DialogContent className="bg-mystic-950/98 backdrop-blur-xl border-mystic-700/40 w-[95vw] max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
+          <DialogHeader className="shrink-0">
+            <div className="flex items-center justify-between">
+              <DialogTitle className="text-gold-400 text-2xl flex items-center gap-2">
+                <Shield className="size-6" />
+                Panel de Administración
+              </DialogTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setAdminOpen(false)}
+                className="text-foreground/60 hover:text-gold-400"
+              >
+                <X className="size-5" />
+              </Button>
+            </div>
+            <DialogDescription className="text-foreground/60">
+              Gestión de reservas de lecturas akáshicas
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex-1 overflow-hidden flex flex-col gap-4 mt-2">
+            {/* Stats Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 shrink-0">
+              <div className="glass rounded-xl p-4 border border-mystic-700/30">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-8 h-8 rounded-lg bg-gold-500/20 flex items-center justify-center">
+                    <FileText className="size-4 text-gold-400" />
+                  </div>
+                  <span className="text-foreground/60 text-xs font-medium">Total reservas</span>
+                </div>
+                <p className="text-2xl font-bold text-gold-400">{adminStats.total}</p>
+              </div>
+              <div className="glass rounded-xl p-4 border border-mystic-700/30">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-8 h-8 rounded-lg bg-yellow-500/20 flex items-center justify-center">
+                    <Clock className="size-4 text-yellow-400" />
+                  </div>
+                  <span className="text-foreground/60 text-xs font-medium">Pendientes</span>
+                </div>
+                <p className="text-2xl font-bold text-yellow-400">{adminStats.pendiente}</p>
+              </div>
+              <div className="glass rounded-xl p-4 border border-mystic-700/30">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                    <CalendarCheck className="size-4 text-blue-400" />
+                  </div>
+                  <span className="text-foreground/60 text-xs font-medium">Confirmadas</span>
+                </div>
+                <p className="text-2xl font-bold text-blue-400">{adminStats.confirmada}</p>
+              </div>
+              <div className="glass rounded-xl p-4 border border-mystic-700/30">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center">
+                    <Check className="size-4 text-green-400" />
+                  </div>
+                  <span className="text-foreground/60 text-xs font-medium">Enviadas</span>
+                </div>
+                <p className="text-2xl font-bold text-green-400">{adminStats.enviada}</p>
+              </div>
+            </div>
+
+            {/* Filter Tabs */}
+            <div className="shrink-0">
+              <Tabs value={adminFilter} onValueChange={setAdminFilter}>
+                <TabsList className="bg-mystic-900/50 border border-mystic-700/30 flex-wrap h-auto gap-1 p-1">
+                  <TabsTrigger value="todos" className="data-[state=active]:bg-gold-500/20 data-[state=active]:text-gold-400 text-foreground/60 text-xs px-3 py-1.5">Todos</TabsTrigger>
+                  <TabsTrigger value="pendiente" className="data-[state=active]:bg-yellow-500/20 data-[state=active]:text-yellow-400 text-foreground/60 text-xs px-3 py-1.5">Pendiente</TabsTrigger>
+                  <TabsTrigger value="confirmada" className="data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400 text-foreground/60 text-xs px-3 py-1.5">Confirmada</TabsTrigger>
+                  <TabsTrigger value="en_progreso" className="data-[state=active]:bg-orange-500/20 data-[state=active]:text-orange-400 text-foreground/60 text-xs px-3 py-1.5">En Progreso</TabsTrigger>
+                  <TabsTrigger value="enviada" className="data-[state=active]:bg-green-500/20 data-[state=active]:text-green-400 text-foreground/60 text-xs px-3 py-1.5">Enviada</TabsTrigger>
+                  <TabsTrigger value="cancelada" className="data-[state=active]:bg-red-500/20 data-[state=active]:text-red-400 text-foreground/60 text-xs px-3 py-1.5">Cancelada</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+
+            {/* Bookings List */}
+            <div className="flex-1 overflow-hidden">
+              {adminLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="size-8 text-gold-400 animate-spin" />
+                </div>
+              ) : filteredBookings.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <FileText className="size-12 text-mystic-700 mb-3" />
+                  <p className="text-foreground/50 text-sm">
+                    {adminFilter === "todos"
+                      ? "No hay reservas registradas"
+                      : `No hay reservas con estado "${adminFilter}"`}
+                  </p>
+                </div>
+              ) : (
+                <ScrollArea className="h-full max-h-[50vh]">
+                  <div className="space-y-2 pr-4">
+                    {filteredBookings.map((booking: any) => {
+                      const sc = statusConfig[booking.status] || statusConfig.pendiente;
+                      const deadlineInfo = getDeadlineInfo(booking);
+                      return (
+                        <motion.div
+                          key={booking.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="glass rounded-xl p-4 border border-mystic-700/20 hover:border-mystic-700/50 transition-all duration-200 cursor-pointer"
+                          onClick={() => setSelectedBooking(booking)}
+                        >
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-foreground font-semibold text-sm truncate">
+                                  {booking.name}
+                                </span>
+                                <Badge variant="outline" className={`${sc.bg} ${sc.text} ${sc.border} text-[10px] px-1.5 py-0 border`}>
+                                  {booking.readingType}
+                                </Badge>
+                                <Badge variant="outline" className={`${sc.bg} ${sc.text} ${sc.border} text-[10px] px-1.5 py-0 border`}>
+                                  {sc.label}
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-3 mt-1 text-xs text-foreground/50">
+                                <span className="flex items-center gap-1">
+                                  <Calendar className="size-3" />
+                                  {formatBookingDate(booking.createdAt)}
+                                </span>
+                                {deadlineInfo && (
+                                  <span className={`flex items-center gap-1 ${deadlineInfo.isOverdue ? "text-red-400" : deadlineInfo.daysRemaining <= 2 ? "text-yellow-400" : "text-green-400"}`}>
+                                    <AlertTriangle className="size-3" />
+                                    {deadlineInfo.isOverdue
+                                      ? `Vencida hace ${Math.abs(deadlineInfo.daysRemaining)} días`
+                                      : `${deadlineInfo.daysRemaining} días restantes`}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1 shrink-0">
+                              {booking.status === "pendiente" && (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-7 px-2 text-xs text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
+                                  onClick={(e) => { e.stopPropagation(); handleStatusChange(booking.id, "confirmada"); }}
+                                >
+                                  Confirmar
+                                </Button>
+                              )}
+                              {booking.status === "confirmada" && (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-7 px-2 text-xs text-orange-400 hover:text-orange-300 hover:bg-orange-500/10"
+                                  onClick={(e) => { e.stopPropagation(); handleStatusChange(booking.id, "en_progreso"); }}
+                                >
+                                  Iniciar
+                                </Button>
+                              )}
+                              {booking.status === "en_progreso" && (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-7 px-2 text-xs text-green-400 hover:text-green-300 hover:bg-green-500/10"
+                                  onClick={(e) => { e.stopPropagation(); handleStatusChange(booking.id, "enviada"); }}
+                                >
+                                  Marcar Enviada
+                                </Button>
+                              )}
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-7 px-2 text-xs text-gold-400 hover:text-gold-300 hover:bg-gold-500/10"
+                                onClick={(e) => { e.stopPropagation(); setSelectedBooking(booking); }}
+                              >
+                                <Eye className="size-3 mr-1" />
+                                Ver
+                              </Button>
+                            </div>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </ScrollArea>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Booking Detail Sheet */}
+      <Sheet open={!!selectedBooking} onOpenChange={(open) => { if (!open) setSelectedBooking(null); }}>
+        <SheetContent side="right" className="bg-mystic-950/98 backdrop-blur-xl border-mystic-700/40 w-[95vw] max-w-[500px] overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="text-gold-400 text-xl flex items-center gap-2">
+              <Eye className="size-5" />
+              Detalle de Reserva
+            </SheetTitle>
+            <SheetDescription className="text-foreground/60">
+              Información completa de la reserva
+            </SheetDescription>
+          </SheetHeader>
+
+          {selectedBooking && (
+            <div className="space-y-6 mt-6">
+              {/* Status */}
+              {(() => {
+                const sc = statusConfig[selectedBooking.status] || statusConfig.pendiente;
+                return (
+                  <div className="space-y-2">
+                    <Label className="text-foreground/80 text-sm font-medium">Estado</Label>
+                    <Select
+                      value={selectedBooking.status}
+                      onValueChange={(val) => handleStatusChange(selectedBooking.id, val)}
+                    >
+                      <SelectTrigger className="bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-mystic-950 border-mystic-700/40">
+                        <SelectItem value="pendiente" className="text-foreground focus:bg-mystic-800/50 focus:text-yellow-300">Pendiente</SelectItem>
+                        <SelectItem value="confirmada" className="text-foreground focus:bg-mystic-800/50 focus:text-blue-300">Confirmada</SelectItem>
+                        <SelectItem value="en_progreso" className="text-foreground focus:bg-mystic-800/50 focus:text-orange-300">En Progreso</SelectItem>
+                        <SelectItem value="enviada" className="text-foreground focus:bg-mystic-800/50 focus:text-green-300">Enviada</SelectItem>
+                        <SelectItem value="cancelada" className="text-foreground focus:bg-mystic-800/50 focus:text-red-300">Cancelada</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Badge variant="outline" className={`${sc.bg} ${sc.text} ${sc.border} text-xs px-2 py-0.5 border`}>
+                      {sc.label}
+                    </Badge>
+                  </div>
+                );
+              })()}
+
+              {/* Client Info */}
+              <div className="space-y-3">
+                <h4 className="text-gold-400 font-semibold text-sm flex items-center gap-2">
+                  <Users className="size-4" />
+                  Datos del Cliente
+                </h4>
+                <div className="glass rounded-xl p-4 border border-mystic-700/20 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-foreground/60">Nombre</span>
+                    <span className="text-foreground font-medium">{selectedBooking.name}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-foreground/60">Email</span>
+                    <span className="text-foreground font-medium">{selectedBooking.email}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-foreground/60">Teléfono</span>
+                    <span className="text-foreground font-medium">{selectedBooking.phone}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Booking Info */}
+              <div className="space-y-3">
+                <h4 className="text-gold-400 font-semibold text-sm flex items-center gap-2">
+                  <BookOpen className="size-4" />
+                  Datos de la Reserva
+                </h4>
+                <div className="glass rounded-xl p-4 border border-mystic-700/20 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-foreground/60">Tipo de lectura</span>
+                    <span className="text-foreground font-medium">{selectedBooking.readingType}</span>
+                  </div>
+                  {selectedBooking.preferredDate && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-foreground/60">Fecha preferida</span>
+                      <span className="text-foreground font-medium">{selectedBooking.preferredDate}</span>
+                    </div>
+                  )}
+                  {selectedBooking.preferredTime && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-foreground/60">Horario preferido</span>
+                      <span className="text-foreground font-medium">{selectedBooking.preferredTime}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-sm">
+                    <span className="text-foreground/60">Creada</span>
+                    <span className="text-foreground font-medium">{formatBookingDate(selectedBooking.createdAt)}</span>
+                  </div>
+                  {getDeadlineInfo(selectedBooking) && (() => {
+                    const dl = getDeadlineInfo(selectedBooking)!;
+                    return (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-foreground/60">Fecha límite</span>
+                        <span className={`font-medium ${dl.isOverdue ? "text-red-400" : dl.daysRemaining <= 2 ? "text-yellow-400" : "text-green-400"}`}>
+                          {dl.formattedDeadline}
+                          <span className="text-xs ml-1">
+                            ({dl.isOverdue ? "vencida" : `${dl.daysRemaining}d restantes`})
+                          </span>
+                        </span>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
+
+              {/* Message */}
+              {selectedBooking.message && (
+                <div className="space-y-3">
+                  <h4 className="text-gold-400 font-semibold text-sm flex items-center gap-2">
+                    <MessageCircle className="size-4" />
+                    Mensaje / Pregunta
+                  </h4>
+                  <div className="glass rounded-xl p-4 border border-mystic-700/20">
+                    <p className="text-foreground/80 text-sm leading-relaxed">{selectedBooking.message}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Admin Notes */}
+              <div className="space-y-2">
+                <Label className="text-foreground/80 text-sm font-medium">Notas del administrador</Label>
+                <Textarea
+                  placeholder="Agregá notas internas sobre esta reserva..."
+                  rows={3}
+                  defaultValue={selectedBooking.adminNotes || ""}
+                  onChange={(e) => {
+                    setSelectedBooking({ ...selectedBooking, adminNotes: e.target.value });
+                  }}
+                  className="bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 resize-none"
+                />
+              </div>
+
+              <Separator className="bg-mystic-800/30" />
+
+              {/* Action Buttons */}
+              <div className="space-y-3">
+                <Button
+                  className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2"
+                  onClick={() => {
+                    if (selectedBooking.clientWhatsAppLink) {
+                      window.open(selectedBooking.clientWhatsAppLink, "_blank");
+                    } else {
+                      const phone = selectedBooking.phone?.replace(/[^0-9]/g, "") || "";
+                      window.open(`https://wa.me/${phone}`, "_blank");
+                    }
+                  }}
+                >
+                  <MessageCircle className="size-4" />
+                  Contactar por WhatsApp
+                </Button>
+
+                {selectedBooking.status === "confirmada" && selectedBooking.googleCalendarLink && (
+                  <Button
+                    variant="outline"
+                    className="w-full border-blue-400/30 text-blue-400 hover:bg-blue-400/10 hover:text-blue-300 font-medium py-3 rounded-xl flex items-center justify-center gap-2"
+                    onClick={() => window.open(selectedBooking.googleCalendarLink, "_blank")}
+                  >
+                    <ExternalLink className="size-4" />
+                    Agendar en Google Calendar
+                  </Button>
+                )}
+
+                {selectedBooking.status === "pendiente" && (
+                  <Button
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2"
+                    onClick={() => handleStatusChange(selectedBooking.id, "confirmada")}
+                  >
+                    <CalendarCheck className="size-4" />
+                    Marcar como Confirmada
+                  </Button>
+                )}
+
+                {selectedBooking.status === "confirmada" && (
+                  <Button
+                    className="w-full bg-orange-600 hover:bg-orange-700 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2"
+                    onClick={() => handleStatusChange(selectedBooking.id, "en_progreso")}
+                  >
+                    <Clock className="size-4" />
+                    Marcar como En Progreso
+                  </Button>
+                )}
+
+                {selectedBooking.status === "en_progreso" && (
+                  <Button
+                    className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2"
+                    onClick={() => handleStatusChange(selectedBooking.id, "enviada")}
+                  >
+                    <Check className="size-4" />
+                    Marcar como Enviada
+                  </Button>
+                )}
+
+                <Separator className="bg-mystic-800/30" />
+
+                <Button
+                  variant="ghost"
+                  className="w-full text-red-400 hover:text-red-300 hover:bg-red-500/10 font-medium py-3 rounded-xl flex items-center justify-center gap-2"
+                  onClick={() => handleDeleteBooking(selectedBooking.id)}
+                >
+                  <Trash2 className="size-4" />
+                  Eliminar Reserva
+                </Button>
+              </div>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
 
       {/* ============================================================ */}
       {/*                     FLOATING CART BUTTON                       */}

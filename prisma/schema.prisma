@@ -26,14 +26,18 @@ model Post {
 }
 
 model ReadingBooking {
-  id        String   @id @default(cuid())
-  name      String
-  email     String
-  phone     String
-  readingType String
-  preferredDate String?
-  preferredTime String?
-  message   String?
-  status    String   @default("pendiente")
-  createdAt DateTime @default(now())
+  id             String    @id @default(cuid())
+  name           String
+  email          String
+  phone          String
+  readingType    String
+  preferredDate  String?
+  preferredTime  String?
+  message        String?
+  status         String    @default("pendiente")
+  confirmedAt    DateTime?
+  sentAt         DateTime?
+  notes          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 }
