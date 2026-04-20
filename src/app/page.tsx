@@ -625,7 +625,7 @@ export default function Home() {
             className="flex items-center gap-2"
           >
             <Image
-              src="/images/logo.png?v=2"
+              src="/images/logowhite.png"
               alt="Eter Somos Logo"
               width={40}
               height={40}
@@ -756,13 +756,13 @@ export default function Home() {
             transition={{ duration: 0.8 }}
           >
             <motion.div variants={fadeInUp} transition={{ duration: 0.8 }}>
-              <div className="mx-auto mb-8 w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 p-1.5 rounded-2xl border border-gold-400/20 bg-gold-400/5 animate-float">
+              <div className="mx-auto mb-8 w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 rounded-2xl overflow-hidden animate-float shadow-lg shadow-black/30">
                 <Image
-                  src="/images/logo.png?v=2"
+                  src="/images/logowhite.png"
                   alt="Eter Somos"
                   width={200}
                   height={200}
-                  className="w-full h-full object-contain rounded-xl"
+                  className="w-full h-full object-cover"
                 />
               </div>
             </motion.div>
@@ -1333,7 +1333,7 @@ export default function Home() {
             <div className="sm:col-span-2 lg:col-span-1">
               <div className="flex items-center gap-2 mb-4">
                 <Image
-                  src="/images/logo.png?v=2"
+                  src="/images/logowhite.png"
                   alt="Eter Somos"
                   width={36}
                   height={36}
