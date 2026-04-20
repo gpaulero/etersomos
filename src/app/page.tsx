@@ -21,6 +21,24 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -46,6 +64,10 @@ import {
   Award,
   Check,
   X,
+  Send,
+  Loader2,
+  Calendar,
+  Phone,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -310,6 +332,18 @@ export default function Home() {
   const [cartOpen, setCartOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState("Todos");
   const [navScrolled, setNavScrolled] = useState(false);
+  const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
+  const [formSubmitting, setFormSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    readingType: "",
+    preferredDate: "",
+    preferredTime: "",
+    message: "",
+  });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   /* ---- Nav scroll effect ---- */
   useEffect(() => {
@@ -380,9 +414,73 @@ export default function Home() {
     duration: Math.random() * 3 + 2,
   }));
 
-  /* ---- Render helpers ---- */
+  /* ---- Form helpers ---- */
   const formatPrice = (price: number) =>
     `$${price.toLocaleString("es-AR")} ARS`;
+
+  const validateForm = () => {
+    const errors: Record<string, string> = {};
+    if (!formData.name.trim()) errors.name = "Ingresá tu nombre completo";
+    if (!formData.email.trim()) errors.email = "Ingresá tu email";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
+      errors.email = "Ingresá un email válido";
+    if (!formData.phone.trim()) errors.phone = "Ingresá tu teléfono";
+    else if (!/^\d{7,15}$/.test(formData.phone.replace(/[\s()-]/g, "")))
+      errors.phone = "Ingresá un teléfono válido (solo números)";
+    if (!formData.readingType) errors.readingType = "Seleccioná un tipo de lectura";
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleFormChange = (
+    field: string,
+    value: string
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (formErrors[field]) {
+      setFormErrors((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  };
+
+  const handleSubmitBooking = async () => {
+    if (!validateForm()) return;
+    setFormSubmitting(true);
+    try {
+      const res = await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        toast.success("Reserva registrada con éxito", {
+          description: "Nos comunicaremos pronto para confirmar tu turno.",
+          duration: 6000,
+        });
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          readingType: "",
+          preferredDate: "",
+          preferredTime: "",
+          message: "",
+        });
+        setFormErrors({});
+        setBookingDialogOpen(false);
+      } else {
+        toast.error(data.error || "Error al registrar la reserva");
+      }
+    } catch {
+      toast.error("Error de conexión. Intentá de nuevo.");
+    } finally {
+      setFormSubmitting(false);
+    }
+  };
 
   /* ------------------------------------------------------------------ */
   /*                        RETURN JSX                                   */
@@ -747,22 +845,188 @@ export default function Home() {
           </div>
 
           <motion.div variants={staggerItem} className="text-center">
-            <p className="text-foreground/60 mb-6 text-lg">
-              Reservá tu turno completando el formulario
-            </p>
-            <a
-              href="https://forms.google.com"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Button
-                size="lg"
-                className="bg-gold-500 hover:bg-gold-600 text-mystic-950 font-bold text-lg px-10 py-7 rounded-full glow-gold transition-all duration-300 hover:scale-105"
-              >
-                Reservar mi Lectura
-                <ArrowRight className="size-5 ml-2" />
-              </Button>
-            </a>
+            <Dialog open={bookingDialogOpen} onOpenChange={setBookingDialogOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  size="lg"
+                  className="bg-gold-500 hover:bg-gold-600 text-mystic-950 font-bold text-lg px-10 py-7 rounded-full glow-gold transition-all duration-300 hover:scale-105"
+                >
+                  <Calendar className="size-5 mr-2" />
+                  Reservar mi Lectura
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-mystic-950/98 backdrop-blur-xl border-mystic-700/40 sm:max-w-lg max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="text-gold-400 text-2xl flex items-center gap-2">
+                    <Sparkles className="size-5" />
+                    Reservá tu Lectura
+                  </DialogTitle>
+                  <DialogDescription className="text-foreground/60">
+                    Completá el formulario y nos pondremos en contacto para confirmar tu turno.
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="space-y-4 mt-2">
+                  {/* Nombre */}
+                  <div className="space-y-2">
+                    <Label htmlFor="booking-name" className="text-foreground/80 text-sm font-medium">
+                      Nombre completo <span className="text-gold-400">*</span>
+                    </Label>
+                    <Input
+                      id="booking-name"
+                      placeholder="Ej: María González"
+                      value={formData.name}
+                      onChange={(e) => handleFormChange("name", e.target.value)}
+                      className={`bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 ${formErrors.name ? "border-red-400/60" : ""}`}
+                    />
+                    {formErrors.name && (
+                      <p className="text-red-400 text-xs">{formErrors.name}</p>
+                    )}
+                  </div>
+
+                  {/* Email */}
+                  <div className="space-y-2">
+                    <Label htmlFor="booking-email" className="text-foreground/80 text-sm font-medium">
+                      Email <span className="text-gold-400">*</span>
+                    </Label>
+                    <Input
+                      id="booking-email"
+                      type="email"
+                      placeholder="Ej: maria@ejemplo.com"
+                      value={formData.email}
+                      onChange={(e) => handleFormChange("email", e.target.value)}
+                      className={`bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 ${formErrors.email ? "border-red-400/60" : ""}`}
+                    />
+                    {formErrors.email && (
+                      <p className="text-red-400 text-xs">{formErrors.email}</p>
+                    )}
+                  </div>
+
+                  {/* Teléfono */}
+                  <div className="space-y-2">
+                    <Label htmlFor="booking-phone" className="text-foreground/80 text-sm font-medium">
+                      Teléfono / WhatsApp <span className="text-gold-400">*</span>
+                    </Label>
+                    <Input
+                      id="booking-phone"
+                      type="tel"
+                      placeholder="Ej: 1155123456"
+                      value={formData.phone}
+                      onChange={(e) => handleFormChange("phone", e.target.value)}
+                      className={`bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 ${formErrors.phone ? "border-red-400/60" : ""}`}
+                    />
+                    {formErrors.phone && (
+                      <p className="text-red-400 text-xs">{formErrors.phone}</p>
+                    )}
+                  </div>
+
+                  {/* Tipo de Lectura */}
+                  <div className="space-y-2">
+                    <Label className="text-foreground/80 text-sm font-medium">
+                      Tipo de lectura <span className="text-gold-400">*</span>
+                    </Label>
+                    <Select
+                      value={formData.readingType}
+                      onValueChange={(val) => handleFormChange("readingType", val)}
+                    >
+                      <SelectTrigger
+                        className={`bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground ${!formData.readingType ? "text-foreground/30" : ""} ${formErrors.readingType ? "border-red-400/60" : ""}`}
+                      >
+                        <SelectValue placeholder="Seleccioná el tipo de lectura" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-mystic-950 border-mystic-700/40">
+                        <SelectItem value="Lectura Individual" className="text-foreground focus:bg-mystic-800/50 focus:text-gold-300">
+                          Lectura Individual (60 min)
+                        </SelectItem>
+                        <SelectItem value="Lectura de Pareja" className="text-foreground focus:bg-mystic-800/50 focus:text-gold-300">
+                          Lectura de Pareja (90 min)
+                        </SelectItem>
+                        <SelectItem value="Lectura Profesional" className="text-foreground focus:bg-mystic-800/50 focus:text-gold-300">
+                          Lectura Profesional (75 min)
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {formErrors.readingType && (
+                      <p className="text-red-400 text-xs">{formErrors.readingType}</p>
+                    )}
+                  </div>
+
+                  {/* Fecha y Hora preferida */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="booking-date" className="text-foreground/80 text-sm font-medium">
+                        Fecha preferida
+                      </Label>
+                      <Input
+                        id="booking-date"
+                        type="date"
+                        value={formData.preferredDate}
+                        onChange={(e) => handleFormChange("preferredDate", e.target.value)}
+                        className="bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground [color-scheme:dark]"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="booking-time" className="text-foreground/80 text-sm font-medium">
+                        Horario preferido
+                      </Label>
+                      <Select
+                        value={formData.preferredTime}
+                        onValueChange={(val) => handleFormChange("preferredTime", val)}
+                      >
+                        <SelectTrigger className="bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground">
+                          <SelectValue placeholder="Elegir" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-mystic-950 border-mystic-700/40">
+                          <SelectItem value="Mañana" className="text-foreground focus:bg-mystic-800/50 focus:text-gold-300">Mañana</SelectItem>
+                          <SelectItem value="Tarde" className="text-foreground focus:bg-mystic-800/50 focus:text-gold-300">Tarde</SelectItem>
+                          <SelectItem value="Noche" className="text-foreground focus:bg-mystic-800/50 focus:text-gold-300">Noche</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {/* Mensaje / Pregunta */}
+                  <div className="space-y-2">
+                    <Label htmlFor="booking-message" className="text-foreground/80 text-sm font-medium">
+                      Mensaje o pregunta para la lectura
+                    </Label>
+                    <Textarea
+                      id="booking-message"
+                      placeholder="Contanos qué te gustaría explorar en tu lectura, alguna pregunta específica o inquietud..."
+                      rows={4}
+                      value={formData.message}
+                      onChange={(e) => handleFormChange("message", e.target.value)}
+                      className="bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 resize-none"
+                    />
+                  </div>
+
+                  <Separator className="bg-mystic-800/30" />
+
+                  {/* Submit */}
+                  <Button
+                    onClick={handleSubmitBooking}
+                    disabled={formSubmitting}
+                    className="w-full bg-gold-500 hover:bg-gold-600 text-mystic-950 font-bold text-base py-6 rounded-full glow-gold transition-all duration-300 hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  >
+                    {formSubmitting ? (
+                      <>
+                        <Loader2 className="size-5 mr-2 animate-spin" />
+                        Enviando...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="size-5 mr-2" />
+                        Enviar Solicitud de Reserva
+                      </>
+                    )}
+                  </Button>
+
+                  <p className="text-center text-foreground/40 text-xs">
+                    Al enviar, aceptás que nos comuniquemos con vos para coordinar tu lectura.
+                  </p>
+                </div>
+              </DialogContent>
+            </Dialog>
           </motion.div>
         </AnimatedSection>
       </section>
