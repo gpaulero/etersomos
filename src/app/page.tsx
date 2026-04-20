@@ -756,13 +756,12 @@ export default function Home() {
             transition={{ duration: 0.8 }}
           >
             <motion.div variants={fadeInUp} transition={{ duration: 0.8 }}>
-              <div className="mx-auto mb-8 w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 rounded-full overflow-hidden animate-float shadow-lg shadow-black/30">
-                <Image
+              <div className="mx-auto mb-8 w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 rounded-full overflow-hidden animate-float shadow-lg shadow-black/30 relative">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                   src="/images/logo-etersomos.jpg"
                   alt="Eter Somos"
-                  width={200}
-                  height={200}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover rounded-full"
                 />
               </div>
             </motion.div>
