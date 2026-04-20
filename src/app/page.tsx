@@ -588,9 +588,9 @@ export default function Home() {
         position="bottom-right"
         toastOptions={{
           style: {
-            background: "oklch(0.15 0.005 285)",
-            color: "oklch(0.93 0.005 285)",
-            border: "1px solid oklch(0.30 0.01 285 / 0.3)",
+            background: "#161310",
+            color: "#f0ebe5",
+            border: "1px solid #2a252066",
             fontFamily: "var(--font-josefin), sans-serif",
           },
         }}
@@ -761,7 +761,7 @@ export default function Home() {
                 alt="Eter Somos"
                 width={90}
                 height={90}
-                className="mx-auto rounded-full mb-6 animate-float glow-gold"
+                className="mx-auto rounded-full mb-6 animate-float glow-mystic"
               />
             </motion.div>
 
@@ -838,7 +838,7 @@ export default function Home() {
       >
         <div className="max-w-6xl mx-auto">
           <motion.div variants={staggerItem} className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-semibold text-gold-400 text-glow-gold mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-semibold text-gold-400 mb-4">
               ¿Qué son los Registros Akáshicos?
             </h2>
             <p className="text-foreground/60 max-w-2xl mx-auto text-lg">
@@ -906,7 +906,7 @@ export default function Home() {
 
         <AnimatedSection className="relative z-10 max-w-6xl mx-auto">
           <motion.div variants={staggerItem} className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-semibold text-gold-400 text-glow-gold mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-semibold text-gold-400 mb-4">
               Pedí tu Lectura Akáshica
             </h2>
             <p className="text-foreground/60 max-w-2xl mx-auto text-lg">
@@ -1088,7 +1088,7 @@ export default function Home() {
       >
         <div className="max-w-6xl mx-auto">
           <motion.div variants={staggerItem} className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-semibold text-gold-400 text-glow-gold mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-semibold text-gold-400 mb-4">
               Cursos de Registros Akáshicos
             </h2>
             <p className="text-foreground/60 max-w-2xl mx-auto text-lg">
@@ -1180,7 +1180,7 @@ export default function Home() {
 
         <AnimatedSection className="relative z-10 max-w-6xl mx-auto">
           <motion.div variants={staggerItem} className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-semibold text-gold-400 text-glow-gold mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-semibold text-gold-400 mb-4">
               Tienda de Cristales
             </h2>
             <p className="text-foreground/60 max-w-2xl mx-auto text-lg">
@@ -1278,7 +1278,7 @@ export default function Home() {
       <AnimatedSection className="py-20 sm:py-28 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
           <motion.div variants={staggerItem} className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-semibold text-gold-400 text-glow-gold mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-semibold text-gold-400 mb-4">
               Lo que dicen nuestros consultantes
             </h2>
             <p className="text-foreground/60 max-w-2xl mx-auto text-lg">

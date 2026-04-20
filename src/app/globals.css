@@ -43,78 +43,78 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
-  /* ── Mystic: Near-black / deep charcoal palette (replaces bright purple) ── */
-  --color-mystic-50: #f5f5f5;
-  --color-mystic-100: #e7e5e4;
-  --color-mystic-200: #d6d3d1;
-  --color-mystic-300: #a8a29e;
-  --color-mystic-400: #78716c;
-  --color-mystic-500: #57534e;
-  --color-mystic-600: #44403c;
-  --color-mystic-700: #292524;
-  --color-mystic-800: #1c1917;
-  --color-mystic-900: #111111;
-  --color-mystic-950: #0a0a0a;
+  /* ── Dark neutral palette (true black/charcoal, no purple) ── */
+  --color-mystic-50: #f5f0eb;
+  --color-mystic-100: #e8e0d8;
+  --color-mystic-200: #d1c7bc;
+  --color-mystic-300: #a89b8e;
+  --color-mystic-400: #7d7267;
+  --color-mystic-500: #5c5349;
+  --color-mystic-600: #453e36;
+  --color-mystic-700: #2a2520;
+  --color-mystic-800: #1a1714;
+  --color-mystic-900: #0f0d0b;
+  --color-mystic-950: #0a0908;
 
-  /* ── Gold → "Accent": Soft lavender / muted violet (evaspina-inspired) ── */
-  --color-gold-50: #faf5ff;
-  --color-gold-100: #f3e8ff;
-  --color-gold-200: #e9d5ff;
-  --color-gold-300: #ddd6fe;
-  --color-gold-400: #c4b5fd;
-  --color-gold-500: #a78bfa;
-  --color-gold-600: #8b5cf6;
-  --color-gold-700: #7c3aed;
-  --color-gold-800: #6d28d9;
-  --color-gold-900: #5b21b6;
-  --color-gold-950: #4c1d95;
+  /* ── Accent: Warm cream/sand (evaspina-inspired) replacing gold ── */
+  --color-gold-50: #faf8f5;
+  --color-gold-100: #f5f0e8;
+  --color-gold-200: #ebe3d6;
+  --color-gold-300: #d4c8b5;
+  --color-gold-400: #bfb09a;
+  --color-gold-500: #a89882;
+  --color-gold-600: #8d7e6a;
+  --color-gold-700: #716456;
+  --color-gold-800: #5a4f44;
+  --color-gold-900: #453d35;
+  --color-gold-950: #2a2520;
 
-  /* ── Cream: Warm blush from evaspina (#EDE4DF) ── */
-  --color-cream-50: #fdf8f6;
-  --color-cream-100: #f5ede8;
-  --color-cream-200: #ede4df;
-  --color-cream-300: #d4c5bc;
-  --color-cream-400: #b8a69b;
-  --color-cream-500: #9c877a;
-  --color-cream-600: #7d6b60;
-  --color-cream-700: #5e4f46;
-  --color-cream-800: #3f332d;
-  --color-cream-900: #211a16;
+  /* ── Cream: Warm blush from evaspina (#F6F4F0) ── */
+  --color-cream-50: #faf8f6;
+  --color-cream-100: #f6f4f0;
+  --color-cream-200: #ede8e0;
+  --color-cream-300: #d4cdc2;
+  --color-cream-400: #b5ab9d;
+  --color-cream-500: #968b7c;
+  --color-cream-600: #7a7064;
+  --color-cream-700: #5e554b;
+  --color-cream-800: #3f3932;
+  --color-cream-900: #211d19;
 }
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(0.11 0.005 285);
-  --foreground: oklch(0.93 0.005 285);
-  --card: oklch(0.15 0.005 285);
-  --card-foreground: oklch(0.93 0.005 285);
-  --popover: oklch(0.15 0.005 285);
-  --popover-foreground: oklch(0.93 0.005 285);
-  --primary: oklch(0.72 0.15 285);
-  --primary-foreground: oklch(0.12 0.005 285);
-  --secondary: oklch(0.17 0.005 285);
-  --secondary-foreground: oklch(0.90 0.005 285);
-  --muted: oklch(0.20 0.005 285);
-  --muted-foreground: oklch(0.60 0.01 285);
-  --accent: oklch(0.90 0.03 285);
-  --accent-foreground: oklch(0.15 0.01 285);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.25 0.01 285);
-  --input: oklch(0.20 0.005 285);
-  --ring: oklch(0.72 0.15 285);
-  --chart-1: oklch(0.72 0.15 285);
-  --chart-2: oklch(0.88 0.04 80);
-  --chart-3: oklch(0.65 0.12 340);
-  --chart-4: oklch(0.60 0.10 260);
-  --chart-5: oklch(0.70 0.08 180);
-  --sidebar: oklch(0.12 0.005 285);
-  --sidebar-foreground: oklch(0.93 0.005 285);
-  --sidebar-primary: oklch(0.72 0.15 285);
-  --sidebar-primary-foreground: oklch(0.98 0.005 285);
-  --sidebar-accent: oklch(0.17 0.005 285);
-  --sidebar-accent-foreground: oklch(0.93 0.005 285);
-  --sidebar-border: oklch(0.25 0.01 285);
-  --sidebar-ring: oklch(0.72 0.15 285);
+  --background: #0a0908;
+  --foreground: #f0ebe5;
+  --card: #161310;
+  --card-foreground: #f0ebe5;
+  --popover: #161310;
+  --popover-foreground: #f0ebe5;
+  --primary: #bfb09a;
+  --primary-foreground: #0a0908;
+  --secondary: #1a1714;
+  --secondary-foreground: #e8e0d8;
+  --muted: #1a1714;
+  --muted-foreground: #8a7e72;
+  --accent: #ebe3d6;
+  --accent-foreground: #2a2520;
+  --destructive: #c44;
+  --border: #2a2520;
+  --input: #1a1714;
+  --ring: #bfb09a;
+  --chart-1: #bfb09a;
+  --chart-2: #a89b8e;
+  --chart-3: #8d7e6a;
+  --chart-4: #716456;
+  --chart-5: #d4c8b5;
+  --sidebar: #0f0d0b;
+  --sidebar-foreground: #f0ebe5;
+  --sidebar-primary: #bfb09a;
+  --sidebar-primary-foreground: #faf8f5;
+  --sidebar-accent: #1a1714;
+  --sidebar-accent-foreground: #f0ebe5;
+  --sidebar-border: #2a2520;
+  --sidebar-ring: #bfb09a;
 }
 
 @layer base {
@@ -135,33 +135,33 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: oklch(0.12 0.005 285);
+  background: #0f0d0b;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: oklch(0.30 0.01 285);
+  background: #2a2520;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.40 0.02 285);
+  background: #453e36;
 }
 
-/* Glow effects — very subtle, elegant */
+/* Glow effects — warm, subtle */
 .glow-mystic {
-  box-shadow: 0 0 30px oklch(0.72 0.15 285 / 0.08), 0 0 80px oklch(0.72 0.15 285 / 0.04);
+  box-shadow: 0 0 30px rgba(191, 176, 154, 0.06), 0 0 80px rgba(191, 176, 154, 0.03);
 }
 
 .glow-gold {
-  box-shadow: 0 0 30px oklch(0.72 0.15 285 / 0.08), 0 0 80px oklch(0.72 0.15 285 / 0.04);
+  box-shadow: 0 0 30px rgba(191, 176, 154, 0.08), 0 0 80px rgba(191, 176, 154, 0.04);
 }
 
 .text-glow-mystic {
-  text-shadow: 0 0 30px oklch(0.72 0.15 285 / 0.15), 0 0 60px oklch(0.72 0.15 285 / 0.08);
+  text-shadow: 0 0 30px rgba(191, 176, 154, 0.12), 0 0 60px rgba(191, 176, 154, 0.06);
 }
 
 .text-glow-gold {
-  text-shadow: 0 0 30px oklch(0.72 0.15 285 / 0.15), 0 0 60px oklch(0.72 0.15 285 / 0.08);
+  text-shadow: 0 0 30px rgba(191, 176, 154, 0.12), 0 0 60px rgba(191, 176, 154, 0.06);
 }
 
 /* Animated gradient background */
@@ -205,17 +205,17 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    oklch(0.72 0.15 285 / 0.08) 50%,
+    rgba(191, 176, 154, 0.06) 50%,
     transparent 100%
   );
   background-size: 200% 100%;
   animation: shimmer 3s ease-in-out infinite;
 }
 
-/* Glass morphism */
+/* Glass morphism — warm dark glass */
 .glass {
-  background: oklch(0.15 0.005 285 / 0.65);
+  background: rgba(22, 19, 16, 0.7);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid oklch(0.30 0.01 285 / 0.3);
+  border: 1px solid rgba(42, 37, 32, 0.4);
 }
