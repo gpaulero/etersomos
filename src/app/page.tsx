@@ -756,7 +756,7 @@ export default function Home() {
             transition={{ duration: 0.8 }}
           >
             <motion.div variants={fadeInUp} transition={{ duration: 0.8 }}>
-              <div className="mx-auto mb-8 w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 rounded-2xl overflow-hidden animate-float shadow-lg shadow-black/30">
+              <div className="mx-auto mb-8 w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 rounded-full overflow-hidden animate-float shadow-lg shadow-black/30">
                 <Image
                   src="/images/logo-etersomos.jpg"
                   alt="Eter Somos"
