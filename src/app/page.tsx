@@ -730,7 +730,7 @@ export default function Home() {
         />
 
         {/* Dark overlay */}
-        <div className="absolute inset-0 bg-mystic-950/40" />
+        <div className="absolute inset-0 bg-mystic-950/70" />
 
         {/* Floating stars */}
         {stars.map((star) => (
