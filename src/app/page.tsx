@@ -1138,7 +1138,7 @@ export default function Home() {
         {/* Background */}
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: "url('/images/akashic-bg.png')" }}
+          style={{ backgroundImage: "url('/images/hero-bg.png')" }}
         />
         <div className="absolute inset-0 bg-mystic-950/80" />
         {/* Top fade from previous section */}
