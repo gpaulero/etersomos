@@ -153,68 +153,79 @@ const products: Product[] = [
   },
 ];
 
+import Link from "next/link";
+
 const courseOptions = [
   {
     id: "n1-teorico",
-    name: "Nivel 1 - Solo Teórico",
-    description: "Todo el contenido teórico del Nivel 1 para estudiar a tu ritmo",
-    duration: "8 semanas",
-    price: 25000,
+    name: "1er Nivel Solo Teórico",
+    subtitle: "Aprendé a Conectar con tus Registros Akashicos",
+    description: "Contribución voluntaria consciente. Material audiovisual de 8 módulos + material complementario en PDF.",
+    duration: "A tu ritmo",
+    priceLabel: "Contribución Voluntaria",
     badge: null,
+    href: "/cursos/n1-teorico",
     features: [
-      "Introducción a los Registros Akáshicos",
-      "Fundamentos teóricos completos",
-      "Técnicas de meditación y conexión",
-      "Material de estudio descargable",
-      "Acceso a biblioteca de recursos",
+      "8 módulos audiovisuales de 20 min cada uno",
+      "Oración de apertura y cierre",
+      "Meditación guiada en audio",
+      "Material complementario teórico en PDF",
+      "Material bibliográfico sugerido",
+      "PDF de Preguntas Frecuentes",
     ],
   },
   {
-    id: "n1-completo",
-    name: "Nivel 1 - Completo",
-    description: "Teórico + prácticas supervisadas y certificación",
-    duration: "8 semanas",
-    price: 45000,
+    id: "n1-practica",
+    name: "1er Nivel con Práctica",
+    subtitle: "Aprendé a Conectar con el Campo Akashico",
+    description: "Todo el material teórico + 2 clases prácticas individuales por videollamada de hasta 2 horas cada una.",
+    duration: "~3 semanas",
+    priceLabel: "$35.000 ARS / US$30",
     badge: "Más Elegido",
+    href: "/cursos/n1-practica",
     features: [
-      "Todo el contenido teórico del Nivel 1",
-      "Prácticas supervisadas en vivo",
-      "Apertura de tu propio registro",
-      "Lectura de tu alma y vidas pasadas",
-      "Mentoría personalizada",
-      "Certificado de finalización",
+      "Todo el contenido teórico (8 módulos)",
+      "2 clases prácticas individuales por videollamada",
+      "Oración de apertura personalizada y única",
+      "Meditación guiada en audio",
+      "Material complementario + bibliografía en PDF",
+      "PDF de Preguntas Frecuentes",
     ],
   },
   {
     id: "n2-completo",
-    name: "Nivel 2 - Completo",
-    description: "Profundización, lecturas a terceros y certificación",
-    duration: "10 semanas",
-    price: 55000,
+    name: "2do Nivel Completo",
+    subtitle: "Aprendé a Consultar los Registros Akashicos de Otras Personas",
+    description: "Curso teórico/práctico para aprender a abrir y consultar los Registros de terceros. 10 módulos + 4 clases prácticas.",
+    duration: "~4 semanas",
+    priceLabel: "$45.000 ARS / US$45",
+    badge: null,
+    href: "/cursos/n2",
     features: [
-      "Profundización en la lectura akáshica",
-      "Técnicas de lectura a terceros",
-      "Interpretación de bloqueos kármicos",
-      "Sanación a través de los registros",
-      "Prácticas supervisadas en vivo",
-      "Certificado de Nivel 2",
+      "10 módulos audiovisuales teóricos",
+      "4 clases prácticas por videollamada",
+      "Ejercicios con voluntarios reales",
+      "Mentoría sobre modalidad Offline",
+      "Autoevaluación online",
+      "Material teórico complementario en PDF",
     ],
   },
   {
     id: "ambos-cursos",
-    name: "Nivel 1 + Nivel 2",
-    description: "Formación completa con beneficio especial",
-    duration: "18 semanas",
-    price: 85000,
-    originalPrice: 100000,
+    name: "Ambos Cursos",
+    subtitle: "1er Nivel + 2do Nivel – Formación Completa",
+    description: "Formación completa en Registros Akáshicos: autoconocimiento + consulta a terceros. Aprox. 7 semanas de cursado.",
+    duration: "~7 semanas",
+    priceLabel: "$70.000 ARS / US$55",
     badge: "Mejor Precio",
+    href: "/cursos/ambos",
     features: [
-      "Todo el contenido del Nivel 1 Completo",
-      "Todo el contenido del Nivel 2 Completo",
-      "Ahorro de $15.000",
+      "Todo el contenido del 1er Nivel con Práctica",
+      "Todo el contenido del 2do Nivel Completo",
+      "6 clases prácticas individuales",
+      "Oración de apertura personalizada",
       "Seguimiento durante toda la formación",
-      "Acceso a comunidad privada",
-      "Dos certificados",
+      "Mejor precio por formación completa",
     ],
   },
 ];
@@ -347,18 +358,6 @@ export default function Home() {
     message: "",
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-
-  /* ---- Course enrollment state ---- */
-  const [courseDialogOpen, setCourseDialogOpen] = useState(false);
-  const [courseSubmitting, setCourseSubmitting] = useState(false);
-  const [selectedCourseOption, setSelectedCourseOption] = useState<string | null>(null);
-  const [courseForm, setCourseForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    message: "",
-  });
-  const [courseFormErrors, setCourseFormErrors] = useState<Record<string, string>>({});
 
   /* ---- Checkout form state ---- */
   const [checkoutDialogOpen, setCheckoutDialogOpen] = useState(false);
@@ -538,133 +537,6 @@ export default function Home() {
         delete next[field];
         return next;
       });
-    }
-  };
-
-  /* ---- Course enrollment helpers ---- */
-  const openCourseEnroll = (courseId: string) => {
-    setSelectedCourseOption(courseId);
-    setCourseForm({ name: "", email: "", phone: "", message: "" });
-    setCourseFormErrors({});
-    setCourseDialogOpen(true);
-  };
-
-  const handleCourseFormChange = (field: string, value: string) => {
-    setCourseForm((prev) => ({ ...prev, [field]: value }));
-    if (courseFormErrors[field]) {
-      setCourseFormErrors((prev) => {
-        const next = { ...prev };
-        delete next[field];
-        return next;
-      });
-    }
-  };
-
-  const validateCourseForm = () => {
-    const errors: Record<string, string> = {};
-    if (!courseForm.name.trim()) errors.name = "Ingresá tu nombre completo";
-    if (!courseForm.email.trim()) errors.email = "Ingresá tu email";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(courseForm.email))
-      errors.email = "Ingresá un email válido";
-    if (!courseForm.phone.trim()) errors.phone = "Ingresá tu teléfono";
-    else if (!/^\d{7,15}$/.test(courseForm.phone.replace(/[\s()-]/g, "")))
-      errors.phone = "Ingresá un teléfono válido (solo números)";
-    setCourseFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const handleCoursePayWithPayPal = async () => {
-    if (!validateCourseForm()) return;
-    const course = courseOptions.find((c) => c.id === selectedCourseOption);
-    if (!course) return;
-    setCourseSubmitting(true);
-    try {
-      const sessionId = `course_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
-      const session = {
-        type: "course_enrollment",
-        courseId: course.id,
-        courseName: course.name,
-        customerName: courseForm.name,
-        customerEmail: courseForm.email,
-        customerPhone: courseForm.phone,
-        message: courseForm.message,
-        total: course.price,
-        paymentMethod: "paypal",
-        paymentId: null,
-        createdAt: new Date().toISOString(),
-      };
-      localStorage.setItem(`checkoutSession_${sessionId}`, JSON.stringify(session));
-      const res = await fetch("/api/payments/create-paypal", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          items: [{ id: course.id, name: course.name, quantity: 1, price: course.price }],
-          sessionId,
-        }),
-      });
-      const data = await res.json();
-      if (res.ok && data.approvalUrl) {
-        const sessionKey = `checkoutSession_${sessionId}`;
-        const s = JSON.parse(localStorage.getItem(sessionKey) || "{}");
-        s.paymentId = data.orderId;
-        localStorage.setItem(sessionKey, JSON.stringify(s));
-        setCourseDialogOpen(false);
-        window.location.href = data.approvalUrl;
-      } else {
-        toast.error(data.error || "Error al crear la orden de PayPal");
-      }
-    } catch {
-      toast.error("Error de conexión. Intentá de nuevo.");
-    } finally {
-      setCourseSubmitting(false);
-    }
-  };
-
-  const handleCoursePayWithMercadoPago = async () => {
-    if (!validateCourseForm()) return;
-    const course = courseOptions.find((c) => c.id === selectedCourseOption);
-    if (!course) return;
-    setCourseSubmitting(true);
-    try {
-      const sessionId = `course_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
-      const session = {
-        type: "course_enrollment",
-        courseId: course.id,
-        courseName: course.name,
-        customerName: courseForm.name,
-        customerEmail: courseForm.email,
-        customerPhone: courseForm.phone,
-        message: courseForm.message,
-        total: course.price,
-        paymentMethod: "mercadopago",
-        paymentId: null,
-        createdAt: new Date().toISOString(),
-      };
-      localStorage.setItem(`checkoutSession_${sessionId}`, JSON.stringify(session));
-      const res = await fetch("/api/payments/create-mercadopago", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          items: [{ id: course.id, name: course.name, quantity: 1, price: course.price }],
-          sessionId,
-          buyerEmail: courseForm.email,
-        }),
-      });
-      const data = await res.json();
-      if (res.ok && data.initPoint) {
-        const sessionKey = `checkoutSession_${sessionId}`;
-        const s = JSON.parse(localStorage.getItem(sessionKey) || "{}");
-        s.paymentId = data.preferenceId;
-        localStorage.setItem(sessionKey, JSON.stringify(s));
-        setCourseDialogOpen(false);
-        window.location.href = data.initPoint;
-      } else {
-        toast.error(data.error || "Error al crear la preferencia de MercadoPago");
-      }
-    } catch {
-      toast.error("Error de conexión. Intentá de nuevo.");
-    } finally {
-      setCourseSubmitting(false);
     }
   };
 
@@ -1444,227 +1316,77 @@ export default function Home() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {courseOptions.map((course, idx) => (
               <motion.div key={course.id} variants={staggerItem}>
-                <Card
-                  className={`glass h-full border-mystic-700/30 hover:glow-mystic transition-all duration-500 flex flex-col ${
-                    course.badge ? "md:-translate-y-3 ring-1 ring-gold-400/20" : ""
-                  }`}
-                >
-                  {course.badge && (
-                    <div className="mx-auto pt-4">
-                      <Badge className={`font-serif font-semibold px-3 py-1 text-xs ${
-                        course.badge === "Mejor Precio"
-                          ? "bg-gold-500/20 text-gold-300"
-                          : "bg-mystic-700/50 text-foreground/80"
-                      }`}>
-                        {course.badge}
-                      </Badge>
-                    </div>
-                  )}
-                  <CardHeader className="text-center pt-4">
-                    <CardTitle className="text-xl text-gold-300">
-                      {course.name}
-                    </CardTitle>
-                    <CardDescription className="text-foreground/60 text-sm">
-                      {course.description}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="flex-1">
-                    <div className="flex flex-col items-center gap-2 mb-4">
-                      <span className="flex items-center gap-1.5 text-sm text-foreground/60">
-                        <Clock className="size-4 text-gold-400" />
-                        {course.duration}
-                      </span>
-                      <div className="text-center">
-                        {course.originalPrice && (
-                          <span className="text-sm text-foreground/40 line-through mr-2">
-                            {formatPrice(course.originalPrice)}
-                          </span>
-                        )}
-                        <span className="text-2xl font-serif font-bold text-gold-400">
-                          {formatPrice(course.price)}
-                        </span>
+                <Link href={course.href}>
+                  <Card
+                    className={`glass h-full border-mystic-700/30 hover:glow-mystic transition-all duration-500 flex flex-col cursor-pointer group ${
+                      course.badge ? "md:-translate-y-2 ring-1 ring-gold-400/20" : ""
+                    }`}
+                  >
+                    {course.badge && (
+                      <div className="mx-auto pt-4">
+                        <Badge className={`font-serif font-semibold px-3 py-1 text-xs ${
+                          course.badge === "Mejor Precio"
+                            ? "bg-gold-500/20 text-gold-300"
+                            : "bg-mystic-700/50 text-foreground/80"
+                        }`}>
+                          {course.badge}
+                        </Badge>
                       </div>
-                    </div>
-                    <Separator className="bg-mystic-800/30 mb-4" />
-                    <ul className="space-y-2">
-                      {course.features.map((feature) => (
-                        <li
-                          key={feature}
-                          className="flex items-start gap-2 text-sm text-foreground/70"
-                        >
-                          <Check className="size-4 text-gold-400 shrink-0 mt-0.5" />
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                  <CardFooter className="pt-0">
-                    <Button
-                      className="w-full bg-foreground hover:bg-foreground/80 text-background font-serif font-semibold rounded-full py-5 transition-all duration-300 hover:scale-[1.02]"
-                      onClick={() => openCourseEnroll(course.id)}
-                    >
-                      Inscribirme
-                      <ArrowRight className="size-4 ml-1" />
-                    </Button>
-                  </CardFooter>
-                </Card>
+                    )}
+                    <CardHeader className="text-center pt-4">
+                      <CardTitle className="text-xl text-gold-300 group-hover:text-gold-200 transition-colors">
+                        {course.name}
+                      </CardTitle>
+                      {course.subtitle && (
+                        <p className="text-sm text-foreground/50 font-serif italic">{course.subtitle}</p>
+                      )}
+                      <CardDescription className="text-foreground/60 text-sm mt-1">
+                        {course.description}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex-1">
+                      <div className="flex flex-col items-center gap-2 mb-4">
+                        <span className="flex items-center gap-1.5 text-sm text-foreground/60">
+                          <Clock className="size-4 text-gold-400" />
+                          {course.duration}
+                        </span>
+                        <div className="text-center">
+                          <span className="text-lg font-serif font-bold text-gold-400">
+                            {course.priceLabel}
+                          </span>
+                        </div>
+                      </div>
+                      <Separator className="bg-mystic-800/30 mb-4" />
+                      <ul className="space-y-2">
+                        {course.features.map((feature) => (
+                          <li
+                            key={feature}
+                            className="flex items-start gap-2 text-sm text-foreground/70"
+                          >
+                            <Check className="size-4 text-gold-400 shrink-0 mt-0.5" />
+                            {feature}
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                    <CardFooter className="pt-0">
+                      <Button
+                        className="w-full bg-foreground hover:bg-foreground/80 text-background font-serif font-semibold rounded-full py-5 transition-all duration-300 hover:scale-[1.02]"
+                      >
+                        Inscribirme
+                        <ArrowRight className="size-4 ml-1" />
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                </Link>
               </motion.div>
             ))}
           </div>
         </div>
       </AnimatedSection>
-
-      {/* ============================================================ */}
-      {/*                COURSE ENROLLMENT DIALOG                       */}
-      {/* ============================================================ */}
-      <Dialog open={courseDialogOpen} onOpenChange={setCourseDialogOpen}>
-        <DialogContent className="bg-mystic-950/98 backdrop-blur-xl border-mystic-700/40 sm:max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-gold-400 font-serif text-2xl flex items-center gap-2">
-              <BookOpen className="size-5" />
-              Inscripción al Curso
-            </DialogTitle>
-            <DialogDescription className="text-foreground/60">
-              {selectedCourseOption
-                ? `Te estás inscribiendo a: ${
-                    courseOptions.find((c) => c.id === selectedCourseOption)?.name
-                  } — ${
-                    formatPrice(
-                      courseOptions.find((c) => c.id === selectedCourseOption)?.price || 0
-                    )
-                  }`
-                : "Completá tus datos para inscribirte"}
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4 mt-2">
-            {/* Nombre */}
-            <div className="space-y-2">
-              <Label htmlFor="course-name" className="text-foreground/80 text-sm font-medium">
-                Nombre completo <span className="text-gold-400">*</span>
-              </Label>
-              <Input
-                id="course-name"
-                placeholder="Ej: María González"
-                value={courseForm.name}
-                onChange={(e) => handleCourseFormChange("name", e.target.value)}
-                className={`bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 ${courseFormErrors.name ? "border-red-400/60" : ""}`}
-              />
-              {courseFormErrors.name && (
-                <p className="text-red-400 text-xs">{courseFormErrors.name}</p>
-              )}
-            </div>
-
-            {/* Email */}
-            <div className="space-y-2">
-              <Label htmlFor="course-email" className="text-foreground/80 text-sm font-medium">
-                Email <span className="text-gold-400">*</span>
-              </Label>
-              <Input
-                id="course-email"
-                type="email"
-                placeholder="tu@email.com"
-                value={courseForm.email}
-                onChange={(e) => handleCourseFormChange("email", e.target.value)}
-                className={`bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 ${courseFormErrors.email ? "border-red-400/60" : ""}`}
-              />
-              {courseFormErrors.email && (
-                <p className="text-red-400 text-xs">{courseFormErrors.email}</p>
-              )}
-            </div>
-
-            {/* Teléfono */}
-            <div className="space-y-2">
-              <Label htmlFor="course-phone" className="text-foreground/80 text-sm font-medium">
-                Teléfono / WhatsApp <span className="text-gold-400">*</span>
-              </Label>
-              <Input
-                id="course-phone"
-                type="tel"
-                placeholder="Ej: 1155123456"
-                value={courseForm.phone}
-                onChange={(e) => handleCourseFormChange("phone", e.target.value)}
-                className={`bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 ${courseFormErrors.phone ? "border-red-400/60" : ""}`}
-              />
-              {courseFormErrors.phone && (
-                <p className="text-red-400 text-xs">{courseFormErrors.phone}</p>
-              )}
-            </div>
-
-            {/* Mensaje */}
-            <div className="space-y-2">
-              <Label htmlFor="course-message" className="text-foreground/80 text-sm font-medium">
-                Mensaje o consulta (opcional)
-              </Label>
-              <Textarea
-                id="course-message"
-                placeholder="Contanos si tenés alguna consulta sobre el curso..."
-                rows={3}
-                value={courseForm.message}
-                onChange={(e) => handleCourseFormChange("message", e.target.value)}
-                className="bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 resize-none"
-              />
-            </div>
-
-            <Separator className="bg-mystic-800/30" />
-
-            {/* Payment Methods */}
-            <div className="space-y-3">
-              <p className="text-sm text-foreground/70 font-medium text-center">
-                Elegí tu medio de pago:
-              </p>
-              <div className="grid grid-cols-2 gap-3">
-                <Button
-                  onClick={handleCoursePayWithMercadoPago}
-                  disabled={courseSubmitting}
-                  className="bg-[#009ee3] hover:bg-[#008bc7] text-white font-semibold py-4 rounded-xl transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  {courseSubmitting ? (
-                    <Loader2 className="size-5 animate-spin" />
-                  ) : (
-                    <Landmark className="size-5 mr-2" />
-                  )}
-                  MercadoPago
-                </Button>
-                <Button
-                  onClick={handleCoursePayWithPayPal}
-                  disabled={courseSubmitting}
-                  variant="outline"
-                  className="border-foreground/20 text-foreground/80 hover:bg-foreground/5 hover:text-foreground font-semibold py-4 rounded-xl transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  {courseSubmitting ? (
-                    <Loader2 className="size-5 animate-spin" />
-                  ) : (
-                    <>
-                      <CreditCard className="size-5 mr-2" />
-                      PayPal
-                    </>
-                  )}
-                </Button>
-              </div>
-            </div>
-
-            {/* Trust badges */}
-            <div className="flex items-center justify-center gap-4 pt-2">
-              <div className="flex flex-col items-center gap-1">
-                <Shield className="size-4 text-foreground/30" />
-                <span className="text-[10px] text-foreground/30">Pago seguro</span>
-              </div>
-              <div className="flex flex-col items-center gap-1">
-                <Lock className="size-4 text-foreground/30" />
-                <span className="text-[10px] text-foreground/30">Datos encriptados</span>
-              </div>
-              <div className="flex flex-col items-center gap-1">
-                <Check className="size-4 text-foreground/30" />
-                <span className="text-[10px] text-foreground/30">Plataformas verificadas</span>
-              </div>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* ============================================================ */}
       {/*                    TIENDA DE CRISTALES                         */}
