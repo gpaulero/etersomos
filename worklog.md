@@ -22,3 +22,36 @@ Stage Summary:
 - Git backup realizado
 - Dominio residual eliminado
 - Deploy pendiente (reintentar cuando Vercel se estabilice)
+
+---
+Task ID: 3
+Agent: fullstack-developer
+Task: Protect admin panel, add SEO metadata, auto-save forms, cleanup
+
+Work Log:
+- Added password protection to admin panel with shadcn Dialog component
+- Created .env.local with NEXT_PUBLIC_ADMIN_PASSWORD=eter2024admin
+- Modified handleOpenAdmin to validate password before opening panel
+- Triple-click on logo now triggers password dialog instead of directly opening admin
+- Created src/app/sitemap.ts with all 6 routes
+- Added metadataBase to root layout.tsx
+- Created layout.tsx with SEO metadata for: lecturas, n1-teorico, n1-practica, n2, ambos, payment/success
+- Added auto-save (localStorage) to all 4 course forms: n1-teorico, n1-practica, n2, ambos
+- Each form restores saved data on mount and saves on every field change
+- Added localStorage.removeItem after successful submission and before payment redirect
+- Deleted 18 dead image files (old versions, unused logos)
+- Deleted examples/ directory (websocket demo)
+- Deleted evaspina_content.json and evaspina_screenshot.png
+- Removed unused User and Post models from Prisma schema
+- Pushed schema changes with prisma db push
+- Deployed to production: https://etersomos.vercel.app
+- Git committed and pushed to GitHub
+
+Stage Summary:
+- Admin panel now requires password (eter2024admin) via dialog
+- All pages have SEO titles and descriptions
+- sitemap.xml auto-generated at /sitemap.xml
+- Course forms auto-save to localStorage (prevents data loss)
+- Dead files removed (18 images, 4 files, 2 Prisma models)
+- Deployed to production successfully
+- Committed and pushed to GitHub
