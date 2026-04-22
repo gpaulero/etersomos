@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { Resend } from "resend";
+import { sendAdminNotification, sendCustomerConfirmation } from "@/lib/email";
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "etersomos@gmail.com";
+type OrderType = "crystal_order" | "course_enrollment" | "reading";
 
-/* ── POST: Confirm crystal order (save to DB + send email) ────────────── */
+/* ── POST: Confirm any order type (save to DB + send emails) ─────────── */
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const {
+      type = "crystal_order",
       customerName,
       customerEmail,
       customerPhone,
@@ -22,12 +23,28 @@ export async function POST(request: NextRequest) {
       total,
       paymentMethod,
       paymentId,
-    } = body;
+      extraData,
+    } = body as {
+      type?: OrderType;
+      customerName: string;
+      customerEmail: string;
+      customerPhone: string;
+      address?: string;
+      city?: string;
+      province?: string;
+      postalCode?: string;
+      notes?: string;
+      items: Array<{ id: number; name: string; quantity: number; price: number }>;
+      total: number;
+      paymentMethod: string;
+      paymentId?: string | null;
+      extraData?: Record<string, unknown>;
+    };
 
-    // Validate required fields
-    if (!customerName || !customerEmail || !customerPhone || !address || !city || !province || !postalCode) {
+    // Validate required fields for all types
+    if (!customerName || !customerEmail) {
       return NextResponse.json(
-        { error: "Faltan campos obligatorios del comprador." },
+        { error: "Faltan campos obligatorios: nombre y email." },
         { status: 400 }
       );
     }
@@ -46,55 +63,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Save order to DB
-    const order = await db.crystalOrder.create({
-      data: {
-        customerName: customerName.trim(),
-        customerEmail: customerEmail.trim().toLowerCase(),
-        customerPhone: customerPhone.trim(),
-        address: address.trim(),
-        city: city.trim(),
-        province: province.trim(),
-        postalCode: postalCode.trim(),
-        notes: notes?.trim() || null,
-        items: JSON.stringify(items),
-        total: parseFloat(total) || 0,
-        paymentMethod,
-        paymentId: paymentId || null,
-        status: "pagado",
-      },
-    });
-
-    // Send email notification to admin
-    try {
-      await sendCrystalOrderEmail({
-        customerName: order.customerName,
-        customerEmail: order.customerEmail,
-        customerPhone: order.customerPhone,
-        address: order.address,
-        city: order.city,
-        province: order.province,
-        postalCode: order.postalCode,
-        notes: order.notes,
-        items,
-        total: order.total,
-        paymentMethod: order.paymentMethod,
-        paymentId: order.paymentId,
-        orderId: order.id,
-      });
-    } catch (emailError) {
-      console.error("Failed to send crystal order email:", emailError);
-      // Don't fail the request if email fails
+    // Handle based on order type
+    switch (type) {
+      case "crystal_order":
+        return handleCrystalOrder(body);
+      case "course_enrollment":
+        return handleCourseEnrollment(body);
+      case "reading":
+        return handleReadingOrder(body);
+      default:
+        return NextResponse.json(
+          { error: `Tipo de pedido no válido: ${type}` },
+          { status: 400 }
+        );
     }
-
-    return NextResponse.json(
-      {
-        success: true,
-        orderId: order.id,
-        message: "Pedido registrado con éxito.",
-      },
-      { status: 201 }
-    );
   } catch (error) {
     console.error("Confirm order error:", error);
     return NextResponse.json(
@@ -104,117 +86,289 @@ export async function POST(request: NextRequest) {
   }
 }
 
-/* ── Email Builder ─────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════
+   CRYSTAL ORDER HANDLER
+   ═══════════════════════════════════════════════════════════════════════ */
 
-interface CrystalOrderEmailData {
+async function handleCrystalOrder(body: Record<string, unknown>) {
+  const {
+    customerName,
+    customerEmail,
+    customerPhone,
+    address,
+    city,
+    province,
+    postalCode,
+    notes,
+    items,
+    total,
+    paymentMethod,
+    paymentId,
+  } = body as {
+    customerName: string;
+    customerEmail: string;
+    customerPhone: string;
+    address: string;
+    city: string;
+    province: string;
+    postalCode: string;
+    notes?: string;
+    items: Array<{ id: number; name: string; quantity: number; price: number }>;
+    total: number;
+    paymentMethod: string;
+    paymentId?: string | null;
+  };
+
+  // Crystal orders require shipping address
+  if (!customerPhone || !address || !city || !province || !postalCode) {
+    return NextResponse.json(
+      { error: "Faltan campos obligatorios del comprador (teléfono, dirección)." },
+      { status: 400 }
+    );
+  }
+
+  // Save to DB
+  const order = await db.crystalOrder.create({
+    data: {
+      customerName: customerName.trim(),
+      customerEmail: customerEmail.trim().toLowerCase(),
+      customerPhone: customerPhone.trim(),
+      address: address.trim(),
+      city: city.trim(),
+      province: province.trim(),
+      postalCode: postalCode.trim(),
+      notes: (notes as string)?.trim() || null,
+      items: JSON.stringify(items),
+      total: parseFloat(String(total)) || 0,
+      paymentMethod,
+      paymentId: paymentId || null,
+      status: "pagado",
+    },
+  });
+
+  // Send emails (fire and forget, don't block response)
+  sendEmails({
+    type: "crystal",
+    customerName: order.customerName,
+    customerEmail: order.customerEmail,
+    customerPhone: order.customerPhone,
+    items,
+    total: order.total,
+    paymentMethod: order.paymentMethod,
+    paymentId: order.paymentId,
+    orderId: order.id,
+    extraData: {
+      address: order.address,
+      city: order.city,
+      province: order.province,
+      postalCode: order.postalCode,
+      notes: order.notes,
+    },
+  });
+
+  return NextResponse.json(
+    {
+      success: true,
+      orderId: order.id,
+      type: "crystal_order",
+      message: "Pedido de cristales registrado con éxito.",
+    },
+    { status: 201 }
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   COURSE ENROLLMENT HANDLER
+   ═══════════════════════════════════════════════════════════════════════ */
+
+async function handleCourseEnrollment(body: Record<string, unknown>) {
+  const {
+    customerName,
+    customerEmail,
+    customerPhone,
+    items,
+    total,
+    paymentMethod,
+    paymentId,
+    extraData,
+  } = body as {
+    customerName: string;
+    customerEmail: string;
+    customerPhone?: string;
+    items: Array<{ id: number; name: string; quantity: number; price: number }>;
+    total: number;
+    paymentMethod: string;
+    paymentId?: string | null;
+    extraData?: Record<string, unknown>;
+  };
+
+  // Save to CrystalOrder table with a marker (reuse existing model)
+  // The items field will contain course info, and notes will contain enrollment data
+  const order = await db.crystalOrder.create({
+    data: {
+      customerName: customerName.trim(),
+      customerEmail: customerEmail.trim().toLowerCase(),
+      customerPhone: customerPhone?.trim() || "N/A",
+      address: "Curso online",
+      city: "N/A",
+      province: "N/A",
+      postalCode: "0000",
+      notes: `CURSO: ${JSON.stringify(extraData || {})}`,
+      items: JSON.stringify(items),
+      total: parseFloat(String(total)) || 0,
+      paymentMethod,
+      paymentId: paymentId || null,
+      status: "pagado",
+    },
+  });
+
+  // Send emails
+  sendEmails({
+    type: "course",
+    customerName: order.customerName,
+    customerEmail: order.customerEmail,
+    customerPhone: order.customerPhone,
+    items,
+    total: order.total,
+    paymentMethod: order.paymentMethod,
+    paymentId: order.paymentId,
+    orderId: order.id,
+    extraData: extraData || {},
+  });
+
+  return NextResponse.json(
+    {
+      success: true,
+      orderId: order.id,
+      type: "course_enrollment",
+      message: "Inscripción al curso registrada con éxito.",
+    },
+    { status: 201 }
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   READING ORDER HANDLER (via MP/PayPal)
+   ═══════════════════════════════════════════════════════════════════════ */
+
+async function handleReadingOrder(body: Record<string, unknown>) {
+  const {
+    customerName,
+    customerEmail,
+    customerPhone,
+    items,
+    total,
+    paymentMethod,
+    paymentId,
+    extraData,
+  } = body as {
+    customerName: string;
+    customerEmail: string;
+    customerPhone?: string;
+    items: Array<{ id: number; name: string; quantity: number; price: number }>;
+    total: number;
+    paymentMethod: string;
+    paymentId?: string | null;
+    extraData?: Record<string, unknown>;
+  };
+
+  const formData = (extraData?.formData || {}) as Record<string, string>;
+
+  // Save to ReadingBooking
+  const booking = await db.readingBooking.create({
+    data: {
+      name: customerName.trim(),
+      email: customerEmail.trim().toLowerCase(),
+      phone: customerPhone?.trim() || "",
+      readingType: "Lectura Akáshica Individual",
+      message: [
+        `Pago: ${paymentMethod}`,
+        `Pregunta 1: ${formData.pregunta1 || ""}`,
+        `Pregunta 2: ${formData.pregunta2 || ""}`,
+        formData.contextoAdicional ? `Contexto: ${formData.contextoAdicional}` : "",
+        `Formulario completo: ${JSON.stringify(formData)}`,
+      ]
+        .filter(Boolean)
+        .join("\n"),
+      status: "pendiente",
+    },
+  });
+
+  // Send emails
+  sendEmails({
+    type: "reading",
+    customerName: booking.name,
+    customerEmail: booking.email,
+    customerPhone: booking.phone,
+    items,
+    total: parseFloat(String(total)) || 0,
+    paymentMethod,
+    paymentId: paymentId || null,
+    orderId: booking.id,
+    extraData: extraData || {},
+  });
+
+  return NextResponse.json(
+    {
+      success: true,
+      orderId: booking.id,
+      type: "reading",
+      message: "Solicitud de lectura registrada con éxito.",
+    },
+    { status: 201 }
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   EMAIL SENDING HELPER
+   ═══════════════════════════════════════════════════════════════════════ */
+
+interface EmailPayload {
+  type: "crystal" | "course" | "reading";
   customerName: string;
   customerEmail: string;
-  customerPhone: string;
-  address: string;
-  city: string;
-  province: string;
-  postalCode: string;
-  notes: string | null;
+  customerPhone?: string;
   items: Array<{ id: number; name: string; quantity: number; price: number }>;
   total: number;
   paymentMethod: string;
   paymentId: string | null;
   orderId: string;
+  extraData?: Record<string, unknown>;
 }
 
-function buildCrystalOrderEmail(data: CrystalOrderEmailData): string {
-  const paymentLabel =
-    data.paymentMethod === "paypal"
-      ? "PayPal"
-      : data.paymentMethod === "mercadopago"
-        ? "MercadoPago"
-        : data.paymentMethod;
+function sendEmails(payload: EmailPayload): void {
+  // Fire and forget — never block the response
+  (async () => {
+    try {
+      await sendAdminNotification({
+        type: payload.type,
+        customerName: payload.customerName,
+        customerEmail: payload.customerEmail,
+        customerPhone: payload.customerPhone,
+        items: payload.items,
+        total: payload.total,
+        paymentMethod: payload.paymentMethod,
+        paymentId: payload.paymentId || undefined,
+        orderId: payload.orderId,
+        extraData: payload.extraData,
+      });
+    } catch (err) {
+      console.error(`[Email] Failed to send admin notification for ${payload.type}:`, err);
+    }
 
-  const itemsRows = data.items
-    .map(
-      (item) => `
-      <tr>
-        <td style="padding: 10px 16px; border-bottom: 1px solid #2a252066; color: #f0ebe5;">${item.name}</td>
-        <td style="padding: 10px 16px; border-bottom: 1px solid #2a252066; color: #f0ebe5; text-align: center;">${item.quantity}</td>
-        <td style="padding: 10px 16px; border-bottom: 1px solid #2a252066; color: #d4a853; text-align: right;">$${item.price.toLocaleString("es-AR")} ARS</td>
-      </tr>`
-    )
-    .join("");
-
-  return `
-    <div style="max-width: 600px; margin: 0 auto; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #161310; border-radius: 12px; overflow: hidden;">
-      <!-- Header -->
-      <div style="background: linear-gradient(135deg, #1a1510 0%, #0d0b08 100%); padding: 32px 24px; text-align: center; border-bottom: 1px solid #2a252066;">
-        <h1 style="margin: 0; color: #d4a853; font-size: 24px; letter-spacing: 0.1em;">✨ NUEVO PEDIDO DE CRISTALES</h1>
-        <p style="margin: 8px 0 0; color: #8a8070; font-size: 14px;">Eter Somos | Registros Akáshicos</p>
-      </div>
-
-      <!-- Customer Info -->
-      <div style="padding: 24px;">
-        <h2 style="margin: 0 0 16px; color: #d4a853; font-size: 18px; border-bottom: 1px solid #2a252066; padding-bottom: 8px;">👤 Datos del Comprador</h2>
-        <table style="width: 100%; font-size: 14px;">
-          <tr><td style="padding: 4px 0; color: #8a8070;">Nombre:</td><td style="padding: 4px 0; color: #f0ebe5; font-weight: 600;">${data.customerName}</td></tr>
-          <tr><td style="padding: 4px 0; color: #8a8070;">Email:</td><td style="padding: 4px 0; color: #f0ebe5;">${data.customerEmail}</td></tr>
-          <tr><td style="padding: 4px 0; color: #8a8070;">Teléfono:</td><td style="padding: 4px 0; color: #f0ebe5;">${data.customerPhone}</td></tr>
-          <tr><td style="padding: 4px 0; color: #8a8070;">Dirección:</td><td style="padding: 4px 0; color: #f0ebe5;">${data.address}</td></tr>
-          <tr><td style="padding: 4px 0; color: #8a8070;">Ciudad:</td><td style="padding: 4px 0; color: #f0ebe5;">${data.city}</td></tr>
-          <tr><td style="padding: 4px 0; color: #8a8070;">Provincia:</td><td style="padding: 4px 0; color: #f0ebe5;">${data.province}</td></tr>
-          <tr><td style="padding: 4px 0; color: #8a8070;">C.P.:</td><td style="padding: 4px 0; color: #f0ebe5;">${data.postalCode}</td></tr>
-        </table>
-        ${data.notes ? `<p style="margin: 12px 0 0; color: #8a8070; font-size: 14px;">Notas: <span style="color: #f0ebe5;">${data.notes}</span></p>` : ""}
-      </div>
-
-      <!-- Items Table -->
-      <div style="padding: 0 24px;">
-        <h2 style="margin: 0 0 16px; color: #d4a853; font-size: 18px; border-bottom: 1px solid #2a252066; padding-bottom: 8px;">💎 Cristales</h2>
-        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-          <thead>
-            <tr style="border-bottom: 2px solid #d4a85333;">
-              <th style="padding: 8px 16px; text-align: left; color: #d4a853;">Producto</th>
-              <th style="padding: 8px 16px; text-align: center; color: #d4a853;">Cantidad</th>
-              <th style="padding: 8px 16px; text-align: right; color: #d4a853;">Precio</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${itemsRows}
-          </tbody>
-          <tfoot>
-            <tr>
-              <td colspan="2" style="padding: 12px 16px; color: #f0ebe5; font-weight: 700; font-size: 16px; text-align: right;">Total:</td>
-              <td style="padding: 12px 16px; color: #d4a853; font-weight: 700; font-size: 18px; text-align: right;">$${data.total.toLocaleString("es-AR")} ARS</td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-
-      <!-- Payment Info -->
-      <div style="padding: 24px;">
-        <h2 style="margin: 0 0 12px; color: #d4a853; font-size: 18px; border-bottom: 1px solid #2a252066; padding-bottom: 8px;">💳 Pago</h2>
-        <table style="width: 100%; font-size: 14px;">
-          <tr><td style="padding: 4px 0; color: #8a8070;">Método:</td><td style="padding: 4px 0; color: #f0ebe5; font-weight: 600;">${paymentLabel}</td></tr>
-          <tr><td style="padding: 4px 0; color: #8a8070;">ID de Pago:</td><td style="padding: 4px 0; color: #f0ebe5; font-family: monospace; font-size: 12px;">${data.paymentId || "N/A"}</td></tr>
-          <tr><td style="padding: 4px 0; color: #8a8070;">ID de Pedido:</td><td style="padding: 4px 0; color: #f0ebe5; font-family: monospace; font-size: 12px;">${data.orderId}</td></tr>
-        </table>
-      </div>
-
-      <!-- Footer -->
-      <div style="padding: 16px 24px; text-align: center; border-top: 1px solid #2a252066; color: #5a5545; font-size: 12px;">
-        <p>Eter Somos | Registros Akáshicos y Cristales</p>
-        <p>Este pedido fue procesado automáticamente.</p>
-      </div>
-    </div>
-  `;
-}
-
-async function sendCrystalOrderEmail(data: CrystalOrderEmailData): Promise<void> {
-  const resend = new Resend(process.env.RESEND_API_KEY);
-
-  const html = buildCrystalOrderEmail(data);
-
-  await resend.emails.send({
-    from: "Eter Somos <onboarding@resend.dev>",
-    to: [ADMIN_EMAIL],
-    subject: `✨ Nuevo pedido de cristales - ${data.customerName} - $${data.total.toLocaleString("es-AR")} ARS`,
-    html,
-  });
+    try {
+      await sendCustomerConfirmation({
+        customerName: payload.customerName,
+        customerEmail: payload.customerEmail,
+        type: payload.type,
+        items: payload.items,
+        total: payload.total,
+        paymentMethod: payload.paymentMethod,
+      });
+    } catch (err) {
+      console.error(`[Email] Failed to send customer confirmation for ${payload.type}:`, err);
+      // In Resend sandbox, customer emails will fail unless the customer's email is verified
+      // This is expected and will work once a custom domain is configured
+    }
+  })();
 }

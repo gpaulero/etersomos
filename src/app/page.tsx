@@ -491,6 +491,7 @@ export default function Home() {
   /* ---- Checkout session helpers ---- */
   const saveCheckoutSession = (paymentMethod: string, paymentId?: string) => {
     const session = {
+      type: "crystal_order" as const,
       customerName: checkoutForm.name,
       customerEmail: checkoutForm.email,
       customerPhone: checkoutForm.phone,

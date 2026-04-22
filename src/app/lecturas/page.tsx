@@ -175,6 +175,7 @@ export default function LecturasPage() {
         phone: formData.telefono,
         price,
         paymentMethod: method,
+        checkoutType: "reading",
         enrollmentData: {
           type: "lectura",
           formData,

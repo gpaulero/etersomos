@@ -6,13 +6,21 @@ import {
   generateGoogleCalendarLink,
   calculateDeadline,
 } from "@/lib/notifications";
+import { sendAdminNotification, sendCustomerConfirmation } from "@/lib/email";
 
-/* ── POST: Create a new booking + send WhatsApp notification ────────────── */
+/* ── POST: Create a new booking + send notifications ──────────────────── */
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, email, phone, message } = body;
+    const { name, email, phone, message, paymentMethod, formData } = body as {
+      name: string;
+      email: string;
+      phone: string;
+      message?: string;
+      paymentMethod?: string;
+      formData?: Record<string, string>;
+    };
 
     if (!name || !email || !phone) {
       return NextResponse.json(
@@ -46,6 +54,45 @@ export async function POST(request: NextRequest) {
         console.log(`[WhatsApp Link] ${result.link}`);
       }
     });
+
+    // ── Email notification (fire and forget) ──
+    // This fires for transfer/WU readings which come through the bookings API
+    const method = paymentMethod || "transferencia";
+    const formDataSafe = formData || {};
+
+    // Determine price based on payment method
+    const total = method === "western_union" ? 20 : 18000;
+
+    (async () => {
+      try {
+        await sendAdminNotification({
+          type: "reading",
+          customerName: booking.name,
+          customerEmail: booking.email,
+          customerPhone: booking.phone,
+          items: [{ name: "Lectura del Campo Akáshico", quantity: 1, price: total }],
+          total,
+          paymentMethod: method,
+          orderId: booking.id,
+          extraData: { formData: formDataSafe },
+        });
+      } catch (err) {
+        console.error("[Email] Failed to send admin notification for transfer reading:", err);
+      }
+
+      try {
+        await sendCustomerConfirmation({
+          customerName: booking.name,
+          customerEmail: booking.email,
+          type: "reading",
+          items: [{ name: "Lectura del Campo Akáshico", quantity: 1, price: total }],
+          total,
+          paymentMethod: method,
+        });
+      } catch (err) {
+        console.error("[Email] Failed to send customer confirmation for transfer reading:", err);
+      }
+    })();
 
     return NextResponse.json(
       {

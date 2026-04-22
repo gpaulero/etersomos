@@ -2,6 +2,8 @@
 
 import { toast } from "sonner";
 
+export type CheckoutType = "crystal_order" | "course_enrollment" | "reading";
+
 interface CoursePaymentData {
   courseId: string;
   courseName: string;
@@ -11,10 +13,13 @@ interface CoursePaymentData {
   price: number;
   paymentMethod: "mercadopago" | "paypal";
   enrollmentData: Record<string, unknown>;
+  /** Override the checkout session type. Defaults to "course_enrollment". */
+  checkoutType?: CheckoutType;
 }
 
 export async function initiateCoursePayment(data: CoursePaymentData) {
   const sessionId = `course_${data.courseId}_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
+  const checkoutType = data.checkoutType || "course_enrollment";
 
   // Save enrollment form data
   localStorage.setItem(
@@ -24,22 +29,27 @@ export async function initiateCoursePayment(data: CoursePaymentData) {
 
   // Save checkout session (format expected by /payment/success page)
   const session = {
-    type: "course_enrollment",
+    type: checkoutType,
     courseId: data.courseId,
     courseName: data.courseName,
     customerName: data.name,
     customerEmail: data.email,
     customerPhone: data.phone,
-    address: "Curso online",
-    city: "N/A",
-    province: "N/A",
-    postalCode: "0000",
-    notes: `Inscripción a curso: ${data.courseName}`,
+    address: checkoutType === "crystal_order" ? "" : "Curso online",
+    city: checkoutType === "crystal_order" ? "" : "N/A",
+    province: checkoutType === "crystal_order" ? "" : "N/A",
+    postalCode: checkoutType === "crystal_order" ? "" : "0000",
+    notes: checkoutType === "course_enrollment"
+      ? `Inscripción a curso: ${data.courseName}`
+      : checkoutType === "reading"
+        ? `Lectura: ${data.courseName}`
+        : "",
     items: [{ id: 0, name: data.courseName, quantity: 1, price: data.price }],
     total: data.price,
     paymentMethod: data.paymentMethod,
     paymentId: null,
     createdAt: new Date().toISOString(),
+    extraData: data.enrollmentData,
   };
 
   localStorage.setItem(`checkoutSession_${sessionId}`, JSON.stringify(session));

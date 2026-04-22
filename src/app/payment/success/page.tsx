@@ -3,12 +3,14 @@
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Check, Loader2, Sparkles, ShoppingBag, ArrowLeft, AlertTriangle } from "lucide-react";
+import { Check, Loader2, Sparkles, ShoppingBag, BookOpen, Eye, ArrowLeft, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import type { CheckoutType } from "@/lib/course-payment";
 
 type PaymentStatus = "processing" | "success" | "error";
 
 interface CheckoutSession {
+  type?: CheckoutType;
   customerName: string;
   customerEmail: string;
   customerPhone: string;
@@ -22,6 +24,42 @@ interface CheckoutSession {
   paymentMethod: string;
   paymentId: string | null;
   createdAt: string;
+  extraData?: Record<string, unknown>;
+}
+
+/* Type-specific display config */
+const TYPE_CONFIG: Record<string, {
+  processingTitle: string;
+  successTitle: string;
+  successMessage: (name: string) => string;
+  summaryLabel: string;
+  summaryIcon: React.ReactNode;
+}> = {
+  crystal_order: {
+    processingTitle: "Procesando tu pedido...",
+    successTitle: "¡Pedido Confirmado!",
+    successMessage: (name) => `Gracias por tu compra, ${name}. Recibirás un email de confirmación pronto.`,
+    summaryLabel: "Resumen del pedido",
+    summaryIcon: <ShoppingBag className="size-4" />,
+  },
+  course_enrollment: {
+    processingTitle: "Procesando tu inscripción...",
+    successTitle: "¡Inscripción Confirmada!",
+    successMessage: (name) => `¡Bienvenido/a, ${name}! Tu inscripción al curso fue registrada. Te contactaremos con los detalles.`,
+    summaryLabel: "Resumen de inscripción",
+    summaryIcon: <BookOpen className="size-4" />,
+  },
+  reading: {
+    processingTitle: "Procesando tu solicitud...",
+    successTitle: "¡Solicitud Registrada!",
+    successMessage: (name) => `${name}, tu solicitud de lectura fue registrada. Recibirás tu lectura grabada por email en los próximos 5 días hábiles.`,
+    summaryLabel: "Resumen de solicitud",
+    summaryIcon: <Eye className="size-4" />,
+  },
+};
+
+function getConfig(type?: CheckoutType) {
+  return TYPE_CONFIG[type || "crystal_order"] || TYPE_CONFIG.crystal_order;
 }
 
 function PaymentSuccessContent() {
@@ -57,6 +95,9 @@ function PaymentSuccessContent() {
         return;
       }
 
+      const orderType = session.type || "crystal_order";
+      const config = getConfig(orderType);
+
       try {
         let finalPaymentId = session.paymentId;
 
@@ -80,6 +121,7 @@ function PaymentSuccessContent() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            type: orderType,
             customerName: session.customerName,
             customerEmail: session.customerEmail,
             customerPhone: session.customerPhone,
@@ -92,6 +134,7 @@ function PaymentSuccessContent() {
             total: session.total,
             paymentMethod: session.paymentMethod,
             paymentId: finalPaymentId || paypalToken || null,
+            extraData: session.extraData,
           }),
         });
 
@@ -126,6 +169,10 @@ function PaymentSuccessContent() {
   const formatPrice = (price: number) =>
     `$${price.toLocaleString("es-AR")} ARS`;
 
+  const orderType = orderInfo?.type || "crystal_order";
+  const config = getConfig(orderType);
+  const isCrystal = orderType === "crystal_order";
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 bg-background">
       <motion.div
@@ -140,10 +187,10 @@ function PaymentSuccessContent() {
               <Loader2 className="size-10 text-gold-400 animate-spin" />
             </div>
             <h1 className="text-2xl sm:text-3xl font-serif font-semibold text-foreground">
-              Procesando tu pedido...
+              {config.processingTitle}
             </h1>
             <p className="text-foreground/60">
-              Estamos confirmando tu pago y registrando tu pedido. Esto puede
+              Estamos confirmando tu pago y registrando la información. Esto puede
               tomar unos segundos.
             </p>
           </div>
@@ -166,11 +213,10 @@ function PaymentSuccessContent() {
               transition={{ delay: 0.4 }}
             >
               <h1 className="text-2xl sm:text-3xl font-serif font-semibold text-foreground mb-2">
-                ¡Pedido Confirmado!
+                {config.successTitle}
               </h1>
               <p className="text-foreground/60">
-                Gracias por tu compra, {orderInfo?.customerName}. Recibirás un
-                email de confirmación pronto.
+                {config.successMessage(orderInfo?.customerName || "")}
               </p>
             </motion.div>
 
@@ -182,8 +228,8 @@ function PaymentSuccessContent() {
                 className="bg-mystic-900/50 border border-mystic-700/30 rounded-2xl p-6 text-left space-y-4"
               >
                 <div className="flex items-center gap-2 text-gold-400 font-serif font-semibold">
-                  <ShoppingBag className="size-4" />
-                  <span>Resumen del pedido</span>
+                  {config.summaryIcon}
+                  <span>{config.summaryLabel}</span>
                 </div>
 
                 {orderInfo.items.map((item) => (
@@ -210,15 +256,19 @@ function PaymentSuccessContent() {
                 </div>
 
                 <div className="text-xs text-foreground/40 space-y-1">
-                  <p>
-                    Envío a: {orderInfo.address}, {orderInfo.city},{" "}
-                    {orderInfo.province} ({orderInfo.postalCode})
-                  </p>
+                  {isCrystal && (
+                    <p>
+                      Envío a: {orderInfo.address}, {orderInfo.city},{" "}
+                      {orderInfo.province} ({orderInfo.postalCode})
+                    </p>
+                  )}
                   <p>
                     Método de pago:{" "}
                     {orderInfo.paymentMethod === "paypal"
                       ? "PayPal"
-                      : "MercadoPago"}
+                      : orderInfo.paymentMethod === "mercadopago"
+                        ? "MercadoPago"
+                        : orderInfo.paymentMethod}
                   </p>
                 </div>
               </motion.div>
