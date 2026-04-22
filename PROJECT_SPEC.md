@@ -8,7 +8,8 @@ Este documento describe TODO el estado actual, credenciales, estructura y requis
 ### REGLA OBLIGATORIA - GIT BACKUP
 **DESPUÉS DE CADA CAMBIO (por más chico que sea), hacer git commit inmediatamente.**
 No esperar a que el usuario lo pida. Todo cambio a cualquier archivo = commit.
-Comando: `git add -A && git -c user.name="Fernanda" -c user.email="etersomos@gmail.com" commit -m "descripcion del cambio"`
+Comando: `git add -A && git -c user.name="gpaulero" -c user.email="gpaulero@gmail.com" commit -m "descripcion del cambio"`
+IMPORTANTE: Usar SIEMPRE gpaulero@gmail.com como email de git. NO usar etersomos@gmail.com porque no está vinculado a GitHub y Vercel bloquea el deploy.
 Esto asegura que nunca se pierda trabajo entre sesiones.
 
 ---
@@ -47,8 +48,8 @@ https://etersomos.vercel.app
 - URL: libsql://etersomos-db-gpaulero.aws-us-east-1.turso.io
 
 ### Git (para commits)
-- Nombre: Fernanda
-- Email: etersomos@gmail.com
+- Nombre: gpaulero
+- Email: gpaulero@gmail.com (DEBE coincidir con GitHub account para que Vercel no bloquee el deploy)
 
 ---
 
