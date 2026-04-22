@@ -1,6 +1,6 @@
 /**
  * MercadoPago integration for Eter Somos
- * Uses MercadoPago SDK (already installed: mercadopago)
+ * Uses MercadoPago SDK v2.x (mercadopago@2.x)
  * Production mode by default
  */
 
@@ -24,52 +24,47 @@ export async function createMercadoPagoPreference(
   sessionId: string,
   buyerEmail: string
 ): Promise<{ id: string; initPoint: string; sandboxInitPoint: string }> {
-  // Dynamic import since mercadopago might not be installed yet
-  const mercadopago = (await import("mercadopago")).default;
+  // SDK v2.x — use MercadoPagoConfig and Preference class
+  const { MercadoPagoConfig, Preference } = await import("mercadopago");
 
-  mercadopago.configure({
-    access_token: MERCADOPAGO_ACCESS_TOKEN,
+  MercadoPagoConfig.setAccessToken(MERCADOPAGO_ACCESS_TOKEN);
+
+  const client = new Preference();
+
+  const preference = await client.create({
+    body: {
+      items: items.map((item) => ({
+        id: item.id.toString(),
+        title: item.name,
+        unit_price: item.price,
+        quantity: item.quantity,
+        currency_id: "ARS",
+        category_id: "art",
+      })),
+      payer: buyerEmail ? { email: buyerEmail } : undefined,
+      back_urls: {
+        success: `${BASE_URL}/payment/success?method=mercadopago&session=${sessionId}`,
+        failure: `${BASE_URL}/?payment=failed`,
+        pending: `${BASE_URL}/payment/success?method=mercadopago&session=${sessionId}&status=pending`,
+      },
+      auto_return: "approved",
+      external_reference: sessionId,
+      notification_url: `${BASE_URL}/api/payments/mercadopago-webhook`,
+      metadata: {
+        session_id: sessionId,
+      },
+      statement_descriptor: "ETER SOMOS",
+      binary_mode: true,
+    },
   });
 
-  const totalARS = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
-
-  const preference = await mercadopago.preferences.create({
-    items: items.map((item) => ({
-      id: item.id.toString(),
-      title: item.name,
-      unit_price: item.price,
-      quantity: item.quantity,
-      currency_id: "ARS",
-      category_id: "art", // physical goods category
-    })),
-    payer: {
-      email: buyerEmail || undefined,
-    },
-    back_urls: {
-      success: `${BASE_URL}/payment/success?method=mercadopago&session=${sessionId}`,
-      failure: `${BASE_URL}/?payment=failed`,
-      pending: `${BASE_URL}/payment/success?method=mercadopago&session=${sessionId}&status=pending`,
-    },
-    auto_return: "approved",
-    external_reference: sessionId,
-    notification_url: `${BASE_URL}/api/payments/mercadopago-webhook`,
-    metadata: {
-      session_id: sessionId,
-    },
-    statement_descriptor: "ETER SOMOS",
-    binary_mode: true, // Require exact amount, no partial payments
-  });
-
-  if (!preference.body?.id) {
+  if (!preference?.id) {
     throw new Error("Failed to create MercadoPago preference");
   }
 
   return {
-    id: preference.body.id,
-    initPoint: preference.body.init_point || "",
-    sandboxInitPoint: preference.body.sandbox_init_point || "",
+    id: preference.id,
+    initPoint: preference.init_point || "",
+    sandboxInitPoint: preference.sandbox_init_point || "",
   };
 }
