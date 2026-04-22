@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { toast, Toaster } from "sonner";
 import Link from "next/link";
-import { ArrowLeft, ChevronDown, Check, Loader2, Sparkles, AlertTriangle, CreditCard, Landmark, DollarSign } from "lucide-react";
+import { ArrowLeft, ChevronDown, Check, Loader2, Sparkles, AlertTriangle, CreditCard, Landmark, DollarSign, User, Heart, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -74,6 +74,41 @@ export default function LecturasPage() {
     nombreRecomendo: "",
     paymentMethod: "" as PaymentMethod | "",
   });
+
+  // Auto-save to localStorage
+  const FORM_KEY = "etersomos_lectura_form";
+
+  // Restore form data on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(FORM_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setFormData(parsed);
+        if (parsed._termsAccepted) setTermsAccepted(true);
+      }
+    } catch {}
+  }, []);
+
+  // Auto-save on every change
+  useEffect(() => {
+    if (formData.email || formData.nombre) {
+      localStorage.setItem(FORM_KEY, JSON.stringify({ ...formData, _termsAccepted: termsAccepted }));
+    }
+  }, [formData, termsAccepted]);
+
+  // Progress stepper calculation
+  const currentStep = useMemo(() => {
+    const personalFilled = !!(formData.email && formData.nombre && formData.fechaNacimiento && formData.nacionalidad && formData.ciudadNacimiento && formData.ciudadResidencia && formData.estadoCivil);
+    const healthFilled = !!(formData.enfermedadCronica && formData.medicacion && formData.terapiaPsicologica && formData.terapiaPsiquiatrica && formData.medicacionPsiquiatrica);
+    const questionsFilled = !!(formData.pregunta1 && formData.pregunta2);
+    const paymentFilled = !!formData.paymentMethod;
+    if (paymentFilled) return 4;
+    if (questionsFilled) return 3;
+    if (healthFilled) return 2;
+    if (personalFilled) return 1;
+    return 0;
+  }, [formData]);
 
   const updateField = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -146,6 +181,7 @@ export default function LecturasPage() {
         });
         const data = await res.json();
         if (res.ok) {
+          localStorage.removeItem(FORM_KEY);
           toast.success("Solicitud registrada con éxito", {
             description: "Recibiremos tu lectura por email en la semana siguiente. Recordá realizar la transferencia/envío con los datos indicados.",
             duration: 8000,
@@ -162,6 +198,7 @@ export default function LecturasPage() {
     }
 
     // For MercadoPago or PayPal, use initiateCoursePayment
+    localStorage.removeItem(FORM_KEY);
     const method = formData.paymentMethod as "mercadopago" | "paypal";
     const price = 18000; // ARS price for MP
     const usdPrice = 20;  // USD price for PayPal
@@ -218,7 +255,7 @@ export default function LecturasPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#050a18] flex flex-col">
+    <div className="min-h-screen bg-mystic-950 flex flex-col">
       <Toaster
         position="bottom-right"
         toastOptions={{
@@ -232,11 +269,11 @@ export default function LecturasPage() {
       />
 
       {/* Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-[#050a18]/80 border-b border-mystic-700/30">
+      <header className="sticky top-0 z-50 backdrop-blur-xl bg-mystic-950/80 border-b border-mystic-700/30">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 flex items-center">
           <Link
             href="/#lecturas"
-            className="flex items-center gap-2 text-foreground/60 hover:text-gold-400 transition-colors text-sm font-medium group"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-mystic-900/60 border border-mystic-700/40 text-foreground/70 hover:text-gold-400 hover:border-gold-400/30 transition-all text-sm font-medium group"
           >
             <ArrowLeft className="size-4 group-hover:-translate-x-1 transition-transform" />
             Volver al inicio
@@ -435,6 +472,41 @@ export default function LecturasPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
             >
+              {/* Progress Stepper */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-2">
+                  {[
+                    { icon: User, label: "Datos" },
+                    { icon: Heart, label: "Salud" },
+                    { icon: MessageCircle, label: "Preguntas" },
+                    { icon: CreditCard, label: "Pago" },
+                  ].map((step, i) => (
+                    <div key={i} className="flex flex-col items-center gap-1 flex-1">
+                      <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
+                        currentStep > i 
+                          ? "bg-gold-400 text-mystic-950" 
+                          : currentStep === i 
+                            ? "bg-gold-400/20 text-gold-400 ring-1 ring-gold-400/40" 
+                            : "bg-mystic-800/60 text-foreground/30"
+                      }`}>
+                        {currentStep > i ? <Check className="size-4" /> : <step.icon className="size-4 sm:size-5" />}
+                      </div>
+                      <span className={`text-[10px] sm:text-xs font-medium transition-colors ${
+                        currentStep >= i ? "text-gold-300" : "text-foreground/30"
+                      }`}>{step.label}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="h-1 rounded-full bg-mystic-800/60 overflow-hidden">
+                  <motion.div 
+                    className="h-full bg-gold-400 rounded-full"
+                    initial={false}
+                    animate={{ width: `${Math.max((currentStep / 4) * 100, 4)}%` }}
+                    transition={{ duration: 0.5, ease: "easeInOut" }}
+                  />
+                </div>
+              </div>
+
               <Card className="glass border-mystic-700/30">
                 <CardContent className="pt-6">
                   <div className="space-y-6">

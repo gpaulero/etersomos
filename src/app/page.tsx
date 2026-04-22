@@ -350,6 +350,7 @@ export default function Home() {
   const [cartOpen, setCartOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState("Todos");
   const [navScrolled, setNavScrolled] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
   const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -389,7 +390,10 @@ export default function Home() {
 
   /* ---- Nav scroll effect ---- */
   useEffect(() => {
-    const handleScroll = () => setNavScrolled(window.scrollY > 40);
+    const handleScroll = () => {
+      setNavScrolled(window.scrollY > 40);
+      setShowBackToTop(window.scrollY > 600);
+    };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -418,6 +422,7 @@ export default function Home() {
     });
     toast.success(`${product.name} agregado al carrito`, {
       description: `$${product.price.toLocaleString("es-AR")} ARS`,
+      icon: <Check className="size-5 text-green-400" />,
     });
   }, []);
 
@@ -447,7 +452,11 @@ export default function Home() {
       : products.filter((p) => p.category === activeCategory);
 
   /* ---- Floating stars ---- */
-  const stars = Array.from({ length: 20 }, (_, i) => ({
+  const [starsCount, setStarsCount] = useState(20);
+  useEffect(() => {
+    setStarsCount(window.innerWidth < 640 ? 8 : 20);
+  }, []);
+  const stars = Array.from({ length: starsCount }, (_, i) => ({
     id: i,
     left: `${Math.random() * 100}%`,
     top: `${Math.random() * 100}%`,
@@ -1235,16 +1244,11 @@ export default function Home() {
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="flex-1">
-                      <div className="flex flex-col items-center gap-2 mb-4">
-                        <span className="flex items-center gap-1.5 text-sm text-foreground/60">
-                          <Clock className="size-4 text-gold-400" />
-                          {course.duration}
-                        </span>
-                        <div className="text-center">
-                          <span className="text-lg font-serif font-bold text-gold-400">
-                            {course.priceLabel}
-                          </span>
-                        </div>
+                      <div className="text-center mb-4">
+                        <span className="text-2xl sm:text-3xl font-serif font-bold text-gold-300">{course.priceLabel}</span>
+                        {course.duration !== "A tu ritmo" && (
+                          <p className="text-xs text-foreground/40 mt-1">{course.duration}</p>
+                        )}
                       </div>
                       <Separator className="bg-mystic-800/30 mb-4" />
                       <ul className="space-y-2">
@@ -1405,30 +1409,22 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {testimonials.map((testimonial) => (
               <motion.div key={testimonial.name} variants={staggerItem}>
-                <Card className="glass hover:glow-gold transition-all duration-500 h-full border-mystic-700/30">
-                  <CardHeader>
-                    <div className="flex gap-1 mb-2">
+                <Card className="relative glass hover:glow-gold transition-all duration-500 group h-full border-mystic-700/30 overflow-hidden">
+                  <div className="absolute top-2 right-4 text-6xl text-gold-400/10 font-serif leading-none select-none">&ldquo;</div>
+                  <CardHeader className="text-center relative">
+                    <div className="flex justify-center gap-0.5 mb-3">
                       {Array.from({ length: testimonial.rating }).map((_, i) => (
-                        <Star
-                          key={i}
-                          className="size-4 text-gold-400 fill-gold-400"
-                        />
+                        <Star key={i} className="size-4 text-gold-400 fill-gold-400" />
                       ))}
                     </div>
-                    <CardDescription className="text-foreground/70 text-base leading-relaxed italic">
+                    <p className="text-foreground/70 italic leading-relaxed text-sm min-h-[80px] relative z-10">
                       &ldquo;{testimonial.quote}&rdquo;
-                    </CardDescription>
+                    </p>
                   </CardHeader>
-                  <CardFooter>
-                    <div>
-                      <p className="font-semibold text-gold-300">
-                        {testimonial.name}
-                      </p>
-                      <p className="text-sm text-foreground/50">
-                        {testimonial.location}
-                      </p>
-                    </div>
-                  </CardFooter>
+                  <CardContent className="text-center">
+                    <p className="font-semibold text-gold-300 text-sm">{testimonial.name}</p>
+                    <p className="text-foreground/40 text-xs mt-1">{testimonial.location}</p>
+                  </CardContent>
                 </Card>
               </motion.div>
             ))}
@@ -1509,7 +1505,7 @@ export default function Home() {
                 </li>
                 <li>
                   <a
-                    href="https://wa.me/XXXXXXXXXXX"
+                    href="https://wa.me/5493518629325"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 text-foreground/50 hover:text-gold-400 transition-colors duration-200 text-sm"
@@ -1551,7 +1547,7 @@ export default function Home() {
                 <Instagram className="size-5" />
               </a>
               <a
-                href="https://wa.me/XXXXXXXXXXX"
+                href="https://wa.me/5493518629325"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-foreground/40 hover:text-gold-400 transition-colors duration-200"
@@ -2338,16 +2334,29 @@ export default function Home() {
         </DialogContent>
       </Dialog>
 
+      {/* WhatsApp floating button */}
+      <a
+        href="https://wa.me/5493518629325"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-6 left-6 z-40 w-14 h-14 rounded-full bg-green-500/90 hover:bg-green-500 text-white flex items-center justify-center shadow-lg transition-all hover:scale-110"
+        aria-label="Contactar por WhatsApp"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-7">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+        </svg>
+      </a>
+
       {/* Scroll to top button */}
       <AnimatePresence>
-        {navScrolled && (
+        {showBackToTop && (
           <motion.button
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.2 }}
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-foreground/80 hover:bg-foreground text-background flex items-center justify-center shadow-lg shadow-black/30 backdrop-blur-sm transition-all duration-200 hover:scale-110"
+            className="fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full bg-gold-400/20 hover:bg-gold-400/30 border border-gold-400/30 text-gold-400 flex items-center justify-center shadow-lg backdrop-blur-sm transition-colors"
             aria-label="Volver arriba"
           >
             <ArrowUp className="size-5" />

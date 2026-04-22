@@ -219,3 +219,14 @@
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(42, 37, 32, 0.4);
 }
+
+/* Mobile animation adjustments */
+@media (max-width: 640px) {
+  .animate-float {
+    animation-duration: 8s !important;
+    transform: translateY(0px);
+  }
+  .animate-twinkle {
+    animation-duration: 5s !important;
+  }
+}
