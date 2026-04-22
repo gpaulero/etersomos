@@ -41,3 +41,22 @@ model ReadingBooking {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 }
+
+model CrystalOrder {
+  id             String    @id @default(cuid())
+  customerName   String
+  customerEmail  String
+  customerPhone  String
+  address        String
+  city           String
+  province       String
+  postalCode     String
+  notes          String?
+  items          String    // JSON array of {id, name, quantity, price}
+  total          Float
+  paymentMethod  String    // "paypal" or "mercadopago"
+  paymentId      String?
+  status         String    @default("pendiente") // pendiente, pagado, enviado, cancelado
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}

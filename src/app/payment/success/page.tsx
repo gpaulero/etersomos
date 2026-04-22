@@ -1,0 +1,279 @@
+"use client";
+
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Check, Loader2, Sparkles, ShoppingBag, ArrowLeft, AlertTriangle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+type PaymentStatus = "processing" | "success" | "error";
+
+interface CheckoutSession {
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  address: string;
+  city: string;
+  province: string;
+  postalCode: string;
+  notes: string;
+  items: Array<{ id: number; name: string; quantity: number; price: number }>;
+  total: number;
+  paymentMethod: string;
+  paymentId: string | null;
+  createdAt: string;
+}
+
+function PaymentSuccessContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [status, setStatus] = useState<PaymentStatus>("processing");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [orderInfo, setOrderInfo] = useState<CheckoutSession | null>(null);
+  const hasRunRef = useRef(false);
+
+  const processPayment = useCallback(
+    async (
+      method: string | null,
+      sessionId: string,
+      paypalToken: string | null
+    ) => {
+      const sessionKey = `checkoutSession_${sessionId}`;
+      const sessionRaw = localStorage.getItem(sessionKey);
+
+      if (!sessionRaw) {
+        setStatus("error");
+        setErrorMessage("La sesión de compra expiró o no existe.");
+        return;
+      }
+
+      let session: CheckoutSession;
+      try {
+        session = JSON.parse(sessionRaw);
+        setOrderInfo(session);
+      } catch {
+        setStatus("error");
+        setErrorMessage("Error al leer los datos de la compra.");
+        return;
+      }
+
+      try {
+        let finalPaymentId = session.paymentId;
+
+        if (method === "paypal" && paypalToken) {
+          try {
+            const captureRes = await fetch("/api/payments/capture-paypal", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ orderId: paypalToken }),
+            });
+            const captureData = await captureRes.json();
+            if (captureRes.ok && captureData.success) {
+              finalPaymentId = captureData.captureId;
+            }
+          } catch {
+            console.log("PayPal capture failed or already captured, continuing...");
+          }
+        }
+
+        const confirmRes = await fetch("/api/payments/confirm-order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            customerName: session.customerName,
+            customerEmail: session.customerEmail,
+            customerPhone: session.customerPhone,
+            address: session.address,
+            city: session.city,
+            province: session.province,
+            postalCode: session.postalCode,
+            notes: session.notes,
+            items: session.items,
+            total: session.total,
+            paymentMethod: session.paymentMethod,
+            paymentId: finalPaymentId || paypalToken || null,
+          }),
+        });
+
+        const confirmData = await confirmRes.json();
+
+        if (confirmRes.ok && confirmData.success) {
+          localStorage.removeItem(sessionKey);
+          setStatus("success");
+        } else {
+          setStatus("error");
+          setErrorMessage(confirmData.error || "Error al confirmar el pedido.");
+        }
+      } catch {
+        setStatus("error");
+        setErrorMessage("Error de conexión. Intentá de nuevo.");
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (hasRunRef.current) return;
+    hasRunRef.current = true;
+
+    const method = searchParams.get("method");
+    const sessionId = searchParams.get("session");
+    const paypalToken = searchParams.get("token");
+
+    setTimeout(() => processPayment(method, sessionId || "missing", paypalToken), 0);
+  }, [searchParams, processPayment]);
+
+  const formatPrice = (price: number) =>
+    `$${price.toLocaleString("es-AR")} ARS`;
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 bg-background">
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="max-w-md w-full text-center"
+      >
+        {status === "processing" && (
+          <div className="space-y-6">
+            <div className="mx-auto w-20 h-20 rounded-full bg-gold-500/10 flex items-center justify-center">
+              <Loader2 className="size-10 text-gold-400 animate-spin" />
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-serif font-semibold text-foreground">
+              Procesando tu pedido...
+            </h1>
+            <p className="text-foreground/60">
+              Estamos confirmando tu pago y registrando tu pedido. Esto puede
+              tomar unos segundos.
+            </p>
+          </div>
+        )}
+
+        {status === "success" && (
+          <div className="space-y-6">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
+              className="mx-auto w-20 h-20 rounded-full bg-green-500/10 border-2 border-green-500/30 flex items-center justify-center"
+            >
+              <Check className="size-10 text-green-400" />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+            >
+              <h1 className="text-2xl sm:text-3xl font-serif font-semibold text-foreground mb-2">
+                ¡Pedido Confirmado!
+              </h1>
+              <p className="text-foreground/60">
+                Gracias por tu compra, {orderInfo?.customerName}. Recibirás un
+                email de confirmación pronto.
+              </p>
+            </motion.div>
+
+            {orderInfo && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+                className="bg-mystic-900/50 border border-mystic-700/30 rounded-2xl p-6 text-left space-y-4"
+              >
+                <div className="flex items-center gap-2 text-gold-400 font-serif font-semibold">
+                  <ShoppingBag className="size-4" />
+                  <span>Resumen del pedido</span>
+                </div>
+
+                {orderInfo.items.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex justify-between text-sm"
+                  >
+                    <span className="text-foreground/70">
+                      {item.name} x{item.quantity}
+                    </span>
+                    <span className="text-foreground/80">
+                      {formatPrice(item.price * item.quantity)}
+                    </span>
+                  </div>
+                ))}
+
+                <div className="border-t border-mystic-700/30 pt-3">
+                  <div className="flex justify-between font-bold">
+                    <span className="text-gold-300">Total</span>
+                    <span className="text-gold-400 font-serif">
+                      {formatPrice(orderInfo.total)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="text-xs text-foreground/40 space-y-1">
+                  <p>
+                    Envío a: {orderInfo.address}, {orderInfo.city},{" "}
+                    {orderInfo.province} ({orderInfo.postalCode})
+                  </p>
+                  <p>
+                    Método de pago:{" "}
+                    {orderInfo.paymentMethod === "paypal"
+                      ? "PayPal"
+                      : "MercadoPago"}
+                  </p>
+                </div>
+              </motion.div>
+            )}
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="space-y-3"
+            >
+              <Button
+                onClick={() => router.push("/")}
+                className="w-full bg-foreground hover:bg-foreground/80 text-background font-serif font-semibold py-6 rounded-full transition-all duration-300"
+              >
+                <Sparkles className="size-5 mr-2" />
+                Volver a Eter Somos
+              </Button>
+            </motion.div>
+          </div>
+        )}
+
+        {status === "error" && (
+          <div className="space-y-6">
+            <div className="mx-auto w-20 h-20 rounded-full bg-red-500/10 border-2 border-red-500/30 flex items-center justify-center">
+              <AlertTriangle className="size-10 text-red-400" />
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-serif font-semibold text-foreground">
+              Error en el pago
+            </h1>
+            <p className="text-foreground/60">{errorMessage}</p>
+            <Button
+              onClick={() => router.push("/")}
+              className="bg-foreground hover:bg-foreground/80 text-background font-serif font-semibold py-6 rounded-full transition-all duration-300"
+            >
+              <ArrowLeft className="size-5 mr-2" />
+              Volver al inicio
+            </Button>
+          </div>
+        )}
+      </motion.div>
+    </div>
+  );
+}
+
+export default function PaymentSuccessPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex flex-col items-center justify-center bg-background">
+          <Loader2 className="size-8 text-gold-400 animate-spin" />
+        </div>
+      }
+    >
+      <PaymentSuccessContent />
+    </Suspense>
+  );
+}

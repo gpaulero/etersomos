@@ -1,0 +1,75 @@
+/**
+ * MercadoPago integration for Eter Somos
+ * Uses MercadoPago SDK (already installed: mercadopago)
+ * Production mode by default
+ */
+
+const MERCADOPAGO_ACCESS_TOKEN =
+  process.env.MERCADOPAGO_ACCESS_TOKEN || "";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://etersomos.vercel.app";
+
+interface CartItemForPayment {
+  id: number;
+  name: string;
+  quantity: number;
+  price: number; // ARS price
+}
+
+/**
+ * Create a MercadoPago checkout preference
+ * Returns the init_point URL for redirect
+ */
+export async function createMercadoPagoPreference(
+  items: CartItemForPayment[],
+  sessionId: string,
+  buyerEmail: string
+): Promise<{ id: string; initPoint: string; sandboxInitPoint: string }> {
+  // Dynamic import since mercadopago might not be installed yet
+  const mercadopago = (await import("mercadopago")).default;
+
+  mercadopago.configure({
+    access_token: MERCADOPAGO_ACCESS_TOKEN,
+  });
+
+  const totalARS = items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
+  const preference = await mercadopago.preferences.create({
+    items: items.map((item) => ({
+      id: item.id.toString(),
+      title: item.name,
+      unit_price: item.price,
+      quantity: item.quantity,
+      currency_id: "ARS",
+      category_id: "art", // physical goods category
+    })),
+    payer: {
+      email: buyerEmail || undefined,
+    },
+    back_urls: {
+      success: `${BASE_URL}/payment/success?method=mercadopago&session=${sessionId}`,
+      failure: `${BASE_URL}/?payment=failed`,
+      pending: `${BASE_URL}/payment/success?method=mercadopago&session=${sessionId}&status=pending`,
+    },
+    auto_return: "approved",
+    external_reference: sessionId,
+    notification_url: `${BASE_URL}/api/payments/mercadopago-webhook`,
+    metadata: {
+      session_id: sessionId,
+    },
+    statement_descriptor: "ETER SOMOS",
+    binary_mode: true, // Require exact amount, no partial payments
+  });
+
+  if (!preference.body?.id) {
+    throw new Error("Failed to create MercadoPago preference");
+  }
+
+  return {
+    id: preference.body.id,
+    initPoint: preference.body.init_point || "",
+    sandboxInitPoint: preference.body.sandbox_init_point || "",
+  };
+}

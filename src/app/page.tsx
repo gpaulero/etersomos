@@ -73,6 +73,9 @@ import {
   AlertTriangle,
   ExternalLink,
   ChevronDown,
+  Lock,
+  CreditCard,
+  Landmark,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -324,6 +327,21 @@ export default function Home() {
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
+  /* ---- Checkout form state ---- */
+  const [checkoutDialogOpen, setCheckoutDialogOpen] = useState(false);
+  const [checkoutSubmitting, setCheckoutSubmitting] = useState(false);
+  const [checkoutForm, setCheckoutForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    province: "",
+    postalCode: "",
+    notes: "",
+  });
+  const [checkoutErrors, setCheckoutErrors] = useState<Record<string, string>>({});
+
   /* ---- Admin state ---- */
   const [adminOpen, setAdminOpen] = useState(false);
   const [adminBookings, setAdminBookings] = useState<any[]>([]);
@@ -434,6 +452,136 @@ export default function Home() {
         delete next[field];
         return next;
       });
+    }
+  };
+
+  /* ---- Checkout session helpers ---- */
+  const saveCheckoutSession = (paymentMethod: string, paymentId?: string) => {
+    const session = {
+      customerName: checkoutForm.name,
+      customerEmail: checkoutForm.email,
+      customerPhone: checkoutForm.phone,
+      address: checkoutForm.address,
+      city: checkoutForm.city,
+      province: checkoutForm.province,
+      postalCode: checkoutForm.postalCode,
+      notes: checkoutForm.notes,
+      items: cart.map((item) => ({
+        id: item.id,
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+      })),
+      total: cartTotal,
+      paymentMethod,
+      paymentId: paymentId || null,
+      createdAt: new Date().toISOString(),
+    };
+    const sessionId = `session_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
+    localStorage.setItem(`checkoutSession_${sessionId}`, JSON.stringify(session));
+    return sessionId;
+  };
+
+  const validateCheckoutForm = () => {
+    const errors: Record<string, string> = {};
+    if (!checkoutForm.name.trim()) errors.name = "Ingresá tu nombre completo";
+    if (!checkoutForm.email.trim()) errors.email = "Ingresá tu email";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(checkoutForm.email))
+      errors.email = "Ingresá un email válido";
+    if (!checkoutForm.phone.trim()) errors.phone = "Ingresá tu teléfono";
+    if (!checkoutForm.address.trim()) errors.address = "Ingresá tu dirección";
+    if (!checkoutForm.city.trim()) errors.city = "Ingresá tu ciudad";
+    if (!checkoutForm.province.trim()) errors.province = "Ingresá tu provincia";
+    if (!checkoutForm.postalCode.trim()) errors.postalCode = "Ingresá tu código postal";
+    setCheckoutErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleCheckoutChange = (field: string, value: string) => {
+    setCheckoutForm((prev) => ({ ...prev, [field]: value }));
+    if (checkoutErrors[field]) {
+      setCheckoutErrors((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  };
+
+  const handlePayWithPayPal = async () => {
+    if (!validateCheckoutForm()) return;
+    setCheckoutSubmitting(true);
+    try {
+      const sessionId = saveCheckoutSession("paypal");
+      const res = await fetch("/api/payments/create-paypal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: cart.map((item) => ({
+            id: item.id,
+            name: item.name,
+            quantity: item.quantity,
+            price: item.price,
+          })),
+          sessionId,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.approvalUrl) {
+        // Update session with PayPal order ID
+        const sessionKey = `checkoutSession_${sessionId}`;
+        const session = JSON.parse(localStorage.getItem(sessionKey) || "{}");
+        session.paymentId = data.orderId;
+        localStorage.setItem(sessionKey, JSON.stringify(session));
+        setCartOpen(false);
+        setCheckoutDialogOpen(false);
+        window.location.href = data.approvalUrl;
+      } else {
+        toast.error(data.error || "Error al crear la orden de PayPal");
+      }
+    } catch {
+      toast.error("Error de conexión. Intentá de nuevo.");
+    } finally {
+      setCheckoutSubmitting(false);
+    }
+  };
+
+  const handlePayWithMercadoPago = async () => {
+    if (!validateCheckoutForm()) return;
+    setCheckoutSubmitting(true);
+    try {
+      const sessionId = saveCheckoutSession("mercadopago");
+      const res = await fetch("/api/payments/create-mercadopago", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: cart.map((item) => ({
+            id: item.id,
+            name: item.name,
+            quantity: item.quantity,
+            price: item.price,
+          })),
+          sessionId,
+          buyerEmail: checkoutForm.email,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.initPoint) {
+        // Update session with MP preference ID
+        const sessionKey = `checkoutSession_${sessionId}`;
+        const session = JSON.parse(localStorage.getItem(sessionKey) || "{}");
+        session.paymentId = data.preferenceId;
+        localStorage.setItem(sessionKey, JSON.stringify(session));
+        setCartOpen(false);
+        setCheckoutDialogOpen(false);
+        window.location.href = data.initPoint;
+      } else {
+        toast.error(data.error || "Error al crear la preferencia de MercadoPago");
+      }
+    } catch {
+      toast.error("Error de conexión. Intentá de nuevo.");
+    } finally {
+      setCheckoutSubmitting(false);
     }
   };
 
@@ -761,7 +909,7 @@ export default function Home() {
           >
             <motion.div variants={fadeInUp} transition={{ duration: 0.8 }}>
               <div className="mx-auto mb-8 w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 rounded-full overflow-hidden animate-float shadow-lg shadow-black/30 relative">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
+                { }
                 <img
                   src="/images/logo-etersomos.jpg"
                   alt="Eter Somos"
@@ -1968,16 +2116,32 @@ export default function Home() {
                           {formatPrice(cartTotal)}
                         </span>
                       </div>
-                      <a
-                        href="https://wa.me/XXXXXXXXXXX"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <Button
+                        onClick={() => {
+                          setCartOpen(false);
+                          setCheckoutDialogOpen(true);
+                        }}
+                        className="w-full bg-foreground hover:bg-foreground/80 text-background font-serif font-semibold py-6 rounded-full transition-all duration-300 hover:scale-[1.02]"
                       >
-                        <Button className="w-full bg-foreground hover:bg-foreground/80 text-background font-serif font-semibold py-6 rounded-full transition-all duration-300">
-                          <MessageCircle className="size-5 mr-2" />
-                          Completar compra por WhatsApp
-                        </Button>
-                      </a>
+                        <CreditCard className="size-5 mr-2" />
+                        Pagar
+                      </Button>
+
+                      {/* Trust badges */}
+                      <div className="flex items-center justify-center gap-4 mt-4">
+                        <div className="flex items-center gap-1.5 text-foreground/40">
+                          <Lock className="size-3.5" />
+                          <span className="text-xs">Pago seguro</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-foreground/40">
+                          <Shield className="size-3.5" />
+                          <span className="text-xs">Datos encriptados</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-foreground/40">
+                          <Check className="size-3.5" />
+                          <span className="text-xs">Plataformas verificadas</span>
+                        </div>
+                      </div>
                     </div>
                   </>
                 ) : (
@@ -2005,6 +2169,243 @@ export default function Home() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* ============================================================ */}
+      {/*                   CHECKOUT FORM DIALOG                        */}
+      {/* ============================================================ */}
+      <Dialog open={checkoutDialogOpen} onOpenChange={setCheckoutDialogOpen}>
+        <DialogContent className="bg-mystic-950/98 backdrop-blur-xl border-mystic-700/40 sm:max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-gold-400 font-serif text-2xl flex items-center gap-2">
+              <CreditCard className="size-5" />
+              Finalizá tu Compra
+            </DialogTitle>
+            <DialogDescription className="text-foreground/60">
+              Completá tus datos de envío para recibir tus cristales.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 mt-2">
+            {/* Nombre */}
+            <div className="space-y-2">
+              <Label htmlFor="checkout-name" className="text-foreground/80 text-sm font-medium">
+                Nombre completo <span className="text-gold-400">*</span>
+              </Label>
+              <Input
+                id="checkout-name"
+                placeholder="Ej: María González"
+                value={checkoutForm.name}
+                onChange={(e) => handleCheckoutChange("name", e.target.value)}
+                className={`bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 ${checkoutErrors.name ? "border-red-400/60" : ""}`}
+              />
+              {checkoutErrors.name && (
+                <p className="text-red-400 text-xs">{checkoutErrors.name}</p>
+              )}
+            </div>
+
+            {/* Email */}
+            <div className="space-y-2">
+              <Label htmlFor="checkout-email" className="text-foreground/80 text-sm font-medium">
+                Email <span className="text-gold-400">*</span>
+              </Label>
+              <Input
+                id="checkout-email"
+                type="email"
+                placeholder="Ej: maria@ejemplo.com"
+                value={checkoutForm.email}
+                onChange={(e) => handleCheckoutChange("email", e.target.value)}
+                className={`bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 ${checkoutErrors.email ? "border-red-400/60" : ""}`}
+              />
+              {checkoutErrors.email && (
+                <p className="text-red-400 text-xs">{checkoutErrors.email}</p>
+              )}
+            </div>
+
+            {/* Teléfono */}
+            <div className="space-y-2">
+              <Label htmlFor="checkout-phone" className="text-foreground/80 text-sm font-medium">
+                Teléfono <span className="text-gold-400">*</span>
+              </Label>
+              <Input
+                id="checkout-phone"
+                type="tel"
+                placeholder="Ej: 1155123456"
+                value={checkoutForm.phone}
+                onChange={(e) => handleCheckoutChange("phone", e.target.value)}
+                className={`bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 ${checkoutErrors.phone ? "border-red-400/60" : ""}`}
+              />
+              {checkoutErrors.phone && (
+                <p className="text-red-400 text-xs">{checkoutErrors.phone}</p>
+              )}
+            </div>
+
+            {/* Dirección */}
+            <div className="space-y-2">
+              <Label htmlFor="checkout-address" className="text-foreground/80 text-sm font-medium">
+                Dirección (calle y número) <span className="text-gold-400">*</span>
+              </Label>
+              <Input
+                id="checkout-address"
+                placeholder="Ej: Av. Corrientes 1234"
+                value={checkoutForm.address}
+                onChange={(e) => handleCheckoutChange("address", e.target.value)}
+                className={`bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 ${checkoutErrors.address ? "border-red-400/60" : ""}`}
+              />
+              {checkoutErrors.address && (
+                <p className="text-red-400 text-xs">{checkoutErrors.address}</p>
+              )}
+            </div>
+
+            {/* Ciudad */}
+            <div className="space-y-2">
+              <Label htmlFor="checkout-city" className="text-foreground/80 text-sm font-medium">
+                Ciudad <span className="text-gold-400">*</span>
+              </Label>
+              <Input
+                id="checkout-city"
+                placeholder="Ej: Buenos Aires"
+                value={checkoutForm.city}
+                onChange={(e) => handleCheckoutChange("city", e.target.value)}
+                className={`bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 ${checkoutErrors.city ? "border-red-400/60" : ""}`}
+              />
+              {checkoutErrors.city && (
+                <p className="text-red-400 text-xs">{checkoutErrors.city}</p>
+              )}
+            </div>
+
+            {/* Provincia */}
+            <div className="space-y-2">
+              <Label htmlFor="checkout-province" className="text-foreground/80 text-sm font-medium">
+                Provincia <span className="text-gold-400">*</span>
+              </Label>
+              <Input
+                id="checkout-province"
+                placeholder="Ej: CABA"
+                value={checkoutForm.province}
+                onChange={(e) => handleCheckoutChange("province", e.target.value)}
+                className={`bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 ${checkoutErrors.province ? "border-red-400/60" : ""}`}
+              />
+              {checkoutErrors.province && (
+                <p className="text-red-400 text-xs">{checkoutErrors.province}</p>
+              )}
+            </div>
+
+            {/* Código Postal */}
+            <div className="space-y-2">
+              <Label htmlFor="checkout-postal" className="text-foreground/80 text-sm font-medium">
+                Código Postal <span className="text-gold-400">*</span>
+              </Label>
+              <Input
+                id="checkout-postal"
+                placeholder="Ej: 1234"
+                value={checkoutForm.postalCode}
+                onChange={(e) => handleCheckoutChange("postalCode", e.target.value)}
+                className={`bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 ${checkoutErrors.postalCode ? "border-red-400/60" : ""}`}
+              />
+              {checkoutErrors.postalCode && (
+                <p className="text-red-400 text-xs">{checkoutErrors.postalCode}</p>
+              )}
+            </div>
+
+            {/* Notas adicionales */}
+            <div className="space-y-2">
+              <Label htmlFor="checkout-notes" className="text-foreground/80 text-sm font-medium">
+                Notas adicionales
+              </Label>
+              <Textarea
+                id="checkout-notes"
+                placeholder="Instrucciones especiales de envío, horarios preferidos..."
+                rows={3}
+                value={checkoutForm.notes}
+                onChange={(e) => handleCheckoutChange("notes", e.target.value)}
+                className="bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 resize-none"
+              />
+            </div>
+
+            <Separator className="bg-mystic-800/30" />
+
+            {/* Order summary */}
+            <div className="p-3 rounded-xl bg-mystic-900/50 border border-mystic-700/30">
+              <p className="text-sm text-foreground/60 mb-2 font-medium">Resumen del pedido</p>
+              {cart.map((item) => (
+                <div key={item.id} className="flex justify-between text-sm mb-1">
+                  <span className="text-foreground/70">{item.name} x{item.quantity}</span>
+                  <span className="text-foreground/80">{formatPrice(item.price * item.quantity)}</span>
+                </div>
+              ))}
+              <Separator className="bg-mystic-800/30 my-2" />
+              <div className="flex justify-between font-bold">
+                <span className="text-gold-300">Total</span>
+                <span className="text-gold-400 font-serif">{formatPrice(cartTotal)}</span>
+              </div>
+            </div>
+
+            {/* Security badge */}
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-mystic-900/30 border border-mystic-700/20">
+              <Shield className="size-5 text-gold-400 shrink-0" />
+              <p className="text-xs text-foreground/50 leading-relaxed">
+                Tus datos están protegidos con encriptación SSL. No almacenamos información de tarjetas de crédito.
+              </p>
+            </div>
+
+            {/* Payment buttons */}
+            <div className="space-y-3">
+              <Button
+                onClick={handlePayWithMercadoPago}
+                disabled={checkoutSubmitting}
+                className="w-full bg-[#009ee3] hover:bg-[#0089c7] text-white font-semibold text-base py-5 rounded-full transition-all duration-300 hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
+              >
+                {checkoutSubmitting ? (
+                  <>
+                    <Loader2 className="size-5 mr-2 animate-spin" />
+                    Procesando...
+                  </>
+                ) : (
+                  <>
+                    <Landmark className="size-5 mr-2" />
+                    Pagar con MercadoPago
+                  </>
+                )}
+              </Button>
+
+              <Button
+                onClick={handlePayWithPayPal}
+                disabled={checkoutSubmitting}
+                variant="outline"
+                className="w-full border-foreground/20 text-foreground/80 hover:bg-foreground/5 hover:text-foreground font-semibold text-base py-5 rounded-full transition-all duration-300 hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
+              >
+                {checkoutSubmitting ? (
+                  <>
+                    <Loader2 className="size-5 mr-2 animate-spin" />
+                    Procesando...
+                  </>
+                ) : (
+                  <>
+                    <CreditCard className="size-5 mr-2" />
+                    Pagar con PayPal (USD)
+                  </>
+                )}
+              </Button>
+            </div>
+
+            {/* Trust badges under payment */}
+            <div className="flex items-center justify-center gap-5 pt-1">
+              <div className="flex flex-col items-center gap-1">
+                <Lock className="size-4 text-foreground/30" />
+                <span className="text-[10px] text-foreground/30">Pago seguro</span>
+              </div>
+              <div className="flex flex-col items-center gap-1">
+                <Shield className="size-4 text-foreground/30" />
+                <span className="text-[10px] text-foreground/30">Datos encriptados</span>
+              </div>
+              <div className="flex flex-col items-center gap-1">
+                <Check className="size-4 text-foreground/30" />
+                <span className="text-[10px] text-foreground/30">Plataformas verificadas</span>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Scroll to top button */}
       <AnimatePresence>
