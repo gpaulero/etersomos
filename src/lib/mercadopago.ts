@@ -24,12 +24,12 @@ export async function createMercadoPagoPreference(
   sessionId: string,
   buyerEmail: string
 ): Promise<{ id: string; initPoint: string; sandboxInitPoint: string }> {
-  // SDK v2.x — use MercadoPagoConfig and Preference class
+  // SDK v2.x — pass config to Preference constructor
   const { MercadoPagoConfig, Preference } = await import("mercadopago");
 
-  MercadoPagoConfig.setAccessToken(MERCADOPAGO_ACCESS_TOKEN);
-
-  const client = new Preference();
+  const client = new Preference(
+    new MercadoPagoConfig({ access_token: MERCADOPAGO_ACCESS_TOKEN })
+  );
 
   const preference = await client.create({
     body: {
