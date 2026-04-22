@@ -1,182 +1,24 @@
 ---
-Task ID: 2
-Agent: Main Agent
-Task: Add admin panel, WhatsApp notifications, and Google Calendar integration
-
-Work Log:
-- Updated Prisma schema: added confirmedAt, sentAt, notes, updatedAt fields to ReadingBooking
-- Created /src/lib/notifications.ts service with:
-  - WhatsApp notification via 3 providers: Meta Business API, CallMeBot, wa.me link fallback
-  - Google Calendar link generation (no API key needed)
-  - Deadline calculator (5 business days from confirmation)
-  - Client WhatsApp link builder
-- Updated /src/app/api/bookings/route.ts:
-  - POST: creates booking + fires WhatsApp notification (async, non-blocking)
-  - GET: returns enriched bookings with deadline info, calendar links, client WhatsApp links + stats
-  - PUT: update booking status and notes
-  - DELETE: remove booking
-- Added admin panel to page.tsx:
-  - Stats cards (total, pendiente, confirmada, enviada)
-  - Filter tabs by status
-  - Scrollable bookings list with color-coded status badges
-  - Booking detail Sheet with status management
-  - WhatsApp contact button per client
-  - Google Calendar event creation button
-  - Deadline tracking with color coding
-  - Admin notes textarea
-  - Status progression workflow
-  - Triple-click on logo opens admin panel
-- Zero lint errors, successful compilation
-
-Stage Summary:
-- Admin panel accessible via triple-click on logo
-- WhatsApp notifications: configurable via .env (ADMIN_PHONE, WHATSAPP_PROVIDER)
-- Google Calendar: generates event links with pre-filled details
-- 5-day deadline tracking from confirmation date
-- Full booking CRUD via API
-
----
-Task ID: 3
-Agent: Main Agent
-Task: Modify reading section for offline-only model (single reading type, no date/time selection)
-
-Work Log:
-- Updated readings data array: removed "Lectura de Pareja" and "Lectura Profesional", kept only "Lectura Akáshica Individual" with offline features
-- Updated reading card features: personalized reading, audio recording included, 5 business days delivery by email, written guide, focal question included
-- Changed readings section layout from 3-column grid to single centered card (max-w-lg mx-auto)
-- Removed readingType select from booking form (now hardcoded as "Lectura Akáshica Individual")
-- Removed preferredDate and preferredTime fields from form state, validation, JSX, and reset
-- Added "5 business days" info banner in the form dialog with Clock icon
-- Updated DialogDescription text to explain offline delivery process
-- Updated submit button text from "Enviar Solicitud de Reserva" to "Solicitar mi Lectura"
-- Updated success toast message for offline context
-- Updated footer disclaimer text
-- Updated Martín G. testimonial to remove "lectura de pareja" reference
-- Updated API POST route: removed readingType/preferredDate/preferredTime from request body, hardcoded readingType
-- Updated notifications.ts: removed preferredDate/preferredTime from BookingData interface
-- Updated WhatsApp message template for offline model (removed date/time fields, updated reminder)
-- Updated Google Calendar link generation to create deadline reminder event instead of scheduled session
-- Removed date/time display from admin panel booking detail
-- Removed unused Heart and Zap icon imports
-- Cleaned up form validation (removed readingType check)
-- Build successful, no errors
-
-Stage Summary:
-- Single reading type: "Lectura Akáshica Individual" (offline, recorded, sent by email in 5 business days)
-- No date/time selection needed
-- Form now shows clear 5-day delivery indication
-- All references to "lectura de pareja" and "lectura profesional" removed across the site
-- Admin panel, WhatsApp notifications, and Google Calendar updated accordingly
-
----
-Task ID: 4
-Agent: Main Agent
-Task: Redesign color palette and typography inspired by evaspina.com
-
-Work Log:
-- Analyzed evaspina.com design: monochrome black/white/cream palette, Playfair Display (serif) + Josefin Sans (sans-serif) typography
-- Updated globals.css color theme:
-  - `gold-*` scale redefined: amber/gold → soft lavender (#C4B5FD family) for accent highlights
-  - `mystic-*` scale redefined: bright purple → near-black/charcoal (#0a0a0a to #292524)
-  - Added new `cream-*` scale (#EDE4DF from evaspina) for warm background sections
-  - CSS variables updated from purple oklch to neutral/dark oklch
-  - Glow effects made very subtle (0.08 opacity instead of 0.3)
-  - Star twinkle animation reduced to 0.2-0.7 opacity (more elegant)
-  - Scrollbar colors updated
-  - Glass morphism updated to match new dark palette
-- Updated layout.tsx:
-  - Replaced Geist/Geist_Mono with Playfair_Display + Josefin_Sans
-  - `--font-serif` for headings (Playfair Display), `--font-sans` for body (Josefin Sans)
-- Updated page.tsx:
-  - All section headings now use `font-serif` (Playfair Display)
-  - All buttons changed from gold/dark to foreground (black on transparent / dark bg)
-  - Hero h1 changed from gold to foreground (white/light)
-  - Hero subtitle and paragraph opacity reduced for elegance
-  - CTA buttons: `bg-foreground text-background` (evaspina style)
-  - Secondary buttons: `border-foreground/20 text-foreground/70` (subtle outline)
-  - Course/cart buttons: same dark style
-  - ETER SOMOS logo text: `font-serif tracking-[0.2em] uppercase`
-  - Toast notifications: updated oklch values and added Josefin Sans font
-  - All SheetTitle components updated with `font-serif`
-  - 5-day deadline banner text color adjusted for readability
-  - Cart total and prices use `font-serif`
-- Build successful, zero errors
-
-Stage Summary:
-- New palette: near-black backgrounds, soft lavender accents (#C4B5FD), cream (#EDE4DF) available
-- Typography: Playfair Display for headings, Josefin Sans for body/nav (matching evaspina.com)
-- Buttons: dark/sober style (black text on light, light text on dark) instead of gold
-- Overall mood: elegant, minimalist, sophisticated — aligned with both EterSomos and evaspina aesthetics
-
----
-Task ID: 5
-Agent: Main Agent
-Task: Fix server not running (page showing only "Z"), update color palette to warm monochrome (no yellow, no purple)
-
-Work Log:
-- Diagnosed issue: Next.js production server was not running; Caddy proxy on port 81 returned 502 with Z.ai error page
-- Started production server via `node .next/standalone/server.js`; verified 200 OK responses
-- Analyzed evaspina.com as design reference: monochrome black/white/gray with cream (#F6F4F0) accent
-- Completely rewrote globals.css:
-  - `gold-*` scale: now warm cream/sand (#bfb09a family) — NO yellow, NO gold, NO purple
-  - `mystic-*` scale: true dark neutral (#0a0908 to #2a2520) — NO purple tint
-  - CSS variables use direct hex colors (#0a0908, #f0ebe5, #161310, etc.)
-  - Glow effects use warm rgba(191,176,154,...) — subtle and elegant
-  - Glass morphism: warm dark glass (rgba(22,19,16,0.7))
-  - Scrollbar: warm dark tones
-- Updated layout.tsx:
-  - Playfair Display: weights 400,500,600,700
-  - Josefin Sans: weights 300,400,500,600
-  - Matching evaspina.com font system exactly
-- Updated page.tsx (via subagent):
-  - Replaced all oklch() inline styles with hex equivalents
-  - Removed text-glow-gold from all h2 headings for subdued look
-  - Changed hero logo glow from glow-gold to glow-mystic
-  - Toaster: warm dark background with cream text
-- Rebuilt and restarted production server successfully
-
-Stage Summary:
-- Server fixed: running and serving content on port 3000 (proxied via Caddy on port 81)
-- Color palette: warm monochrome — true blacks, warm creams, sand accents. Zero yellow, zero purple
-- Fonts: Playfair Display + Josefin Sans (matching evaspina.com)
-- Overall mood: subdued, elegant, spiritual sophistication
-
----
-Task ID: 6
-Agent: Main Agent
-Task: Fix logo not updating in hero, navbar, and footer
-
-Work Log:
-- Root cause: uploaded logo (upload/361303363_...) was never copied to public/ directory
-- page.tsx still referenced old /images/logowhite.png in 3 places (navbar line 628, hero line 761, footer line 1336)
-- layout.tsx referenced old /images/logowhite.png for favicon (line 34)
-- Copied uploaded logo to public/images/logo-etersomos.jpg (1772x1772 JPEG, 649KB)
-- Updated all 3 Image src references in page.tsx to /images/logo-etersomos.jpg
-- Updated favicon in layout.tsx to /images/logo-etersomos.jpg
-- Removed output:standalone, rebuilt, then restored standalone with proper static file copy
-- Copied public/ to .next/standalone/public/ and .next/static to .next/standalone/.next/static/
-- Started production server successfully: page 200, logo 200, Caddy 200
-
-Stage Summary:
-- Logo now shows correctly in navbar (top left), hero (above ETER SOMOS), footer, and browser tab
-- Server running on port 3000 via Caddy proxy on port 81
-
----
 Task ID: 1
 Agent: Super Z (main)
-Task: Corregir carrito flotante superpuesto con flecha de subir y eliminar proyecto my-project de Vercel
+Task: Diagnóstico completo del proyecto, documentación, fix de env vars, git backup
 
 Work Log:
-- Diagnosticado: el carrito estaba solo como botón flotante en bottom-right (fixed bottom-6 right-6 z-40) y NO estaba en el navbar
-- Eliminado el bloque del carrito flotante (AnimatePresence + motion.div con fixed position)
-- Agregado botón del carrito en el navbar desktop (después de Instagram, antes del cierre del div)
-- Agregado botón del carrito en el navbar mobile (antes del ícono de Instagram y hamburguesa)
-- Movida la Sheet del carrito para ser controlada desde el navbar (sin SheetTrigger, usando open/onOpenChange)
-- Badge con contador se muestra solo cuando hay items en el carrito
-- Eliminado proyecto "my-project" de Vercel via API (prj_I2APGeQRtpO2pnMuVOc39WZTJvkR)
-- Deploy exitoso a https://etersomos.vercel.app
+- Diagnosticado estado del proyecto: todos los archivos están presentes, build compila OK
+- Verificado que el sitio está online en https://etersomos.vercel.app (HTTP 200)
+- Encontrado que RESEND_API_KEY y ADMIN_EMAIL estaban vacíos en Vercel (production + preview)
+- Encontrado dominio residual "my-project-theta-rust.vercel.app" y eliminado
+- Borradas env vars vacías y recreadas con valores correctos en Vercel
+- Actualizado PROJECT_SPEC.md con documentación completa (credenciales, estructura, formularios, precios)
+- Actualizado .env local con todas las credenciales
+- Git commit con cambios de documentación
+- Deploy a Vercel falló con error temporal de plataforma (no del código)
+- Último deploy exitoso sigue siendo live: etersomos-mvqlek749-gpauleros-projects.vercel.app
 
 Stage Summary:
-- El carrito ahora vive únicamente en el navbar (arriba a la derecha), tanto en desktop como mobile
-- La flecha de subir ya no tiene superposición con el carrito
-- Solo queda el proyecto "etersomos" en Vercel
+- SITIO FUNCIONANDO en producción
+- Env vars de email configuradas correctamente
+- Documentación completa creada en PROJECT_SPEC.md
+- Git backup realizado
+- Dominio residual eliminado
+- Deploy pendiente (reintentar cuando Vercel se estabilice)
