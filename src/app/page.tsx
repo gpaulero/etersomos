@@ -805,10 +805,40 @@ export default function Home() {
             >
               <Instagram className="size-5" />
             </a>
+            {/* Desktop Cart Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative text-foreground/70 hover:text-gold-400 transition-colors duration-200"
+              onClick={() => setCartOpen(true)}
+              aria-label="Abrir carrito"
+            >
+              <ShoppingBag className="size-5" />
+              {cartCount > 0 && (
+                <Badge className="absolute -top-1 -right-1 bg-mystic-700 text-gold-300 border border-mystic-600 text-[10px] px-1 min-w-[18px] h-[18px] flex items-center justify-center">
+                  {cartCount}
+                </Badge>
+              )}
+            </Button>
           </div>
 
           {/* Mobile Menu */}
           <div className="flex md:hidden items-center gap-3">
+            {/* Mobile Cart Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative text-foreground/70 hover:text-gold-400 transition-colors duration-200"
+              onClick={() => setCartOpen(true)}
+              aria-label="Abrir carrito"
+            >
+              <ShoppingBag className="size-5" />
+              {cartCount > 0 && (
+                <Badge className="absolute -top-1 -right-1 bg-mystic-700 text-gold-300 border border-mystic-600 text-[10px] px-1 min-w-[18px] h-[18px] flex items-center justify-center">
+                  {cartCount}
+                </Badge>
+              )}
+            </Button>
             <a
               href="https://instagram.com/etersomos"
               target="_blank"
@@ -2011,164 +2041,141 @@ export default function Home() {
       </Sheet>
 
       {/* ============================================================ */}
-      {/*                     FLOATING CART BUTTON                       */}
+      {/*                       CART SHEET (Navbar)                       */}
       {/* ============================================================ */}
-      <AnimatePresence>
-        {cartCount > 0 && (
-          <motion.div
-            className="fixed bottom-6 right-6 z-40"
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 260, damping: 20 }}
-          >
-            <Sheet open={cartOpen} onOpenChange={setCartOpen}>
-              <SheetTrigger asChild>
-                <Button
-                  size="lg"
-                  className="relative bg-foreground hover:bg-foreground/80 text-background font-semibold rounded-full h-14 w-14 p-0 transition-all duration-300 hover:scale-110"
-                >
-                  <ShoppingBag className="size-6" />
-                  <Badge className="absolute -top-2 -right-2 bg-mystic-700 text-gold-300 border border-mystic-600 text-xs px-1.5 min-w-[20px]">
-                    {cartCount}
-                  </Badge>
-                </Button>
-              </SheetTrigger>
-              <SheetContent
-                side="right"
-                className="bg-mystic-950/95 backdrop-blur-xl border-mystic-800/30 w-full sm:max-w-md flex flex-col"
-              >
-                <SheetHeader>
-                  <SheetTitle className="text-gold-400 font-serif tracking-wider flex items-center gap-2">
-                    <ShoppingBag className="size-5" />
-                    Tu Carrito
-                  </SheetTitle>
-                  <SheetDescription className="text-foreground/60">
-                    {cartCount === 0
-                      ? "Tu carrito está vacío"
-                      : `${cartCount} ${cartCount === 1 ? "producto" : "productos"} en tu carrito`}
-                  </SheetDescription>
-                </SheetHeader>
+      <Sheet open={cartOpen} onOpenChange={setCartOpen}>
+        <SheetContent
+          side="right"
+          className="bg-mystic-950/95 backdrop-blur-xl border-mystic-800/30 w-full sm:max-w-md flex flex-col"
+        >
+          <SheetHeader>
+            <SheetTitle className="text-gold-400 font-serif tracking-wider flex items-center gap-2">
+              <ShoppingBag className="size-5" />
+              Tu Carrito
+            </SheetTitle>
+            <SheetDescription className="text-foreground/60">
+              {cartCount === 0
+                ? "Tu carrito está vacío"
+                : `${cartCount} ${cartCount === 1 ? "producto" : "productos"} en tu carrito`}
+            </SheetDescription>
+          </SheetHeader>
 
-                {cart.length > 0 ? (
-                  <>
-                    <div className="flex-1 overflow-y-auto py-4 space-y-4">
-                      {cart.map((item) => (
-                        <div
-                          key={item.id}
-                          className="flex gap-3 p-3 rounded-xl glass"
+          {cart.length > 0 ? (
+            <>
+              <div className="flex-1 overflow-y-auto py-4 space-y-4">
+                {cart.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex gap-3 p-3 rounded-xl glass"
+                  >
+                    <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0">
+                      <Image
+                        src={item.image}
+                        alt={item.name}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-gold-300 font-semibold text-sm truncate">
+                        {item.name}
+                      </h4>
+                      <p className="text-gold-400 text-sm font-medium">
+                        {formatPrice(item.price)}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-7 w-7 text-foreground/60 hover:text-gold-400"
+                          onClick={() => updateQuantity(item.id, -1)}
                         >
-                          <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0">
-                            <Image
-                              src={item.image}
-                              alt={item.name}
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="text-gold-300 font-semibold text-sm truncate">
-                              {item.name}
-                            </h4>
-                            <p className="text-gold-400 text-sm font-medium">
-                              {formatPrice(item.price)}
-                            </p>
-                            <div className="flex items-center gap-2 mt-1.5">
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                className="h-7 w-7 text-foreground/60 hover:text-gold-400"
-                                onClick={() => updateQuantity(item.id, -1)}
-                              >
-                                <Minus className="size-3" />
-                              </Button>
-                              <span className="text-sm font-medium text-foreground/80 w-6 text-center">
-                                {item.quantity}
-                              </span>
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                className="h-7 w-7 text-foreground/60 hover:text-gold-400"
-                                onClick={() => updateQuantity(item.id, 1)}
-                              >
-                                <Plus className="size-3" />
-                              </Button>
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                className="h-7 w-7 text-foreground/40 hover:text-red-400 ml-auto"
-                                onClick={() => removeFromCart(item.id)}
-                              >
-                                <Trash2 className="size-3" />
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="border-t border-mystic-800/30 pt-4">
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="text-foreground/60 font-medium">
-                          Total
+                          <Minus className="size-3" />
+                        </Button>
+                        <span className="text-sm font-medium text-foreground/80 w-6 text-center">
+                          {item.quantity}
                         </span>
-                        <span className="text-gold-400 text-xl font-serif font-bold">
-                          {formatPrice(cartTotal)}
-                        </span>
-                      </div>
-                      <Button
-                        onClick={() => {
-                          setCartOpen(false);
-                          setCheckoutDialogOpen(true);
-                        }}
-                        className="w-full bg-foreground hover:bg-foreground/80 text-background font-serif font-semibold py-6 rounded-full transition-all duration-300 hover:scale-[1.02]"
-                      >
-                        <CreditCard className="size-5 mr-2" />
-                        Pagar
-                      </Button>
-
-                      {/* Trust badges */}
-                      <div className="flex items-center justify-center gap-4 mt-4">
-                        <div className="flex items-center gap-1.5 text-foreground/40">
-                          <Lock className="size-3.5" />
-                          <span className="text-xs">Pago seguro</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-foreground/40">
-                          <Shield className="size-3.5" />
-                          <span className="text-xs">Datos encriptados</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-foreground/40">
-                          <Check className="size-3.5" />
-                          <span className="text-xs">Plataformas verificadas</span>
-                        </div>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-7 w-7 text-foreground/60 hover:text-gold-400"
+                          onClick={() => updateQuantity(item.id, 1)}
+                        >
+                          <Plus className="size-3" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-7 w-7 text-foreground/40 hover:text-red-400 ml-auto"
+                          onClick={() => removeFromCart(item.id)}
+                        >
+                          <Trash2 className="size-3" />
+                        </Button>
                       </div>
                     </div>
-                  </>
-                ) : (
-                  <div className="flex-1 flex flex-col items-center justify-center text-center py-10">
-                    <ShoppingBag className="size-12 text-mystic-700 mb-4" />
-                    <p className="text-foreground/50 text-sm">
-                      Explorá nuestra tienda y agregá los cristales que
-                      resuenen con vos.
-                    </p>
-                    <Button
-                      variant="outline"
-                      className="mt-4 border-foreground/20 text-foreground/60 hover:bg-foreground/5 hover:text-foreground rounded-full"
-                      onClick={() => {
-                        setCartOpen(false);
-                        scrollTo("#cristales");
-                      }}
-                    >
-                      Ver Cristales
-                      <ArrowRight className="size-4 ml-1" />
-                    </Button>
                   </div>
-                )}
-              </SheetContent>
-            </Sheet>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                ))}
+              </div>
+
+              <div className="border-t border-mystic-800/30 pt-4">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-foreground/60 font-medium">
+                    Total
+                  </span>
+                  <span className="text-gold-400 text-xl font-serif font-bold">
+                    {formatPrice(cartTotal)}
+                  </span>
+                </div>
+                <Button
+                  onClick={() => {
+                    setCartOpen(false);
+                    setCheckoutDialogOpen(true);
+                  }}
+                  className="w-full bg-foreground hover:bg-foreground/80 text-background font-serif font-semibold py-6 rounded-full transition-all duration-300 hover:scale-[1.02]"
+                >
+                  <CreditCard className="size-5 mr-2" />
+                  Pagar
+                </Button>
+
+                {/* Trust badges */}
+                <div className="flex items-center justify-center gap-4 mt-4">
+                  <div className="flex items-center gap-1.5 text-foreground/40">
+                    <Lock className="size-3.5" />
+                    <span className="text-xs">Pago seguro</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-foreground/40">
+                    <Shield className="size-3.5" />
+                    <span className="text-xs">Datos encriptados</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-foreground/40">
+                    <Check className="size-3.5" />
+                    <span className="text-xs">Plataformas verificadas</span>
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 flex flex-col items-center justify-center text-center py-10">
+              <ShoppingBag className="size-12 text-mystic-700 mb-4" />
+              <p className="text-foreground/50 text-sm">
+                Explorá nuestra tienda y agregá los cristales que
+                resuenen con vos.
+              </p>
+              <Button
+                variant="outline"
+                className="mt-4 border-foreground/20 text-foreground/60 hover:bg-foreground/5 hover:text-foreground rounded-full"
+                onClick={() => {
+                  setCartOpen(false);
+                  scrollTo("#cristales");
+                }}
+              >
+                Ver Cristales
+                <ArrowRight className="size-4 ml-1" />
+              </Button>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
 
       {/* ============================================================ */}
       {/*                   CHECKOUT FORM DIALOG                        */}

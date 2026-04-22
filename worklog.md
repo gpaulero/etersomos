@@ -160,3 +160,23 @@ Work Log:
 Stage Summary:
 - Logo now shows correctly in navbar (top left), hero (above ETER SOMOS), footer, and browser tab
 - Server running on port 3000 via Caddy proxy on port 81
+
+---
+Task ID: 1
+Agent: Super Z (main)
+Task: Corregir carrito flotante superpuesto con flecha de subir y eliminar proyecto my-project de Vercel
+
+Work Log:
+- Diagnosticado: el carrito estaba solo como botón flotante en bottom-right (fixed bottom-6 right-6 z-40) y NO estaba en el navbar
+- Eliminado el bloque del carrito flotante (AnimatePresence + motion.div con fixed position)
+- Agregado botón del carrito en el navbar desktop (después de Instagram, antes del cierre del div)
+- Agregado botón del carrito en el navbar mobile (antes del ícono de Instagram y hamburguesa)
+- Movida la Sheet del carrito para ser controlada desde el navbar (sin SheetTrigger, usando open/onOpenChange)
+- Badge con contador se muestra solo cuando hay items en el carrito
+- Eliminado proyecto "my-project" de Vercel via API (prj_I2APGeQRtpO2pnMuVOc39WZTJvkR)
+- Deploy exitoso a https://etersomos.vercel.app
+
+Stage Summary:
+- El carrito ahora vive únicamente en el navbar (arriba a la derecha), tanto en desktop como mobile
+- La flecha de subir ya no tiene superposición con el carrito
+- Solo queda el proyecto "etersomos" en Vercel
