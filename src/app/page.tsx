@@ -234,15 +234,16 @@ const readings = [
   {
     name: "Lectura Akáshica Individual",
     description:
-      "Accedemos a los Registros de tu alma para revelar el propósito de tu ser, patrones kármicos y el camino hacia tu mayor potencial. Es una experiencia personal e íntima, grabada especialmente para vos.",
+      "Accedemos a los Registros de tu alma para revelar el propósito de tu ser, patrones kármicos y el camino hacia tu mayor potencial. Es una experiencia personal e íntima, grabada especialmente para vos en audios de 30 a 40 minutos.",
     icon: Eye,
     features: [
       "Lectura personalizada e individual",
-      "Grabación de audio incluida",
-      "Enviada por email dentro de los 5 días hábiles",
-      "Guía escrita de los mensajes recibidos",
-      "Pregunta focal incluida",
+      "2 preguntas respondidas en audios",
+      "Enviada por email en la semana siguiente",
+      "$18.000 ARS / US$20",
+      "Confidencialidad absoluta",
     ],
+    price: "$18.000 ARS / US$20",
   },
 ];
 
@@ -1169,131 +1170,16 @@ export default function Home() {
           </div>
 
           <motion.div variants={staggerItem} className="text-center">
-            <Dialog open={bookingDialogOpen} onOpenChange={setBookingDialogOpen}>
-              <DialogTrigger asChild>
-                <Button
-                  size="lg"
-                  className="bg-foreground hover:bg-foreground/80 text-background font-serif font-semibold text-lg px-10 py-7 rounded-full transition-all duration-300 hover:scale-105"
-                >
-                  <Calendar className="size-5 mr-2" />
-                  Reservar mi Lectura
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="bg-mystic-950/98 backdrop-blur-xl border-mystic-700/40 sm:max-w-lg max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle className="text-gold-400 font-serif text-2xl flex items-center gap-2">
-                    <Sparkles className="size-5" />
-                    Reservá tu Lectura
-                  </DialogTitle>
-                  <DialogDescription className="text-foreground/60">
-                    Completá el formulario y recibiremos tu lectura grabada por email dentro de los próximos 5 días hábiles.
-                  </DialogDescription>
-                </DialogHeader>
-
-                <div className="space-y-4 mt-2">
-                  {/* Nombre */}
-                  <div className="space-y-2">
-                    <Label htmlFor="booking-name" className="text-foreground/80 text-sm font-medium">
-                      Nombre completo <span className="text-gold-400">*</span>
-                    </Label>
-                    <Input
-                      id="booking-name"
-                      placeholder="Ej: María González"
-                      value={formData.name}
-                      onChange={(e) => handleFormChange("name", e.target.value)}
-                      className={`bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 ${formErrors.name ? "border-red-400/60" : ""}`}
-                    />
-                    {formErrors.name && (
-                      <p className="text-red-400 text-xs">{formErrors.name}</p>
-                    )}
-                  </div>
-
-                  {/* Email */}
-                  <div className="space-y-2">
-                    <Label htmlFor="booking-email" className="text-foreground/80 text-sm font-medium">
-                      Email <span className="text-gold-400">*</span>
-                    </Label>
-                    <Input
-                      id="booking-email"
-                      type="email"
-                      placeholder="Ej: maria@ejemplo.com"
-                      value={formData.email}
-                      onChange={(e) => handleFormChange("email", e.target.value)}
-                      className={`bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 ${formErrors.email ? "border-red-400/60" : ""}`}
-                    />
-                    {formErrors.email && (
-                      <p className="text-red-400 text-xs">{formErrors.email}</p>
-                    )}
-                  </div>
-
-                  {/* Teléfono */}
-                  <div className="space-y-2">
-                    <Label htmlFor="booking-phone" className="text-foreground/80 text-sm font-medium">
-                      Teléfono / WhatsApp <span className="text-gold-400">*</span>
-                    </Label>
-                    <Input
-                      id="booking-phone"
-                      type="tel"
-                      placeholder="Ej: 1155123456"
-                      value={formData.phone}
-                      onChange={(e) => handleFormChange("phone", e.target.value)}
-                      className={`bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 ${formErrors.phone ? "border-red-400/60" : ""}`}
-                    />
-                    {formErrors.phone && (
-                      <p className="text-red-400 text-xs">{formErrors.phone}</p>
-                    )}
-                  </div>
-
-                  {/* Indicación de plazo */}
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-gold-500/10 border border-gold-400/20">
-                    <Clock className="size-5 text-gold-400 shrink-0" />
-                    <p className="text-sm text-foreground/70 leading-relaxed">
-                      Tu lectura será grabada y enviada por email dentro de los <span className="font-semibold text-gold-300">5 días hábiles</span> posteriores a la solicitud.
-                    </p>
-                  </div>
-
-                  {/* Mensaje / Pregunta */}
-                  <div className="space-y-2">
-                    <Label htmlFor="booking-message" className="text-foreground/80 text-sm font-medium">
-                      Mensaje o pregunta para la lectura
-                    </Label>
-                    <Textarea
-                      id="booking-message"
-                      placeholder="Contanos qué te gustaría explorar en tu lectura, alguna pregunta específica o inquietud..."
-                      rows={4}
-                      value={formData.message}
-                      onChange={(e) => handleFormChange("message", e.target.value)}
-                      className="bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 resize-none"
-                    />
-                  </div>
-
-                  <Separator className="bg-mystic-800/30" />
-
-                  {/* Submit */}
-                  <Button
-                    onClick={handleSubmitBooking}
-                    disabled={formSubmitting}
-                    className="w-full bg-foreground hover:bg-foreground/80 text-background font-serif font-semibold text-base py-6 rounded-full transition-all duration-300 hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
-                  >
-                    {formSubmitting ? (
-                      <>
-                        <Loader2 className="size-5 mr-2 animate-spin" />
-                        Enviando...
-                      </>
-                    ) : (
-                      <>
-                        <Send className="size-5 mr-2" />
-                        Solicitar mi Lectura
-                      </>
-                    )}
-                  </Button>
-
-                  <p className="text-center text-foreground/40 text-xs">
-                    Al enviar, aceptás que te enviemos la lectura grabada al email indicado.
-                  </p>
-                </div>
-              </DialogContent>
-            </Dialog>
+            <p className="text-gold-300 font-serif text-xl font-semibold mb-4">$18.000 ARS / US$20</p>
+            <Link href="/lecturas">
+              <Button
+                size="lg"
+                className="bg-foreground hover:bg-foreground/80 text-background font-serif font-semibold text-lg px-10 py-7 rounded-full transition-all duration-300 hover:scale-105"
+              >
+                <Calendar className="size-5 mr-2" />
+                Solicitar mi Lectura
+              </Button>
+            </Link>
           </motion.div>
         </AnimatedSection>
       </section>

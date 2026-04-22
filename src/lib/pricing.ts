@@ -26,7 +26,7 @@ export const crystalPrices: ProductPricing[] = [
 ];
 
 /** Reading price */
-export const readingPrice: PriceEntry = { ars: 35000, usd: 35 };
+export const readingPrice: PriceEntry = { ars: 18000, usd: 20 };
 
 /**
  * Course prices — based on Fernanda's actual Google Forms
