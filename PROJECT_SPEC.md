@@ -50,6 +50,7 @@ https://etersomos.vercel.app
 ### Git (para commits)
 - Nombre: gpaulero
 - Email: gpaulero@gmail.com (DEBE coincidir con GitHub account para que Vercel no bloquee el deploy)
+- Repositorio: https://github.com/gpaulero/etersomos.git
 
 ---
 
