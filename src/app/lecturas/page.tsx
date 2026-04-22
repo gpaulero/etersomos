@@ -163,7 +163,8 @@ export default function LecturasPage() {
 
     // For MercadoPago or PayPal, use initiateCoursePayment
     const method = formData.paymentMethod as "mercadopago" | "paypal";
-    const price = method === "mercadopago" ? 18000 : 20;
+    const price = 18000; // ARS price for MP
+    const usdPrice = 20;  // USD price for PayPal
 
     setSubmitting(true);
     try {
@@ -174,6 +175,7 @@ export default function LecturasPage() {
         name: formData.nombre,
         phone: formData.telefono,
         price,
+        usdPrice,
         paymentMethod: method,
         checkoutType: "reading",
         enrollmentData: {

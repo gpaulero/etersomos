@@ -152,7 +152,7 @@ export default function N2Page() {
     if (!validate()) return;
     setSubmitting(true);
     try {
-      const price = method === "paypal" ? currentPriceUsd : currentPriceArs;
+      const price = currentPriceArs;
       await initiateCoursePayment({
         courseId: "n2-completo",
         courseName: "2do Nivel Completo – Registros Akáshicos",
@@ -160,6 +160,7 @@ export default function N2Page() {
         name: nombre,
         phone: telefono,
         price,
+        usdPrice: currentPriceUsd,
         paymentMethod: method,
         enrollmentData: {
           email, nombre, fechaNac, nacionalidad, ciudadNac, ciudadActual,

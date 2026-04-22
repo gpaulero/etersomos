@@ -10,7 +10,10 @@ interface CoursePaymentData {
   email: string;
   name: string;
   phone: string;
+  /** ARS price (used for MercadoPago) */
   price: number;
+  /** USD price (used for PayPal). If not provided, falls back to ARS conversion. */
+  usdPrice?: number;
   paymentMethod: "mercadopago" | "paypal";
   enrollmentData: Record<string, unknown>;
   /** Override the checkout session type. Defaults to "course_enrollment". */
@@ -55,6 +58,7 @@ export async function initiateCoursePayment(data: CoursePaymentData) {
   localStorage.setItem(`checkoutSession_${sessionId}`, JSON.stringify(session));
 
   if (data.paymentMethod === "mercadopago") {
+    // MercadoPago always uses ARS price
     const res = await fetch("/api/payments/create-mercadopago", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -74,11 +78,18 @@ export async function initiateCoursePayment(data: CoursePaymentData) {
       toast.error(result.error || "Error al crear la preferencia de MercadoPago");
     }
   } else {
+    // PayPal uses USD price
     const res = await fetch("/api/payments/create-paypal", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        items: [{ id: 0, name: data.courseName, quantity: 1, price: data.price }],
+        items: [{
+          id: 0,
+          name: data.courseName,
+          quantity: 1,
+          price: data.price, // ARS price (fallback)
+          usdPrice: data.usdPrice, // USD price for PayPal
+        }],
         sessionId,
       }),
     });

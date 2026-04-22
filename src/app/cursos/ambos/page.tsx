@@ -119,10 +119,7 @@ export default function AmbosPage() {
     if (!validate()) return;
     setSubmitting(true);
     try {
-      const price =
-        method === "paypal"
-          ? PRICE_USD_ALT
-          : PRICE_ARS;
+      const price = PRICE_ARS;
       await initiateCoursePayment({
         courseId: "ambos-cursos",
         courseName: "Ambos Cursos – Formación Completa en Registros Akáshicos",
@@ -130,6 +127,7 @@ export default function AmbosPage() {
         name: nombre,
         phone: telefono,
         price,
+        usdPrice: PRICE_USD_ALT,
         paymentMethod: method,
         enrollmentData: {
           email, nombre, fechaNac, nacionalidad, ciudad, telefono,

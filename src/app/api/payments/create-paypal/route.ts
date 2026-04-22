@@ -23,8 +23,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Convert ARS prices to USD using our pricing system
-    const paypalItems = items.map((item: { id: number; name: string; quantity: number }) => {
+    // Items can have an explicit USD price (courses/readings) or ARS price (crystals)
+    // If item has usdPrice, use it directly. Otherwise convert from ARS.
+    const paypalItems = items.map((item: { id: number; name: string; quantity: number; price: number; usdPrice?: number }) => {
+      if (item.usdPrice && item.usdPrice > 0) {
+        // Explicit USD price (courses, readings)
+        return {
+          id: item.id,
+          name: item.name,
+          quantity: item.quantity,
+          price: item.usdPrice,
+        };
+      }
+      // Crystal — convert from ARS using pricing table
       const pricing = getCrystalPrice(item.id);
       const usdPrice = pricing?.usd || Math.round(item.price / 1000);
       return {
@@ -34,6 +45,14 @@ export async function POST(request: NextRequest) {
         price: usdPrice,
       };
     });
+
+    // Validate that all prices are > 0
+    if (paypalItems.some((item) => item.price <= 0)) {
+      return NextResponse.json(
+        { error: "El precio en USD debe ser mayor a 0." },
+        { status: 400 }
+      );
+    }
 
     const order = await createPayPalOrder(paypalItems, sessionId);
 

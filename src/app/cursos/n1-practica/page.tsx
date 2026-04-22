@@ -129,7 +129,7 @@ export default function N1PracticaPage() {
     if (!validate()) return;
     setSubmitting(true);
     try {
-      const price = method === "paypal" ? PRICE_USD : PRICE_ARS;
+      const price = PRICE_ARS;
       await initiateCoursePayment({
         courseId: "n1-practica",
         courseName: "1er Nivel con Práctica – Registros Akáshicos",
@@ -137,6 +137,7 @@ export default function N1PracticaPage() {
         name: nombre,
         phone: telefono,
         price,
+        usdPrice: PRICE_USD,
         paymentMethod: method,
         enrollmentData: {
           email, nombre, fechaNac, nacionalidad, ciudad, telefono,
