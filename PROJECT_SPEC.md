@@ -5,6 +5,12 @@
 Este documento describe TODO el estado actual, credenciales, estructura y requisitos del sitio web.
 **Siempre consultar antes de hacer cambios.**
 
+### REGLA OBLIGATORIA - GIT BACKUP
+**DESPUÉS DE CADA CAMBIO (por más chico que sea), hacer git commit inmediatamente.**
+No esperar a que el usuario lo pida. Todo cambio a cualquier archivo = commit.
+Comando: `git add -A && git -c user.name="Fernanda" -c user.email="etersomos@gmail.com" commit -m "descripcion del cambio"`
+Esto asegura que nunca se pierda trabajo entre sesiones.
+
 ---
 
 ## URL Producción
