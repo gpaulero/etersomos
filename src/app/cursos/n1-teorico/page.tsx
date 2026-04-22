@@ -123,6 +123,49 @@ export default function N1TeoricoPage() {
     return Object.keys(e).length === 0;
   };
 
+  const enrollmentData = {
+    email, nombre, fechaHoy, nacionalidad, ciudad, telefono,
+    lectorAkashico, comoSeEnteraste, recomendadoNombre, monto, metodoPago,
+  };
+
+  const handleOfflineSubmit = async () => {
+    if (!validate()) return;
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/payments/confirm-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "course_enrollment",
+          customerName: nombre,
+          customerEmail: email,
+          customerPhone: telefono || "",
+          address: "Curso online",
+          city: "N/A",
+          province: "N/A",
+          postalCode: "0000",
+          items: [{ id: 0, name: "1er Nivel Solo Teórico – Registros Akáshicos", quantity: 1, price: Number(monto) }],
+          total: Number(monto),
+          paymentMethod: metodoPago,
+          extraData: { formData: enrollmentData },
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        toast.success("Inscripción registrada con éxito", {
+          description: "Recordá realizar la transferencia con los datos indicados. Te contactaremos para comenzar el curso.",
+          duration: 8000,
+        });
+      } else {
+        toast.error(data.error || "Error al registrar la inscripción");
+      }
+    } catch {
+      toast.error("Error de conexión. Intentá de nuevo.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const handlePay = async (method: "mercadopago" | "paypal") => {
     if (!validate()) return;
     setSubmitting(true);
@@ -653,18 +696,18 @@ export default function N1TeoricoPage() {
                       </p>
                     </div>
                     <p className="text-xs text-foreground/40">
-                      Luego de realizar la transferencia, completá el pago con
-                      MercadoPago para registrar tu inscripción.
+                      Luego de realizar la transferencia, presioná el botón
+                      para registrar tu inscripción.
                     </p>
                     <Button
-                      onClick={() => handlePay("mercadopago")}
+                      onClick={handleOfflineSubmit}
                       disabled={submitting}
-                      className="w-full bg-[#009ee3] hover:bg-[#008bc7] text-white font-semibold py-4 rounded-xl transition-all duration-300 disabled:opacity-60"
+                      className="w-full bg-foreground hover:bg-foreground/80 text-background font-semibold py-4 rounded-xl transition-all duration-300 disabled:opacity-60"
                     >
                       {submitting ? (
                         <Loader2 className="size-5 animate-spin" />
                       ) : (
-                        "Registrar inscripción con MercadoPago"
+                        "Registrar inscripción"
                       )}
                     </Button>
                   </div>
@@ -705,11 +748,11 @@ export default function N1TeoricoPage() {
                       transferencia.
                     </p>
                     <p className="text-xs text-foreground/40">
-                      Luego de realizar el envío, completá el pago con PayPal
-                      para registrar tu inscripción.
+                      Luego de realizar el envío, presioná el botón para
+                      registrar tu inscripción.
                     </p>
                     <Button
-                      onClick={() => handlePay("paypal")}
+                      onClick={handleOfflineSubmit}
                       disabled={submitting}
                       variant="outline"
                       className="w-full border-foreground/20 text-foreground/80 hover:bg-foreground/5 hover:text-foreground font-semibold py-4 rounded-xl transition-all duration-300 disabled:opacity-60"
@@ -717,7 +760,7 @@ export default function N1TeoricoPage() {
                       {submitting ? (
                         <Loader2 className="size-5 animate-spin" />
                       ) : (
-                        "Registrar inscripción con PayPal"
+                        "Registrar inscripción"
                       )}
                     </Button>
                   </div>

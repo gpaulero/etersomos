@@ -125,6 +125,54 @@ export default function N1PracticaPage() {
     return Object.keys(e).length === 0;
   };
 
+  const enrollmentData = {
+    email, nombre, fechaNac, nacionalidad, ciudad, telefono,
+    lectorAkashico, porQue, profesion, enfermedadCronica,
+    medicacion, medicacionTiempo, terapiaPsico, terapiaPsicoTiempo,
+    terapiaPsiquiatra, terapiaPsiquiatraTiempo, episodios,
+    terapiasHolisticas, meditacionFreq, meditacionTipo,
+    plantasSagradas, disponibilidad, temasPracticas,
+    compartirExperiencias, metodoPago,
+  };
+
+  const handleOfflineSubmit = async () => {
+    if (!validate()) return;
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/payments/confirm-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "course_enrollment",
+          customerName: nombre,
+          customerEmail: email,
+          customerPhone: telefono,
+          address: "Curso online",
+          city: "N/A",
+          province: "N/A",
+          postalCode: "0000",
+          items: [{ id: 0, name: "1er Nivel con Práctica – Registros Akáshicos", quantity: 1, price: PRICE_ARS }],
+          total: PRICE_ARS,
+          paymentMethod: metodoPago,
+          extraData: { formData: enrollmentData },
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        toast.success("Inscripción registrada con éxito", {
+          description: "Recordá realizar la transferencia con los datos indicados. Te contactaremos para comenzar el curso.",
+          duration: 8000,
+        });
+      } else {
+        toast.error(data.error || "Error al registrar la inscripción");
+      }
+    } catch {
+      toast.error("Error de conexión. Intentá de nuevo.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const handlePay = async (method: "mercadopago" | "paypal") => {
     if (!validate()) return;
     setSubmitting(true);
@@ -139,15 +187,7 @@ export default function N1PracticaPage() {
         price,
         usdPrice: PRICE_USD,
         paymentMethod: method,
-        enrollmentData: {
-          email, nombre, fechaNac, nacionalidad, ciudad, telefono,
-          lectorAkashico, porQue, profesion, enfermedadCronica,
-          medicacion, medicacionTiempo, terapiaPsico, terapiaPsicoTiempo,
-          terapiaPsiquiatra, terapiaPsiquiatraTiempo, episodios,
-          terapiasHolisticas, meditacionFreq, meditacionTipo,
-          plantasSagradas, disponibilidad, temasPracticas,
-          compartirExperiencias, metodoPago,
-        },
+        enrollmentData,
       });
     } catch {
       toast.error("Error de conexión. Intentá de nuevo.");
@@ -487,6 +527,7 @@ export default function N1PracticaPage() {
                 priceUsd={PRICE_USD}
                 onPayMercadoPago={() => handlePay("mercadopago")}
                 onPayPaypal={() => handlePay("paypal")}
+                onSubmitOffline={handleOfflineSubmit}
                 inputClass={inputClass}
               />
             </CardContent>
@@ -540,10 +581,10 @@ function RadioField({ label, required, value, onChange, error, options, name }: 
   );
 }
 
-function PaymentSection({ method, onChange, error, submitting, priceArs, priceUsd, onPayMercadoPago, onPayPaypal, inputClass }: {
+function PaymentSection({ method, onChange, error, submitting, priceArs, priceUsd, onPayMercadoPago, onPayPaypal, onSubmitOffline, inputClass }: {
   method: string; onChange: (v: string) => void; error?: string; submitting: boolean;
   priceArs: number; priceUsd: number;
-  onPayMercadoPago: () => void; onPayPaypal: () => void;
+  onPayMercadoPago: () => void; onPayPaypal: () => void; onSubmitOffline: () => void;
   inputClass: string;
 }) {
   const errorInput = "bg-mystic-900/50 border-red-400/60 text-foreground placeholder:text-foreground/30";
@@ -590,8 +631,8 @@ function PaymentSection({ method, onChange, error, submitting, priceArs, priceUs
             <p><span className="text-gold-400 font-medium">CBU:</span> 1430001713002632000014</p>
             <p><span className="text-gold-400 font-medium">Alias:</span> fer.cardozo</p>
           </div>
-          <Button onClick={onPayMercadoPago} disabled={submitting} className="w-full bg-[#009ee3] hover:bg-[#008bc7] text-white font-semibold py-4 rounded-xl transition-all duration-300 disabled:opacity-60">
-            {submitting ? <Loader2 className="size-5 animate-spin" /> : "Registrar inscripción con MercadoPago"}
+          <Button onClick={onSubmitOffline} disabled={submitting} className="w-full bg-foreground hover:bg-foreground/80 text-background font-semibold py-4 rounded-xl transition-all duration-300 disabled:opacity-60">
+            {submitting ? <Loader2 className="size-5 animate-spin" /> : "Registrar inscripción"}
           </Button>
         </div>
       )}
@@ -608,8 +649,8 @@ function PaymentSection({ method, onChange, error, submitting, priceArs, priceUs
       {method === "western_union" && (
         <div className="glass rounded-lg p-4 text-sm space-y-3 border border-mystic-700/20">
           <p className="text-foreground/70">Para Western Union contactá a Fernanda para los datos de transferencia (<strong className="text-gold-300">US${priceUsd}</strong>).</p>
-          <Button onClick={onPayPaypal} disabled={submitting} variant="outline" className="w-full border-foreground/20 text-foreground/80 hover:bg-foreground/5 hover:text-foreground font-semibold py-4 rounded-xl transition-all duration-300 disabled:opacity-60">
-            {submitting ? <Loader2 className="size-5 animate-spin" /> : "Registrar inscripción con PayPal"}
+          <Button onClick={onSubmitOffline} disabled={submitting} variant="outline" className="w-full border-foreground/20 text-foreground/80 hover:bg-foreground/5 hover:text-foreground font-semibold py-4 rounded-xl transition-all duration-300 disabled:opacity-60">
+            {submitting ? <Loader2 className="size-5 animate-spin" /> : "Registrar inscripción"}
           </Button>
         </div>
       )}
