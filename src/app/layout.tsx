@@ -18,6 +18,7 @@ const josefin = Josefin_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://etersomos.vercel.app"),
   title: "Eter Somos | Registros Akáshicos - Lecturas, Cursos y Cristales",
   description:
     "Descubre la sabiduría ancestral de tus Registros Akáshicos. Lecturas personalizadas, cursos de formación y tienda de cristales para tu camino espiritual.",

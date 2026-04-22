@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import {
@@ -83,6 +83,8 @@ const registrosFreqOptions = [
   "Otro",
 ];
 
+const FORM_KEY = "etersomos_n2_form";
+
 export default function N2Page() {
   const [agreementOpen, setAgreementOpen] = useState(true);
   const [accepted, setAccepted] = useState(false);
@@ -116,6 +118,66 @@ export default function N2Page() {
   const [compartirExperiencias, setCompartirExperiencias] = useState("");
   const [primerNivelConmigo, setPrimerNivelConmigo] = useState("");
   const [metodoPago, setMetodoPago] = useState("");
+
+  // Restore form data on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(FORM_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.email) setEmail(parsed.email);
+        if (parsed.nombre) setNombre(parsed.nombre);
+        if (parsed.fechaNac) setFechaNac(parsed.fechaNac);
+        if (parsed.nacionalidad) setNacionalidad(parsed.nacionalidad);
+        if (parsed.ciudadNac) setCiudadNac(parsed.ciudadNac);
+        if (parsed.ciudadActual) setCiudadActual(parsed.ciudadActual);
+        if (parsed.telefono) setTelefono(parsed.telefono);
+        if (parsed.lectorAkashico) setLectorAkashico(parsed.lectorAkashico);
+        if (parsed.primerNivel) setPrimerNivel(parsed.primerNivel);
+        if (parsed.porQue) setPorQue(parsed.porQue);
+        if (parsed.enfermedadCronica) setEnfermedadCronica(parsed.enfermedadCronica);
+        if (parsed.medicacion) setMedicacion(parsed.medicacion);
+        if (parsed.medicacionOtro) setMedicacionOtro(parsed.medicacionOtro);
+        if (parsed.terapiaPsico) setTerapiaPsico(parsed.terapiaPsico);
+        if (parsed.terapiaPsicoTiempo) setTerapiaPsicoTiempo(parsed.terapiaPsicoTiempo);
+        if (parsed.terapiaPsiquiatra) setTerapiaPsiquiatra(parsed.terapiaPsiquiatra);
+        if (parsed.terapiaPsiquiatraTiempo) setTerapiaPsiquiatraTiempo(parsed.terapiaPsiquiatraTiempo);
+        if (parsed.episodios) setEpisodios(parsed.episodios);
+        if (parsed.terapiasHolisticas) setTerapiasHolisticas(parsed.terapiasHolisticas);
+        if (parsed.meditacionFreq) setMeditacionFreq(parsed.meditacionFreq);
+        if (Array.isArray(parsed.meditacionTipo)) setMeditacionTipo(parsed.meditacionTipo);
+        if (parsed.registrosFreq) setRegistrosFreq(parsed.registrosFreq);
+        if (parsed.plantasSagradas) setPlantasSagradas(parsed.plantasSagradas);
+        if (parsed.franjaHoraria) setFranjaHoraria(parsed.franjaHoraria);
+        if (parsed.compartirExperiencias) setCompartirExperiencias(parsed.compartirExperiencias);
+        if (parsed.primerNivelConmigo) setPrimerNivelConmigo(parsed.primerNivelConmigo);
+        if (parsed.metodoPago) setMetodoPago(parsed.metodoPago);
+        if (parsed._accepted) setAccepted(true);
+      }
+    } catch {}
+  }, []);
+
+  // Auto-save on changes
+  useEffect(() => {
+    if (email || nombre) {
+      localStorage.setItem(FORM_KEY, JSON.stringify({
+        email, nombre, fechaNac, nacionalidad, ciudadNac, ciudadActual,
+        telefono, lectorAkashico, primerNivel, porQue, enfermedadCronica,
+        medicacion, medicacionOtro, terapiaPsico, terapiaPsicoTiempo,
+        terapiaPsiquiatra, terapiaPsiquiatraTiempo, episodios,
+        terapiasHolisticas, meditacionFreq, meditacionTipo, registrosFreq,
+        plantasSagradas, franjaHoraria, compartirExperiencias,
+        primerNivelConmigo, metodoPago,
+        _accepted: accepted,
+      }));
+    }
+  }, [email, nombre, fechaNac, nacionalidad, ciudadNac, ciudadActual,
+      telefono, lectorAkashico, primerNivel, porQue, enfermedadCronica,
+      medicacion, medicacionOtro, terapiaPsico, terapiaPsicoTiempo,
+      terapiaPsiquiatra, terapiaPsiquiatraTiempo, episodios,
+      terapiasHolisticas, meditacionFreq, meditacionTipo, registrosFreq,
+      plantasSagradas, franjaHoraria, compartirExperiencias,
+      primerNivelConmigo, metodoPago, accepted]);
 
   const hasDiscount = primerNivelConmigo === "Sí";
   const currentPriceArs = hasDiscount ? DISCOUNT_ARS : PRICE_ARS;
@@ -182,6 +244,7 @@ export default function N2Page() {
       });
       const data = await res.json();
       if (res.ok && data.success) {
+        localStorage.removeItem(FORM_KEY);
         toast.success("Inscripción registrada con éxito", {
           description: "Recordá realizar la transferencia con los datos indicados. Te contactaremos para comenzar el curso.",
           duration: 8000,
@@ -198,6 +261,7 @@ export default function N2Page() {
 
   const handlePay = async (method: "mercadopago" | "paypal") => {
     if (!validate()) return;
+    localStorage.removeItem(FORM_KEY);
     setSubmitting(true);
     try {
       const price = currentPriceArs;

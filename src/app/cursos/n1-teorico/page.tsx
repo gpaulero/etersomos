@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import {
@@ -84,6 +84,8 @@ interface FormErrors {
   [key: string]: string;
 }
 
+const FORM_KEY = "etersomos_n1teorico_form";
+
 export default function N1TeoricoPage() {
   const [agreementOpen, setAgreementOpen] = useState(true);
   const [accepted, setAccepted] = useState(false);
@@ -104,6 +106,40 @@ export default function N1TeoricoPage() {
   const [recomendadoNombre, setRecomendadoNombre] = useState("");
   const [monto, setMonto] = useState("");
   const [metodoPago, setMetodoPago] = useState("");
+
+  // Restore form data on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(FORM_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.email) setEmail(parsed.email);
+        if (parsed.nombre) setNombre(parsed.nombre);
+        if (parsed.fechaHoy) setFechaHoy(parsed.fechaHoy);
+        if (parsed.nacionalidad) setNacionalidad(parsed.nacionalidad);
+        if (parsed.ciudad) setCiudad(parsed.ciudad);
+        if (parsed.telefono) setTelefono(parsed.telefono);
+        if (parsed.lectorAkashico) setLectorAkashico(parsed.lectorAkashico);
+        if (parsed.comoSeEnteraste) setComoSeEnteraste(parsed.comoSeEnteraste);
+        if (parsed.recomendadoNombre) setRecomendadoNombre(parsed.recomendadoNombre);
+        if (parsed.monto) setMonto(parsed.monto);
+        if (parsed.metodoPago) setMetodoPago(parsed.metodoPago);
+        if (parsed._accepted) setAccepted(true);
+      }
+    } catch {}
+  }, []);
+
+  // Auto-save on changes
+  useEffect(() => {
+    if (email || nombre) {
+      localStorage.setItem(FORM_KEY, JSON.stringify({
+        email, nombre, fechaHoy, nacionalidad, ciudad, telefono,
+        lectorAkashico, comoSeEnteraste, recomendadoNombre, monto, metodoPago,
+        _accepted: accepted,
+      }));
+    }
+  }, [email, nombre, fechaHoy, nacionalidad, ciudad, telefono,
+      lectorAkashico, comoSeEnteraste, recomendadoNombre, monto, metodoPago, accepted]);
 
   const validate = (): boolean => {
     const e: FormErrors = {};
@@ -152,6 +188,7 @@ export default function N1TeoricoPage() {
       });
       const data = await res.json();
       if (res.ok && data.success) {
+        localStorage.removeItem(FORM_KEY);
         toast.success("Inscripción registrada con éxito", {
           description: "Recordá realizar la transferencia con los datos indicados. Te contactaremos para comenzar el curso.",
           duration: 8000,
@@ -168,6 +205,7 @@ export default function N1TeoricoPage() {
 
   const handlePay = async (method: "mercadopago" | "paypal") => {
     if (!validate()) return;
+    localStorage.removeItem(FORM_KEY);
     setSubmitting(true);
     try {
       await initiateCoursePayment({

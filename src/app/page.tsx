@@ -378,6 +378,8 @@ export default function Home() {
 
   /* ---- Admin state ---- */
   const [adminOpen, setAdminOpen] = useState(false);
+  const [adminPasswordDialogOpen, setAdminPasswordDialogOpen] = useState(false);
+  const [adminPasswordInput, setAdminPasswordInput] = useState("");
   const [adminBookings, setAdminBookings] = useState<any[]>([]);
   const [adminStats, setAdminStats] = useState({ total: 0, pendiente: 0, confirmada: 0, en_progreso: 0, enviada: 0, cancelada: 0 });
   const [adminLoading, setAdminLoading] = useState(false);
@@ -728,8 +730,18 @@ export default function Home() {
   };
 
   const handleOpenAdmin = () => {
-    setAdminOpen(true);
-    fetchAdminData();
+    const correctPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "eter2024admin";
+    if (adminPasswordInput === correctPassword) {
+      setAdminPasswordDialogOpen(false);
+      setAdminPasswordInput("");
+      setAdminOpen(true);
+      fetchAdminData();
+    } else {
+      toast.error("Contraseña incorrecta", {
+        description: "No tenés permiso para acceder al panel de administración.",
+      });
+      setAdminPasswordInput("");
+    }
   };
 
   const statusConfig: Record<string, { label: string; bg: string; text: string; border: string }> = {
@@ -808,7 +820,7 @@ export default function Home() {
               logoClickCount.current++;
               if (logoClickCount.current >= 3) {
                 logoClickCount.current = 0;
-                handleOpenAdmin();
+                setAdminPasswordDialogOpen(true);
                 return;
               }
               if (logoClickTimer.current) clearTimeout(logoClickTimer.current);
@@ -1566,6 +1578,56 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* ============================================================ */}
+      {/*                    ADMIN PASSWORD DIALOG                         */}
+      {/* ============================================================ */}
+      <Dialog open={adminPasswordDialogOpen} onOpenChange={(open) => { setAdminPasswordDialogOpen(open); if (!open) setAdminPasswordInput(""); }}>
+        <DialogContent className="bg-mystic-950/98 backdrop-blur-xl border-mystic-700/40 sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-gold-400 text-xl flex items-center gap-2">
+              <Lock className="size-5" />
+              Panel de Administración
+            </DialogTitle>
+            <DialogDescription className="text-foreground/60">
+              Ingresá la contraseña para acceder al panel de administración.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="admin-password" className="text-foreground/80 text-sm">
+                Contraseña
+              </Label>
+              <Input
+                id="admin-password"
+                type="password"
+                placeholder="Ingresá la contraseña..."
+                value={adminPasswordInput}
+                onChange={(e) => setAdminPasswordInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") handleOpenAdmin(); }}
+                className="bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30"
+                autoFocus
+              />
+            </div>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => { setAdminPasswordDialogOpen(false); setAdminPasswordInput(""); }}
+                className="flex-1 border-mystic-700/40 text-foreground/70 hover:text-foreground hover:bg-mystic-900/50"
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleOpenAdmin}
+                disabled={!adminPasswordInput.trim()}
+                className="flex-1 bg-gold-500/20 hover:bg-gold-500/30 text-gold-300 border border-gold-400/30 font-semibold transition-all duration-200 disabled:opacity-50"
+              >
+                Acceder
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* ============================================================ */}
       {/*                       ADMIN PANEL                               */}
