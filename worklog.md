@@ -315,3 +315,36 @@ Stage Summary:
 - Live site: https://etersomos-iota.vercel.app - all pages working
 - Known issue: Resend sender is onboarding@resend.dev - needs custom domain for production emails to customers
 - Known issue: Newsletter subscription doesn't send confirmation to subscriber (only admin notification)
+
+---
+Task ID: session-resource-paywall
+Agent: Super Z (Main)
+Task: Implement resource paywall + video protection + critical system fixes
+
+Work Log:
+- Explored entire resource system: DB schema, API routes, upload flow, download route, public page
+- Explored payment system: MercadoPago + PayPal integration, checkout flow, confirm-order
+- Implemented video/audio stream-only protection (already existed via ProtectedVideoPlayer + X-Stream-Request header)
+- Created ResourcePurchase table for tracking paid resource downloads
+- Created /api/resources/purchase API route for initiating resource purchases
+- Modified /api/resources/download to verify purchase tokens for paid non-streamable resources
+- Created /lib/resource-payment.ts client helper for initiating resource payments
+- Added "resource_purchase" checkout type to the payment flow
+- Modified /recursos page: paid resources show "Comprar y descargar" button with payment dialog
+- Modified /payment/success page: shows download button after resource purchase
+- Modified /api/payments/confirm-order: handles resource_purchase type, creates ResourcePurchase record
+- Admin: added priceArs and priceUsd fields to resource upload form
+- Fixed: added revalidatePath('/recursos') to resource CRUD operations (admin edits now reflect on public page)
+- Fixed: added ReadingBooking, CrystalOrder, CourseInterest, ResourcePurchase tables to ensureSchema()
+- Fixed: created /api/payments/mercadopago-webhook route (was missing, MercadoPago notifications were 404)
+- Fixed: auth/login and newsletter/subscribe now return 400 instead of 500 on empty request body
+- All fixes tested and verified in production
+
+Stage Summary:
+- Resource paywall fully functional: paid resources require MercadoPago/PayPal payment before download
+- Videos/audio continue to stream only (not downloadable)
+- Free resources remain directly downloadable
+- Critical DB schema gaps fixed: all tables now created in ensureSchema()
+- MercadoPago webhook endpoint now exists (was missing)
+- Error handling improved on auth and newsletter endpoints
+- Commits: 0739c7f, 149c632, c5dd893 deployed to production
