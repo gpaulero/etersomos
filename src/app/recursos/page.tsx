@@ -30,7 +30,6 @@ import {
   BookOpen,
   Heart,
   Loader2,
-  Gift,
   Play,
   X,
   Download,
@@ -347,9 +346,9 @@ export default function RecursosPage() {
                             <TypeIcon className="size-3.5" />
                             {typeInfo.label}
                           </div>
-                          <span className="text-emerald-400/70 text-xs font-medium flex items-center gap-1">
-                            <Gift className="size-3" />
-                            Gratis
+                          <span className="text-cream-400/70 text-xs font-medium flex items-center gap-1">
+                            <Heart className="size-3" />
+                            Aportación libre
                           </span>
                         </div>
 
@@ -388,7 +387,7 @@ export default function RecursosPage() {
                               </span>
                             </div>
                             <p className="text-foreground/30 text-xs leading-relaxed font-sans">
-                              Este recurso es gratuito. Si resuena con vos, podés apoyar nuestro trabajo con una contribución libre.
+                              Si resuena con vos, podés apoyar nuestro trabajo con una contribución libre. Sino, también podés acceder ahora y contribuir cuando puedas.
                             </p>
                           </div>
 
@@ -414,7 +413,7 @@ export default function RecursosPage() {
                                 Reproducir
                               </button>
                             ) : (
-                              /* ── Downloadable: Descargar ahora (free, no payment required) ── */
+                              /* ── Downloadable: Contribuir luego (access now, contribute later) ── */
                               <a
                                 href={resource.url}
                                 target="_blank"
@@ -422,24 +421,30 @@ export default function RecursosPage() {
                                 className="w-full inline-flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl bg-violet-500/15 hover:bg-violet-500/25 text-violet-400 hover:text-violet-300 text-sm font-medium transition-all duration-200 border border-violet-500/20 hover:border-violet-500/40"
                               >
                                 <Download className="size-4" />
-                                Descargar
+                                Contribuir luego
                               </a>
                             )}
 
-                            {/* Voluntary contribution links for ALL resources */}
+                            {/* Voluntary contribution links — clicking opens payment AND triggers download */}
                             <a
-                              href="https://link.mercadopago.com.ar/etersomos"
-                              target="_blank"
-                              rel="noopener noreferrer"
+                              href={resource.url}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                window.open(resource.url, '_blank');
+                                window.open('https://link.mercadopago.com.ar/etersomos', '_blank');
+                              }}
                               className="w-full inline-flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl bg-[#009EE3]/15 hover:bg-[#009EE3]/25 text-[#009EE3] hover:text-[#00b8ff] text-sm font-medium transition-all duration-200 border border-[#009EE3]/20 hover:border-[#009EE3]/40"
                             >
                               <svg className="size-4" viewBox="0 0 24 24" fill="currentColor"><path d="M7.5 18.5c-.3 0-.5-.1-.7-.3-.2-.2-.3-.4-.3-.7V6.5c0-.3.1-.5.3-.7.2-.2.4-.3.7-.3h5c1.6 0 2.9.5 3.9 1.4 1 1 1.5 2.2 1.5 3.6 0 1.4-.5 2.6-1.5 3.6-1 1-2.3 1.4-3.9 1.4H9v3.7c0 .3-.1.5-.3.7-.2.2-.4.3-.7.3h-.5z"/></svg>
                               Contribuir con MercadoPago
                             </a>
                             <a
-                              href="https://paypal.me/registrosakashicos9"
-                              target="_blank"
-                              rel="noopener noreferrer"
+                              href={resource.url}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                window.open(resource.url, '_blank');
+                                window.open('https://paypal.me/registrosakashicos9', '_blank');
+                              }}
                               className="w-full inline-flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl bg-[#FFC439]/15 hover:bg-[#FFC439]/25 text-[#FFC439] hover:text-[#ffd060] text-sm font-medium transition-all duration-200 border border-[#FFC439]/20 hover:border-[#FFC439]/40"
                             >
                               <svg className="size-4" viewBox="0 0 24 24" fill="currentColor"><path d="M7.076 21.337H2.47a.641.641 0 01-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 00-.607-.541c1.855 1.475 2.392 3.893 1.635 6.173-.77 2.32-2.947 3.834-5.578 3.834h-2.19c-.524 0-.968.382-1.05.9l-.56 3.553-.16 1.015c-.04.253-.253.44-.508.44H7.076"/></svg>
@@ -582,7 +587,7 @@ export default function RecursosPage() {
             </a>
           </div>
           <p className="text-foreground/20 text-xs font-sans">
-            Todos los recursos son gratuitos. Contribución voluntaria.
+            Contribución voluntaria consciente.
           </p>
         </div>
       </footer>

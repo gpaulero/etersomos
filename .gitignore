@@ -50,5 +50,9 @@ test
 prompt
 
 server.log
+
+# Backups (too large for git)
+/download/
+
 # Skills directory
 /skills/.env.local
