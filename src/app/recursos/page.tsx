@@ -96,7 +96,13 @@ function getFileTypeInfo(fileType: string): {
   color: string;
   bg: string;
 } {
-  switch (fileType) {
+  // Normalize: handle MIME types from v5 schema (e.g. "image/png" → "imagen")
+  const normalized = fileType.startsWith("image/") ? "imagen"
+    : fileType.startsWith("audio/") ? "audio"
+    : fileType.startsWith("video/") ? "video"
+    : fileType;
+
+  switch (normalized) {
     case "meditacion":
       return { icon: Headphones, label: "Meditación", color: "text-violet-400", bg: "bg-violet-500/15" };
     case "audio":
@@ -107,6 +113,8 @@ function getFileTypeInfo(fileType: string): {
       return { icon: FileText, label: "Imagen", color: "text-emerald-400", bg: "bg-emerald-500/15" };
     case "guia":
       return { icon: BookOpen, label: "Guía", color: "text-gold-400", bg: "bg-gold-400/15" };
+    case "documento":
+      return { icon: FileText, label: "Documento", color: "text-foreground/60", bg: "bg-mystic-800/60" };
     default:
       return { icon: FileText, label: "Documento", color: "text-foreground/60", bg: "bg-mystic-800/60" };
   }
