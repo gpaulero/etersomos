@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   BookOpen,
@@ -10,91 +11,124 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-
-const courses = [
-  {
-    id: "n1-teorico",
-    name: "1er Nivel Solo Teórico",
-    subtitle: "Aprendé a Conectar con tus Registros Akáshicos",
-    description:
-      "Contribución voluntaria consciente. Material audiovisual de 8 módulos + material complementario en PDF.",
-    duration: "A tu ritmo",
-    priceLabel: "Contribución Voluntaria",
-    badge: null,
-    badgeVariant: "secondary" as const,
-    href: "/cursos/n1-teorico",
-    features: [
-      "8 módulos audiovisuales de 20 min cada uno",
-      "Oración de apertura y cierre",
-      "Meditación guiada en audio",
-      "Material complementario teórico en PDF",
-      "Material bibliográfico sugerido",
-      "PDF de Preguntas Frecuentes",
-    ],
-  },
-  {
-    id: "n1-practica",
-    name: "1er Nivel con Práctica",
-    subtitle: "Aprendé a Conectar con el Campo Akashico",
-    description:
-      "Todo el material teórico + 2 clases prácticas individuales por videollamada de hasta 2 horas cada una.",
-    duration: "~3 semanas",
-    priceLabel: "$35.000 ARS · US$30",
-    badge: "Más Elegido",
-    badgeVariant: "secondary" as const,
-    href: "/cursos/n1-practica",
-    features: [
-      "Todo el contenido teórico (8 módulos)",
-      "2 clases prácticas individuales por videollamada",
-      "Oración de apertura personalizada y única",
-      "Meditación guiada en audio",
-      "Material complementario + bibliografía en PDF",
-      "PDF de Preguntas Frecuentes",
-    ],
-  },
-  {
-    id: "n2-completo",
-    name: "2do Nivel Completo",
-    subtitle: "Aprendé a Consultar los Registros Akáshicos de Otras Personas",
-    description:
-      "Curso teórico/práctico para aprender a abrir y consultar los Registros de terceros. 10 módulos + 4 clases prácticas.",
-    duration: "~4 semanas",
-    priceLabel: "$45.000 ARS · US$45",
-    badge: null,
-    badgeVariant: "secondary" as const,
-    href: "/cursos/n2",
-    features: [
-      "10 módulos audiovisuales teóricos",
-      "4 clases prácticas por videollamada",
-      "Ejercicios con voluntarios reales",
-      "Mentoría sobre modalidad Offline",
-      "Autoevaluación online",
-      "Material teórico complementario en PDF",
-    ],
-  },
-  {
-    id: "ambos-cursos",
-    name: "Ambos Cursos",
-    subtitle: "1er Nivel + 2do Nivel – Formación Completa",
-    description:
-      "Formación completa en Registros Akáshicos: autoconocimiento + consulta a terceros. Aprox. 7 semanas de cursado.",
-    duration: "~7 semanas",
-    priceLabel: "$70.000 ARS · US$55",
-    badge: "Mejor Precio",
-    badgeVariant: "secondary" as const,
-    href: "/cursos/ambos",
-    features: [
-      "Todo el contenido del 1er Nivel con Práctica",
-      "Todo el contenido del 2do Nivel Completo",
-      "6 clases prácticas individuales",
-      "Oración de apertura personalizada",
-      "Seguimiento durante toda la formación",
-      "Mejor precio por formación completa",
-    ],
-  },
-];
+import { fetchCmsContent, cmsValue, cmsNumber } from "@/lib/cms-helpers";
 
 export default function CursosPage() {
+  const [cmsMap, setCmsMap] = useState<Record<string, string>>({});
+  useEffect(() => { fetchCmsContent().then(setCmsMap).catch(() => {}); }, []);
+
+  // CMS-driven price values
+  const n1TeoricoArs = cmsNumber(cmsMap, 'courses.n1teorico_price_ars', 0);
+  const n1TeoricoUsd = cmsNumber(cmsMap, 'courses.n1teorico_price_usd', 0);
+  const n1TeoricoBadgeRaw = cmsValue(cmsMap, 'courses.n1teorico_badge', '');
+
+  const n1PracticaArs = cmsNumber(cmsMap, 'courses.n1practica_price_ars', 35000);
+  const n1PracticaUsd = cmsNumber(cmsMap, 'courses.n1practica_price_usd', 30);
+  const n1PracticaBadgeRaw = cmsValue(cmsMap, 'courses.n1practica_badge', 'Más Elegido');
+
+  const n2Ars = cmsNumber(cmsMap, 'courses.n2_price_ars', 45000);
+  const n2Usd = cmsNumber(cmsMap, 'courses.n2_price_usd', 45);
+  const n2BadgeRaw = cmsValue(cmsMap, 'courses.n2_badge', '');
+
+  const ambosArs = cmsNumber(cmsMap, 'courses.ambos_price_ars', 70000);
+  const ambosUsd = cmsNumber(cmsMap, 'courses.ambos_price_usd', 55);
+  const ambosBadgeRaw = cmsValue(cmsMap, 'courses.ambos_badge', 'Mejor Precio');
+
+  // Badge: if CMS returns empty string, set to null
+  const n1TeoricoBadge = n1TeoricoBadgeRaw.trim() ? n1TeoricoBadgeRaw : null;
+  const n1PracticaBadge = n1PracticaBadgeRaw.trim() ? n1PracticaBadgeRaw : null;
+  const n2Badge = n2BadgeRaw.trim() ? n2BadgeRaw : null;
+  const ambosBadge = ambosBadgeRaw.trim() ? ambosBadgeRaw : null;
+
+  // Price labels
+  const n1TeoricoPriceLabel = "Contribución Voluntaria";
+  const n1PracticaPriceLabel = `$${n1PracticaArs.toLocaleString("es-AR")} ARS · US$${n1PracticaUsd}`;
+  const n2PriceLabel = `$${n2Ars.toLocaleString("es-AR")} ARS · US$${n2Usd}`;
+  const ambosPriceLabel = `$${ambosArs.toLocaleString("es-AR")} ARS · US$${ambosUsd}`;
+
+  const courses = [
+    {
+      id: "n1-teorico",
+      name: "1er Nivel Solo Teórico",
+      subtitle: "Aprendé a Conectar con tus Registros Akáshicos",
+      description:
+        "Contribución voluntaria consciente. Material audiovisual de 8 módulos + material complementario en PDF.",
+      duration: "A tu ritmo",
+      priceLabel: n1TeoricoPriceLabel,
+      badge: n1TeoricoBadge,
+      badgeVariant: "secondary" as const,
+      href: "/cursos/n1-teorico",
+      features: [
+        "8 módulos audiovisuales de 20 min cada uno",
+        "Oración de apertura y cierre",
+        "Meditación guiada en audio",
+        "Material complementario teórico en PDF",
+        "Material bibliográfico sugerido",
+        "PDF de Preguntas Frecuentes",
+      ],
+    },
+    {
+      id: "n1-practica",
+      name: "1er Nivel con Práctica",
+      subtitle: "Aprendé a Conectar con el Campo Akashico",
+      description:
+        "Todo el material teórico + 2 clases prácticas individuales por videollamada de hasta 2 horas cada una.",
+      duration: "~3 semanas",
+      priceLabel: n1PracticaPriceLabel,
+      badge: n1PracticaBadge,
+      badgeVariant: "secondary" as const,
+      href: "/cursos/n1-practica",
+      features: [
+        "Todo el contenido teórico (8 módulos)",
+        "2 clases prácticas individuales por videollamada",
+        "Oración de apertura personalizada y única",
+        "Meditación guiada en audio",
+        "Material complementario + bibliografía en PDF",
+        "PDF de Preguntas Frecuentes",
+      ],
+    },
+    {
+      id: "n2-completo",
+      name: "2do Nivel Completo",
+      subtitle: "Aprendé a Consultar los Registros Akáshicos de Otras Personas",
+      description:
+        "Curso teórico/práctico para aprender a abrir y consultar los Registros de terceros. 10 módulos + 4 clases prácticas.",
+      duration: "~4 semanas",
+      priceLabel: n2PriceLabel,
+      badge: n2Badge,
+      badgeVariant: "secondary" as const,
+      href: "/cursos/n2",
+      features: [
+        "10 módulos audiovisuales teóricos",
+        "4 clases prácticas por videollamada",
+        "Ejercicios con voluntarios reales",
+        "Mentoría sobre modalidad Offline",
+        "Autoevaluación online",
+        "Material teórico complementario en PDF",
+      ],
+    },
+    {
+      id: "ambos-cursos",
+      name: "Ambos Cursos",
+      subtitle: "1er Nivel + 2do Nivel – Formación Completa",
+      description:
+        "Formación completa en Registros Akáshicos: autoconocimiento + consulta a terceros. Aprox. 7 semanas de cursado.",
+      duration: "~7 semanas",
+      priceLabel: ambosPriceLabel,
+      badge: ambosBadge,
+      badgeVariant: "secondary" as const,
+      href: "/cursos/ambos",
+      features: [
+        "Todo el contenido del 1er Nivel con Práctica",
+        "Todo el contenido del 2do Nivel Completo",
+        "6 clases prácticas individuales",
+        "Oración de apertura personalizada",
+        "Seguimiento durante toda la formación",
+        "Mejor precio por formación completa",
+      ],
+    },
+  ];
+
   return (
     <div className="flex flex-col gap-12">
       {/* Header */}

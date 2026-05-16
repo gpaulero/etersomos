@@ -55,6 +55,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import FormPausedBanner from "@/components/form-paused-banner";
+import { fetchCmsContent, cmsJson } from "@/lib/cms-helpers";
 
 /* ======================================================================== */
 /*                                 DATA                                      */
@@ -183,6 +184,12 @@ export default function TiendaPage() {
   const [cartOpen, setCartOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState("Todos");
   const [navScrolled, setNavScrolled] = useState(false);
+  const [cmsMap, setCmsMap] = useState<Record<string, string>>({});
+
+  /* ---- Fetch CMS content ---- */
+  useEffect(() => {
+    fetchCmsContent().then(setCmsMap).catch(() => {});
+  }, []);
 
   /* ---- Check if tienda is enabled ---- */
   useEffect(() => {
@@ -279,10 +286,13 @@ export default function TiendaPage() {
   );
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
+  const cmsProducts = cmsJson<Product[]>(cmsMap, 'crystals.products', products);
+  const cmsCategories = cmsJson<string[]>(cmsMap, 'crystals.categories', crystalCategories);
+
   const filteredProducts =
     activeCategory === "Todos"
-      ? products
-      : products.filter((p) => p.category === activeCategory);
+      ? cmsProducts
+      : cmsProducts.filter((p) => p.category === activeCategory);
 
   /* ---- Checkout session helpers ---- */
   const saveCheckoutSession = (
@@ -701,7 +711,7 @@ export default function TiendaPage() {
               onValueChange={setActiveCategory}
             >
               <TabsList className="flex flex-wrap justify-center gap-1 bg-mystic-900/50 p-1 rounded-xl border border-mystic-800/30">
-                {crystalCategories.map((cat) => (
+                {cmsCategories.map((cat) => (
                   <TabsTrigger
                     key={cat}
                     value={cat}

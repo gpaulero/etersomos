@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
 import { Toaster } from "sonner";
+import { fetchCmsContent, cmsValue, cmsJson } from "@/lib/cms-helpers";
 import {
   Card,
   CardContent,
@@ -219,7 +220,7 @@ const howToSteps = [
 /*                              MEMBERSHIP CARD                               */
 /* -------------------------------------------------------------------------- */
 
-function MembershipCard({ tier }: { tier: MembershipTier }) {
+function MembershipCard({ tier, perMonth }: { tier: MembershipTier; perMonth: string }) {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({ name: "", email: "" });
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -277,7 +278,7 @@ function MembershipCard({ tier }: { tier: MembershipTier }) {
             <span className="text-3xl sm:text-4xl font-serif font-bold text-gold-300">
               {tier.price}
             </span>
-            <p className="text-xs text-foreground/40 mt-1">por mes</p>
+            <p className="text-xs text-foreground/40 mt-1">{perMonth}</p>
           </div>
 
           <Separator className="bg-mystic-800/30 mb-5" />
@@ -499,6 +500,13 @@ export default function MembresiasPage() {
       .catch(() => {});
   }, []);
 
+  /* ---- CMS content ---- */
+  const [cmsMap, setCmsMap] = useState<Record<string, string>>({});
+  useEffect(() => {
+    fetchCmsContent().then(setCmsMap).catch(() => {});
+  }, []);
+  const cmsTiers = cmsJson<MembershipTier[]>(cmsMap, 'memberships.tiers', memberships);
+
   /* ---- Floating stars ---- */
   const [starsCount, setStarsCount] = useState(20);
   useEffect(() => {
@@ -573,7 +581,7 @@ export default function MembresiasPage() {
               transition={{ duration: 0.8 }}
               className="text-4xl sm:text-5xl md:text-6xl font-serif font-semibold text-foreground tracking-wider mb-4"
             >
-              Membresías Eter Somos
+              {cmsValue(cmsMap, 'membresias_section.title', 'Membresías Eter Somos')}
             </motion.h1>
 
             <motion.p
@@ -649,8 +657,8 @@ export default function MembresiasPage() {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-4 items-stretch">
-            {memberships.map((tier) => (
-              <MembershipCard key={tier.id} tier={tier} />
+            {cmsTiers.map((tier) => (
+              <MembershipCard key={tier.id} tier={tier} perMonth={cmsValue(cmsMap, 'membresias_section.per_month', 'por mes')} />
             ))}
           </div>
         </div>

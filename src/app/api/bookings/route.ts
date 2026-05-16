@@ -60,8 +60,16 @@ export async function POST(request: NextRequest) {
     const method = paymentMethod || "transferencia";
     const formDataSafe = formData || {};
 
-    // Determine price based on payment method
-    const total = method === "western_union" ? 20 : 18000;
+    // Determine price from CMS/DB, with hardcoded fallback
+    let priceArs = 18000;
+    let priceUsd = 20;
+    try {
+      const priceRow = await (db as any).siteContent.findUnique({ where: { key: 'readings.price_ars' } });
+      if (priceRow?.value) priceArs = Number(priceRow.value) || 18000;
+      const usdRow = await (db as any).siteContent.findUnique({ where: { key: 'readings.price_usd' } });
+      if (usdRow?.value) priceUsd = Number(usdRow.value) || 20;
+    } catch {}
+    const total = (method === "paypal" || method === "western_union") ? priceUsd : priceArs;
 
     (async () => {
       try {

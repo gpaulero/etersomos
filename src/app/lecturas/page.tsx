@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/collapsible";
 import { initiateCoursePayment } from "@/lib/course-payment";
 import FormPausedBanner from "@/components/form-paused-banner";
+import { fetchCmsContent, cmsValue, cmsNumber } from "@/lib/cms-helpers";
 
 /* -------------------------------------------------------------------------- */
 /*                                   TYPES                                    */
@@ -51,6 +52,9 @@ export default function LecturasPage() {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [cmsMap, setCmsMap] = useState<Record<string, string>>({});
+
+  useEffect(() => { fetchCmsContent().then(setCmsMap).catch(() => {}); }, []);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -207,8 +211,8 @@ export default function LecturasPage() {
     // For MercadoPago or PayPal, use initiateCoursePayment
     localStorage.removeItem(FORM_KEY);
     const method = formData.paymentMethod as "mercadopago" | "paypal";
-    const price = 18000; // ARS price for MP
-    const usdPrice = 20;  // USD price for PayPal
+    const price = readingsPriceArs; // ARS price for MP
+    const usdPrice = readingsPriceUsd;  // USD price for PayPal
 
     setSubmitting(true);
     try {
@@ -233,30 +237,33 @@ export default function LecturasPage() {
     }
   };
 
+  const readingsPriceArs = cmsNumber(cmsMap, 'readings.price_ars', 18000);
+  const readingsPriceUsd = cmsNumber(cmsMap, 'readings.price_usd', 20);
+
   const paymentOptions: { value: PaymentMethod; label: string; price: string; icon: React.ReactNode; note?: string }[] = [
     {
       value: "mercadopago",
       label: "MercadoPago",
-      price: "$18.000 ARS",
+      price: `$${readingsPriceArs.toLocaleString("es-AR")} ARS`,
       icon: <CreditCard className="size-4" />,
       note: "Esta opción tiene comisión por parte de MercadoPago",
     },
     {
       value: "transferencia",
       label: "Transferencia Brubank",
-      price: "$18.000 ARS",
+      price: `$${readingsPriceArs.toLocaleString("es-AR")} ARS`,
       icon: <Landmark className="size-4" />,
     },
     {
       value: "paypal",
       label: "PayPal",
-      price: "US$20",
+      price: `US$${readingsPriceUsd}`,
       icon: <DollarSign className="size-4" />,
     },
     {
       value: "western_union",
       label: "Western Union",
-      price: "US$20",
+      price: `US$${readingsPriceUsd}`,
       icon: <DollarSign className="size-4" />,
     },
   ];
@@ -311,10 +318,10 @@ export default function LecturasPage() {
             </h1>
             <div className="flex flex-wrap items-center justify-center gap-3">
               <Badge variant="outline" className="border-gold-400/30 text-gold-300 bg-gold-400/5">
-                Argentina: $18.000 ARS
+                Argentina: {`$${readingsPriceArs.toLocaleString("es-AR")} ARS`}
               </Badge>
               <Badge variant="outline" className="border-gold-400/30 text-gold-300 bg-gold-400/5">
-                Internacional: US$20
+                Internacional: {`US$${readingsPriceUsd}`}
               </Badge>
             </div>
           </motion.div>
