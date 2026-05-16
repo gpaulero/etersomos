@@ -44,7 +44,11 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
 
   const fetchContent = useCallback(async () => {
     try {
-      const res = await fetch('/api/cms/content')
+      const ts = Date.now()
+      const res = await fetch(`/api/cms/content?t=${ts}`, {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache' },
+      })
       if (res.ok) {
         const data = await res.json()
         setContent(data)

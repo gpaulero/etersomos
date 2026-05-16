@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { ensureSchema, db } from '@/lib/db'
+
+export const dynamic = 'force-dynamic'
 
 export async function GET() {
   try {
@@ -18,7 +21,11 @@ export async function GET() {
       }
     }
 
-    return NextResponse.json(grouped)
+    const response = NextResponse.json(grouped)
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+    return response
   } catch (err: any) {
     console.error('[CMS] GET error:', err.message || err)
     return NextResponse.json({ error: 'Error al cargar contenido' }, { status: 500 })
@@ -44,6 +51,10 @@ export async function PUT(request: Request) {
       where: { key },
       data: { value: String(value) }
     })
+
+    // Invalidate Next.js cache so changes reflect immediately
+    revalidatePath('/', 'layout')
+    revalidatePath('/')
 
     return NextResponse.json({ success: true, key })
   } catch (err: any) {

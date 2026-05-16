@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { ensureSchema, db } from '@/lib/db'
 
 export async function PUT(request: Request) {
@@ -24,6 +25,15 @@ export async function PUT(request: Request) {
         console.warn(`[CMS] Could not update key ${key}:`, e.message || e)
       }
     }
+
+    // Invalidate Next.js cache so the public pages reflect changes immediately
+    revalidatePath('/', 'layout')
+    revalidatePath('/')
+    revalidatePath('/tienda')
+    revalidatePath('/cursos')
+    revalidatePath('/membresias')
+    revalidatePath('/lecturas')
+    revalidatePath('/recursos')
 
     return NextResponse.json({ success: true, updated })
   } catch (err: any) {

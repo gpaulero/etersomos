@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Playfair_Display, Josefin_Sans } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import { SiteContentProvider } from "@/hooks/use-site-content";
 
 const playfair = Playfair_Display({
   variable: "--font-serif",
@@ -52,7 +53,7 @@ export default function RootLayout({
       <body
         className={`${playfair.variable} ${josefin.variable} antialiased bg-background text-foreground`}
       >
-        {children}
+        <SiteContentProvider>{children}</SiteContentProvider>
         <Toaster />
       </body>
     </html>

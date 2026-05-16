@@ -4,12 +4,15 @@
  */
 import { defaultSiteContent } from '@/lib/cms-defaults'
 
-/** Fetch all CMS content as a flat key-value map */
+/** Fetch all CMS content as a flat key-value map (always fresh, no caching) */
 export async function fetchCmsContent(): Promise<Record<string, string>> {
   try {
-    // Ensure seed
-    await fetch('/api/cms/content/seed', { method: 'POST' }).catch(() => {})
-    const res = await fetch('/api/cms/content')
+    // Cache-bust: add timestamp to prevent any browser/CDN caching
+    const ts = Date.now()
+    const res = await fetch(`/api/cms/content?t=${ts}`, {
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache' },
+    })
     if (res.ok) {
       const data = await res.json()
       const flat: Record<string, string> = {}
