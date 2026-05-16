@@ -719,6 +719,8 @@ export default function AdminPage() {
       });
       if (res.ok) {
         await fetchCmsContent();
+        // Notify main site to refresh (cross-tab via localStorage)
+        localStorage.setItem('cms_updated_at', Date.now().toString());
         toast.success(`${sectionLabels[section] || section} guardado correctamente`);
       } else {
         toast.error("Error al guardar");
@@ -744,6 +746,8 @@ export default function AdminPage() {
       });
       if (res.ok) {
         await fetchCmsContent();
+        // Notify main site to refresh (cross-tab via localStorage)
+        localStorage.setItem('cms_updated_at', Date.now().toString());
         toast.success("Todo el contenido guardado correctamente");
       } else {
         toast.error("Error al guardar");
