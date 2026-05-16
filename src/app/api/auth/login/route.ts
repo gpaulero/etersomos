@@ -5,7 +5,13 @@ const API_SECRET = process.env.ADMIN_API_SECRET;
 
 export async function POST(request: NextRequest) {
   try {
-    const { password } = await request.json();
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: "Cuerpo de la petición inválido" }, { status: 400 });
+    }
+    const { password } = body as { password?: string };
     if (!password) return NextResponse.json({ error: "Contrasena requerida" }, { status: 400 });
     if (typeof password !== "string" || password.length > 100) return NextResponse.json({ error: "Contrasena invalida" }, { status: 400 });
     if (password !== ADMIN_PASSWORD) return NextResponse.json({ error: "Contrasena incorrecta" }, { status: 401 });

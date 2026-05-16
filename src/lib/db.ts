@@ -431,10 +431,82 @@ export async function ensureSchema() {
       )
     `
 
+    // ReadingBooking table
+    const readingBookingSql = `
+      CREATE TABLE IF NOT EXISTS ReadingBooking (
+        id          TEXT PRIMARY KEY,
+        name        TEXT NOT NULL DEFAULT '',
+        email       TEXT NOT NULL DEFAULT '',
+        phone       TEXT NOT NULL DEFAULT '',
+        readingType TEXT NOT NULL DEFAULT 'Lectura Akáshica Individual',
+        message     TEXT NOT NULL DEFAULT '',
+        status      TEXT NOT NULL DEFAULT 'pendiente',
+        deliveryDate TEXT,
+        createdAt   TEXT NOT NULL DEFAULT (datetime('now')),
+        updatedAt   TEXT NOT NULL DEFAULT (datetime('now'))
+      )
+    `
+
+    // CrystalOrder table (also used for course enrollments)
+    const crystalOrderSql = `
+      CREATE TABLE IF NOT EXISTS CrystalOrder (
+        id             TEXT PRIMARY KEY,
+        customerName   TEXT NOT NULL DEFAULT '',
+        customerEmail  TEXT NOT NULL DEFAULT '',
+        customerPhone  TEXT NOT NULL DEFAULT '',
+        address        TEXT NOT NULL DEFAULT '',
+        city           TEXT NOT NULL DEFAULT '',
+        province       TEXT NOT NULL DEFAULT '',
+        postalCode     TEXT NOT NULL DEFAULT '',
+        notes          TEXT,
+        items          TEXT NOT NULL DEFAULT '[]',
+        total          REAL NOT NULL DEFAULT 0,
+        paymentMethod  TEXT NOT NULL DEFAULT '',
+        paymentId      TEXT,
+        status         TEXT NOT NULL DEFAULT 'pendiente',
+        createdAt      TEXT NOT NULL DEFAULT (datetime('now')),
+        updatedAt      TEXT NOT NULL DEFAULT (datetime('now'))
+      )
+    `
+
+    // CourseInterest table
+    const courseInterestSql = `
+      CREATE TABLE IF NOT EXISTS CourseInterest (
+        id        TEXT PRIMARY KEY,
+        name      TEXT NOT NULL DEFAULT '',
+        email     TEXT NOT NULL DEFAULT '',
+        phone     TEXT NOT NULL DEFAULT '',
+        course    TEXT NOT NULL DEFAULT '',
+        message   TEXT NOT NULL DEFAULT '',
+        createdAt TEXT NOT NULL DEFAULT (datetime('now'))
+      )
+    `
+
+    // ResourcePurchase table
+    const resourcePurchaseSql = `
+      CREATE TABLE IF NOT EXISTS ResourcePurchase (
+        id             TEXT PRIMARY KEY,
+        resourceId     TEXT NOT NULL,
+        resourceTitle  TEXT NOT NULL DEFAULT '',
+        customerName   TEXT NOT NULL,
+        customerEmail  TEXT NOT NULL,
+        paymentMethod  TEXT NOT NULL,
+        paymentId      TEXT,
+        amount         REAL NOT NULL DEFAULT 0,
+        downloadToken  TEXT NOT NULL UNIQUE,
+        status         TEXT NOT NULL DEFAULT 'pendiente',
+        createdAt      TEXT NOT NULL DEFAULT (datetime('now'))
+      )
+    `
+
     if (client) {
       await client.execute(sql)
       await client.execute(newsletterSql)
       await client.execute(settingsSql)
+      await client.execute(readingBookingSql)
+      await client.execute(crystalOrderSql)
+      await client.execute(courseInterestSql)
+      await client.execute(resourcePurchaseSql)
       // Add deliveryDate column to ReadingBooking if missing
       try {
         await client.execute(`ALTER TABLE ReadingBooking ADD COLUMN deliveryDate TEXT`)
@@ -459,6 +531,10 @@ export async function ensureSchema() {
       await prisma.$executeRawUnsafe(sql)
       await prisma.$executeRawUnsafe(newsletterSql)
       await prisma.$executeRawUnsafe(settingsSql)
+      await prisma.$executeRawUnsafe(readingBookingSql)
+      await prisma.$executeRawUnsafe(crystalOrderSql)
+      await prisma.$executeRawUnsafe(courseInterestSql)
+      await prisma.$executeRawUnsafe(resourcePurchaseSql)
     }
     // Create SiteContent table
     const siteContentSql = `
