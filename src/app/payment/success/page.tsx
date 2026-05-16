@@ -3,7 +3,7 @@
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Check, Loader2, Sparkles, ShoppingBag, BookOpen, Eye, ArrowLeft, AlertTriangle } from "lucide-react";
+import { Check, Loader2, Sparkles, ShoppingBag, BookOpen, Eye, ArrowLeft, AlertTriangle, Download, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { CheckoutType } from "@/lib/course-payment";
 
@@ -25,6 +25,10 @@ interface CheckoutSession {
   paymentId: string | null;
   createdAt: string;
   extraData?: Record<string, unknown>;
+  // Resource purchase fields
+  resourceId?: string;
+  resourceTitle?: string;
+  r2Key?: string;
 }
 
 /* Type-specific display config */
@@ -56,6 +60,13 @@ const TYPE_CONFIG: Record<string, {
     summaryLabel: "Resumen de solicitud",
     summaryIcon: <Eye className="size-4" />,
   },
+  resource_purchase: {
+    processingTitle: "Procesando tu compra...",
+    successTitle: "¡Acceso Confirmado!",
+    successMessage: (name) => `¡Gracias, ${name}! Tu compra fue confirmada. Ya podés descargar el recurso.`,
+    summaryLabel: "Resumen de compra",
+    summaryIcon: <FileText className="size-4" />,
+  },
 };
 
 function getConfig(type?: CheckoutType) {
@@ -68,6 +79,7 @@ function PaymentSuccessContent() {
   const [status, setStatus] = useState<PaymentStatus>("processing");
   const [errorMessage, setErrorMessage] = useState("");
   const [orderInfo, setOrderInfo] = useState<CheckoutSession | null>(null);
+  const [downloadToken, setDownloadToken] = useState<string | null>(null);
   const hasRunRef = useRef(false);
 
   const processPayment = useCallback(
@@ -142,6 +154,12 @@ function PaymentSuccessContent() {
 
         if (confirmRes.ok && confirmData.success) {
           localStorage.removeItem(sessionKey);
+
+          // If this was a resource purchase, store the download token
+          if (orderType === "resource_purchase" && confirmData.downloadToken) {
+            setDownloadToken(confirmData.downloadToken);
+          }
+
           setStatus("success");
         } else {
           setStatus("error");
@@ -172,6 +190,12 @@ function PaymentSuccessContent() {
   const orderType = orderInfo?.type || "crystal_order";
   const config = getConfig(orderType);
   const isCrystal = orderType === "crystal_order";
+  const isResource = orderType === "resource_purchase";
+
+  // Build download URL for resource purchase
+  const downloadUrl = isResource && downloadToken && orderInfo?.r2Key
+    ? `/api/resources/download?key=${encodeURIComponent(orderInfo.r2Key)}&token=${downloadToken}`
+    : null;
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 bg-background">
@@ -219,6 +243,27 @@ function PaymentSuccessContent() {
                 {config.successMessage(orderInfo?.customerName || "")}
               </p>
             </motion.div>
+
+            {/* Download button for resource purchase */}
+            {isResource && downloadUrl && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+              >
+                <a
+                  href={downloadUrl}
+                  download
+                  className="inline-flex items-center justify-center gap-2.5 w-full px-6 py-4 rounded-xl bg-violet-500/20 hover:bg-violet-500/30 text-violet-400 hover:text-violet-300 font-serif font-semibold text-base transition-all duration-200 border border-violet-500/30 hover:border-violet-500/50"
+                >
+                  <Download className="size-5" />
+                  Descargar {orderInfo?.resourceTitle || "Recurso"}
+                </a>
+                <p className="text-foreground/30 text-xs mt-2 font-sans">
+                  Este enlace de descarga es exclusivo para tu compra. Guardalo para futuras descargas.
+                </p>
+              </motion.div>
+            )}
 
             {orderInfo && (
               <motion.div

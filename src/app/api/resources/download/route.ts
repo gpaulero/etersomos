@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getResourceStream } from "@/lib/r2";
+import { db } from "@/lib/db";
 
 export const runtime = "nodejs";
 export const maxDuration = 15;
@@ -18,9 +19,44 @@ function isStreamableFile(key: string): boolean {
   return STREAMABLE_EXTENSIONS.has(ext);
 }
 
+/** Check if a resource is paid (has price > 0) */
+async function isPaidResource(key: string): Promise<{ paid: boolean; resourceId: string | null }> {
+  try {
+    const result = await db.$executeRawUnsafe(
+      "SELECT id, price, priceArs FROM Resource WHERE r2Key = ?",
+      [key]
+    );
+    const rows = (result as any)?.rows || [];
+    if (rows.length === 0) return { paid: false, resourceId: null };
+
+    const price = Number(rows[0].price) || 0;
+    const priceArs = Number(rows[0].priceArs) || 0;
+    const isPaid = price > 0 || priceArs > 0;
+
+    return { paid: isPaid, resourceId: rows[0].id as string };
+  } catch {
+    return { paid: false, resourceId: null };
+  }
+}
+
+/** Verify a download token against the ResourcePurchase table */
+async function verifyDownloadToken(token: string, resourceId: string): Promise<boolean> {
+  try {
+    const result = await db.$executeRawUnsafe(
+      "SELECT id FROM ResourcePurchase WHERE downloadToken = ? AND resourceId = ? AND status = 'pagado'",
+      [token, resourceId]
+    );
+    const rows = (result as any)?.rows || [];
+    return rows.length > 0;
+  } catch {
+    return false;
+  }
+}
+
 export async function GET(request: NextRequest) {
   try {
     const key = request.nextUrl.searchParams.get("key");
+    const token = request.nextUrl.searchParams.get("token");
 
     if (!key || typeof key !== "string") {
       return NextResponse.json(
@@ -36,10 +72,10 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // For video/audio files, only allow access from:
-    // 1. Our protected player (sends X-Stream-Request header)
-    // 2. Admin users (sends Authorization header with valid token)
-    if (isStreamableFile(key)) {
+    const isStreamable = isStreamableFile(key);
+
+    // ── Streamable files (video/audio): require X-Stream-Request header or admin auth ──
+    if (isStreamable) {
       const streamHeader = request.headers.get("x-stream-request");
       const authHeader = request.headers.get("authorization")?.replace("Bearer ", "");
       const isAdmin = authHeader && authHeader === process.env.ADMIN_API_SECRET;
@@ -52,6 +88,31 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // ── Non-streamable paid files: require a valid download token ──
+    if (!isStreamable) {
+      const { paid, resourceId } = await isPaidResource(key);
+
+      if (paid && resourceId) {
+        // This is a paid downloadable resource — verify the token
+        if (!token) {
+          return NextResponse.json(
+            { error: "Este recurso requiere compra. Obtenelo realizando el pago primero." },
+            { status: 403 }
+          );
+        }
+
+        const isValid = await verifyDownloadToken(token, resourceId);
+        if (!isValid) {
+          return NextResponse.json(
+            { error: "Token de descarga inválido o expirado. Necesitás comprar el recurso primero." },
+            { status: 403 }
+          );
+        }
+      }
+      // Free non-streamable files: no token needed, direct download
+    }
+
+    // ── Stream the file from R2 ──
     const result = await getResourceStream(key);
 
     if (!result.Body) {
@@ -66,15 +127,20 @@ export async function GET(request: NextRequest) {
 
     // For streamable files, never set Content-Disposition: attachment
     // and use no-cache to prevent browser caching that could be exploited
-    const isMedia = isStreamableFile(key);
+    const isMedia = isStreamable;
+
+    // For paid downloadable files, use attachment disposition and no-cache
+    const disposition = isMedia
+      ? `inline; filename*=UTF-8''${encodeURIComponent(fileName)}`
+      : `attachment; filename*=UTF-8''${encodeURIComponent(fileName)}`;
 
     return new NextResponse(result.Body as ReadableStream, {
       headers: {
         "Content-Type": contentType,
-        "Content-Disposition": `inline; filename*=UTF-8''${encodeURIComponent(fileName)}`,
+        "Content-Disposition": disposition,
         "Cache-Control": isMedia
           ? "no-store, no-cache, must-revalidate, proxy-revalidate"
-          : "public, max-age=3600",
+          : "private, max-age=300",
         ...(isMedia ? {
           "X-Content-Type-Options": "nosniff",
         } : {}),

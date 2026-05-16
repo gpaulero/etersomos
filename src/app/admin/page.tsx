@@ -158,6 +158,8 @@ interface ResourceItem {
   fileName: string;
   fileSize: number;
   price: number;
+  priceArs: number;
+  priceUsd: number;
   active: boolean;
   order: number;
   createdAt: string;
@@ -169,6 +171,8 @@ interface UploadForm {
   description: string;
   fileType: string;
   price: string;
+  priceArs: string;
+  priceUsd: string;
 }
 
 /* ── Helpers ────────────────────────────────────────────────────────────── */
@@ -580,7 +584,7 @@ export default function AdminPage() {
   const [uploadProgress, setUploadProgress] = useState<string>("");
   const [resourceError, setResourceError] = useState("");
   const [showUploadForm, setShowUploadForm] = useState(false);
-  const [uploadForm, setUploadForm] = useState<UploadForm>({ title: "", description: "", fileType: "documento", price: "" });
+  const [uploadForm, setUploadForm] = useState<UploadForm>({ title: "", description: "", fileType: "documento", price: "", priceArs: "", priceUsd: "" });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [editingResource, setEditingResource] = useState<string | null>(null);
 
@@ -960,7 +964,9 @@ export default function AdminPage() {
           r2Key: key,
           fileName: selectedFile.name,
           fileSize: selectedFile.size,
-          price: parseFloat(uploadForm.price) || 0,
+          price: parseFloat(uploadForm.price) || parseFloat(uploadForm.priceArs) || 0,
+          priceArs: parseFloat(uploadForm.priceArs) || parseFloat(uploadForm.price) || 0,
+          priceUsd: parseFloat(uploadForm.priceUsd) || 0,
         }),
       });
       if (!metaRes.ok) {
@@ -970,7 +976,7 @@ export default function AdminPage() {
 
       toast.success("Recurso subido correctamente");
       setShowUploadForm(false);
-      setUploadForm({ title: "", description: "", fileType: "documento", price: "" });
+      setUploadForm({ title: "", description: "", fileType: "documento", price: "", priceArs: "", priceUsd: "" });
       setSelectedFile(null);
       fetchResources();
     } catch (err: any) {
@@ -2035,7 +2041,7 @@ export default function AdminPage() {
                   <div className="p-4 rounded-xl border border-gold-400/20 bg-gold-400/5 space-y-4">
                     <div className="flex items-center justify-between">
                       <h3 className="text-sm font-josefin text-gold-400 font-medium">Nuevo recurso</h3>
-                      <button onClick={() => { setShowUploadForm(false); setUploadForm({ title: "", description: "", fileType: "documento", price: "" }); setSelectedFile(null); }} className="p-1 hover:bg-mystic-800 rounded">
+                      <button onClick={() => { setShowUploadForm(false); setUploadForm({ title: "", description: "", fileType: "documento", price: "", priceArs: "", priceUsd: "" }); setSelectedFile(null); }} className="p-1 hover:bg-mystic-800 rounded">
                         <X className="w-4 h-4 text-mystic-400" />
                       </button>
                     </div>
@@ -2070,23 +2076,33 @@ export default function AdminPage() {
                       <Textarea value={uploadForm.description} onChange={(e) => setUploadForm({ ...uploadForm, description: e.target.value })} placeholder="Describí brevemente de qué trata este recurso..." rows={2} className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 placeholder:text-mystic-500 focus:border-gold-400/50 text-sm resize-none" disabled={uploading} />
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <label className="text-xs text-gold-400/70 font-josefin">Archivo *</label>
+                      <label className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-mystic-600/50 bg-mystic-900/40 hover:border-gold-400/40 cursor-pointer transition-all h-9">
+                        {selectedFile ? (
+                          <span className="text-sm text-cream-200 truncate">{selectedFile.name}</span>
+                        ) : (
+                          <span className="text-sm text-mystic-500">Elegir archivo...</span>
+                        )}
+                        <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.svg,.mp4,.webm,.mov,.avi,.mp3,.wav,.ogg,.m4a,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.7z,.txt,.csv" onChange={(e) => setSelectedFile(e.target.files?.[0] || null)} disabled={uploading} />
+                      </label>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div className="space-y-1.5">
-                        <label className="text-xs text-gold-400/70 font-josefin">Precio sugerido (0 = gratis)</label>
+                        <label className="text-xs text-gold-400/70 font-josefin">Precio ARS (0 = gratis)</label>
+                        <Input type="number" value={uploadForm.priceArs} onChange={(e) => setUploadForm({ ...uploadForm, priceArs: e.target.value })} placeholder="0" min="0" className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 placeholder:text-mystic-500 focus:border-gold-400/50 h-9 text-sm" disabled={uploading} />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-xs text-gold-400/70 font-josefin">Precio USD (0 = gratis)</label>
+                        <Input type="number" value={uploadForm.priceUsd} onChange={(e) => setUploadForm({ ...uploadForm, priceUsd: e.target.value })} placeholder="0" min="0" className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 placeholder:text-mystic-500 focus:border-gold-400/50 h-9 text-sm" disabled={uploading} />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-xs text-gold-400/70 font-josefin">Precio legacy (0 = gratis)</label>
                         <Input type="number" value={uploadForm.price} onChange={(e) => setUploadForm({ ...uploadForm, price: e.target.value })} placeholder="0" min="0" className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 placeholder:text-mystic-500 focus:border-gold-400/50 h-9 text-sm" disabled={uploading} />
                       </div>
-                      <div className="space-y-1.5">
-                        <label className="text-xs text-gold-400/70 font-josefin">Archivo *</label>
-                        <label className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-mystic-600/50 bg-mystic-900/40 hover:border-gold-400/40 cursor-pointer transition-all h-9">
-                          {selectedFile ? (
-                            <span className="text-sm text-cream-200 truncate">{selectedFile.name}</span>
-                          ) : (
-                            <span className="text-sm text-mystic-500">Elegir archivo...</span>
-                          )}
-                          <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.svg,.mp4,.webm,.mov,.avi,.mp3,.wav,.ogg,.m4a,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.7z,.txt,.csv" onChange={(e) => setSelectedFile(e.target.files?.[0] || null)} disabled={uploading} />
-                        </label>
-                      </div>
                     </div>
+                    <p className="text-xs text-mystic-500 font-josefin">Para recursos pagos, completá ARS y/o USD. Los recursos con precio &gt; 0 requieren pago antes de descargar. Videos y audios siempre se reproducen, no se descargan.</p>
 
                     <div className="flex justify-end">
                       <Button onClick={handleUploadResource} disabled={uploading || !selectedFile || !uploadForm.title.trim()} className="bg-gold-400/20 hover:bg-gold-400/30 text-gold-300 border border-gold-400/30 font-josefin text-xs gap-1.5">
@@ -2137,7 +2153,12 @@ export default function AdminPage() {
                               </Badge>
                               {resource.price > 0 && (
                                 <Badge variant="secondary" className="text-[10px] px-1.5 py-0 bg-gold-400/10 text-gold-400 border-gold-400/20 shrink-0">
-                                  ${resource.price.toLocaleString("es-AR")}
+                                  ${(resource.priceArs || resource.price).toLocaleString("es-AR")} ARS
+                                </Badge>
+                              )}
+                              {(resource.priceUsd || 0) > 0 && (
+                                <Badge variant="secondary" className="text-[10px] px-1.5 py-0 bg-[#FFC439]/10 text-[#FFC439] border-[#FFC439]/20 shrink-0">
+                                  USD ${(resource.priceUsd).toLocaleString("es-AR")}
                                 </Badge>
                               )}
                               {!resource.active && (

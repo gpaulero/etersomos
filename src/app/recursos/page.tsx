@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Toaster } from "sonner";
+import { Toaster, toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -37,10 +37,13 @@ import {
   Gift,
   Play,
   X,
+  Lock,
+  CreditCard,
 } from "lucide-react";
 import NextImage from "next/image";
 import Link from "next/link";
 import { ProtectedVideoPlayer, ProtectedAudioPlayer } from "@/components/protected-player";
+import { initiateResourcePayment } from "@/lib/resource-payment";
 
 /* ======================================================================== */
 /*                            NAV LINKS                                      */
@@ -84,8 +87,19 @@ interface Resource {
   fileName: string;
   fileSize: number;
   price: number;
+  priceArs?: number;
+  priceUsd?: number;
   url: string;
+  r2Key?: string;
   createdAt: string;
+}
+
+interface PurchaseState {
+  resource: Resource | null;
+  step: "select" | "paying";
+  name: string;
+  email: string;
+  paymentMethod: "mercadopago" | "paypal";
 }
 
 /* ======================================================================== */
@@ -138,9 +152,14 @@ function getFileTypeInfo(fileType: string): {
   }
 }
 
-function formatPrice(price: number): string {
+function formatPriceArs(price: number): string {
   if (price <= 0) return null;
-  return `$${price.toLocaleString("es-AR", { minimumFractionDigits: 0 })}`;
+  return `$${price.toLocaleString("es-AR", { minimumFractionDigits: 0 })} ARS`;
+}
+
+function formatPriceUsd(price: number): string {
+  if (price <= 0) return null;
+  return `USD $${price}`;
 }
 
 /* ======================================================================== */
@@ -149,13 +168,26 @@ function formatPrice(price: number): string {
 
 export default function RecursosPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [navScrolled, setNavScrolled] = useState(false);
+  const constNavScrolled = useState(false);
+  const navScrolled = constNavScrolled[0];
+  const setNavScrolled = constNavScrolled[1];
   const [resources, setResources] = useState<Resource[]>([]);
   const [resourcesLoading, setResourcesLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
   const [playerOpen, setPlayerOpen] = useState(false);
   const [playerResource, setPlayerResource] = useState<Resource | null>(null);
   const [inlineAudioOpen, setInlineAudioOpen] = useState<Record<string, boolean>>({});
+
+  // Purchase dialog state
+  const [purchaseOpen, setPurchaseOpen] = useState(false);
+  const [purchase, setPurchase] = useState<PurchaseState>({
+    resource: null,
+    step: "select",
+    name: "",
+    email: "",
+    paymentMethod: "mercadopago",
+  });
+  const [purchasing, setPurchasing] = useState(false);
 
   /* ---- Nav scroll effect ---- */
   useEffect(() => {
@@ -185,6 +217,32 @@ export default function RecursosPage() {
     };
     fetchResources();
   }, []);
+
+  /* ---- Handle purchase initiation ---- */
+  const handlePurchase = async () => {
+    if (!purchase.resource || !purchase.name.trim() || !purchase.email.trim()) {
+      toast.error("Completá tu nombre y email para continuar.");
+      return;
+    }
+
+    setPurchasing(true);
+    try {
+      await initiateResourcePayment({
+        resourceId: purchase.resource.id,
+        resourceTitle: purchase.resource.title,
+        email: purchase.email.trim(),
+        name: purchase.name.trim(),
+        priceArs: purchase.resource.priceArs || purchase.resource.price || 0,
+        priceUsd: purchase.resource.priceUsd || 0,
+        paymentMethod: purchase.paymentMethod,
+        r2Key: purchase.resource.r2Key || "",
+      });
+    } catch (err) {
+      console.error("Purchase error:", err);
+      toast.error("Error al iniciar el pago. Intentá de nuevo.");
+      setPurchasing(false);
+    }
+  };
 
   /* ---- Floating stars ---- */
   const [starsCount, setStarsCount] = useState(15);
@@ -296,7 +354,7 @@ export default function RecursosPage() {
               Para tu crecimiento
             </motion.span>
             <motion.h1 variants={fadeInUp} transition={{ duration: 0.8, delay: 0.2 }} className="text-3xl sm:text-4xl md:text-5xl font-serif font-semibold text-foreground mb-3">
-              Recursos Gratuitos
+              Recursos
             </motion.h1>
             <motion.p variants={fadeInUp} transition={{ duration: 0.8, delay: 0.4 }} className="text-foreground/50 max-w-xl mx-auto font-sans">
               Meditaciones guiadas, guías y contenido exclusivo para tu camino espiritual
@@ -333,9 +391,11 @@ export default function RecursosPage() {
               {resources.map((resource) => {
                 const typeInfo = getFileTypeInfo(resource.fileType);
                 const TypeIcon = typeInfo.icon;
-                const price = formatPrice(resource.price);
                 const streamable = isStreamableType(resource.fileType);
                 const isVideo = normalizeFileType(resource.fileType) === "video";
+                const priceArs = resource.priceArs || resource.price || 0;
+                const priceUsd = resource.priceUsd || 0;
+                const isPaid = priceArs > 0 || priceUsd > 0;
 
                 return (
                   <motion.div key={resource.id} variants={fadeInUp} transition={{ duration: 0.5 }}>
@@ -350,8 +410,11 @@ export default function RecursosPage() {
                             <TypeIcon className="size-3.5" />
                             {typeInfo.label}
                           </div>
-                          {price ? (
-                            <span className="text-gold-400 text-xs font-medium">Contribución: {price}</span>
+                          {isPaid ? (
+                            <span className="text-gold-400 text-xs font-medium flex items-center gap-1">
+                              <Lock className="size-3" />
+                              {formatPriceArs(priceArs) || formatPriceUsd(priceUsd)}
+                            </span>
                           ) : (
                             <span className="text-emerald-400/70 text-xs font-medium">Gratis</span>
                           )}
@@ -383,49 +446,56 @@ export default function RecursosPage() {
                             </span>
                           </div>
 
-                          {/* Contribución voluntaria consciente */}
-                          <div className="mb-4">
-                            <div className="flex items-center gap-2 mb-2">
-                              <Heart className="size-3.5 text-cream-400/60" />
-                              <span className="text-cream-400/70 text-xs font-medium font-sans">
-                                Contribución voluntaria consciente
-                              </span>
+                          {/* Price info for paid resources */}
+                          {isPaid && (
+                            <div className="mb-4 p-3 rounded-xl bg-gold-400/5 border border-gold-400/10">
+                              <div className="flex items-center gap-2 mb-1">
+                                <CreditCard className="size-3.5 text-gold-400/70" />
+                                <span className="text-gold-400/80 text-xs font-medium font-sans">
+                                  Acceso con contribución
+                                </span>
+                              </div>
+                              <p className="text-foreground/35 text-xs leading-relaxed font-sans">
+                                Elegí tu método de pago para acceder a este recurso.
+                              </p>
+                              {priceArs > 0 && (
+                                <p className="text-foreground/50 text-xs mt-1 font-sans">
+                                  MercadoPago: {formatPriceArs(priceArs)}
+                                </p>
+                              )}
+                              {priceUsd > 0 && (
+                                <p className="text-foreground/50 text-xs font-sans">
+                                  PayPal: {formatPriceUsd(priceUsd)}
+                                </p>
+                              )}
                             </div>
-                            <p className="text-foreground/30 text-xs leading-relaxed font-sans">
-                              Si este recurso resuena con vos, podés apoyar nuestro trabajo con una contribución libre. Elegí la plataforma que prefieras.
-                            </p>
-                          </div>
+                          )}
+
+                          {/* Free contribution note */}
+                          {!isPaid && (
+                            <div className="mb-4">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Heart className="size-3.5 text-cream-400/60" />
+                                <span className="text-cream-400/70 text-xs font-medium font-sans">
+                                  Contribución voluntaria consciente
+                                </span>
+                              </div>
+                              <p className="text-foreground/30 text-xs leading-relaxed font-sans">
+                                Si este recurso resuena con vos, podés apoyar nuestro trabajo con una contribución libre.
+                              </p>
+                            </div>
+                          )}
 
                           {/* Botones de acción */}
                           <div className="flex flex-col gap-2">
-                            <a
-                              href="https://link.mercadopago.com.ar/etersomos"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="w-full inline-flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl bg-[#009EE3]/15 hover:bg-[#009EE3]/25 text-[#009EE3] hover:text-[#00b8ff] text-sm font-medium transition-all duration-200 border border-[#009EE3]/20 hover:border-[#009EE3]/40"
-                            >
-                              <svg className="size-4" viewBox="0 0 24 24" fill="currentColor"><path d="M7.5 18.5c-.3 0-.5-.1-.7-.3-.2-.2-.3-.4-.3-.7V6.5c0-.3.1-.5.3-.7.2-.2.4-.3.7-.3h5c1.6 0 2.9.5 3.9 1.4 1 1 1.5 2.2 1.5 3.6 0 1.4-.5 2.6-1.5 3.6-1 1-2.3 1.4-3.9 1.4H9v3.7c0 .3-.1.5-.3.7-.2.2-.4.3-.7.3h-.5z"/></svg>
-                              Contribuir con MercadoPago
-                            </a>
-                            <a
-                              href="https://paypal.me/registrosakashicos9"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="w-full inline-flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl bg-[#FFC439]/15 hover:bg-[#FFC439]/25 text-[#FFC439] hover:text-[#ffd060] text-sm font-medium transition-all duration-200 border border-[#FFC439]/20 hover:border-[#FFC439]/40"
-                            >
-                              <svg className="size-4" viewBox="0 0 24 24" fill="currentColor"><path d="M7.076 21.337H2.47a.641.641 0 01-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 00-.607-.541c1.855 1.475 2.392 3.893 1.635 6.173-.77 2.32-2.947 3.834-5.578 3.834h-2.19c-.524 0-.968.382-1.05.9l-.56 3.553-.16 1.015c-.04.253-.253.44-.508.44H7.076"/></svg>
-                              Contribuir con PayPal
-                            </a>
-
-                            {/* Reproducir (video/audio/meditación) o Descargar (documento/imagen/guía) */}
                             {streamable ? (
+                              /* ── Streamable: Reproducir ── */
                               <button
                                 onClick={() => {
                                   if (isVideo) {
                                     setPlayerResource(resource);
                                     setPlayerOpen(true);
                                   } else {
-                                    // audio / meditación — toggle inline player
                                     setInlineAudioOpen(prev => ({
                                       ...prev,
                                       [resource.id]: !prev[resource.id]
@@ -437,7 +507,26 @@ export default function RecursosPage() {
                                 <Play className="size-4" />
                                 Reproducir
                               </button>
+                            ) : isPaid ? (
+                              /* ── Paid downloadable: Comprar y descargar ── */
+                              <button
+                                onClick={() => {
+                                  setPurchase({
+                                    resource,
+                                    step: "select",
+                                    name: "",
+                                    email: "",
+                                    paymentMethod: "mercadopago",
+                                  });
+                                  setPurchaseOpen(true);
+                                }}
+                                className="w-full inline-flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl bg-gold-400/15 hover:bg-gold-400/25 text-gold-400 hover:text-gold-300 text-sm font-medium transition-all duration-200 border border-gold-400/20 hover:border-gold-400/40"
+                              >
+                                <Lock className="size-4" />
+                                Comprar y descargar
+                              </button>
                             ) : (
+                              /* ── Free downloadable: Descargar ahora ── */
                               <a
                                 href={resource.url}
                                 target="_blank"
@@ -447,6 +536,30 @@ export default function RecursosPage() {
                                 <Gift className="size-4" />
                                 Descargar ahora
                               </a>
+                            )}
+
+                            {/* Contribution links for free resources */}
+                            {!isPaid && (
+                              <>
+                                <a
+                                  href="https://link.mercadopago.com.ar/etersomos"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="w-full inline-flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl bg-[#009EE3]/15 hover:bg-[#009EE3]/25 text-[#009EE3] hover:text-[#00b8ff] text-sm font-medium transition-all duration-200 border border-[#009EE3]/20 hover:border-[#009EE3]/40"
+                                >
+                                  <svg className="size-4" viewBox="0 0 24 24" fill="currentColor"><path d="M7.5 18.5c-.3 0-.5-.1-.7-.3-.2-.2-.3-.4-.3-.7V6.5c0-.3.1-.5.3-.7.2-.2.4-.3.7-.3h5c1.6 0 2.9.5 3.9 1.4 1 1 1.5 2.2 1.5 3.6 0 1.4-.5 2.6-1.5 3.6-1 1-2.3 1.4-3.9 1.4H9v3.7c0 .3-.1.5-.3.7-.2.2-.4.3-.7.3h-.5z"/></svg>
+                                  Contribuir con MercadoPago
+                                </a>
+                                <a
+                                  href="https://paypal.me/registrosakashicos9"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="w-full inline-flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl bg-[#FFC439]/15 hover:bg-[#FFC439]/25 text-[#FFC439] hover:text-[#ffd060] text-sm font-medium transition-all duration-200 border border-[#FFC439]/20 hover:border-[#FFC439]/40"
+                                >
+                                  <svg className="size-4" viewBox="0 0 24 24" fill="currentColor"><path d="M7.076 21.337H2.47a.641.641 0 01-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 00-.607-.541c1.855 1.475 2.392 3.893 1.635 6.173-.77 2.32-2.947 3.834-5.578 3.834h-2.19c-.524 0-.968.382-1.05.9l-.56 3.553-.16 1.015c-.04.253-.253.44-.508.44H7.076"/></svg>
+                                  Contribuir con PayPal
+                                </a>
+                              </>
                             )}
                           </div>
 
@@ -513,6 +626,141 @@ export default function RecursosPage() {
                   <X className="size-5" />
                 </Button>
               </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ============================================================ */}
+      {/*               RESOURCE PURCHASE DIALOG                        */}
+      {/* ============================================================ */}
+      <Dialog open={purchaseOpen} onOpenChange={setPurchaseOpen}>
+        <DialogContent className="sm:max-w-md bg-mystic-950/95 backdrop-blur-xl border-mystic-700/30">
+          <DialogHeader>
+            <DialogTitle className="text-violet-400 font-serif flex items-center gap-2">
+              <Lock className="size-5" />
+              Acceder al recurso
+            </DialogTitle>
+            <DialogDescription className="text-foreground/50 font-sans">
+              Completá tus datos y elegí el método de pago para descargar este recurso.
+            </DialogDescription>
+          </DialogHeader>
+
+          {purchase.resource && (
+            <div className="space-y-5 mt-2">
+              {/* Resource info */}
+              <div className="p-4 rounded-xl bg-mystic-900/50 border border-mystic-700/20">
+                <h4 className="text-foreground font-serif font-semibold text-sm mb-1">
+                  {purchase.resource.title}
+                </h4>
+                <div className="flex items-center gap-3 mt-2">
+                  {(purchase.resource.priceArs || purchase.resource.price) > 0 && (
+                    <span className="text-[#009EE3] text-xs font-medium bg-[#009EE3]/10 px-2 py-1 rounded-md">
+                      MercadoPago: {formatPriceArs(purchase.resource.priceArs || purchase.resource.price)}
+                    </span>
+                  )}
+                  {(purchase.resource.priceUsd || 0) > 0 && (
+                    <span className="text-[#FFC439] text-xs font-medium bg-[#FFC439]/10 px-2 py-1 rounded-md">
+                      PayPal: {formatPriceUsd(purchase.resource.priceUsd)}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Name input */}
+              <div>
+                <label className="text-foreground/60 text-xs font-medium font-sans mb-1.5 block">
+                  Tu nombre
+                </label>
+                <input
+                  type="text"
+                  value={purchase.name}
+                  onChange={(e) => setPurchase(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="Ingresá tu nombre"
+                  className="w-full px-4 py-2.5 rounded-xl bg-mystic-900/50 border border-mystic-700/30 text-foreground text-sm font-sans placeholder:text-foreground/25 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all"
+                />
+              </div>
+
+              {/* Email input */}
+              <div>
+                <label className="text-foreground/60 text-xs font-medium font-sans mb-1.5 block">
+                  Tu email
+                </label>
+                <input
+                  type="email"
+                  value={purchase.email}
+                  onChange={(e) => setPurchase(prev => ({ ...prev, email: e.target.value }))}
+                  placeholder="tu@email.com"
+                  className="w-full px-4 py-2.5 rounded-xl bg-mystic-900/50 border border-mystic-700/30 text-foreground text-sm font-sans placeholder:text-foreground/25 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 transition-all"
+                />
+                <p className="text-foreground/25 text-xs mt-1 font-sans">
+                  Te enviaremos el enlace de descarga a este email.
+                </p>
+              </div>
+
+              {/* Payment method selector */}
+              <div>
+                <label className="text-foreground/60 text-xs font-medium font-sans mb-2 block">
+                  Método de pago
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => setPurchase(prev => ({ ...prev, paymentMethod: "mercadopago" }))}
+                    className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all duration-200 ${
+                      purchase.paymentMethod === "mercadopago"
+                        ? "bg-[#009EE3]/15 border-[#009EE3]/40 text-[#009EE3]"
+                        : "bg-mystic-900/30 border-mystic-700/20 text-foreground/40 hover:border-mystic-700/40"
+                    }`}
+                  >
+                    <svg className="size-6" viewBox="0 0 24 24" fill="currentColor"><path d="M7.5 18.5c-.3 0-.5-.1-.7-.3-.2-.2-.3-.4-.3-.7V6.5c0-.3.1-.5.3-.7.2-.2.4-.3.7-.3h5c1.6 0 2.9.5 3.9 1.4 1 1 1.5 2.2 1.5 3.6 0 1.4-.5 2.6-1.5 3.6-1 1-2.3 1.4-3.9 1.4H9v3.7c0 .3-.1.5-.3.7-.2.2-.4.3-.7.3h-.5z"/></svg>
+                    <span className="text-xs font-medium">MercadoPago</span>
+                    {(purchase.resource.priceArs || purchase.resource.price) > 0 && (
+                      <span className="text-[10px] opacity-70">{formatPriceArs(purchase.resource.priceArs || purchase.resource.price)}</span>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => setPurchase(prev => ({ ...prev, paymentMethod: "paypal" }))}
+                    className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all duration-200 ${
+                      purchase.paymentMethod === "paypal"
+                        ? "bg-[#FFC439]/15 border-[#FFC439]/40 text-[#FFC439]"
+                        : "bg-mystic-900/30 border-mystic-700/20 text-foreground/40 hover:border-mystic-700/40"
+                    }`}
+                  >
+                    <svg className="size-6" viewBox="0 0 24 24" fill="currentColor"><path d="M7.076 21.337H2.47a.641.641 0 01-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 00-.607-.541c1.855 1.475 2.392 3.893 1.635 6.173-.77 2.32-2.947 3.834-5.578 3.834h-2.19c-.524 0-.968.382-1.05.9l-.56 3.553-.16 1.015c-.04.253-.253.44-.508.44H7.076"/></svg>
+                    <span className="text-xs font-medium">PayPal</span>
+                    {(purchase.resource.priceUsd || 0) > 0 && (
+                      <span className="text-[10px] opacity-70">{formatPriceUsd(purchase.resource.priceUsd)}</span>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Pay button */}
+              <Button
+                onClick={handlePurchase}
+                disabled={purchasing || !purchase.name.trim() || !purchase.email.trim()}
+                className={`w-full py-6 rounded-xl font-serif font-semibold text-sm transition-all duration-300 ${
+                  purchase.paymentMethod === "mercadopago"
+                    ? "bg-[#009EE3] hover:bg-[#00b8ff] text-white"
+                    : "bg-[#FFC439] hover:bg-[#ffd060] text-black"
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                {purchasing ? (
+                  <>
+                    <Loader2 className="size-4 mr-2 animate-spin" />
+                    Redirigiendo al pago...
+                  </>
+                ) : (
+                  <>
+                    <CreditCard className="size-4 mr-2" />
+                    Pagar con {purchase.paymentMethod === "mercadopago" ? "MercadoPago" : "PayPal"}
+                  </>
+                )}
+              </Button>
+
+              <p className="text-foreground/25 text-xs text-center font-sans">
+                Serás redirigido a la plataforma de pago segura. Una vez confirmado el pago, recibirás el enlace de descarga.
+              </p>
             </div>
           )}
         </DialogContent>

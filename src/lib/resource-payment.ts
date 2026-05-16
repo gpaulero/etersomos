@@ -2,68 +2,59 @@
 
 import { toast } from "sonner";
 
-export type CheckoutType = "crystal_order" | "course_enrollment" | "reading" | "resource_purchase";
-
-interface CoursePaymentData {
-  courseId: string;
-  courseName: string;
+interface ResourcePaymentData {
+  resourceId: string;
+  resourceTitle: string;
   email: string;
   name: string;
-  phone: string;
   /** ARS price (used for MercadoPago) */
-  price: number;
-  /** USD price (used for PayPal). If not provided, falls back to ARS conversion. */
-  usdPrice?: number;
+  priceArs: number;
+  /** USD price (used for PayPal) */
+  priceUsd: number;
   paymentMethod: "mercadopago" | "paypal";
-  enrollmentData: Record<string, unknown>;
-  /** Override the checkout session type. Defaults to "course_enrollment". */
-  checkoutType?: CheckoutType;
+  /** The r2Key of the resource (needed for download URL after purchase) */
+  r2Key: string;
 }
 
-export async function initiateCoursePayment(data: CoursePaymentData) {
-  const sessionId = `course_${data.courseId}_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
-  const checkoutType = data.checkoutType || "course_enrollment";
-
-  // Save enrollment form data
-  localStorage.setItem(
-    `courseEnrollment_${data.courseId}`,
-    JSON.stringify(data.enrollmentData)
-  );
+export async function initiateResourcePayment(data: ResourcePaymentData) {
+  const sessionId = `resource_${data.resourceId}_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
 
   // Save checkout session (format expected by /payment/success page)
   const session = {
-    type: checkoutType,
-    courseId: data.courseId,
-    courseName: data.courseName,
+    type: "resource_purchase" as const,
+    resourceId: data.resourceId,
+    resourceTitle: data.resourceTitle,
+    r2Key: data.r2Key,
     customerName: data.name,
     customerEmail: data.email,
-    customerPhone: data.phone,
-    address: checkoutType === "crystal_order" ? "" : "Curso online",
-    city: checkoutType === "crystal_order" ? "" : "N/A",
-    province: checkoutType === "crystal_order" ? "" : "N/A",
-    postalCode: checkoutType === "crystal_order" ? "" : "0000",
-    notes: checkoutType === "course_enrollment"
-      ? `Inscripción a curso: ${data.courseName}`
-      : checkoutType === "reading"
-        ? `Lectura: ${data.courseName}`
-        : "",
-    items: [{ id: 0, name: data.courseName, quantity: 1, price: data.price }],
-    total: data.price,
+    customerPhone: "",
+    address: "Recurso digital",
+    city: "N/A",
+    province: "N/A",
+    postalCode: "0000",
+    notes: `Recurso: ${data.resourceTitle}`,
+    items: [{ id: 0, name: `Recurso: ${data.resourceTitle}`, quantity: 1, price: data.priceArs }],
+    total: data.priceArs,
     paymentMethod: data.paymentMethod,
     paymentId: null,
     createdAt: new Date().toISOString(),
-    extraData: data.enrollmentData,
+    extraData: {
+      resourceId: data.resourceId,
+      resourceTitle: data.resourceTitle,
+      r2Key: data.r2Key,
+      priceArs: data.priceArs,
+      priceUsd: data.priceUsd,
+    },
   };
 
   localStorage.setItem(`checkoutSession_${sessionId}`, JSON.stringify(session));
 
   if (data.paymentMethod === "mercadopago") {
-    // MercadoPago always uses ARS price
     const res = await fetch("/api/payments/create-mercadopago", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        items: [{ id: 0, name: data.courseName, quantity: 1, price: data.price }],
+        items: [{ id: 0, name: `Recurso: ${data.resourceTitle}`, quantity: 1, price: data.priceArs }],
         sessionId,
         buyerEmail: data.email,
       }),
@@ -85,10 +76,10 @@ export async function initiateCoursePayment(data: CoursePaymentData) {
       body: JSON.stringify({
         items: [{
           id: 0,
-          name: data.courseName,
+          name: `Recurso: ${data.resourceTitle}`,
           quantity: 1,
-          price: data.price, // ARS price (fallback)
-          usdPrice: data.usdPrice, // USD price for PayPal
+          price: data.priceArs,
+          usdPrice: data.priceUsd,
         }],
         sessionId,
       }),

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 
 export const runtime = "nodejs";
@@ -126,6 +127,10 @@ export async function POST(request: NextRequest) {
       [id, title, description || "", category || "", fileType || "documento", r2Key, fileName || "", fileSize || 0, priceArs || price || 0, priceUsd || 0, price || priceArs || 0]
     );
 
+    // Invalidate public resources page cache
+    revalidatePath('/recursos');
+    revalidatePath('/', 'layout');
+
     return NextResponse.json({ message: "Recurso creado correctamente", id }, { status: 201 });
   } catch (err) {
     console.error("Error creating resource:", err);
@@ -163,6 +168,10 @@ export async function PUT(request: NextRequest) {
     const sql = "UPDATE Resource SET " + sets.join(", ") + " WHERE id = ?";
     await db.$executeRawUnsafe(sql, [...values, id]);
 
+    // Invalidate public resources page cache
+    revalidatePath('/recursos');
+    revalidatePath('/', 'layout');
+
     return NextResponse.json({ message: "Recurso actualizado" });
   } catch (err) {
     console.error("Error updating resource:", err);
@@ -198,6 +207,10 @@ export async function DELETE(request: NextRequest) {
     }
 
     await db.$executeRawUnsafe("DELETE FROM Resource WHERE id = ?", [id]);
+
+    // Invalidate public resources page cache
+    revalidatePath('/recursos');
+    revalidatePath('/', 'layout');
 
     return NextResponse.json({ message: "Recurso eliminado correctamente" });
   } catch (err) {

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { sendAdminNotification, sendCustomerConfirmation } from "@/lib/email";
 
-type OrderType = "crystal_order" | "course_enrollment" | "reading";
+type OrderType = "crystal_order" | "course_enrollment" | "reading" | "resource_purchase";
 
 /* ── POST: Confirm any order type (save to DB + send emails) ─────────── */
 
@@ -71,6 +71,8 @@ export async function POST(request: NextRequest) {
         return handleCourseEnrollment(body);
       case "reading":
         return handleReadingOrder(body);
+      case "resource_purchase":
+        return handleResourcePurchase(body);
       default:
         return NextResponse.json(
           { error: `Tipo de pedido no válido: ${type}` },
@@ -314,6 +316,120 @@ async function handleReadingOrder(body: Record<string, unknown>) {
       orderId: booking.id,
       type: "reading",
       message: "Solicitud de lectura registrada con éxito.",
+    },
+    { status: 201 }
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   RESOURCE PURCHASE HANDLER
+   ═══════════════════════════════════════════════════════════════════════ */
+
+async function handleResourcePurchase(body: Record<string, unknown>) {
+  const {
+    customerName,
+    customerEmail,
+    items,
+    total,
+    paymentMethod,
+    paymentId,
+    extraData,
+  } = body as {
+    customerName: string;
+    customerEmail: string;
+    items: Array<{ id: number; name: string; quantity: number; price: number }>;
+    total: number;
+    paymentMethod: string;
+    paymentId?: string | null;
+    extraData?: Record<string, unknown>;
+  };
+
+  const resourceId = extraData?.resourceId as string || "";
+  const resourceTitle = extraData?.resourceTitle as string || items[0]?.name || "Recurso";
+  const r2Key = extraData?.r2Key as string || "";
+
+  if (!resourceId) {
+    return NextResponse.json(
+      { error: "Falta el ID del recurso." },
+      { status: 400 }
+    );
+  }
+
+  // Create ResourcePurchase table if not exists
+  const CREATE_PURCHASE_TABLE_SQL = [
+    "CREATE TABLE IF NOT EXISTS ResourcePurchase (",
+    "id TEXT NOT NULL PRIMARY KEY,",
+    "resourceId TEXT NOT NULL,",
+    "resourceTitle TEXT NOT NULL DEFAULT '',",
+    "customerName TEXT NOT NULL,",
+    "customerEmail TEXT NOT NULL,",
+    "paymentMethod TEXT NOT NULL,",
+    "paymentId TEXT,",
+    "amount REAL NOT NULL DEFAULT 0,",
+    "downloadToken TEXT NOT NULL UNIQUE,",
+    "status TEXT NOT NULL DEFAULT 'pendiente',",
+    "createdAt TEXT NOT NULL DEFAULT (datetime('now'))",
+    ")",
+  ].join(" ");
+  await db.$executeRawUnsafe(CREATE_PURCHASE_TABLE_SQL, []);
+
+  // Generate purchase ID
+  const idResult = await db.$executeRawUnsafe("SELECT lower(hex(randomblob(12))) as id", []);
+  const purchaseId = (idResult as any)?.rows?.[0]?.id;
+  if (!purchaseId) throw new Error("Failed to generate purchase ID");
+
+  // Generate download token
+  const tokenResult = await db.$executeRawUnsafe("SELECT lower(hex(randomblob(16))) as token", []);
+  const downloadToken = (tokenResult as any)?.rows?.[0]?.token;
+  if (!downloadToken) throw new Error("Failed to generate download token");
+
+  // Save purchase to DB
+  await db.$executeRawUnsafe(
+    "INSERT INTO ResourcePurchase (id, resourceId, resourceTitle, customerName, customerEmail, paymentMethod, paymentId, amount, downloadToken, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    [
+      purchaseId,
+      resourceId,
+      resourceTitle,
+      customerName.trim(),
+      customerEmail.trim().toLowerCase(),
+      paymentMethod,
+      paymentId || null,
+      parseFloat(String(total)) || 0,
+      downloadToken,
+      "pagado",
+    ]
+  );
+
+  // Send admin notification email (fire and forget)
+  sendEmails({
+    type: "crystal", // reuse crystal template for now
+    customerName: customerName.trim(),
+    customerEmail: customerEmail.trim().toLowerCase(),
+    customerPhone: "",
+    items,
+    total: parseFloat(String(total)) || 0,
+    paymentMethod,
+    paymentId: paymentId || null,
+    orderId: purchaseId,
+    extraData: {
+      resourcePurchase: true,
+      resourceId,
+      resourceTitle,
+      downloadToken,
+    },
+  });
+
+  return NextResponse.json(
+    {
+      success: true,
+      orderId: purchaseId,
+      type: "resource_purchase",
+      downloadToken,
+      r2Key,
+      downloadUrl: r2Key
+        ? `/api/resources/download?key=${encodeURIComponent(r2Key)}&token=${downloadToken}`
+        : null,
+      message: "Compra de recurso registrada con éxito.",
     },
     { status: 201 }
   );
