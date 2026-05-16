@@ -116,18 +116,22 @@ BACKUP de `.env.local` en: `/home/z/my-project/etersomos-backups/2026-04-23/env.
 - Si se vuelve a exponer un secret: usar `git-filter-repo --blob-callback` para reemplazarlo y luego `git push --force`
 - **SESIÓN 9: Middleware de seguridad implementado** (ver abajo)
 
-### Middleware de Seguridad (14/05/2026):
+### Middleware de Seguridad (actualizado 17/05/2026):
 - **Archivo:** `src/middleware.ts` — se ejecuta en TODAS las rutas `/api/*` y `/admin/*`
 - **Rutas protegidas (requieren Bearer token):**
   - `/api/admin/*` — TODOS los métodos
-  - `/api/cms/*` — TODOS los métodos
+  - `/api/cms/content` — PUT (escritura requiere auth, GET es público para que la home pueda leer CMS)
+  - `/api/cms/content/bulk` — PUT (escritura bulk requiere auth)
+  - `/api/cms/content/seed` — POST (seed requiere auth)
   - `/api/bookings` — solo GET, PUT, DELETE (POST público para usuarios)
   - `/api/settings` — GET y PUT (usado por admin)
 - **Rutas públicas (sin token):**
   - `/api/auth/*` — login
+  - `/api/cms/content` — GET (la página principal necesita leer el contenido CMS sin auth)
   - `/api/newsletter/*` — suscripción newsletter
   - `/api/payments/*` — pagos MercadoPago/PayPal
   - `/api/memberships/*` — suscripción a membresías
+  - `/api/resources/public` — recursos públicos
 - **Security headers aplicados a TODAS las rutas:**
   - X-Content-Type-Options: nosniff
   - X-Frame-Options: DENY
@@ -935,6 +939,16 @@ TODOS los pagos pasan por la pasarela del sitio web (MercadoPago o PayPal).
     - Público: /recursos muestra grid de recursos activos
     - Almacenamiento: Cloudflare R2 (bucket: etersomos-recursos, prefix: recursos/)
     - Librería: src/lib/r2.ts (S3Client, presigned URLs, upload, delete, getStream)
+11. **CMS content changes not reflecting on main page — FIX COMPLETO:**
+    - **Problema raíz:** El middleware protegía `/api/cms/*` con TODOS los métodos (incluido GET), lo que impedía que la página principal leyera el contenido CMS editado. La home siempre caía a los defaults hardcodeados.
+    - **Fix 1 — Middleware refactorizado:** `/api/cms/content` GET ahora es público; solo PUT/POST (escritura) requieren auth. PROTECTED_ROUTES ya no incluye `/api/cms` directamente.
+    - **Fix 2 — revalidatePath() agregado:** Los endpoints PUT /api/cms/content y PUT /api/cms/content/bulk ahora llaman `revalidatePath('/')` y otras rutas después de guardar, invalidando la cache de Next.js/Vercel.
+    - **Fix 3 — SiteContentProvider montado en layout:** `src/app/layout.tsx` ahora envuelve children con `<SiteContentProvider>`, que antes estaba definido pero nunca montado (era dead code).
+    - **Fix 4 — Cache-busting en fetch:** `src/lib/cms-helpers.ts` y `src/hooks/use-site-content.ts` ahora agregan `?t=${Date.now()}` y headers `Cache-Control: no-cache` + `cache: 'no-store'` para evitar cache del navegador/CDN.
+    - **Fix 5 — Anti-cache headers en GET:** `src/app/api/cms/content/route.ts` tiene `export const dynamic = 'force-dynamic'` y headers explícitos `Cache-Control: no-store`, `Pragma: no-cache`, `Expires: 0`.
+    - **Fix 6 — Seed removido de fetch público:** `fetchCmsContent()` ya no llama `/api/cms/content/seed` antes de cada fetch (era overhead innecesario en cada carga de página pública).
+12. **Backup v2 (post-R2 CORS + CMS fix):**
+    - /download/backup-etersomos-20260517-v2/ (9.5MB source + 36KB DB + env + git history)
 11. **Backups creados:**
     - /download/backup-etersomos-20260517/ (primera sesión)
     - /download/backup-etersomos-20260517-s2/ (segunda sesión)
