@@ -1,17 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const PROTECTED_ROUTES = ["/api/admin", "/api/cms"];
+const PROTECTED_ROUTES = ["/api/admin"];
 const METHOD_PROTECTED: Record<string, string[]> = {
   "/api/bookings": ["GET", "PUT", "DELETE"],
+  "/api/cms/content/bulk": ["PUT"],
+  "/api/cms/content/seed": ["POST"],
 };
 
 function isProtectedRoute(pathname: string, method: string): boolean {
   for (const route of PROTECTED_ROUTES) {
     if (pathname.startsWith(route)) return true;
   }
-  for (const [route, methods] of Object.entries(METHOD_PROTECTED)) {
-    if (pathname.startsWith(route) && methods.includes(method)) return true;
+  // Check method-protected routes: longer paths first for specificity
+  const sortedRoutes = Object.keys(METHOD_PROTECTED).sort((a, b) => b.length - a.length);
+  for (const route of sortedRoutes) {
+    if (pathname === route && METHOD_PROTECTED[route].includes(method)) return true;
   }
+  // Protect PUT/DELETE on /api/cms/content (single key update) but allow GET
+  if (pathname === "/api/cms/content" && method !== "GET") return true;
   return false;
 }
 
