@@ -3,7 +3,7 @@ import { Resend } from "resend";
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "etersomos@gmail.com";
 const SENDER = "Eter Somos <onboarding@resend.dev>";
 
-type OrderType = "crystal" | "course" | "reading";
+type OrderType = "crystal" | "course" | "reading" | "resource";
 
 interface EmailItem {
   name: string;
@@ -62,6 +62,7 @@ export async function sendAdminNotification(params: AdminNotificationParams): Pr
     crystal: `✨ Nuevo pedido de cristales - ${params.customerName} - $${params.total.toLocaleString("es-AR")} ARS`,
     course: `📚 Nueva inscripción a curso - ${params.customerName} - $${params.total.toLocaleString("es-AR")} ARS`,
     reading: `🔮 Nueva solicitud de lectura - ${params.customerName} - $${params.total.toLocaleString("es-AR")} ARS`,
+    resource: `📥 Nueva contribución a recurso - ${params.customerName}`,
   };
 
   const html = buildAdminHtml(params);
@@ -84,6 +85,8 @@ function buildAdminHtml(params: AdminNotificationParams): string {
       return buildCourseAdminHtml(params);
     case "reading":
       return buildReadingAdminHtml(params);
+    case "resource":
+      return buildResourceAdminHtml(params);
   }
 }
 
@@ -301,6 +304,54 @@ function buildReadingAdminHtml(params: AdminNotificationParams): string {
   `;
 }
 
+/* ── Resource Contribution Admin Email ─────────────────────────────────── */
+
+function buildResourceAdminHtml(params: AdminNotificationParams): string {
+  const extra = params.extraData || {};
+  const resourceTitle = (extra.resourceTitle as string) || params.items[0]?.name || "Recurso";
+
+  return `
+    <div style="max-width: 600px; margin: 0 auto; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #161310; border-radius: 12px; overflow: hidden;">
+      <div style="background: linear-gradient(135deg, #1a1510 0%, #0d0b08 100%); padding: 32px 24px; text-align: center; border-bottom: 1px solid #2a252066;">
+        <h1 style="margin: 0; color: #d4a853; font-size: 24px; letter-spacing: 0.1em;">📥 NUEVA CONTRIBUCIÓN A RECURSO</h1>
+        <p style="margin: 8px 0 0; color: #8a8070; font-size: 14px;">Eter Somos | Contribución Voluntaria</p>
+      </div>
+      <div style="padding: 24px;">
+        <h2 style="margin: 0 0 16px; color: #d4a853; font-size: 18px; border-bottom: 1px solid #2a252066; padding-bottom: 8px;">👤 Datos del Contribuyente</h2>
+        <table style="width: 100%; font-size: 14px;">
+          <tr><td style="padding: 4px 0; color: #8a8070;">Nombre:</td><td style="padding: 4px 0; color: #f0ebe5; font-weight: 600;">${escapeHtml(params.customerName)}</td></tr>
+          <tr><td style="padding: 4px 0; color: #8a8070;">Email:</td><td style="padding: 4px 0; color: #f0ebe5;">${escapeHtml(params.customerEmail)}</td></tr>
+        </table>
+      </div>
+      <div style="padding: 0 24px;">
+        <h2 style="margin: 0 0 16px; color: #d4a853; font-size: 18px; border-bottom: 1px solid #2a252066; padding-bottom: 8px;">📥 Recurso</h2>
+        <div style="background: #1a1510; border: 1px solid #2a252066; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+          <p style="margin: 0; color: #f0ebe5; font-size: 16px; font-weight: 600;">${escapeHtml(resourceTitle)}</p>
+          ${params.total > 0 ? `<p style="margin: 8px 0 0; color: #d4a853; font-size: 20px; font-weight: 700;">$${params.total.toLocaleString("es-AR")} ARS</p>` : '<p style="margin: 8px 0 0; color: #8a8070; font-size: 14px;">Contribución voluntaria (sin monto fijo)</p>'}
+        </div>
+      </div>
+      <div style="padding: 24px;">
+        <h2 style="margin: 0 0 12px; color: #d4a853; font-size: 18px; border-bottom: 1px solid #2a252066; padding-bottom: 8px;">💳 Pago</h2>
+        <table style="width: 100%; font-size: 14px;">
+          <tr><td style="padding: 4px 0; color: #8a8070;">Método:</td><td style="padding: 4px 0; color: #f0ebe5; font-weight: 600;">${paymentLabel(params.paymentMethod)}</td></tr>
+          <tr><td style="padding: 4px 0; color: #8a8070;">ID de Pago:</td><td style="padding: 4px 0; color: #f0ebe5; font-family: monospace; font-size: 12px;">${params.paymentId || "N/A"}</td></tr>
+          <tr><td style="padding: 4px 0; color: #8a8070;">ID de Registro:</td><td style="padding: 4px 0; color: #f0ebe5; font-family: monospace; font-size: 12px;">${params.orderId || "N/A"}</td></tr>
+        </table>
+      </div>
+      ${extra.webhookAlert ? `
+      <div style="padding: 16px 24px; background: #3a1510; border-top: 1px solid #d4a85366;">
+        <p style="margin: 0; color: #d4a853; font-size: 14px; font-weight: 600;">⚠️ Alerta: Pago recibido vía webhook sin orden asociada</p>
+        <p style="margin: 4px 0 0; color: #f0ebe5; font-size: 13px;">El usuario pagó pero no regresó a la página de confirmación. Verificá manualmente.</p>
+      </div>
+      ` : ""}
+      <div style="padding: 16px 24px; text-align: center; border-top: 1px solid #2a252066; color: #5a5545; font-size: 12px;">
+        <p>Eter Somos | Registros Akáshicos</p>
+        <p>Esta contribución fue procesada automáticamente.</p>
+      </div>
+    </div>
+  `;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════
    CUSTOMER CONFIRMATION EMAILS
    ═══════════════════════════════════════════════════════════════════════ */
@@ -321,6 +372,7 @@ export async function sendCustomerConfirmation(params: CustomerConfirmationParam
     crystal: "pedido",
     course: "inscripción",
     reading: "solicitud de lectura",
+    resource: "contribución",
   };
 
   const html = buildCustomerHtml(params);
@@ -364,6 +416,15 @@ function buildCustomerHtml(params: CustomerConfirmationParams): string {
         "Recibirás tu lectura grabada por email en los próximos 5 días hábiles.",
         "Si necesitamos información adicional, te contactaremos.",
         "Recordá: las preguntas se responden de forma profunda y espiritual.",
+      ],
+    },
+    resource: {
+      title: "Contribución Recibida",
+      icon: "📥",
+      description: "Gracias por tu contribución voluntaria. Tu apoyo nos permite seguir creando y compartiendo contenido.",
+      nextSteps: [
+        "El recurso ya está disponible para descarga.",
+        "Si tenés algún problema, no dudes en contactarnos.",
       ],
     },
   };

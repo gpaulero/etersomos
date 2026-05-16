@@ -402,7 +402,7 @@ async function handleResourcePurchase(body: Record<string, unknown>) {
 
   // Send admin notification email (fire and forget)
   sendEmails({
-    type: "crystal", // reuse crystal template for now
+    type: "resource",
     customerName: customerName.trim(),
     customerEmail: customerEmail.trim().toLowerCase(),
     customerPhone: "",
@@ -440,7 +440,7 @@ async function handleResourcePurchase(body: Record<string, unknown>) {
    ═══════════════════════════════════════════════════════════════════════ */
 
 interface EmailPayload {
-  type: "crystal" | "course" | "reading";
+  type: "crystal" | "course" | "reading" | "resource";
   customerName: string;
   customerEmail: string;
   customerPhone?: string;

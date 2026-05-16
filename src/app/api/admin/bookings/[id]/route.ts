@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { db, ensureSchema } from "@/lib/db";
 
 const VALID_STATUSES = ["pendiente", "en_progreso", "entregada", "cancelada"];
@@ -80,6 +81,11 @@ export async function PUT(
       });
 
       const row = fetchResult.rows[0];
+
+      // Revalidate pages that display booking data
+      revalidatePath('/', 'layout');
+      revalidatePath('/lecturas');
+
       return NextResponse.json({ success: true, booking: row });
     } else {
       // Fallback for local Prisma
@@ -91,6 +97,10 @@ export async function PUT(
         where: { id },
         data: updateData,
       });
+
+      // Revalidate pages that display booking data
+      revalidatePath('/', 'layout');
+      revalidatePath('/lecturas');
 
       return NextResponse.json({ success: true, booking: updated });
     }
@@ -141,12 +151,20 @@ export async function DELETE(
         sql: "DELETE FROM ReadingBooking WHERE id = ?",
         args: [id],
       });
+
+      // Revalidate after delete
+      revalidatePath('/', 'layout');
+      revalidatePath('/lecturas');
     } else {
       const existing = await db.readingBooking.findUnique({ where: { id } });
       if (!existing) {
         return NextResponse.json({ error: "Lectura no encontrada" }, { status: 404 });
       }
       await db.readingBooking.delete({ where: { id } });
+
+      // Revalidate after delete
+      revalidatePath('/', 'layout');
+      revalidatePath('/lecturas');
     }
 
     return NextResponse.json({ success: true, message: "Lectura eliminada correctamente" });

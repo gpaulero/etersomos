@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { db, ensureSchema } from "@/lib/db";
 
 // Valid statuses for crystal orders
@@ -60,6 +61,10 @@ export async function PUT(
         args: [id],
       });
 
+      // Revalidate pages that display order data
+      revalidatePath('/', 'layout');
+      revalidatePath('/tienda');
+
       return NextResponse.json({ success: true, order: fetchResult.rows[0] });
     } else {
       const existing = await db.crystalOrder.findUnique({ where: { id } });
@@ -71,6 +76,10 @@ export async function PUT(
         where: { id },
         data: { status },
       });
+
+      // Revalidate pages that display order data
+      revalidatePath('/', 'layout');
+      revalidatePath('/tienda');
 
       return NextResponse.json({ success: true, order: updated });
     }
@@ -117,12 +126,20 @@ export async function DELETE(
         sql: "DELETE FROM CrystalOrder WHERE id = ?",
         args: [id],
       });
+
+      // Revalidate after delete
+      revalidatePath('/', 'layout');
+      revalidatePath('/tienda');
     } else {
       const existing = await db.crystalOrder.findUnique({ where: { id } });
       if (!existing) {
         return NextResponse.json({ error: "Pedido no encontrado" }, { status: 404 });
       }
       await db.crystalOrder.delete({ where: { id } });
+
+      // Revalidate after delete
+      revalidatePath('/', 'layout');
+      revalidatePath('/tienda');
     }
 
     return NextResponse.json({ success: true, message: "Pedido eliminado correctamente" });

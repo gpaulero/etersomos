@@ -5,6 +5,8 @@ const METHOD_PROTECTED: Record<string, string[]> = {
   "/api/bookings": ["GET", "PUT", "DELETE"],
   "/api/cms/content/bulk": ["PUT"],
   "/api/cms/content/seed": ["POST"],
+  "/api/settings": ["PUT"],
+  "/api/resources": ["POST", "PUT", "DELETE"],
 };
 
 function isProtectedRoute(pathname: string, method: string): boolean {

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { db, ensureSchema } from "@/lib/db";
 
 const VALID_STATUSES = ["activa", "pendiente", "cancelada", "vencida"];
@@ -35,6 +36,10 @@ export async function PUT(
       data: { status: status || existing.status },
     });
 
+    // Revalidate pages that display membership data
+    revalidatePath('/', 'layout');
+    revalidatePath('/membresias');
+
     return NextResponse.json({ success: true, membership: updated });
   } catch (error) {
     console.error("[Admin Memberships] Update error:", error);
@@ -56,6 +61,10 @@ export async function DELETE(
     }
 
     await db.membership.delete({ where: { id } });
+
+    // Revalidate after delete
+    revalidatePath('/', 'layout');
+    revalidatePath('/membresias');
 
     return NextResponse.json({ success: true, message: "Membresia eliminada correctamente" });
   } catch (error) {
