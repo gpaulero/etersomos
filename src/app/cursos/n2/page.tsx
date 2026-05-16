@@ -122,7 +122,7 @@ export default function N2Page() {
   const [metodoPago, setMetodoPago] = useState("");
 
   useEffect(() => {
-    fetch("/api/settings")
+    fetch(`/api/settings?t=${Date.now()}`, { cache: 'no-store' })
       .then((res) => res.json())
       .then((data) => setFormPaused(data.forms?.["n2-completo"] === false))
       .catch(() => {});

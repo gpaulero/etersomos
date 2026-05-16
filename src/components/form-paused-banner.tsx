@@ -23,7 +23,7 @@ export default function FormPausedBanner({
   const [pauseMessage, setPauseMessage] = useState("");
 
   useEffect(() => {
-    fetch("/api/settings")
+    fetch(`/api/settings?t=${Date.now()}`, { cache: 'no-store' })
       .then((res) => res.json())
       .then((data) => {
         const forms = data.forms || {};

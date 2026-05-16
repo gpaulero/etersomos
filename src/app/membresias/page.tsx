@@ -495,7 +495,7 @@ export default function MembresiasPage() {
   /* ---- Form pause state ---- */
   const [formPaused, setFormPaused] = useState(false);
   useEffect(() => {
-    fetch("/api/settings")
+    fetch(`/api/settings?t=${Date.now()}`, { cache: 'no-store' })
       .then((res) => res.json())
       .then((data) => setFormPaused(data.forms?.membresias === false))
       .catch(() => {});

@@ -80,7 +80,7 @@ export default function LecturasPage() {
   });
 
   useEffect(() => {
-    fetch("/api/settings")
+    fetch(`/api/settings?t=${Date.now()}`, { cache: 'no-store' })
       .then((res) => res.json())
       .then((data) => setFormPaused(data.forms?.lecturas === false))
       .catch(() => {});

@@ -107,7 +107,7 @@ export default function N1PracticaPage() {
   const [metodoPago, setMetodoPago] = useState("");
 
   useEffect(() => {
-    fetch("/api/settings")
+    fetch(`/api/settings?t=${Date.now()}`, { cache: 'no-store' })
       .then((res) => res.json())
       .then((data) => setFormPaused(data.forms?.["n1-con-practica"] === false))
       .catch(() => {});

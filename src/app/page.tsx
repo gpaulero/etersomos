@@ -921,7 +921,7 @@ export default function Home() {
   /* ---- Form toggles functions ---- */
   const fetchFormSettings = async () => {
     try {
-      const res = await fetch("/api/settings");
+      const res = await fetch(`/api/settings?t=${Date.now()}`, { cache: 'no-store' });
       const data = await res.json();
       setFormToggles(data.forms || {});
       setPauseMessage(data.pauseMessage || "");

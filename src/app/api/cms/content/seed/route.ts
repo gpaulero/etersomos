@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { ensureSchema, db } from '@/lib/db'
 import { defaultSiteContent } from '@/lib/cms-defaults'
+
+export const dynamic = 'force-dynamic'
 
 export async function POST() {
   try {
@@ -26,6 +29,10 @@ export async function POST() {
         console.error(`[CMS] Seed error for ${item.key}:`, e.message || e)
       }
     }
+
+    // Invalidate cache after seeding
+    revalidatePath('/', 'layout')
+    revalidatePath('/')
 
     return NextResponse.json({ success: true, inserted, total: defaultSiteContent.length })
   } catch (err: any) {

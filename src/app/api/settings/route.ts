@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { db, ensureSchema } from "@/lib/db";
+
+export const dynamic = 'force-dynamic';
 
 const defaultForms: Record<string, boolean> = {
   lecturas: true,
@@ -22,12 +25,28 @@ export async function GET() {
       : defaultForms;
     const pauseMessage = settings?.pauseMessage || "Fer se encuentra en pausa temporal. ¡Pronto volvemos!";
 
-    return NextResponse.json({ forms, pauseMessage });
+    return NextResponse.json(
+      { forms, pauseMessage },
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+        },
+      }
+    );
   } catch (error) {
     console.error("[Settings GET] Error:", error);
     return NextResponse.json(
       { forms: defaultForms, pauseMessage: "Fer se encuentra en pausa temporal. ¡Pronto volvemos!" },
-      { status: 200 }
+      {
+        status: 200,
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+        },
+      }
     );
   }
 }
@@ -59,6 +78,19 @@ export async function PUT(request: Request) {
       where: { id: "singleton" },
       data: updateData,
     });
+
+    // Invalidate all relevant page caches so changes reflect immediately
+    revalidatePath('/', 'layout');
+    revalidatePath('/');
+    revalidatePath('/tienda');
+    revalidatePath('/cursos');
+    revalidatePath('/cursos/n1-teorico');
+    revalidatePath('/cursos/n1-con-practica');
+    revalidatePath('/cursos/n2');
+    revalidatePath('/cursos/ambos');
+    revalidatePath('/membresias');
+    revalidatePath('/lecturas');
+    revalidatePath('/recursos');
 
     return NextResponse.json({
       success: true,
