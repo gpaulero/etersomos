@@ -1128,3 +1128,50 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
    - src/app/recursos/page.tsx — Reproductor embebido, botón Reproducir para video/audio
    - src/app/api/resources/download/route.ts — Protección de archivos multimedia
    - src/app/admin/page.tsx — Descarga de recursos via authFetch
+
+### SESIÓN 20 (17/05/2026 — Contribución Voluntaria + Security Fixes + MP Webhook)
+
+1. **Modelo de Contribución Voluntaria para Recursos:**
+   - Eliminado el gate de pago obligatorio de la API de descarga (`/api/resources/download`)
+   - Todos los recursos no-streamable son de descarga libre (sin token de compra)
+   - Videos/audio siguen protegidos: solo reproducibles, no descargables (stream via X-Stream-Request header)
+   - Cada tarjeta de recurso muestra: "Descargar" (gratis) + "Contribuir con MercadoPago" + "Contribuir con PayPal"
+   - Eliminado el diálogo de compra (nombre/email/método de pago) — ya no se necesita
+   - Links de contribución voluntaria: `link.mercadopago.com.ar/etersomos` y `paypal.me/registrosakashicos9`
+   - Sección inferior "Contribución Voluntaria Consciente" con texto explicativo y links
+
+2. **Bug fix: Admin content editing revalidation (CRÍTICO):**
+   - `/api/settings` PUT no tenía `revalidatePath()` → los cambios de form toggles no se reflejaban
+   - Agregado `dynamic = 'force-dynamic'` + headers anti-caché al GET de settings
+   - Agregado `revalidatePath()` a TODAS las páginas relevantes después de PUT
+   - Agregado cache-busting (`?t=${Date.now()}` + `cache: 'no-store'`) a TODOS los `fetch("/api/settings")` en 8 páginas:
+     page.tsx, tienda, lecturas, membresias, n1-teorico, n1-practica, ambos, n2, form-paused-banner
+   - `/api/cms/content/seed` agregado `revalidatePath()` + `dynamic = 'force-dynamic'`
+
+3. **Seguridad: Middleware auth protection:**
+   - Agregado `/api/settings` PUT a `METHOD_PROTECTED` en middleware (antes cualquiera podía cambiar settings)
+   - Agregado `/api/resources` POST/PUT/DELETE a `METHOD_PROTECTED` (antes solo tenía auth inline)
+
+4. **MercadoPago Webhook implementado (antes era no-op):**
+   - Verifica payment status via MP API (`GET /v1/payments/{id}`)
+   - Si pago aprobado + orden existente pendiente → marca como pagado
+   - Si pago aprobado + sin orden → envía email al admin con alerta de "pago sin orden"
+   - Maneja tanto POST (webhook) como GET (IPN verification)
+
+5. **Admin CRUD revalidation:**
+   - Agregado `revalidatePath()` a PUT/DELETE de:
+     - `/api/admin/orders/[id]` → revalida `/` y `/tienda`
+     - `/api/admin/bookings/[id]` → revalida `/` y `/lecturas`
+     - `/api/admin/memberships/[id]` → revalida `/` y `/membresias`
+
+6. **Email template para recursos (antes usaba crystal template):**
+   - Agregado tipo "resource" a `OrderType` en email.ts
+   - Nuevo template `buildResourceAdminHtml()` con título "Nueva Contribución a Recurso"
+   - Subject: "📥 Nueva contribución a recurso - {nombre}"
+   - Template de cliente: "Contribución Recibida" con steps de descarga
+   - `handleResourcePurchase` en confirm-order ahora usa `type: "resource"` en vez de `type: "crystal"`
+
+7. **Commits:**
+   - `39d038a` — feat: voluntary contribution model - remove payment gate, all resources free + optional MP/PayPal contribution
+   - `c7a5f2f` — fix: admin revalidation bug - add revalidatePath + dynamic=force-dynamic to settings API, cache-busting on all settings fetches, fix CMS seed revalidation
+   - `90412b2` — fix: critical security + revalidation + MP webhook + resource email template
