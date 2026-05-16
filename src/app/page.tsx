@@ -5,7 +5,7 @@ import { motion, useInView, AnimatePresence } from "framer-motion";
 import { toast, Toaster } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useSiteContent } from "@/hooks/use-site-content";
-import { cmsValue, cmsJson, cmsNumber, fetchCmsContent } from "@/lib/cms-helpers";
+import { cmsValue, cmsJson, cmsNumber } from "@/lib/cms-helpers";
 import { defaultSiteContent } from "@/lib/cms-defaults";
 import {
   Card,
@@ -385,13 +385,7 @@ function AnimatedSection({
 
 export default function Home() {
   const router = useRouter();
-  const { getValue, getJson } = useSiteContent();
-  const [cmsMap, setCmsMap] = useState<Record<string, string>>({});
-
-  // Fetch CMS content on mount
-  useEffect(() => {
-    fetchCmsContent().then(setCmsMap).catch(() => {});
-  }, []);
+  const { cmsMap } = useSiteContent();
 
   // CMS-driven values with hardcoded fallbacks
   const heroTitle = cmsValue(cmsMap, 'site.hero_title', "Eter Somos");

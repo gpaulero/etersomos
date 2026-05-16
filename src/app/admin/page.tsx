@@ -70,6 +70,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { sectionLabels, sectionOrder, defaultSiteContent } from "@/lib/cms-defaults";
+import { CMS_UPDATED_EVENT } from "@/hooks/use-site-content";
 import { toast, Toaster } from "sonner";
 
 /* ── Types ─�────────────────────────────────────────────────────────────── */
@@ -719,8 +720,9 @@ export default function AdminPage() {
       });
       if (res.ok) {
         await fetchCmsContent();
-        // Notify main site to refresh (cross-tab via localStorage)
+        // Notify main site to refresh (cross-tab via localStorage + same-tab via custom event)
         localStorage.setItem('cms_updated_at', Date.now().toString());
+        window.dispatchEvent(new CustomEvent(CMS_UPDATED_EVENT));
         toast.success(`${sectionLabels[section] || section} guardado correctamente`);
       } else {
         toast.error("Error al guardar");
@@ -746,8 +748,9 @@ export default function AdminPage() {
       });
       if (res.ok) {
         await fetchCmsContent();
-        // Notify main site to refresh (cross-tab via localStorage)
+        // Notify main site to refresh (cross-tab via localStorage + same-tab via custom event)
         localStorage.setItem('cms_updated_at', Date.now().toString());
+        window.dispatchEvent(new CustomEvent(CMS_UPDATED_EVENT));
         toast.success("Todo el contenido guardado correctamente");
       } else {
         toast.error("Error al guardar");
@@ -2153,9 +2156,25 @@ export default function AdminPage() {
                             </div>
                           </div>
                           <div className="flex items-center gap-1 shrink-0">
-                            <a href={resource.url} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded hover:bg-mystic-800/60 transition-colors" title="Descargar">
+                            <button onClick={async () => {
+                              try {
+                                const res = await authFetch(resource.url);
+                                if (!res.ok) throw new Error("Error al descargar");
+                                const blob = await res.blob();
+                                const url = URL.createObjectURL(blob);
+                                const a = document.createElement("a");
+                                a.href = url;
+                                a.download = resource.fileName || "recurso";
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                                URL.revokeObjectURL(url);
+                              } catch (err) {
+                                console.error("Download error:", err);
+                              }
+                            }} className="p-1.5 rounded hover:bg-mystic-800/60 transition-colors" title="Descargar">
                               <Download className="w-3.5 h-3.5 text-mystic-500 hover:text-gold-400" />
-                            </a>
+                            </button>
                             <button onClick={() => handleToggleActive(resource.id, resource.active)} className="p-1.5 rounded hover:bg-mystic-800/60 transition-colors" title={resource.active ? "Desactivar" : "Activar"}>
                               <Power className={`w-3.5 h-3.5 ${resource.active ? "text-emerald-500/60" : "text-mystic-600"}`} />
                             </button>

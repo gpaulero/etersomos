@@ -1087,3 +1087,44 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 7. **Deploy:**
    - Commit: 042f89b → deploy automático via Vercel → READY
    - Sitio en producción: https://etersomos-iota.vercel.app
+
+### SESIÓN 20 (17/05/2026 — Video protection + System review)
+1. **Protección de video/audio contra descarga:**
+   - Creado componente `src/components/protected-player.tsx` con ProtectedVideoPlayer y ProtectedAudioPlayer
+   - Medidas anti-descarga implementadas:
+     - Blob URL (URL.createObjectURL) — la URL del video nunca está en el HTML
+     - controlsList="nodownload" — elimina botón de descarga del reproductor nativo
+     - disablePictureInPicture — previene extracción vía PiP
+     - onContextMenu bloqueado — no "Guardar video como..."
+     - CSS ::-webkit-media-controls-download-button display:none
+   - Modal de video con Dialog (shadcn/ui) para reproducción en pantalla completa
+   - Audio player inline (se despliega al hacer click en "Reproducir")
+   - Botón "Reproducir" (violeta) para video/audio/meditación en lugar de "Descargar ahora"
+   - Botón "Descargar ahora" se mantiene solo para documentos, imágenes y guías
+2. **Protección del endpoint de descarga (/api/resources/download):**
+   - Archivos de video/audio (.mp4, .webm, .mov, .avi, .mkv, .mp3, .wav, .ogg, .m4a, .flac, .aac) requieren header `X-Stream-Request: true` o auth admin
+   - Respuesta 403 para acceso directo a archivos multimedia desde navegador
+   - El reproductor protegido envía el header `X-Stream-Request: true` al hacer fetch
+   - El admin puede descargar cualquier archivo vía authFetch (Bearer token)
+   - Cache-Control: no-store para archivos multimedia (previene cacheo del navegador)
+3. **Admin: descarga de recursos actualizada:**
+   - Cambiado de `<a href>` directo a `authFetch` + blob download
+   - Esto permite que el admin descargue archivos multimedia que están protegidos
+4. **Revisión completa del sistema:**
+   - Emails admin: ✅ Todos los flujos envían notificación al admin (Resend configurado)
+     - Lecturas: sendAdminNotification + WhatsApp
+     - Cristales: sendAdminNotification
+     - Cursos: sendAdminNotification
+     - Newsletter: email directo con Resend
+     - Membresías: email directo con Resend
+   - Base de datos Turso: ✅ Conectada y funcionando
+   - CMS revalidation: ✅ El código está correctamente implementado (SiteContentProvider + CMS_UPDATED_EVENT + localStorage)
+   - Vercel env vars: ✅ 16 variables configuradas
+   - Admin panel: ✅ 8 tabs funcionando
+5. **Deploy a producción:** etersomos-iota.vercel.app
+6. **Nuevos archivos:**
+   - src/components/protected-player.tsx — Reproductor de video/audio protegido contra descarga
+7. **Archivos modificados:**
+   - src/app/recursos/page.tsx — Reproductor embebido, botón Reproducir para video/audio
+   - src/app/api/resources/download/route.ts — Protección de archivos multimedia
+   - src/app/admin/page.tsx — Descarga de recursos via authFetch

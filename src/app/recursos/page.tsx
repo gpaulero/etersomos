@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Toaster } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +12,13 @@ import {
   SheetDescription,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import {
   Instagram,
@@ -28,9 +35,12 @@ import {
   Loader2,
   ArrowRight,
   Gift,
+  Play,
+  X,
 } from "lucide-react";
 import NextImage from "next/image";
 import Link from "next/link";
+import { ProtectedVideoPlayer, ProtectedAudioPlayer } from "@/components/protected-player";
 
 /* ======================================================================== */
 /*                            NAV LINKS                                      */
@@ -90,17 +100,25 @@ function formatFileSize(bytes: number): string {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
 }
 
+function normalizeFileType(fileType: string): string {
+  return fileType.startsWith("image/") ? "imagen"
+    : fileType.startsWith("audio/") ? "audio"
+    : fileType.startsWith("video/") ? "video"
+    : fileType;
+}
+
+function isStreamableType(fileType: string): boolean {
+  const normalized = normalizeFileType(fileType);
+  return normalized === "video" || normalized === "audio" || normalized === "meditacion";
+}
+
 function getFileTypeInfo(fileType: string): {
   icon: React.ElementType;
   label: string;
   color: string;
   bg: string;
 } {
-  // Normalize: handle MIME types from v5 schema (e.g. "image/png" → "imagen")
-  const normalized = fileType.startsWith("image/") ? "imagen"
-    : fileType.startsWith("audio/") ? "audio"
-    : fileType.startsWith("video/") ? "video"
-    : fileType;
+  const normalized = normalizeFileType(fileType);
 
   switch (normalized) {
     case "meditacion":
@@ -135,6 +153,9 @@ export default function RecursosPage() {
   const [resources, setResources] = useState<Resource[]>([]);
   const [resourcesLoading, setResourcesLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
+  const [playerOpen, setPlayerOpen] = useState(false);
+  const [playerResource, setPlayerResource] = useState<Resource | null>(null);
+  const [inlineAudioOpen, setInlineAudioOpen] = useState<Record<string, boolean>>({});
 
   /* ---- Nav scroll effect ---- */
   useEffect(() => {
@@ -313,6 +334,8 @@ export default function RecursosPage() {
                 const typeInfo = getFileTypeInfo(resource.fileType);
                 const TypeIcon = typeInfo.icon;
                 const price = formatPrice(resource.price);
+                const streamable = isStreamableType(resource.fileType);
+                const isVideo = normalizeFileType(resource.fileType) === "video";
 
                 return (
                   <motion.div key={resource.id} variants={fadeInUp} transition={{ duration: 0.5 }}>
@@ -373,7 +396,7 @@ export default function RecursosPage() {
                             </p>
                           </div>
 
-                          {/* 3 botones de contribución */}
+                          {/* Botones de acción */}
                           <div className="flex flex-col gap-2">
                             <a
                               href="https://link.mercadopago.com.ar/etersomos"
@@ -393,16 +416,49 @@ export default function RecursosPage() {
                               <svg className="size-4" viewBox="0 0 24 24" fill="currentColor"><path d="M7.076 21.337H2.47a.641.641 0 01-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 00-.607-.541c1.855 1.475 2.392 3.893 1.635 6.173-.77 2.32-2.947 3.834-5.578 3.834h-2.19c-.524 0-.968.382-1.05.9l-.56 3.553-.16 1.015c-.04.253-.253.44-.508.44H7.076"/></svg>
                               Contribuir con PayPal
                             </a>
-                            <a
-                              href={resource.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="w-full inline-flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl bg-mystic-800/60 hover:bg-mystic-700/60 text-foreground/50 hover:text-foreground/70 text-sm font-medium transition-all duration-200 border border-mystic-700/20 hover:border-mystic-700/40"
-                            >
-                              <Gift className="size-4" />
-                              Descargar ahora
-                            </a>
+
+                            {/* Reproducir (video/audio/meditación) o Descargar (documento/imagen/guía) */}
+                            {streamable ? (
+                              <button
+                                onClick={() => {
+                                  if (isVideo) {
+                                    setPlayerResource(resource);
+                                    setPlayerOpen(true);
+                                  } else {
+                                    // audio / meditación — toggle inline player
+                                    setInlineAudioOpen(prev => ({
+                                      ...prev,
+                                      [resource.id]: !prev[resource.id]
+                                    }));
+                                  }
+                                }}
+                                className="w-full inline-flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl bg-violet-500/20 hover:bg-violet-500/30 text-violet-400 hover:text-violet-300 text-sm font-medium transition-all duration-200 border border-violet-500/20 hover:border-violet-500/40"
+                              >
+                                <Play className="size-4" />
+                                Reproducir
+                              </button>
+                            ) : (
+                              <a
+                                href={resource.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-full inline-flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl bg-mystic-800/60 hover:bg-mystic-700/60 text-foreground/50 hover:text-foreground/70 text-sm font-medium transition-all duration-200 border border-mystic-700/20 hover:border-mystic-700/40"
+                              >
+                                <Gift className="size-4" />
+                                Descargar ahora
+                              </a>
+                            )}
                           </div>
+
+                          {/* Inline audio player (for audio / meditación) */}
+                          {streamable && !isVideo && inlineAudioOpen[resource.id] && (
+                            <div className="mt-3">
+                              <ProtectedAudioPlayer
+                                src={resource.url}
+                                title={resource.title}
+                              />
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -413,6 +469,54 @@ export default function RecursosPage() {
           )}
         </div>
       </section>
+
+      {/* ============================================================ */}
+      {/*                  VIDEO PLAYER DIALOG                          */}
+      {/* ============================================================ */}
+      <Dialog open={playerOpen} onOpenChange={setPlayerOpen}>
+        <DialogContent className="sm:max-w-3xl bg-mystic-950/95 backdrop-blur-xl border-mystic-700/30 p-0 overflow-hidden">
+          <DialogHeader className="sr-only">
+            <DialogTitle>
+              {playerResource?.title || "Reproductor de video"}
+            </DialogTitle>
+            <DialogDescription>
+              Reproductor de video protegido
+            </DialogDescription>
+          </DialogHeader>
+          {playerResource && (
+            <div className="flex flex-col">
+              {/* Video player */}
+              <div className="w-full bg-black">
+                <ProtectedVideoPlayer
+                  src={playerResource.url}
+                  title={playerResource.title}
+                />
+              </div>
+              {/* Title bar */}
+              <div className="px-5 py-4 flex items-center justify-between">
+                <div>
+                  <h3 className="text-foreground font-serif font-semibold text-base">
+                    {playerResource.title}
+                  </h3>
+                  {playerResource.description && (
+                    <p className="text-foreground/40 text-xs mt-1 line-clamp-2">
+                      {playerResource.description}
+                    </p>
+                  )}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setPlayerOpen(false)}
+                  className="text-foreground/50 hover:text-foreground hover:bg-mystic-800/50"
+                >
+                  <X className="size-5" />
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* ============================================================ */}
       {/*                 CONSCIOUS CONTRIBUTION SECTION                  */}

@@ -3,7 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
 import { Toaster } from "sonner";
-import { fetchCmsContent, cmsValue, cmsJson } from "@/lib/cms-helpers";
+import { cmsValue, cmsJson } from "@/lib/cms-helpers";
+import { useSiteContent } from "@/hooks/use-site-content";
 import {
   Card,
   CardContent,
@@ -501,10 +502,7 @@ export default function MembresiasPage() {
   }, []);
 
   /* ---- CMS content ---- */
-  const [cmsMap, setCmsMap] = useState<Record<string, string>>({});
-  useEffect(() => {
-    fetchCmsContent().then(setCmsMap).catch(() => {});
-  }, []);
+  const { cmsMap } = useSiteContent();
   const cmsTiers = cmsJson<MembershipTier[]>(cmsMap, 'memberships.tiers', memberships);
 
   /* ---- Floating stars ---- */

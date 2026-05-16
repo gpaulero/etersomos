@@ -1,6 +1,6 @@
 "use client"
 
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from 'react'
 
 /* ── Types ── */
 export interface SiteContentData {
@@ -16,6 +16,8 @@ export interface SiteContentData {
 
 interface SiteContentContextValue {
   content: SiteContentData
+  /** Flat key→value map for use with cmsValue/cmsJson/cmsNumber helpers */
+  cmsMap: Record<string, string>
   loading: boolean
   error: string | null
   refetch: () => Promise<void>
@@ -25,6 +27,7 @@ interface SiteContentContextValue {
 
 const SiteContentContext = createContext<SiteContentContextValue>({
   content: {},
+  cmsMap: {},
   loading: true,
   error: null,
   refetch: async () => {},
@@ -35,6 +38,13 @@ const SiteContentContext = createContext<SiteContentContextValue>({
 export function useSiteContent() {
   return useContext(SiteContentContext)
 }
+
+/**
+ * Dispatch this custom event from the admin page (same tab) to trigger
+ * an immediate refetch of CMS content on the public pages.
+ * Usage: window.dispatchEvent(new CustomEvent('cms-updated'))
+ */
+export const CMS_UPDATED_EVENT = 'cms-updated'
 
 /* ── Provider ── */
 export function SiteContentProvider({ children }: { children: React.ReactNode }) {
@@ -65,13 +75,25 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
     }
   }, [])
 
+  // Compute flat key→value map from nested content (for cmsValue/cmsJson/cmsNumber)
+  const cmsMap = useMemo(() => {
+    const flat: Record<string, string> = {}
+    for (const section of Object.values(content)) {
+      for (const [key, item] of Object.entries(section as Record<string, { value: string }>)) {
+        flat[key] = item.value
+      }
+    }
+    return flat
+  }, [content])
+
   // Initial fetch
   useEffect(() => {
     fetchContent()
   }, [fetchContent])
 
-  // Refetch when tab becomes visible (user switches back from admin tab)
-  // and when a CMS update is detected via localStorage
+  // Refetch when tab becomes visible (user switches back from admin tab),
+  // when a CMS update is detected via localStorage (cross-tab), or
+  // when a same-tab cms-updated custom event fires (admin in same tab).
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
@@ -83,11 +105,16 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
       }
     }
 
-    // Listen for CMS updates from admin page via localStorage event
+    // Listen for CMS updates from admin page via localStorage event (cross-tab)
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'cms_updated_at') {
         fetchContent()
       }
+    }
+
+    // Listen for same-tab CMS updates via custom event (admin embedded in same page)
+    const handleCmsUpdated = () => {
+      fetchContent()
     }
 
     // Also check on window focus (covers cases where visibilitychange doesn't fire)
@@ -100,11 +127,13 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
 
     document.addEventListener('visibilitychange', handleVisibilityChange)
     window.addEventListener('storage', handleStorageChange)
+    window.addEventListener(CMS_UPDATED_EVENT, handleCmsUpdated)
     window.addEventListener('focus', handleFocus)
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange)
       window.removeEventListener('storage', handleStorageChange)
+      window.removeEventListener(CMS_UPDATED_EVENT, handleCmsUpdated)
       window.removeEventListener('focus', handleFocus)
     }
   }, [fetchContent])
@@ -134,6 +163,7 @@ export function SiteContentProvider({ children }: { children: React.ReactNode })
 
   const contextValue: SiteContentContextValue = {
     content,
+    cmsMap,
     loading,
     error,
     refetch: fetchContent,

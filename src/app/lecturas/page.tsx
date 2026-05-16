@@ -21,7 +21,8 @@ import {
 } from "@/components/ui/collapsible";
 import { initiateCoursePayment } from "@/lib/course-payment";
 import FormPausedBanner from "@/components/form-paused-banner";
-import { fetchCmsContent, cmsValue, cmsNumber } from "@/lib/cms-helpers";
+import { cmsValue, cmsNumber } from "@/lib/cms-helpers";
+import { useSiteContent } from "@/hooks/use-site-content";
 
 /* -------------------------------------------------------------------------- */
 /*                                   TYPES                                    */
@@ -52,9 +53,7 @@ export default function LecturasPage() {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [cmsMap, setCmsMap] = useState<Record<string, string>>({});
-
-  useEffect(() => { fetchCmsContent().then(setCmsMap).catch(() => {}); }, []);
+  const { cmsMap } = useSiteContent();
 
   const [formData, setFormData] = useState({
     email: "",

@@ -55,7 +55,8 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import FormPausedBanner from "@/components/form-paused-banner";
-import { fetchCmsContent, cmsJson } from "@/lib/cms-helpers";
+import { cmsJson } from "@/lib/cms-helpers";
+import { useSiteContent } from "@/hooks/use-site-content";
 
 /* ======================================================================== */
 /*                                 DATA                                      */
@@ -184,12 +185,7 @@ export default function TiendaPage() {
   const [cartOpen, setCartOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState("Todos");
   const [navScrolled, setNavScrolled] = useState(false);
-  const [cmsMap, setCmsMap] = useState<Record<string, string>>({});
-
-  /* ---- Fetch CMS content ---- */
-  useEffect(() => {
-    fetchCmsContent().then(setCmsMap).catch(() => {});
-  }, []);
+  const { cmsMap } = useSiteContent();
 
   /* ---- Check if tienda is enabled ---- */
   useEffect(() => {

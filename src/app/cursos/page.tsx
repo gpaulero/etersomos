@@ -11,11 +11,11 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { fetchCmsContent, cmsValue, cmsNumber } from "@/lib/cms-helpers";
+import { cmsValue, cmsNumber } from "@/lib/cms-helpers";
+import { useSiteContent } from "@/hooks/use-site-content";
 
 export default function CursosPage() {
-  const [cmsMap, setCmsMap] = useState<Record<string, string>>({});
-  useEffect(() => { fetchCmsContent().then(setCmsMap).catch(() => {}); }, []);
+  const { cmsMap } = useSiteContent();
 
   // CMS-driven price values
   const n1TeoricoArs = cmsNumber(cmsMap, 'courses.n1teorico_price_ars', 0);
