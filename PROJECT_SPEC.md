@@ -1029,3 +1029,61 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 - Los estados de órdenes se normalizan al cargar: "pagado" → "pendiente"/"inscrito" según el tipo
 - El drag & drop del Kanban usa HTML5 Drag API nativo (sin librerías externas)
 - Los CSV de contactos se deduplican por email y exportan la entrada más reciente
+
+### SESIÓN 19 (17/05/2026 — Revisión completa del sistema + Fix CMS revalidation)
+
+**Revisión exhaustiva de todos los sistemas del sitio:**
+
+1. **CMS Content Edit Bug — FIX APLICADO:**
+   - Problema: Las ediciones del admin no se reflejaban en la página principal
+   - Causa: La página es "use client" y el SiteContentProvider solo hacía fetch on mount
+   - Solución implementada en src/hooks/use-site-content.ts:
+     - Agregado refetch automático al volver a la pestaña (visibilitychange)
+     - Agregado refetch al ganar foco de ventana (focus event)
+     - Agregado listener de localStorage para notificación cross-tab (cms_updated_at)
+     - Debounce de 2-3 segundos para evitar requests excesivos
+   - Admin actualizado (src/app/admin/page.tsx):
+     - Después de guardar CMS (saveCmsSection/saveCmsAll), escribe localStorage.setItem('cms_updated_at', Date.now())
+     - Esto dispara el storage event en otras pestañas para que refresquen
+   - Commit: 042f89b — "fix: CMS content auto-refresh on tab focus and cross-tab notification"
+
+2. **Emails — Verificación completa:**
+   - Resend API funcional: test directo a etersomos@gmail.com exitoso (ID: 55f7c344-ce4c-4fb4-99c3-afeb8b690090)
+   - Los emails de notificación al admin funcionan correctamente para:
+     - Lecturas (booking) → sendAdminNotification + sendWhatsAppNotification
+     - Cristales (order) → sendAdminNotification
+     - Cursos (enrollment) → sendAdminNotification
+     - Newsletter → email directo via Resend
+     - Membresías → email directo via Resend
+   - IMPORTANTE: onboarding@resend.dev (sandbox) solo envía al email de la cuenta Resend
+   - Los emails de confirmación al CLIENTE fallarán hasta configurar dominio custom en Resend
+   - El usuario confirmó que solo necesita notificaciones para sí mismo, no para clientes
+
+3. **Base de datos (Turso) — Verificada:**
+   - Conexión: Funcional
+   - Tablas: 8 tablas operativas
+   - Datos actuales: 1 booking, 0 orders, 2 memberships, 4 subscribers (limpiado 1 test)
+   - SiteContent: 16 secciones con 126+ keys CMS
+
+4. **Páginas — Todas funcionando:**
+   - / → HTTP 200
+   - /lecturas → HTTP 200
+   - /cursos → HTTP 200
+   - /membresias → HTTP 200
+   - /recursos → HTTP 200
+   - /tienda → HTTP 200
+   - /admin → HTTP 200
+
+5. **Admin Panel — Verificado:**
+   - Login funciona correctamente (POST /api/auth/login)
+   - Stats, bookings, orders, memberships, subscribers, CMS, resources, formularios — todos operativos
+   - CMS bulk update funciona y persiste en la DB
+   - revalidatePath() ya estaba implementado en el bulk route
+
+6. **Limpieza:**
+   - Eliminado subscriber de test (test-dry-run@example.com) creado durante la verificación
+   - No se eliminaron otros datos de test (test-apitest, test@test) — decisión del usuario
+
+7. **Deploy:**
+   - Commit: 042f89b → deploy automático via Vercel → READY
+   - Sitio en producción: https://etersomos-iota.vercel.app
