@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "sqlite"
+  url       = env("DATABASE_URL")
+}
+
+model ReadingBooking {
+  id             String    @id @default(cuid())
+  name           String
+  email          String
+  phone          String
+  readingType    String
+  preferredDate  String?
+  preferredTime  String?
+  message        String?
+  status         String    @default("pendiente")
+  confirmedAt    DateTime?
+  sentAt         DateTime?
+  notes          String?
+  deliveryDate   String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model Membership {
+  id             String    @id @default(cuid())
+  name           String
+  email          String
+  membershipId   String
+  membershipName String
+  status         String    @default("activa") // activa, cancelada, vencida
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model Resource {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @default("")
+  fileType    String   @default("documento") // documento, imagen, audio, video, meditacion, guiia
+  r2Key       String   @unique               // R2 object key (recursos/timestamp-filename)
+  fileName    String                         // original filename for display
+  fileSize    Int      @default(0)           // bytes
+  price       Float    @default(0)           // 0 = gratis, >0 = contribucion voluntaria sugerida
+  active      Boolean  @default(true)        // visible en la pagina publica
+  order       Int      @default(0)           // orden de visualizacion
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CrystalOrder {
+  id             String    @id @default(cuid())
+  customerName   String
+  customerEmail  String
+  customerPhone  String
+  address        String
+  city           String
+  province       String
+  postalCode     String
+  notes          String?
+  items          String    // JSON array of {id, name, quantity, price}
+  total          Float
+  paymentMethod  String    // "paypal" or "mercadopago"
+  paymentId      String?
+  status         String    @default("pendiente") // pendiente, pagado, enviado, cancelado
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}

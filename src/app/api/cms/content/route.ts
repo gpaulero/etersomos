@@ -1,0 +1,53 @@
+import { NextResponse } from 'next/server'
+import { ensureSchema, db } from '@/lib/db'
+
+export async function GET() {
+  try {
+    await ensureSchema()
+    const rows = await (db as any).siteContent.findMany()
+
+    const grouped: Record<string, Record<string, { value: string; label: string; type: string; updatedAt: string }>> = {}
+
+    for (const row of rows as Array<{ key: string; value: string; section: string; label: string; type: string; updatedAt: string }>) {
+      if (!grouped[row.section]) grouped[row.section] = {}
+      grouped[row.section][row.key] = {
+        value: row.value,
+        label: row.label,
+        type: row.type,
+        updatedAt: row.updatedAt,
+      }
+    }
+
+    return NextResponse.json(grouped)
+  } catch (err: any) {
+    console.error('[CMS] GET error:', err.message || err)
+    return NextResponse.json({ error: 'Error al cargar contenido' }, { status: 500 })
+  }
+}
+
+export async function PUT(request: Request) {
+  try {
+    await ensureSchema()
+    const body = await request.json()
+    const { key, value } = body
+
+    if (!key || value === undefined) {
+      return NextResponse.json({ error: 'Faltan campos requeridos' }, { status: 400 })
+    }
+
+    const existing = await (db as any).siteContent.findUnique({ where: { key } })
+    if (!existing) {
+      return NextResponse.json({ error: 'Clave no encontrada. Usá /seed primero.' }, { status: 404 })
+    }
+
+    await (db as any).siteContent.update({
+      where: { key },
+      data: { value: String(value) }
+    })
+
+    return NextResponse.json({ success: true, key })
+  } catch (err: any) {
+    console.error('[CMS] PUT error:', err.message || err)
+    return NextResponse.json({ error: 'Error al actualizar contenido' }, { status: 500 })
+  }
+}

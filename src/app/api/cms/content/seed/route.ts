@@ -1,0 +1,35 @@
+import { NextResponse } from 'next/server'
+import { ensureSchema, db } from '@/lib/db'
+import { defaultSiteContent } from '@/lib/cms-defaults'
+
+export async function POST() {
+  try {
+    await ensureSchema()
+    let inserted = 0
+
+    for (const item of defaultSiteContent) {
+      try {
+        const existing = await (db as any).siteContent.findUnique({ where: { key: item.key } })
+        if (!existing) {
+          await (db as any).siteContent.create({
+            data: {
+              key: item.key,
+              value: item.value,
+              section: item.section,
+              label: item.label,
+              type: item.type,
+            }
+          })
+          inserted++
+        }
+      } catch (e: any) {
+        console.error(`[CMS] Seed error for ${item.key}:`, e.message || e)
+      }
+    }
+
+    return NextResponse.json({ success: true, inserted, total: defaultSiteContent.length })
+  } catch (err: any) {
+    console.error('[CMS] SEED error:', err.message || err)
+    return NextResponse.json({ error: 'Error al sembrar contenido' }, { status: 500 })
+  }
+}
