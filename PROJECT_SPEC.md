@@ -1,6 +1,6 @@
 # ETÉR SOMOS - Especificación Completa del Proyecto
 ## (Archivo de referencia CRÍTICO - NO BORRAR)
-## Última actualización: 2026-05-16
+## Última actualización: 2026-05-17
 
 Este documento describe TODO el estado actual, credenciales, estructura y requisitos del sitio web.
 **Siempre consultar antes de hacer cambios.**
@@ -46,11 +46,13 @@ Copiar `.env.example` a `.env.local` y completar los valores.
 BACKUP de `.env.local` en: `/home/z/my-project/etersomos-backups/2026-04-23/env.local.backup`
 
 ### Vercel Token
-- vcp_4LujBKhqwrKpCWAxOJY4aKtXOp8Ltw1zsx3BBqPUkARgtMlWEL2qq3xt
+- vcp_52GvKUqT6kZxgfW8ymTCysvu0X1R7F4JfdRwjWBAqm5mFtvn3x1lHd1F (actualizado 17/05/2026)
+- Token anterior: vcp_4LujBKhqwrKpCWAxOJY4aKtXOp8Ltw1zsx3BBqPUkARgtMlWEL2qq3xt (EXPIRADO)
 - Ver también variable `VERCEL_TOKEN` en `.env.local`
 
 ### GitHub PAT
-- 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 (verificar si sigue vigente)
+- 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 (actualizado 17/05/2026)
+- Token anterior: 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 (EXPIRADO)
 
 ### Resend (Emails)
 - Ver variables `RESEND_API_KEY` y `ADMIN_EMAIL` en `.env.local`
@@ -70,12 +72,21 @@ BACKUP de `.env.local` en: `/home/z/my-project/etersomos-backups/2026-04-23/env.
 - Ver variables `MERCADOPAGO_ACCESS_TOKEN` y `NEXT_PUBLIC_MP_PUBLIC_KEY` en `.env.local`
 - Cristales: solo MercadoPago (sin PayPal) — producto físico, se vende solo en Argentina
 
+### Cloudflare R2 (Storage de archivos)
+- Ver variables `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME` en `.env.local`
+- Bucket: etersomos-recursos
+- Endpoint: `https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com`
+- Uso: Almacenamiento de archivos de recursos (PDFs, imágenes, audio, video)
+- Librería: src/lib/r2.ts (usa @aws-sdk/client-s3 + @aws-sdk/s3-request-presigner)
+- CORS: Configurado (17/05/2026) — AllowedOrigins: *, AllowedMethods: GET/PUT/POST/DELETE
+- Flujo de upload: presigned URL → upload directo del navegador a R2 → metadata en DB
+
 ### Turso DB
 - Ver variable `DATABASE_URL` en `.env.local`
 - `DATABASE_AUTH_TOKEN`: obtener con `turso db tokens create etersomos-db-gpaulero`
 - El CLI de Turso (`/home/z/.turso/turso`) requiere auth login que no funciona en este entorno (headless)
-- Para dumps de DB: usar la API REST de Turso con DATABASE_AUTH_TOKEN del .env.local
-- Ejemplo: `python3` con `urllib.request` al endpoint `https://etersomos-db-gpaulero.aws-us-east-1.turso.io/v2/pipeline`
+- Para dumps de DB: usar node con @libsql/client y DATABASE_AUTH_TOKEN del .env.local
+- Ejemplo: `node -e "const {createClient}=require('@libsql/client'); ..."`
 
 ### Admin Panel
 - URL: https://etersomos-iota.vercel.app/admin
@@ -175,7 +186,7 @@ for e in envs:
 "
 ```
 
-**Resultado esperado: 9 variables.** Si muestra 0 o menos de 9, EJECUTAR INMEDIATAMENTE el PASO 2.
+**Resultado esperado: 16 variables.** Si muestra 0 o menos de 16, EJECUTAR INMEDIATAMENTE el PASO 2.
 
 ### PASO 2: Restaurar variables (solo si faltan)
 
@@ -242,13 +253,14 @@ curl -s -X POST "https://etersomos-iota.vercel.app/api/memberships/subscribe" \
 # Debe devolver {"success":true} (no 500)
 ```
 
-### Las 11 variables que DEBEN estar siempre:
+### Las 16 variables que DEBEN estar siempre:
 
 | Variable | Tipo | Valor |
 |----------|------|-------|
 | RESEND_API_KEY | encrypted | ver .env.local |
 | ADMIN_EMAIL | plain | ver .env.local |
-| DATABASE_URL | encrypted | ver .env.local |
+| DATABASE_URL | plain | ver .env.local |
+| DATABASE_AUTH_TOKEN | encrypted | ver .env.local |
 | PAYPAL_CLIENT_ID | encrypted | ver .env.local |
 | PAYPAL_CLIENT_SECRET | encrypted | ver .env.local |
 | PAYPAL_MODE | plain | sandbox |
@@ -257,6 +269,10 @@ curl -s -X POST "https://etersomos-iota.vercel.app/api/memberships/subscribe" \
 | NEXT_PUBLIC_BASE_URL | plain | https://etersomos-iota.vercel.app |
 | ADMIN_API_SECRET | encrypted | etersomos_sec_d292... (ver sección Seguridad) |
 | ADMIN_PASSWORD | encrypted | eter2024admin |
+| R2_ACCOUNT_ID | plain | ver .env.local |
+| R2_ACCESS_KEY_ID | plain | ver .env.local |
+| R2_SECRET_ACCESS_KEY | plain | ver .env.local |
+| R2_BUCKET_NAME | plain | etersomos-recursos |
 
 ---
 
@@ -276,7 +292,7 @@ curl -s -X POST "https://etersomos-iota.vercel.app/api/memberships/subscribe" \
 ### Base de datos:
 - **Motor:** Turso (libSQL) — configurado via DATABASE_URL en .env
 - **Proxy:** src/lib/db.ts tiene un proxy Prisma→Turso que traduce llamadas Prisma a SQL directo
-- **Tablas:** ReadingBooking, Membership, CrystalOrder, NewsletterSubscriber, Settings
+- **Tablas:** ReadingBooking, Membership, CrystalOrder, NewsletterSubscriber, Settings, SiteContent, Resource, CourseInterest
 - **Settings proxy especial:** createSettingsProxy() maneja key/value (form_toggles, pause_message)
 - **ensureSchema():** Crea tablas automáticamente si no existen (CREATE TABLE IF NOT EXISTS)
 - **Auto-migración:** Columnas nuevas se agregan con ALTER TABLE (ej: deliveryDate en ReadingBooking)
@@ -319,7 +335,7 @@ El admin panel está **en el mismo proyecto** que el sitio público bajo `/admin
 - Password: eter2024admin
 - Auth: sessionStorage (persiste mientras la pestaña esté abierta)
 
-### 7 Tabs:
+### 8 Tabs:
 1. **Lecturas** — Kanban: Pendientes → En Proceso → Entregadas
 2. **Cristales** — Kanban: Pendientes de Envío → Preparando → Entregados
 3. **Cursos** — Kanban: Inscritos → En Curso → Completados
@@ -327,6 +343,7 @@ El admin panel está **en el mismo proyecto** que el sitio público bajo `/admin
 5. **Formularios** — 6 toggles individuales + pausar/activar todos + mensaje de pausa
 6. **Suscriptores** — Listado de suscriptores a recursos gratuitos, eliminar, exportar CSV
 7. **Contenido** — CMS: editor de textos, precios, productos, testimonios, FAQ (34 campos, 7 secciones)
+8. **Recursos** — Upload/download de archivos a Cloudflare R2, gestionar metadata, activar/desactivar
 
 ### Features del Admin:
 - Drag & drop kanban (HTML5 Drag API nativo, sin librerías externas)
@@ -458,7 +475,11 @@ TODOS los pagos pasan por la pasarela del sitio web (MercadoPago o PayPal).
 ### 9. RECURSOS GRATUITOS (/recursos — PÁGINA SEPARADA desde sesión 8)
 - Página propia en /recursos (NO está en la página principal)
 - Formulario de newsletter (email + suscribirme)
-- Toast de confirmación (no hay backend real de newsletter todavía)
+- Backend real de newsletter: POST /api/newsletter/subscribe → DB + email admin
+- Grid de recursos gratuitos cargados desde la DB (tabla Resource, active=1)
+- Cada recurso muestra título, descripción, tipo de archivo, botón de descarga
+- API: GET /api/resources?public=true
+- Descarga: GET /api/resources/download?key=... (stream desde R2)
 - Navbar propio + footer con "Volver al inicio"
 
 ### 10. TESTIMONIOS
@@ -614,7 +635,7 @@ TODOS los pagos pasan por la pasarela del sitio web (MercadoPago o PayPal).
 - src/app/tienda/layout.tsx - Layout de tienda (metadata)
 - src/app/recursos/page.tsx - Página recursos gratuitos (newsletter)
 - src/app/recursos/layout.tsx - Layout de recursos (metadata)
-- src/app/admin/page.tsx - Panel admin completo (~1630 líneas): stats, kanban, form toggles
+- src/app/admin/page.tsx - Panel admin completo (~2700 líneas): stats, kanban, form toggles, recursos
 - src/app/membresias/page.tsx - Página dedicada de membresías con formulario
 - src/app/membresias/layout.tsx - Layout de membresías (header volver + footer)
 - src/app/payment/success/page.tsx - Página post-pago
@@ -640,6 +661,14 @@ TODOS los pagos pasan por la pasarela del sitio web (MercadoPago o PayPal).
 - src/app/api/settings/route.ts - GET/PUT settings (DB Turso, form toggles)
 - src/app/api/newsletter/subscribe/route.ts - POST suscribir newsletter (DB + email admin)
 
+### APIs - Recursos (Cloudflare R2)
+- src/app/api/resources/route.ts - GET (listar), POST (crear metadata), PUT (actualizar), DELETE (eliminar + R2)
+- src/app/api/resources/presign/route.ts - POST generar presigned URL para upload directo a R2
+- src/app/api/resources/download/route.ts - GET stream archivo desde R2
+- src/app/api/resources/public/route.ts - GET recursos públicos (active=1)
+- src/app/api/resources/delete/route.ts - DELETE eliminar archivo de R2
+- src/app/api/resources/migrate/route.ts - POST migración de schema Resource
+
 ### APIs - Admin Panel
 - src/app/api/admin/stats/route.ts - GET estadísticas del dashboard
 - src/app/api/admin/bookings/[id]/route.ts - PUT (cambiar estado/fecha) + DELETE (eliminar lectura)
@@ -653,6 +682,7 @@ TODOS los pagos pasan por la pasarela del sitio web (MercadoPago o PayPal).
 
 ### Librerías
 - src/lib/db.ts - Proxy Prisma→Turso, createSettingsProxy, ensureSchema
+- src/lib/r2.ts - Cloudflare R2: upload, download, delete, presigned URLs
 - src/lib/pricing.ts - Precios centralizados
 - src/lib/email.ts - Sistema de emails (admin + cliente) para cristales/cursos/lecturas
 - src/lib/course-payment.ts - Función de pago para cursos/lecturas (usa PayPal.me)
@@ -879,19 +909,49 @@ TODOS los pagos pasan por la pasarela del sitio web (MercadoPago o PayPal).
 2. PROJECT_SPEC.md actualizado con sesiones 10-17
 3. Nota: Los cambios de Server Component (sesión 15-16) pueden necesitar ser re-aplicados al código restaurado desde backup
 
+### SESIÓN 18 (17/05/2026 — Recuperación + Recursos/R2 + CORS fix)
+1. **GitHub PAT expirado** — reemplazado por nuevo token: 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
+2. **Vercel Token expirado** — reemplazado por nuevo token: vcp_52GvKUqT6kZxgfW8ymTCysvu0X1R7F4JfdRwjWBAqm5mFtvn3x1lHd1F
+3. **Repo clonado y restaurado** desde GitHub (gpaulero/etersomos)
+4. **Variables de entorno Vercel restauradas** — 16 variables (antes 0), incluyendo R2, DB, PayPal, MP, Resend
+5. **3 proyectos Vercel duplicados eliminados:**
+   - etersomos-v2 (prj_uvhmQF7GoiZlgWHqsJUpzz8sv9lO) → eliminado
+   - etersomos-fix (prj_FnwQtcBGuKjWeQ9Bq4RBTMjB2JtF) → eliminado
+   - my-project (prj_CvpXH0m5oIznssMK5wsDYYYd4nqg) → eliminado (creado por accidente)
+   - Solo queda: etersomos (prj_oW3VNypSr0K7xkv8dm0wBRQbXZGY)
+6. **rootDirectory corregido** — proyecto etersomos tenía rootDirectory="etersomos" (carpeta inexistente) → cambiado a null (raíz del repo). Esto causaba que todos los deployments fallaran.
+7. **.vercel/project.json corregido** — apuntaba a proyecto my-project equivocado → corregido a etersomos
+8. **Deploy de producción exitoso** — etersomos-iota.vercel.app funciona correctamente
+9. **CORS configurado en Cloudflare R2:**
+   - Problema: El bucket R2 no tenía CORS → el navegador bloqueaba uploads con error 403 "CORS not configured"
+   - Solución: Configurado CORS via PutBucketCorsCommand (S3 SDK) con AllowedOrigins: *, AllowedMethods: GET/PUT/POST/DELETE
+   - Verificado: preflight OPTIONS devuelve 204 con headers CORS correctos
+10. **Sistema de Recursos completamente funcional:**
+    - API: GET/POST/PUT/DELETE /api/resources
+    - Presigned URLs: POST /api/resources/presign
+    - Download: GET /api/resources/download?key=...
+    - Tabla Resource en DB Turso: id, title, description, category, fileType, r2Key, fileName, fileSize, price/priceArs/priceUsd, active, sortOrder
+    - Admin: Tab "Recursos" con upload de archivos, lista, activar/desactivar, eliminar
+    - Público: /recursos muestra grid de recursos activos
+    - Almacenamiento: Cloudflare R2 (bucket: etersomos-recursos, prefix: recursos/)
+    - Librería: src/lib/r2.ts (S3Client, presigned URLs, upload, delete, getStream)
+11. **Backups creados:**
+    - /download/backup-etersomos-20260517/ (primera sesión)
+    - /download/backup-etersomos-20260517-s2/ (segunda sesión)
+    - Incluyen: source tar.gz, DB dump SQL, env vars, git history
+
 ---
 
 ## BACKUPS
 
-### Backup más reciente (16/05/2026):
+### Backup más reciente (17/05/2026):
+- **Código + DB + env (session18-s2)**: /home/z/my-project/download/backup-etersomos-20260517-s2/ (3.3MB)
+- **Código + DB + env (session18-s1)**: /home/z/my-project/download/backup-etersomos-20260517/ (3.3MB)
 - **Código (session17)**: /home/z/my-project/download/etersomos-backup-session17.tar.gz (3.2MB)
 - **Código (session16)**: /home/z/my-project/download/etersomos-backup-20260514-v2.tar.gz (185MB)
-- **Código (src session14)**: /home/z/my-project/download/etersomos-src-backup-20260514.tar.gz (3.2MB)
-- **Código (session14 full)**: /home/z/my-project/download/etersomos-backup-20260514.tar.gz (474MB)
 - **GitHub**: https://github.com/gpaulero/etersomos (repo privado, main branch)
-- **DB Turso**: /home/z/my-project/download/backups-2026-04-24/turso-db-dump.sql
-- **Env vars**: /home/z/my-project/download/backups-2026-04-24/env.local.backup
-- **Backup completo anterior**: /home/z/my-project/download/backups-2026-04-24/etersomos-backup-completo.tar.gz
+- **DB Turso**: en cada backup hay un turso-db-dump.sql actualizado
+- **Env vars**: en cada backup hay env.local.backup + vercel-env-vars.json
 
 ### Crear nuevo backup manual:
 ```bash
@@ -927,12 +987,12 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 6. Dominio custom para el sitio (etersomos.com u otro)
 7. Notificaciones WhatsApp mejoradas (CallMeBot/Meta API)
 8. Google Business Profile (gratuito, ayuda al SEO local)
-9. Configurar Cloudflare R2 para storage de archivos
+9. ~~Configurar Cloudflare R2 para storage de archivos~~ — HECHO (sesión 18, 17/05/2026)
 10. Página de política de privacidad y términos
 11. Testimonios reales (reemplazar placeholders actuales)
 12. Ajuste de precios a rango de mercado
 13. Google Analytics / Search Console
-14. Construir página /recursos (lead magnet con meditaciones + PDFs)
+14. ~~Construir página /recursos (lead magnet con meditaciones + PDFs)~~ — HECHO (sesión 18, 17/05/2026)
 15. Obtener token de Vercel con acceso al proyecto original (etersomos-gpauleros-projects.vercel.app) si se necesita
 
 ---
