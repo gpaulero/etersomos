@@ -122,8 +122,9 @@ export const defaultSiteContent: SiteContentItem[] = [
   { key: "nav.link_inicio", value: "Inicio", section: "nav", label: "Link Inicio", type: "text" },
   { key: "nav.link_sesiones", value: "Sesiones", section: "nav", label: "Link Sesiones", type: "text" },
   { key: "nav.link_cursos", value: "Cursos", section: "nav", label: "Link Cursos", type: "text" },
+  { key: "nav.link_mentorias", value: "Mentorías", section: "nav", label: "Link Mentorías", type: "text" },
   { key: "nav.link_membresia", value: "Membresía", section: "nav", label: "Link Membresía", type: "text" },
-  { key: "nav.link_recursos", value: "Recursos", section: "nav", label: "Link Recursos", type: "text" },
+  { key: "nav.link_recursos", value: "Expansión", section: "nav", label: "Link Expansión", type: "text" },
   { key: "nav.link_tienda", value: "Tienda", section: "nav", label: "Link Tienda", type: "text" },
   { key: "nav.link_contacto", value: "Contacto", section: "nav", label: "Link Contacto", type: "text" },
 

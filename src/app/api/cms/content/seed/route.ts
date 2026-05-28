@@ -12,19 +12,23 @@ export async function POST() {
 
     for (const item of defaultSiteContent) {
       try {
-        const existing = await (db as any).siteContent.findUnique({ where: { key: item.key } })
-        if (!existing) {
-          await (db as any).siteContent.create({
-            data: {
-              key: item.key,
-              value: item.value,
-              section: item.section,
-              label: item.label,
-              type: item.type,
-            }
-          })
-          inserted++
-        }
+        await (db as any).siteContent.upsert({
+          where: { key: item.key },
+          update: {
+            value: item.value,
+            section: item.section,
+            label: item.label,
+            type: item.type,
+          },
+          create: {
+            key: item.key,
+            value: item.value,
+            section: item.section,
+            label: item.label,
+            type: item.type,
+          }
+        })
+        inserted++
       } catch (e: any) {
         console.error(`[CMS] Seed error for ${item.key}:`, e.message || e)
       }

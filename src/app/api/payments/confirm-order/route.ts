@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { sendAdminNotification, sendCustomerConfirmation } from "@/lib/email";
 
-type OrderType = "crystal_order" | "course_enrollment" | "reading" | "resource_purchase";
+type OrderType = "crystal_order" | "course_enrollment" | "mentoria_enrollment" | "reading" | "resource_purchase";
 
 /* ── POST: Confirm any order type (save to DB + send emails) ─────────── */
 
@@ -69,6 +69,8 @@ export async function POST(request: NextRequest) {
         return handleCrystalOrder(body);
       case "course_enrollment":
         return handleCourseEnrollment(body);
+      case "mentoria_enrollment":
+        return handleMentoriaEnrollment(body);
       case "reading":
         return handleReadingOrder(body);
       case "resource_purchase":
@@ -244,6 +246,75 @@ async function handleCourseEnrollment(body: Record<string, unknown>) {
       orderId: order.id,
       type: "course_enrollment",
       message: "Inscripción al curso registrada con éxito.",
+    },
+    { status: 201 }
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   MENTORÍA ENROLLMENT HANDLER
+   ═══════════════════════════════════════════════════════════════════════ */
+
+async function handleMentoriaEnrollment(body: Record<string, unknown>) {
+  const {
+    customerName,
+    customerEmail,
+    customerPhone,
+    items,
+    total,
+    paymentMethod,
+    paymentId,
+    extraData,
+  } = body as {
+    customerName: string;
+    customerEmail: string;
+    customerPhone?: string;
+    items: Array<{ id: number; name: string; quantity: number; price: number }>;
+    total: number;
+    paymentMethod: string;
+    paymentId?: string | null;
+    extraData?: Record<string, unknown>;
+  };
+
+  // Save to CrystalOrder table with a marker (reuse existing model)
+  const order = await db.crystalOrder.create({
+    data: {
+      customerName: customerName.trim(),
+      customerEmail: customerEmail.trim().toLowerCase(),
+      customerPhone: customerPhone?.trim() || "N/A",
+      address: "Mentoría online",
+      city: "N/A",
+      province: "N/A",
+      postalCode: "0000",
+      notes: `MENTORIA: ${JSON.stringify(extraData || {})}`,
+      items: JSON.stringify(items),
+      total: parseFloat(String(total)) || 0,
+      paymentMethod,
+      paymentId: paymentId || null,
+      status: "pagado",
+    },
+  });
+
+  // Send emails
+  sendEmails({
+    type: "mentoria",
+    customerName: order.customerName,
+    customerEmail: order.customerEmail,
+    customerPhone: order.customerPhone,
+    items,
+    total: order.total,
+    paymentMethod: order.paymentMethod,
+    paymentId: order.paymentId,
+    orderId: order.id,
+    extraData: extraData || {},
+  });
+
+  return NextResponse.json(
+    {
+      success: true,
+      orderId: order.id,
+      type: "mentoria_enrollment",
+      message: "Inscripción a mentoría registrada con éxito.",
     },
     { status: 201 }
   );
@@ -440,7 +511,7 @@ async function handleResourcePurchase(body: Record<string, unknown>) {
    ═══════════════════════════════════════════════════════════════════════ */
 
 interface EmailPayload {
-  type: "crystal" | "course" | "reading" | "resource";
+  type: "crystal" | "course" | "mentoria" | "reading" | "resource";
   customerName: string;
   customerEmail: string;
   customerPhone?: string;

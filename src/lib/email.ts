@@ -3,7 +3,7 @@ import { Resend } from "resend";
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "etersomos@gmail.com";
 const SENDER = "Eter Somos <onboarding@resend.dev>";
 
-type OrderType = "crystal" | "course" | "reading" | "resource";
+type OrderType = "crystal" | "course" | "mentoria" | "reading" | "resource";
 
 interface EmailItem {
   name: string;
@@ -61,6 +61,7 @@ export async function sendAdminNotification(params: AdminNotificationParams): Pr
   const subjects: Record<OrderType, string> = {
     crystal: `✨ Nuevo pedido de cristales - ${params.customerName} - $${params.total.toLocaleString("es-AR")} ARS`,
     course: `📚 Nueva inscripción a curso - ${params.customerName} - $${params.total.toLocaleString("es-AR")} ARS`,
+    mentoria: `🌟 Nueva inscripción a mentoría - ${params.customerName} - $${params.total.toLocaleString("es-AR")} ARS`,
     reading: `🔮 Nueva solicitud de lectura - ${params.customerName} - $${params.total.toLocaleString("es-AR")} ARS`,
     resource: `📥 Nueva contribución a recurso - ${params.customerName}`,
   };
@@ -83,6 +84,8 @@ function buildAdminHtml(params: AdminNotificationParams): string {
       return buildCrystalAdminHtml(params);
     case "course":
       return buildCourseAdminHtml(params);
+    case "mentoria":
+      return buildMentoriaAdminHtml(params);
     case "reading":
       return buildReadingAdminHtml(params);
     case "resource":
@@ -200,6 +203,70 @@ function buildCourseAdminHtml(params: AdminNotificationParams): string {
         <h2 style="margin: 0 0 16px; color: #d4a853; font-size: 18px; border-bottom: 1px solid #2a252066; padding-bottom: 8px;">📖 Curso</h2>
         <div style="background: #1a1510; border: 1px solid #2a252066; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
           <p style="margin: 0; color: #f0ebe5; font-size: 16px; font-weight: 600;">${escapeHtml(courseName)}</p>
+          <p style="margin: 8px 0 0; color: #d4a853; font-size: 20px; font-weight: 700;">$${params.total.toLocaleString("es-AR")} ARS</p>
+        </div>
+      </div>
+      <div style="padding: 24px;">
+        <h2 style="margin: 0 0 12px; color: #d4a853; font-size: 18px; border-bottom: 1px solid #2a252066; padding-bottom: 8px;">💳 Pago</h2>
+        <table style="width: 100%; font-size: 14px;">
+          <tr><td style="padding: 4px 0; color: #8a8070;">Método:</td><td style="padding: 4px 0; color: #f0ebe5; font-weight: 600;">${paymentLabel(params.paymentMethod)}</td></tr>
+          <tr><td style="padding: 4px 0; color: #8a8070;">ID de Pago:</td><td style="padding: 4px 0; color: #f0ebe5; font-family: monospace; font-size: 12px;">${params.paymentId || "N/A"}</td></tr>
+          <tr><td style="padding: 4px 0; color: #8a8070;">ID de Registro:</td><td style="padding: 4px 0; color: #f0ebe5; font-family: monospace; font-size: 12px;">${params.orderId || "N/A"}</td></tr>
+        </table>
+      </div>
+      <div style="padding: 16px 24px; text-align: center; border-top: 1px solid #2a252066; color: #5a5545; font-size: 12px;">
+        <p>Eter Somos | Registros Akáshicos</p>
+        <p>Esta inscripción fue procesada automáticamente.</p>
+      </div>
+    </div>
+  `;
+}
+
+/* ── Mentoria Admin Email ──────────────────────────────────────────────── */
+
+function buildMentoriaAdminHtml(params: AdminNotificationParams): string {
+  const extra = params.extraData || {};
+  const formData = (extra.formData || extra.enrollmentData || {}) as Record<string, string>;
+
+  const detailRows = [
+    ["Email", params.customerEmail],
+    ["Teléfono", params.customerPhone || ""],
+    ["Nacionalidad", formData.nacionalidad || ""],
+    ["Ciudad", formData.ciudad || ""],
+    ["Nivel completado", formData.nivelCompletado || ""],
+    ["Cantidad de encuentros", formData.cantEncuentros || ""],
+    ["Precio por encuentro", formData.precioPorEncuentro ? `$${Number(formData.precioPorEncuentro).toLocaleString("es-AR")} ARS` : ""],
+    ["Motivo", formData.motivo || ""],
+    ["Disponibilidad", formData.disponibilidad || ""],
+    ["Cómo se enteró", formData.comoSeEnteraste || ""],
+    ["Recomendado por", formData.recomendadoNombre || ""],
+  ]
+    .filter(([, val]) => val)
+    .map(
+      ([label, val]) =>
+        `<tr><td style="padding: 4px 0; color: #8a8070; width: 40%;">${label}:</td><td style="padding: 4px 0; color: #f0ebe5;">${escapeHtml(val)}</td></tr>`
+    )
+    .join("");
+
+  const mentoriaName = params.items[0]?.name || "Mentoría Akáshica";
+
+  return `
+    <div style="max-width: 600px; margin: 0 auto; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #161310; border-radius: 12px; overflow: hidden;">
+      <div style="background: linear-gradient(135deg, #1a1510 0%, #0d0b08 100%); padding: 32px 24px; text-align: center; border-bottom: 1px solid #2a252066;">
+        <h1 style="margin: 0; color: #d4a853; font-size: 24px; letter-spacing: 0.1em;">🌟 NUEVA INSCRIPCIÓN A MENTORÍA</h1>
+        <p style="margin: 8px 0 0; color: #8a8070; font-size: 14px;">Eter Somos | Registros Akáshicos</p>
+      </div>
+      <div style="padding: 24px;">
+        <h2 style="margin: 0 0 16px; color: #d4a853; font-size: 18px; border-bottom: 1px solid #2a252066; padding-bottom: 8px;">👤 Datos del Inscripto</h2>
+        <table style="width: 100%; font-size: 14px;">
+          <tr><td style="padding: 4px 0; color: #8a8070;">Nombre:</td><td style="padding: 4px 0; color: #f0ebe5; font-weight: 600;">${escapeHtml(params.customerName)}</td></tr>
+          ${detailRows}
+        </table>
+      </div>
+      <div style="padding: 0 24px;">
+        <h2 style="margin: 0 0 16px; color: #d4a853; font-size: 18px; border-bottom: 1px solid #2a252066; padding-bottom: 8px;">🌟 Mentoría</h2>
+        <div style="background: #1a1510; border: 1px solid #2a252066; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+          <p style="margin: 0; color: #f0ebe5; font-size: 16px; font-weight: 600;">${escapeHtml(mentoriaName)}</p>
           <p style="margin: 8px 0 0; color: #d4a853; font-size: 20px; font-weight: 700;">$${params.total.toLocaleString("es-AR")} ARS</p>
         </div>
       </div>
@@ -371,6 +438,7 @@ export async function sendCustomerConfirmation(params: CustomerConfirmationParam
   const typeLabels: Record<OrderType, string> = {
     crystal: "pedido",
     course: "inscripción",
+    mentoria: "inscripción a mentoría",
     reading: "solicitud de lectura",
     resource: "contribución",
   };
@@ -405,6 +473,16 @@ function buildCustomerHtml(params: CustomerConfirmationParams): string {
       nextSteps: [
         "Te enviaremos los datos de acceso al curso por email.",
         "Te contactaremos con la información de las clases y material.",
+        "Si tenés alguna consulta, no dudes en escribirnos.",
+      ],
+    },
+    mentoria: {
+      title: "Inscripción a Mentoría Confirmada",
+      icon: "🌟",
+      description: "Tu inscripción a las mentorías ha sido registrada exitosamente. Te acompañaremos en tu camino de profundización.",
+      nextSteps: [
+        "Te contactaremos para coordinar los horarios de los encuentros.",
+        "Los encuentros son por videollamada 1:1 de 2 horas cada uno.",
         "Si tenés alguna consulta, no dudes en escribirnos.",
       ],
     },

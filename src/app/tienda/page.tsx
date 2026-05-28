@@ -146,8 +146,8 @@ const navLinks = [
   { label: "Inicio", href: "/" },
   { label: "Sesiones", href: "/lecturas" },
   { label: "Cursos", href: "/cursos" },
-  { label: "Membresía", href: "/#membresias" },
-  { label: "Recursos", href: "/recursos" },
+  { label: "Membresía", href: "/membresias" },
+  { label: "Expansión", href: "/recursos" },
   { label: "Tienda", href: "/tienda" },
   { label: "Contacto", href: "/#contacto" },
 ];

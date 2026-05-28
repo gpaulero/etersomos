@@ -198,8 +198,9 @@ const navLinksData = [
   { label: "Inicio", href: "#inicio", cmsKey: 'nav.link_inicio' },
   { label: "Sesiones", href: "/lecturas", cmsKey: 'nav.link_sesiones' },
   { label: "Cursos", href: "/cursos", cmsKey: 'nav.link_cursos' },
+  { label: "Mentorías", href: "/mentorias", cmsKey: 'nav.link_mentorias' },
   { label: "Membresía", href: "#membresias", cmsKey: 'nav.link_membresia' },
-  { label: "Recursos", href: "/recursos", cmsKey: 'nav.link_recursos' },
+  { label: "Expansión", href: "/recursos", cmsKey: 'nav.link_recursos' },
   { label: "Tienda", href: "/tienda", cmsKey: 'nav.link_tienda' },
   { label: "Contacto", href: "#contacto", cmsKey: 'nav.link_contacto' },
 ];
@@ -408,8 +409,9 @@ export default function Home() {
   const navLinkInicio = cmsValue(cmsMap, 'nav.link_inicio', 'Inicio');
   const navLinkSesiones = cmsValue(cmsMap, 'nav.link_sesiones', 'Sesiones');
   const navLinkCursos = cmsValue(cmsMap, 'nav.link_cursos', 'Cursos');
+  const navLinkMentorias = cmsValue(cmsMap, 'nav.link_mentorias', 'Mentorías');
   const navLinkMembresia = cmsValue(cmsMap, 'nav.link_membresia', 'Membresía');
-  const navLinkRecursos = cmsValue(cmsMap, 'nav.link_recursos', 'Recursos');
+  const navLinkRecursos = cmsValue(cmsMap, 'nav.link_recursos', 'Expansión');
   const navLinkTienda = cmsValue(cmsMap, 'nav.link_tienda', 'Tienda');
   const navLinkContacto = cmsValue(cmsMap, 'nav.link_contacto', 'Contacto');
 
