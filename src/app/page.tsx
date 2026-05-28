@@ -1400,16 +1400,7 @@ export default function Home() {
           </motion.div>
         </div>
 
-        {/* Scroll indicator */}
-        <motion.div
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10"
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          <div className="w-6 h-10 rounded-full border-2 border-violet-400/30 flex items-start justify-center p-1.5">
-            <div className="w-1.5 h-3 rounded-full bg-violet-400/50" />
-          </div>
-        </motion.div>
+
       </section>
 
       {/* ============================================================ */}
