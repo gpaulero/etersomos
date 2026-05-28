@@ -196,13 +196,12 @@ const testimonials = [
 
 const navLinksData = [
   { label: "Inicio", href: "#inicio", cmsKey: 'nav.link_inicio' },
-  { label: "Sesiones", href: "/lecturas", cmsKey: 'nav.link_sesiones' },
+  { label: "Lecturas", href: "/lecturas", cmsKey: 'nav.link_sesiones' },
   { label: "Cursos", href: "/cursos", cmsKey: 'nav.link_cursos' },
   { label: "Mentorías", href: "/mentorias", cmsKey: 'nav.link_mentorias' },
-  { label: "Membresía", href: "#membresias", cmsKey: 'nav.link_membresia' },
+  { label: "Membresías", href: "/membresias", cmsKey: 'nav.link_membresia' },
   { label: "Expansión", href: "/recursos", cmsKey: 'nav.link_recursos' },
   { label: "Tienda", href: "/tienda", cmsKey: 'nav.link_tienda' },
-  { label: "Contacto", href: "#contacto", cmsKey: 'nav.link_contacto' },
 ];
 
 const crystalCategories = [
@@ -299,12 +298,12 @@ const faqItems = [
   {
     question: "¿Qué son los Registros Akáshicos?",
     answer:
-      "Los Registros Akáshicos son una dimensión energética que almacena cada pensamiento, emoción y acción de todas las almas. Es como una biblioteca universal del conocimiento donde podés acceder a la sabiduría de tu alma.",
+      "Akasha es un campo al que pertenecés, en sánscrito significa Éter, aquello que lo contiene todo, es un campo de memoria universal. Los Registros Akáshicos son información viva, vibracional. Conectar con ellos no solo es \"ver cosas\" es poder distinguir con claridad y honestidad, que te da miedo, lo que deseás, lo que sabés profundamente.",
   },
   {
     question: "¿Cómo funciona una lectura?",
     answer:
-      "A través de una conexión sagrada, accedo a los registros de tu alma para responder tus preguntas. Recibís la lectura grabada en audio, personalizada y confidencial.",
+      "A través de una conexión sagrada, accedo a los registros de tu esencia para responder tus preguntas. Recibís la lectura grabada en audio, personalizada y confidencial.",
   },
   {
     question: "¿Es seguro o confidencial?",
@@ -314,7 +313,7 @@ const faqItems = [
   {
     question: "¿Necesito experiencia previa para los cursos?",
     answer:
-      "No. El Nivel 1 Teórico es ideal para principiantes. El Nivel con Práctica y el Nivel 2 van paso a paso con acompañamiento personalizado.",
+      "No. El Nivel 1 Teórico es ideal para principiantes. El Nivel 1 con Práctica y el Nivel 2 van paso a paso con acompañamiento personalizado.",
   },
   {
     question: "¿Las membresías tienen compromiso?",
@@ -389,31 +388,30 @@ export default function Home() {
   const { cmsMap } = useSiteContent();
 
   // CMS-driven values with hardcoded fallbacks
-  const heroTitle = cmsValue(cmsMap, 'site.hero_title', "Eter Somos");
-  const heroSubtitle = cmsValue(cmsMap, 'site.hero_subtitle', "Registros Akáshicos · Lecturas · Cursos");
-  const heroTagline = cmsValue(cmsMap, 'site.hero_tagline', "Tu espacio de conexión con la sabiduría del alma");
+  const heroTitle = cmsValue(cmsMap, 'site.hero_title', "");
+  const heroSubtitle = cmsValue(cmsMap, 'site.hero_subtitle', "");
+  const heroTagline = cmsValue(cmsMap, 'site.hero_tagline', "Un espacio para vivir tu espiritualidad de forma cercana, humana y sobre todo desde la consciencia");
   const contactEmail = cmsValue(cmsMap, 'site.contact_email', "etersomos@gmail.com");
   const contactWhatsapp = cmsValue(cmsMap, 'site.contact_whatsapp', "+54 9 3518 62-9325");
   const contactWhatsappNumber = cmsValue(cmsMap, 'site.contact_whatsapp_number', "5493518629325");
   const instagramUrl = cmsValue(cmsMap, 'site.instagram_url', "https://instagram.com/etersomos");
-  const sobreTitle = cmsValue(cmsMap, 'home.sobre_title', "Sobre Fer");
-  const sobreBio1 = cmsValue(cmsMap, 'home.sobre_bio_1', "Soy Fer, guía espiritual y lectora de Registros Akáshicos. Acompaño a personas en su proceso de autoconocimiento y sanación a través de esta herramienta ancestral.");
+  const sobreTitle = cmsValue(cmsMap, 'home.sobre_title', "Fer Cardozo");
+  const sobreBio1 = cmsValue(cmsMap, 'home.sobre_bio_1', "Soy Fer Cardozo, Viajera, emprendedora, lectora y terapeuta de Conciencia Akáshica, canalizadora y activadora de la Energía Arcturiana. Acompaño a personas en su proceso de autoconocimiento y sanación a través de esta herramienta ancestral.");
   const sobreBio2 = cmsValue(cmsMap, 'home.sobre_bio_2', "Desde hace años, me dedico a facilitar espacios de conexión con la esencia del alma. Cada lectura y cada curso que ofrezco nace desde un lugar de servicio y profundo respeto por el camino de cada ser.");
   const sobreStatLecturas = cmsValue(cmsMap, 'home.sobre_stat_lecturas', "500+");
   const sobreStatAlumnos = cmsValue(cmsMap, 'home.sobre_stat_alumnos', "200+");
   const sobreStatAnios = cmsValue(cmsMap, 'home.sobre_stat_anios', "5");
-  const readingsPriceArs = cmsNumber(cmsMap, 'readings.price_ars', 18000);
+  const readingsPriceArs = cmsNumber(cmsMap, 'readings.price_ars', 20000);
   const readingsPriceUsd = cmsNumber(cmsMap, 'readings.price_usd', 20);
 
   // Nav
   const navLinkInicio = cmsValue(cmsMap, 'nav.link_inicio', 'Inicio');
-  const navLinkSesiones = cmsValue(cmsMap, 'nav.link_sesiones', 'Sesiones');
+  const navLinkSesiones = cmsValue(cmsMap, 'nav.link_sesiones', 'Lecturas');
   const navLinkCursos = cmsValue(cmsMap, 'nav.link_cursos', 'Cursos');
   const navLinkMentorias = cmsValue(cmsMap, 'nav.link_mentorias', 'Mentorías');
-  const navLinkMembresia = cmsValue(cmsMap, 'nav.link_membresia', 'Membresía');
+  const navLinkMembresia = cmsValue(cmsMap, 'nav.link_membresia', 'Membresías');
   const navLinkRecursos = cmsValue(cmsMap, 'nav.link_recursos', 'Expansión');
   const navLinkTienda = cmsValue(cmsMap, 'nav.link_tienda', 'Tienda');
-  const navLinkContacto = cmsValue(cmsMap, 'nav.link_contacto', 'Contacto');
 
   // Hero buttons
   const heroBtnServices = cmsValue(cmsMap, 'site.hero_btn_services', 'Ver servicios');
@@ -422,17 +420,17 @@ export default function Home() {
   // Espacios
   const espaciosSubtitle = cmsValue(cmsMap, 'espacios.subtitle', 'Nuestros Espacios');
   const espaciosHeading = cmsValue(cmsMap, 'espacios.heading', '¿Qué buscás?');
-  const espaciosCard1Title = cmsValue(cmsMap, 'espacios.card1_title', 'Lecturas Akáshicas');
-  const espaciosCard1Desc = cmsValue(cmsMap, 'espacios.card1_desc', 'Accedé a los Registros de tu alma. Recibí una lectura personalizada grabada especialmente para vos.');
-  const espaciosCard1Price = cmsValue(cmsMap, 'espacios.card1_price', 'Desde US$20');
+  const espaciosCard1Title = cmsValue(cmsMap, 'espacios.card1_title', 'Lectura de Registros Akáshicos');
+  const espaciosCard1Desc = cmsValue(cmsMap, 'espacios.card1_desc', 'Traé claridad a los procesos que estás atravesando. Recibí una lectura personalizada grabada especialmente para vos.');
+  const espaciosCard1Price = cmsValue(cmsMap, 'espacios.card1_price', '$20.000 ARS · US$20');
   const espaciosCard2Title = cmsValue(cmsMap, 'espacios.card2_title', 'Cursos de Formación');
-  const espaciosCard2Desc = cmsValue(cmsMap, 'espacios.card2_desc', 'Aprendé a conectarte con tus propios Registros Akáshicos. Niveles 1 y 2 con práctica individual.');
+  const espaciosCard2Desc = cmsValue(cmsMap, 'espacios.card2_desc', 'Aprendé a conectar con tus propios Registros Akáshicos y el de otras personas. Niveles 1 y 2 con práctica individual.');
   const espaciosCard2Price = cmsValue(cmsMap, 'espacios.card2_price', 'Desde contribución voluntaria');
   const espaciosCard3Title = cmsValue(cmsMap, 'espacios.card3_title', 'Membresías');
   const espaciosCard3Desc = cmsValue(cmsMap, 'espacios.card3_desc', 'Contenido exclusivo mensual para tu expansión espiritual. Meditaciones, canalizaciones y activaciones.');
-  const espaciosCard3Price = cmsValue(cmsMap, 'espacios.card3_price', 'Desde $5.000 ARS/mes');
+  const espaciosCard3Price = cmsValue(cmsMap, 'espacios.card3_price', 'Desde $5.000 ARS · US$5/mes');
   const espaciosCard4Title = cmsValue(cmsMap, 'espacios.card4_title', 'Cristales');
-  const espaciosCard4Desc = cmsValue(cmsMap, 'espacios.card4_desc', 'Cristales seleccionados con amor e intención para acompañar tu camino espiritual.');
+  const espaciosCard4Desc = cmsValue(cmsMap, 'espacios.card4_desc', 'Guardianes personales de energía. Cristales seleccionados intuitivamente y consagrados para acompañarte como aliados energéticos en tu camino.');
   const espaciosCard4Price = cmsValue(cmsMap, 'espacios.card4_price', 'Solo envío en Argentina');
 
   // Sobre Fer extra labels
@@ -1350,25 +1348,9 @@ export default function Home() {
               </div>
             </motion.div>
 
-            <motion.h1
-              variants={fadeInUp}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-4xl sm:text-5xl md:text-6xl font-serif font-semibold text-violet-300 tracking-wider mb-4 text-glow-mystic"
-            >
-              {heroTitle}
-            </motion.h1>
-
             <motion.p
               variants={fadeInUp}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-lg sm:text-xl md:text-2xl text-foreground/60 font-serif font-light mb-4"
-            >
-              {heroSubtitle}
-            </motion.p>
-
-            <motion.p
-              variants={fadeInUp}
-              transition={{ duration: 0.8, delay: 0.55 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
               className="text-base sm:text-lg text-foreground/50 max-w-xl mx-auto mb-10 leading-relaxed font-sans"
             >
               {heroTagline}
@@ -1464,7 +1446,7 @@ export default function Home() {
 
             {/* Membresías */}
             <motion.div variants={staggerItem}>
-              <Link href="#membresias" onClick={(e) => { e.preventDefault(); scrollTo("#membresias"); }}>
+              <Link href="/membresias">
                 <div className="glass rounded-2xl p-6 sm:p-8 h-full border-mystic-700/20 hover:border-violet-500/30 transition-all duration-500 hover:scale-[1.02] hover:shadow-lg hover:shadow-violet-900/10 cursor-pointer group">
                   <div className="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center mb-4 group-hover:bg-violet-500/25 transition-colors duration-300">
                     <Sparkles className="size-6 text-violet-400" />
@@ -1514,7 +1496,7 @@ export default function Home() {
             <span className="inline-block text-violet-400 text-xs font-sans font-semibold tracking-[0.3em] uppercase mb-3">
               {sobreSubtitle}
             </span>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-semibold text-violet-400">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-semibold text-white">
               Sobre {sobreTitle}
             </h2>
           </motion.div>
@@ -1577,148 +1559,6 @@ export default function Home() {
               </div>
             </motion.div>
           </div>
-        </div>
-      </AnimatedSection>
-
-      {/* ============================================================ */}
-      {/*                  MEMBRESÍA DESTACADA SECTION                   */}
-      {/* ============================================================ */}
-      <AnimatedSection
-        id="membresias"
-        className="py-20 sm:py-28 px-4 sm:px-6"
-      >
-        <div className="max-w-5xl mx-auto">
-          <motion.div variants={staggerItem} className="text-center mb-16">
-            <span className="inline-block text-violet-400 text-xs font-sans font-semibold tracking-[0.3em] uppercase mb-3">
-              {membresiasSubtitle}
-            </span>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-semibold text-foreground mb-3">
-              {membresiasTitle}
-            </h2>
-            <p className="text-foreground/50 max-w-xl mx-auto font-sans">
-              {membresiasDescription}
-            </p>
-          </motion.div>
-
-          {/* Featured Tier: Corazón Solar */}
-          <motion.div variants={staggerItem} className="max-w-lg mx-auto mb-10">
-            <div className="relative glass rounded-2xl p-8 sm:p-10 border-violet-500/30 hover:border-violet-500/50 transition-all duration-500 overflow-hidden">
-              {/* Glow effect */}
-              <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-b from-violet-500/20 via-violet-500/5 to-transparent pointer-events-none animate-pulse opacity-50" />
-
-              <div className="relative z-10">
-                {/* Badge */}
-                <div className="flex justify-center mb-5">
-                  <Badge className="font-sans font-semibold px-3 py-1 text-xs bg-violet-500/20 text-violet-300 border border-violet-400/30 rounded-full">
-                    <Sparkles className="size-3 mr-1" />
-                    {featuredTier.badge}
-                  </Badge>
-                </div>
-
-                {/* Emoji image */}
-                <div className="flex justify-center mb-4">
-                  <img
-                    src={featuredTier.emojiImage}
-                    alt={featuredTier.name}
-                    className="w-16 h-16 object-contain"
-                  />
-                </div>
-
-                <h3 className="text-2xl font-serif font-bold text-violet-300 text-center mb-1">
-                  {featuredTier.name}
-                </h3>
-                <p className="text-foreground/40 text-xs text-center mb-5 font-sans">
-                  {featuredTier.frequency}
-                </p>
-
-                {/* Price */}
-                <div className="text-center mb-6">
-                  <span className="text-3xl font-serif font-bold text-foreground">
-                    {featuredTier.price}
-                  </span>
-                  <p className="text-xs text-foreground/40 mt-1 font-sans">
-                    {membresiasPerMonth}
-                  </p>
-                </div>
-
-                <Separator className="bg-mystic-800/30 mb-5" />
-
-                {/* Description */}
-                <p className="text-sm text-foreground/60 leading-relaxed mb-5 font-sans text-center">
-                  {featuredTier.description}
-                </p>
-
-                {/* Benefits */}
-                <ul className="space-y-2.5 mb-6">
-                  {featuredTier.benefits.map((benefit) => (
-                    <li
-                      key={benefit}
-                      className="flex items-start gap-2.5 text-sm text-foreground/70 font-sans"
-                    >
-                      <Check className="size-4 text-violet-400 shrink-0 mt-0.5" />
-                      {benefit}
-                    </li>
-                  ))}
-                </ul>
-
-                <Link href="/membresias">
-                  <Button className="w-full bg-violet-500 hover:bg-violet-600 text-white font-sans font-semibold rounded-full py-4 text-sm transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-violet-900/30">
-                    {membresiasBtnPrefix} {featuredTier.name}
-                    <ExternalLink className="size-3 ml-1.5" />
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Cancellation note */}
-          <motion.div
-            variants={staggerItem}
-            className="text-center mb-10"
-          >
-            <p className="text-xs text-foreground/40 flex items-center justify-center gap-1.5 font-sans">
-              <Info className="size-3.5" />
-              {membresiasCancelNote}
-            </p>
-          </motion.div>
-
-          {/* Other Tiers */}
-          <motion.div
-            variants={staggerItem}
-            className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto"
-          >
-            {otherTiers.map((tier) => (
-              <div
-                key={tier.id}
-                className="glass rounded-2xl p-6 border-mystic-700/20 hover:border-violet-500/20 transition-all duration-500 text-center"
-              >
-                <div className="flex justify-center mb-3">
-                  <img
-                    src={tier.emojiImage}
-                    alt={tier.name}
-                    className="w-12 h-12 object-contain"
-                  />
-                </div>
-                <h4 className="text-lg font-serif font-semibold text-violet-300 mb-1">
-                  {tier.name}
-                </h4>
-                <p className="text-xl font-serif font-bold text-foreground mb-1">
-                  {tier.price}
-                </p>
-                <p className="text-xs text-foreground/40 mb-4 font-sans">
-                  {tier.frequency}
-                </p>
-                <Link href="/membresias">
-                  <Button
-                    variant="outline"
-                    className="w-full border-violet-500/30 text-violet-400 hover:bg-violet-500/10 hover:text-violet-300 font-sans font-medium rounded-full py-2.5 text-sm transition-all duration-300"
-                  >
-                    Ver más
-                  </Button>
-                </Link>
-              </div>
-            ))}
-          </motion.div>
         </div>
       </AnimatedSection>
 
@@ -2677,7 +2517,7 @@ export default function Home() {
               {/* Action Buttons */}
               <div className="space-y-3">
                 <Button
-                  className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2 font-sans"
+                  className="w-full bg-violet-500 hover:bg-violet-600 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2 font-sans"
                   onClick={() => {
                     if (selectedBooking.clientWhatsAppLink) {
                       window.open(
@@ -2738,7 +2578,7 @@ export default function Home() {
 
                 {selectedBooking.status === "en_progreso" && (
                   <Button
-                    className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2 font-sans"
+                    className="w-full bg-violet-500 hover:bg-violet-600 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2 font-sans"
                     onClick={() =>
                       handleStatusChange(selectedBooking.id, "enviada")
                     }
@@ -3166,7 +3006,7 @@ export default function Home() {
         href={`https://wa.me/${contactWhatsappNumber}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-6 left-6 z-40 w-14 h-14 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center shadow-lg shadow-green-900/30 transition-all duration-300 hover:scale-110"
+        className="fixed bottom-6 left-6 z-40 w-14 h-14 rounded-full bg-violet-500 hover:bg-violet-600 text-white flex items-center justify-center shadow-lg shadow-violet-900/30 transition-all duration-300 hover:scale-110"
         aria-label="Contactar por WhatsApp"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor">

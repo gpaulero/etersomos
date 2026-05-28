@@ -124,11 +124,11 @@ function getFileTypeInfo(fileType: string): {
     case "meditacion":
       return { icon: Headphones, label: "Meditación", color: "text-violet-400", bg: "bg-violet-500/15" };
     case "audio":
-      return { icon: Music, label: "Audio", color: "text-blue-400", bg: "bg-blue-500/15" };
+      return { icon: Music, label: "Audio", color: "text-violet-300", bg: "bg-violet-500/15" };
     case "video":
-      return { icon: Video, label: "Video", color: "text-rose-400", bg: "bg-rose-500/15" };
+      return { icon: Video, label: "Video", color: "text-violet-300", bg: "bg-violet-500/15" };
     case "imagen":
-      return { icon: FileText, label: "Imagen", color: "text-emerald-400", bg: "bg-emerald-500/15" };
+      return { icon: FileText, label: "Imagen", color: "text-violet-300", bg: "bg-violet-500/15" };
     case "guia":
       return { icon: BookOpen, label: "Guía", color: "text-gold-400", bg: "bg-gold-400/15" };
     case "documento":
@@ -289,17 +289,14 @@ export default function RecursosPage() {
                 <BookOpen className="size-8 text-violet-400" />
               </div>
             </motion.div>
-            <motion.span variants={fadeInUp} transition={{ duration: 0.6, delay: 0.1 }} className="inline-block text-foreground/50 text-xs font-sans font-semibold tracking-[0.3em] uppercase mb-3">
-              con contribución voluntaria consciente
-            </motion.span>
             <motion.h1 variants={fadeInUp} transition={{ duration: 0.8, delay: 0.2 }} className="text-3xl sm:text-4xl md:text-5xl font-serif font-semibold text-foreground mb-3">
-              Expansión
+              Recursos
             </motion.h1>
             <motion.p variants={fadeInUp} transition={{ duration: 0.8, delay: 0.4 }} className="text-foreground/50 max-w-xl mx-auto font-sans">
-              Meditaciones, guías y contenidos disponibles con contribución voluntaria consciente.
+              Con contribución voluntaria consciente.
             </motion.p>
             <motion.p variants={fadeInUp} transition={{ duration: 0.8, delay: 0.5 }} className="text-foreground/40 max-w-xl mx-auto font-sans text-sm mt-2">
-              Un espacio creado para acompañar el crecimiento y la expansión espiritual de más personas. Tu aporte sostiene este proyecto y permite que pueda seguir creando y compartiendo este tipo de material.
+              Un espacio creado para apoyar la expansión espiritual de más personas. Tu aporte sostiene este proyecto y permite que pueda seguir creando y compartiendo este tipo de material.
             </motion.p>
           </motion.div>
         </div>
@@ -349,7 +346,7 @@ export default function RecursosPage() {
                             <TypeIcon className="size-3.5" />
                             {typeInfo.label}
                           </div>
-                          <span className="text-cream-400/70 text-xs font-medium flex items-center gap-1">
+                          <span className="text-violet-400/70 text-xs font-medium flex items-center gap-1">
                             <Heart className="size-3" />
                             Aportación libre
                           </span>
@@ -384,8 +381,8 @@ export default function RecursosPage() {
                           {/* Voluntary contribution note for all resources */}
                           <div className="mb-4">
                             <div className="flex items-center gap-2 mb-2">
-                              <Heart className="size-3.5 text-cream-400/60" />
-                              <span className="text-cream-400/70 text-xs font-medium font-sans">
+                              <Heart className="size-3.5 text-violet-400/60" />
+                              <span className="text-violet-400/70 text-xs font-medium font-sans">
                                 Contribución voluntaria consciente
                               </span>
                             </div>
@@ -531,13 +528,13 @@ export default function RecursosPage() {
           <div className="max-w-2xl mx-auto">
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }}>
               <div className="glass rounded-2xl p-8 sm:p-10 border-mystic-700/20 text-center">
-                <div className="w-14 h-14 rounded-xl bg-cream-400/10 flex items-center justify-center mx-auto mb-5">
-                  <Heart className="size-7 text-cream-400" />
+                <div className="w-14 h-14 rounded-xl bg-violet-400/10 flex items-center justify-center mx-auto mb-5">
+                  <Heart className="size-7 text-violet-400" />
                 </div>
                 <h2 className="text-xl font-serif font-semibold text-foreground mb-2">
                   Contribución Voluntaria Consciente
                 </h2>
-                <p className="text-cream-400/60 text-xs font-sans font-medium uppercase tracking-wider mb-3">
+                <p className="text-violet-400/60 text-xs font-sans font-medium uppercase tracking-wider mb-3">
                   Amor como moneda de cambio
                 </p>
                 <p className="text-foreground/45 text-sm leading-relaxed mb-6 font-sans">

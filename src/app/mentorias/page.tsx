@@ -247,7 +247,7 @@ export default function MentoriasPage() {
   };
 
   const inputClass =
-    "bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30";
+    "bg-mystic-900/50 border-mystic-700/40 focus:border-violet-400/60 text-foreground placeholder:text-foreground/30";
   const errorInputClass =
     "bg-mystic-900/50 border-red-400/60 text-foreground placeholder:text-foreground/30";
 
@@ -355,7 +355,7 @@ export default function MentoriasPage() {
         <Collapsible open={agreementOpen} onOpenChange={setAgreementOpen}>
           <CardHeader className="pb-0">
             <CollapsibleTrigger className="flex items-center justify-between w-full group">
-              <CardTitle className="text-lg text-gold-300 font-serif flex items-center gap-2">
+              <CardTitle className="text-lg text-violet-300 font-serif flex items-center gap-2">
                 <BookOpen className="size-5" />
                 Acuerdo y Condiciones
               </CardTitle>
@@ -381,41 +381,41 @@ export default function MentoriasPage() {
               {/* Important conditions */}
               <div className="space-y-2">
                 <h3 className="text-foreground/90 font-semibold text-sm flex items-center gap-2">
-                  <AlertCircle className="size-4 text-gold-400" />
+                  <AlertCircle className="size-4 text-violet-400" />
                   Condiciones Importantes
                 </h3>
                 <ul className="space-y-2 text-sm text-foreground/60">
                   <li className="flex items-start gap-2">
-                    <span className="text-gold-400 mt-0.5">•</span>
+                    <span className="text-violet-400 mt-0.5">•</span>
                     Los encuentros son personalizados, en formato{" "}
                     <strong className="text-foreground/80">
                       videollamada 1:1
                     </strong>, con una duración de 2 horas.
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-gold-400 mt-0.5">•</span>
+                    <span className="text-violet-400 mt-0.5">•</span>
                     El valor por un solo encuentro es de{" "}
                     <strong className="text-foreground/80">
                       ${PRICE_SINGLE.toLocaleString("es-AR")}
                     </strong>.
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-gold-400 mt-0.5">•</span>
+                    <span className="text-violet-400 mt-0.5">•</span>
                     Pactando 3 o más encuentros al mes, el valor queda en{" "}
                     <strong className="text-foreground/80">
                       ${PRICE_PACK.toLocaleString("es-AR")} por encuentro
                     </strong>. Válido al abonar todos los encuentros juntos.
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-gold-400 mt-0.5">•</span>
+                    <span className="text-violet-400 mt-0.5">•</span>
                     Se recomienda realizar un encuentro semanal durante al menos un mes para sostener e integrar el proceso.
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-gold-400 mt-0.5">•</span>
+                    <span className="text-violet-400 mt-0.5">•</span>
                     No se realizan reembolsos.
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-gold-400 mt-0.5">•</span>
+                    <span className="text-violet-400 mt-0.5">•</span>
                     Fernanda se reserva el derecho de admisión.
                   </li>
                 </ul>
@@ -438,7 +438,7 @@ export default function MentoriasPage() {
           className="text-base text-foreground/80 cursor-pointer leading-relaxed"
         >
           He leído y comprendido el marco y condiciones de las mentorías. Al aceptar, podré completar mi formulario de inscripción.
-          <span className="text-gold-400"> *</span>
+          <span className="text-violet-400"> *</span>
         </Label>
       </div>
 
@@ -451,7 +451,7 @@ export default function MentoriasPage() {
         >
           <Card className="glass border-mystic-700/30">
             <CardHeader>
-              <CardTitle className="text-lg text-gold-300 font-serif">
+              <CardTitle className="text-lg text-violet-300 font-serif">
                 Formulario de Inscripción
               </CardTitle>
             </CardHeader>
@@ -459,7 +459,7 @@ export default function MentoriasPage() {
               {/* Email */}
               <div className="space-y-1.5">
                 <Label htmlFor="email" className="text-foreground/80 text-sm">
-                  Correo electrónico <span className="text-gold-400">*</span>
+                  Correo electrónico <span className="text-violet-400">*</span>
                 </Label>
                 <Input
                   id="email"
@@ -478,7 +478,7 @@ export default function MentoriasPage() {
               <div className="space-y-1.5">
                 <Label htmlFor="nombre" className="text-foreground/80 text-sm">
                   Nombre y apellido completo{" "}
-                  <span className="text-gold-400">*</span>
+                  <span className="text-violet-400">*</span>
                 </Label>
                 <Input
                   id="nombre"
@@ -495,7 +495,7 @@ export default function MentoriasPage() {
               {/* Nacionalidad */}
               <div className="space-y-1.5">
                 <Label htmlFor="nacionalidad" className="text-foreground/80 text-sm">
-                  Nacionalidad <span className="text-gold-400">*</span>
+                  Nacionalidad <span className="text-violet-400">*</span>
                 </Label>
                 <Input
                   id="nacionalidad"
@@ -512,7 +512,7 @@ export default function MentoriasPage() {
               {/* Ciudad */}
               <div className="space-y-1.5">
                 <Label htmlFor="ciudad" className="text-foreground/80 text-sm">
-                  Ciudad actual <span className="text-gold-400">*</span>
+                  Ciudad actual <span className="text-violet-400">*</span>
                 </Label>
                 <Input
                   id="ciudad"
@@ -547,7 +547,7 @@ export default function MentoriasPage() {
               <div className="space-y-2.5">
                 <Label className="text-foreground/80 text-sm">
                   ¿Qué nivel de formación completaste?{" "}
-                  <span className="text-gold-400">*</span>
+                  <span className="text-violet-400">*</span>
                 </Label>
                 <RadioGroup
                   value={nivelCompletado}
@@ -587,7 +587,7 @@ export default function MentoriasPage() {
               <div className="space-y-2.5">
                 <Label className="text-foreground/80 text-sm">
                   ¿Cuántos encuentros querés realizar?{" "}
-                  <span className="text-gold-400">*</span>
+                  <span className="text-violet-400">*</span>
                 </Label>
                 <RadioGroup
                   value={cantEncuentros}
@@ -643,7 +643,7 @@ export default function MentoriasPage() {
               <div className="space-y-1.5">
                 <Label htmlFor="motivo" className="text-foreground/80 text-sm">
                   ¿Qué te motiva a realizar las mentorías?{" "}
-                  <span className="text-gold-400">*</span>
+                  <span className="text-violet-400">*</span>
                 </Label>
                 <textarea
                   id="motivo"
@@ -651,7 +651,7 @@ export default function MentoriasPage() {
                   placeholder="Contanos brevemente qué buscás trabajar o profundizar..."
                   value={motivo}
                   onChange={(e) => setMotivo(e.target.value)}
-                  className={`w-full rounded-md border px-3 py-2 text-sm bg-mystic-900/50 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 resize-none ${
+                  className={`w-full rounded-md border px-3 py-2 text-sm bg-mystic-900/50 focus:border-violet-400/60 text-foreground placeholder:text-foreground/30 resize-none ${
                     errors.motivo ? "border-red-400/60" : "border-mystic-700/40"
                   }`}
                 />
@@ -663,7 +663,7 @@ export default function MentoriasPage() {
               {/* Disponibilidad */}
               <div className="space-y-1.5">
                 <Label htmlFor="disponibilidad" className="text-foreground/80 text-sm">
-                  Disponibilidad horaria <span className="text-gold-400">*</span>
+                  Disponibilidad horaria <span className="text-violet-400">*</span>
                 </Label>
                 <textarea
                   id="disponibilidad"
@@ -671,7 +671,7 @@ export default function MentoriasPage() {
                   placeholder="Ej: Lunes y miércoles de 18 a 21 hs, martes por la mañana..."
                   value={disponibilidad}
                   onChange={(e) => setDisponibilidad(e.target.value)}
-                  className={`w-full rounded-md border px-3 py-2 text-sm bg-mystic-900/50 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 resize-none ${
+                  className={`w-full rounded-md border px-3 py-2 text-sm bg-mystic-900/50 focus:border-violet-400/60 text-foreground placeholder:text-foreground/30 resize-none ${
                     errors.disponibilidad ? "border-red-400/60" : "border-mystic-700/40"
                   }`}
                 />
@@ -686,7 +686,7 @@ export default function MentoriasPage() {
               <div className="space-y-2.5">
                 <Label className="text-foreground/80 text-sm">
                   ¿Cómo te enteraste de las mentorías?{" "}
-                  <span className="text-gold-400">*</span>
+                  <span className="text-violet-400">*</span>
                 </Label>
                 <RadioGroup
                   value={comoSeEnteraste}
@@ -704,7 +704,7 @@ export default function MentoriasPage() {
                       htmlFor={`enteraste-${opt}`}
                       className={`flex items-center gap-2 cursor-pointer rounded-lg border p-3 text-sm transition-colors ${
                         comoSeEnteraste === opt
-                          ? "border-gold-400/60 bg-gold-400/5 text-gold-300"
+                          ? "border-violet-400/60 bg-violet-400/5 text-violet-300"
                           : "border-mystic-700/40 text-foreground/60 hover:border-mystic-600"
                       }`}
                     >
@@ -750,7 +750,7 @@ export default function MentoriasPage() {
               {/* Método de pago */}
               <div className="space-y-2.5">
                 <Label className="text-foreground/80 text-sm">
-                  Método de pago <span className="text-gold-400">*</span>
+                  Método de pago <span className="text-violet-400">*</span>
                 </Label>
                 <RadioGroup
                   value={metodoPago}
@@ -768,7 +768,7 @@ export default function MentoriasPage() {
                       htmlFor={`pago-${opt.value}`}
                       className={`flex items-center gap-2 cursor-pointer rounded-lg border p-3 text-sm transition-colors ${
                         metodoPago === opt.value
-                          ? "border-gold-400/60 bg-gold-400/5 text-gold-300"
+                          ? "border-violet-400/60 bg-violet-400/5 text-violet-300"
                           : "border-mystic-700/40 text-foreground/60 hover:border-mystic-600"
                       }`}
                     >
@@ -791,7 +791,7 @@ export default function MentoriasPage() {
                     <p className="text-foreground/70">
                       Vas a ser redirigido a MercadoPago para completar tu pago
                       de{" "}
-                      <strong className="text-gold-300">
+                      <strong className="text-violet-300">
                         ${totalARS.toLocaleString("es-AR")} ARS
                       </strong>
                       .
@@ -814,22 +814,22 @@ export default function MentoriasPage() {
                   <div className="glass rounded-lg p-4 text-sm space-y-3 border border-mystic-700/20">
                     <p className="text-foreground/70">
                       Realizá la transferencia por el monto de{" "}
-                      <strong className="text-gold-300">
+                      <strong className="text-violet-300">
                         ${totalARS.toLocaleString("es-AR")} ARS
                       </strong>{" "}
                       a:
                     </p>
                     <div className="space-y-1 text-foreground/60">
                       <p>
-                        <span className="text-gold-400 font-medium">Banco:</span>{" "}
+                        <span className="text-violet-400 font-medium">Banco:</span>{" "}
                         Brubank
                       </p>
                       <p>
-                        <span className="text-gold-400 font-medium">CBU:</span>{" "}
+                        <span className="text-violet-400 font-medium">CBU:</span>{" "}
                         1430001713002632000014
                       </p>
                       <p>
-                        <span className="text-gold-400 font-medium">Alias:</span>{" "}
+                        <span className="text-violet-400 font-medium">Alias:</span>{" "}
                         fer.cardozo
                       </p>
                     </div>
@@ -855,7 +855,7 @@ export default function MentoriasPage() {
                   <div className="glass rounded-lg p-4 text-sm space-y-2 border border-mystic-700/20">
                     <p className="text-foreground/70">
                       Vas a ser redirigido a PayPal para completar tu pago de{" "}
-                      <strong className="text-gold-300">
+                      <strong className="text-violet-300">
                         ${totalARS.toLocaleString("es-AR")} ARS
                       </strong>
                       .
@@ -879,7 +879,7 @@ export default function MentoriasPage() {
                   <div className="glass rounded-lg p-4 text-sm space-y-3 border border-mystic-700/20">
                     <p className="text-foreground/70">
                       Para pagar con Western Union por{" "}
-                      <strong className="text-gold-300">
+                      <strong className="text-violet-300">
                         ${totalARS.toLocaleString("es-AR")} ARS
                       </strong>
                       , contactá a Fernanda para recibir los datos de
