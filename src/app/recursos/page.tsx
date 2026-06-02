@@ -45,12 +45,12 @@ import { ProtectedVideoPlayer, ProtectedAudioPlayer } from "@/components/protect
 
 const navLinks = [
   { label: "Inicio", href: "/" },
-  { label: "Sesiones", href: "/lecturas" },
+  { label: "Lecturas", href: "/lecturas" },
   { label: "Cursos", href: "/cursos" },
-  { label: "Membresía", href: "/membresias" },
-  { label: "Expansión", href: "/recursos" },
+  { label: "Mentorías", href: "/mentorias" },
+  { label: "Membresías", href: "/membresias" },
+  { label: "Recursos", href: "/recursos" },
   { label: "Tienda", href: "/tienda" },
-  { label: "Contacto", href: "/#contacto" },
 ];
 
 /* ======================================================================== */
@@ -130,7 +130,7 @@ function getFileTypeInfo(fileType: string): {
     case "imagen":
       return { icon: FileText, label: "Imagen", color: "text-violet-300", bg: "bg-violet-500/15" };
     case "guia":
-      return { icon: BookOpen, label: "Guía", color: "text-gold-400", bg: "bg-gold-400/15" };
+      return { icon: BookOpen, label: "Guía", color: "text-violet-300", bg: "bg-violet-500/15" };
     case "documento":
       return { icon: FileText, label: "Documento", color: "text-foreground/60", bg: "bg-mystic-800/60" };
     default:
@@ -239,7 +239,7 @@ export default function RecursosPage() {
                   link.href === "/recursos" ? "text-violet-400" : "text-foreground/60 hover:text-violet-400"
                 }`}
               >
-                {link.label === "Expansión" ? "Expansión" : link.label}
+                {link.label === "Recursos" ? "Recursos" : link.label}
               </Link>
             ))}
             <a href="https://instagram.com/etersomos" target="_blank" rel="noopener noreferrer" className="text-foreground/50 hover:text-violet-400 transition-colors duration-300" aria-label="Instagram">

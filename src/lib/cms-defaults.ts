@@ -33,10 +33,10 @@ const defaultTestimonials = [
 
 /* ── FAQ ── */
 const defaultFaqItems = [
-  { question: "¿Qué son los Registros Akáshicos?", answer: "Los Registros Akáshicos son una dimensión energética que almacena cada pensamiento, emoción y acción de todas las almas. Es como una biblioteca universal del conocimiento donde podés acceder a la sabiduría de tu alma." },
-  { question: "¿Cómo funciona una lectura?", answer: "A través de una conexión sagrada, accedo a los registros de tu alma para responder tus preguntas. Recibís la lectura grabada en audio, personalizada y confidencial." },
+  { question: "¿Qué son los Registros Akáshicos?", answer: "Akasha es un campo al que pertenecés, en sánscrito significa Éter, aquello que lo contiene todo, es un campo de memoria universal. Los Registros Akáshicos son información viva, vibracional. Conectar con ellos no solo es \"ver cosas\" es poder distinguir con claridad y honestidad, que te da miedo, lo que deseás, lo que sabés profundamente." },
+  { question: "¿Cómo funciona una lectura?", answer: "A través de una conexión sagrada, accedo a los registros de tu esencia para responder tus preguntas. Recibís la lectura grabada en audio, personalizada y confidencial." },
   { question: "¿Es seguro o confidencial?", answer: "Absolutamente. Todo lo que se comparte en una lectura es estrictamente confidencial. No se comparte información con terceros bajo ninguna circunstancia." },
-  { question: "¿Necesito experiencia previa para los cursos?", answer: "No. El Nivel 1 Teórico es ideal para principiantes. El Nivel con Práctica y el Nivel 2 van paso a paso con acompañamiento personalizado." },
+  { question: "¿Necesito experiencia previa para los cursos?", answer: "No. El Nivel 1 Teórico es ideal para principiantes. El Nivel 1 con Práctica y el Nivel 2 van paso a paso con acompañamiento personalizado." },
   { question: "¿Las membresías tienen compromiso?", answer: "No. Podés cancelar tu membresía en cualquier momento desde MercadoPago o PayPal. Sin preguntas, sin penalidades." },
   { question: "¿Hacen envíos de cristales a todo el país?", answer: "Sí, enviamos cristales a toda Argentina. Cada pieza es seleccionada y empaquetada con cuidado y protección energética." },
 ]
@@ -110,7 +110,7 @@ export const defaultSiteContent: SiteContentItem[] = [
   // ── Site (general) ──
   { key: "site.hero_title", value: "Eter Somos", section: "site", label: "Título principal del Hero", type: "text" },
   { key: "site.hero_subtitle", value: "Registros Akáshicos · Lecturas · Cursos", section: "site", label: "Subtítulo del Hero", type: "text" },
-  { key: "site.hero_tagline", value: "Tu espacio de conexión con la sabiduría del alma", section: "site", label: "Tagline del Hero", type: "text" },
+  { key: "site.hero_tagline", value: "Un espacio para vivir tu espiritualidad de forma cercana, humana y sobre todo desde la consciencia", section: "site", label: "Tagline del Hero", type: "text" },
   { key: "site.contact_email", value: "etersomos@gmail.com", section: "site", label: "Email de contacto", type: "text" },
   { key: "site.contact_whatsapp", value: "+54 9 3518 62-9325", section: "site", label: "WhatsApp (display)", type: "text" },
   { key: "site.contact_whatsapp_number", value: "5493518629325", section: "site", label: "WhatsApp número (para link)", type: "text" },
@@ -120,11 +120,11 @@ export const defaultSiteContent: SiteContentItem[] = [
 
   // ── Nav ──
   { key: "nav.link_inicio", value: "Inicio", section: "nav", label: "Link Inicio", type: "text" },
-  { key: "nav.link_sesiones", value: "Sesiones", section: "nav", label: "Link Sesiones", type: "text" },
+  { key: "nav.link_sesiones", value: "Lecturas", section: "nav", label: "Link Lecturas", type: "text" },
   { key: "nav.link_cursos", value: "Cursos", section: "nav", label: "Link Cursos", type: "text" },
   { key: "nav.link_mentorias", value: "Mentorías", section: "nav", label: "Link Mentorías", type: "text" },
-  { key: "nav.link_membresia", value: "Membresía", section: "nav", label: "Link Membresía", type: "text" },
-  { key: "nav.link_recursos", value: "Expansión", section: "nav", label: "Link Expansión", type: "text" },
+  { key: "nav.link_membresia", value: "Membresías", section: "nav", label: "Link Membresías", type: "text" },
+  { key: "nav.link_recursos", value: "Recursos", section: "nav", label: "Link Recursos", type: "text" },
   { key: "nav.link_tienda", value: "Tienda", section: "nav", label: "Link Tienda", type: "text" },
   { key: "nav.link_contacto", value: "Contacto", section: "nav", label: "Link Contacto", type: "text" },
 
@@ -133,9 +133,9 @@ export const defaultSiteContent: SiteContentItem[] = [
   { key: "crystals.categories", value: JSON.stringify(defaultCategories, null, 2), section: "crystals", label: "Categorías de cristales (JSON)", type: "json" },
 
   // ── Readings (lecturas) ──
-  { key: "readings.price_ars", value: "18000", section: "readings", label: "Precio Lectura (ARS)", type: "number" },
+  { key: "readings.price_ars", value: "20000", section: "readings", label: "Precio Lectura (ARS)", type: "number" },
   { key: "readings.price_usd", value: "20", section: "readings", label: "Precio Lectura (USD)", type: "number" },
-  { key: "readings.description", value: "Accedé a los Registros de tu alma. Recibí una lectura personalizada grabada especialmente para vos.", section: "readings", label: "Descripción de Lecturas", type: "textarea" },
+  { key: "readings.description", value: "Traé claridad a los procesos que estás atravesando. Recibí una lectura personalizada grabada especialmente para vos.", section: "readings", label: "Descripción de Lecturas", type: "textarea" },
   { key: "readings.deadline_badge", value: "5 días hábiles", section: "readings", label: "Badge de plazo de entrega", type: "text" },
 
   // ── Courses ──
@@ -161,22 +161,22 @@ export const defaultSiteContent: SiteContentItem[] = [
   // ── Espacios ──
   { key: "espacios.subtitle", value: "Nuestros Espacios", section: "espacios", label: "Subtítulo de Espacios", type: "text" },
   { key: "espacios.heading", value: "¿Qué buscás?", section: "espacios", label: "Título de Espacios", type: "text" },
-  { key: "espacios.card1_title", value: "Lecturas Akáshicas", section: "espacios", label: "Card 1 - Título", type: "text" },
-  { key: "espacios.card1_desc", value: "Accedé a los Registros de tu alma. Recibí una lectura personalizada grabada especialmente para vos.", section: "espacios", label: "Card 1 - Descripción", type: "textarea" },
-  { key: "espacios.card1_price", value: "Desde US$20", section: "espacios", label: "Card 1 - Precio", type: "text" },
+  { key: "espacios.card1_title", value: "Lectura de Registros Akáshicos", section: "espacios", label: "Card 1 - Título", type: "text" },
+  { key: "espacios.card1_desc", value: "Traé claridad a los procesos que estás atravesando. Recibí una lectura personalizada grabada especialmente para vos.", section: "espacios", label: "Card 1 - Descripción", type: "textarea" },
+  { key: "espacios.card1_price", value: "$20.000 ARS · US$20", section: "espacios", label: "Card 1 - Precio", type: "text" },
   { key: "espacios.card2_title", value: "Cursos de Formación", section: "espacios", label: "Card 2 - Título", type: "text" },
-  { key: "espacios.card2_desc", value: "Aprendé a conectarte con tus propios Registros Akáshicos. Niveles 1 y 2 con práctica individual.", section: "espacios", label: "Card 2 - Descripción", type: "textarea" },
+  { key: "espacios.card2_desc", value: "Aprendé a conectar con tus propios Registros Akáshicos y el de otras personas. Niveles 1 y 2 con práctica individual.", section: "espacios", label: "Card 2 - Descripción", type: "textarea" },
   { key: "espacios.card2_price", value: "Desde contribución voluntaria", section: "espacios", label: "Card 2 - Precio", type: "text" },
   { key: "espacios.card3_title", value: "Membresías", section: "espacios", label: "Card 3 - Título", type: "text" },
   { key: "espacios.card3_desc", value: "Contenido exclusivo mensual para tu expansión espiritual. Meditaciones, canalizaciones y activaciones.", section: "espacios", label: "Card 3 - Descripción", type: "textarea" },
-  { key: "espacios.card3_price", value: "Desde $5.000 ARS/mes", section: "espacios", label: "Card 3 - Precio", type: "text" },
+  { key: "espacios.card3_price", value: "Desde $5.000 ARS · US$5/mes", section: "espacios", label: "Card 3 - Precio", type: "text" },
   { key: "espacios.card4_title", value: "Cristales", section: "espacios", label: "Card 4 - Título", type: "text" },
-  { key: "espacios.card4_desc", value: "Cristales seleccionados con amor e intención para acompañar tu camino espiritual.", section: "espacios", label: "Card 4 - Descripción", type: "textarea" },
+  { key: "espacios.card4_desc", value: "Guardianes personales de energía. Cristales seleccionados intuitivamente y consagrados para acompañarte como aliados energéticos en tu camino.", section: "espacios", label: "Card 4 - Descripción", type: "textarea" },
   { key: "espacios.card4_price", value: "Solo envío en Argentina", section: "espacios", label: "Card 4 - Precio", type: "text" },
 
   // ── Home Sections ──
   { key: "home.sobre_title", value: "Sobre Fer", section: "home_sections", label: "Título sección Sobre Fer", type: "text" },
-  { key: "home.sobre_bio_1", value: "Soy Fer, guía espiritual y lectora de Registros Akáshicos. Acompaño a personas en su proceso de autoconocimiento y sanación a través de esta herramienta ancestral.", section: "home_sections", label: "Bio de Fer - Párrafo 1", type: "textarea" },
+  { key: "home.sobre_bio_1", value: "Soy Fer Cardozo, Viajera, emprendedora, lectora y terapeuta de Conciencia Akáshica, canalizadora y activadora de la Energía Arcturiana. Acompaño a personas en su proceso de autoconocimiento y sanación a través de esta herramienta ancestral.", section: "home_sections", label: "Bio de Fer - Párrafo 1", type: "textarea" },
   { key: "home.sobre_bio_2", value: "Desde hace años, me dedico a facilitar espacios de conexión con la esencia del alma. Cada lectura y cada curso que ofrezco nace desde un lugar de servicio y profundo respeto por el camino de cada ser.", section: "home_sections", label: "Bio de Fer - Párrafo 2", type: "textarea" },
   { key: "home.sobre_stat_lecturas", value: "500+", section: "home_sections", label: "Stat: Lecturas realizadas", type: "text" },
   { key: "home.sobre_stat_alumnos", value: "200+", section: "home_sections", label: "Stat: Alumnos formados", type: "text" },
