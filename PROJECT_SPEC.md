@@ -1,6 +1,6 @@
 # ETÉR SOMOS - Especificación Completa del Proyecto
 ## (Archivo de referencia CRÍTICO - NO BORRAR)
-## Última actualización: 2026-05-17
+## Última actualización: 2026-06-03
 
 Este documento describe TODO el estado actual, credenciales, estructura y requisitos del sitio web.
 **Siempre consultar antes de hacer cambios.**
@@ -51,8 +51,8 @@ BACKUP de `.env.local` en: `/home/z/my-project/etersomos-backups/2026-04-23/env.
 - Ver también variable `VERCEL_TOKEN` en `.env.local`
 
 ### GitHub PAT
-- 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 (actualizado 17/05/2026)
-- Token anterior: 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 (EXPIRADO)
+- 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 (actualizado 03/06/2026)
+- Token anterior: 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 (EXPIRADO)
 
 ### Resend (Emails)
 - Ver variables `RESEND_API_KEY` y `ADMIN_EMAIL` en `.env.local`
@@ -396,50 +396,61 @@ El admin panel está **en el mismo proyecto** que el sitio público bajo `/admin
 
 ### 1. NAVBAR (fija arriba)
 - Logo + "ETER SOMOS" a la izquierda
-- Links: Inicio | Sesiones | Cursos | Membresía | Recursos (/recursos) | Tienda (/tienda) | Contacto
+- Links: Inicio | Lecturas | Cursos | Mentorías (/mentorias) | Membresías (/membresias) | Recursos (/recursos) | Tienda (/tienda)
 - Icono de Instagram
 - Icono de carrito (ShoppingBag) con badge de cantidad - SIEMPRE visible en navbar
 - NO hay botón flotante de carrito abajo
 - Menu hamburguesa en mobile con Sheet lateral
+- **IMPORTANTE**: Los labels del navbar vienen del CMS (nav.link_sesiones=Lecturas, nav.link_mentorias=Mentorías, nav.link_membresia=Membresías, nav.link_recursos=Recursos)
 
 ### 2. HERO SECTION (#inicio)
 - Imagen de fondo (hero-bg-v2.webp - foto real de Pexels, 5441x3661 → 2560x1440 WebP)
 - Overlay oscuro bg-mystic-950/80
 - Logo circular animado (float) con **opacidad al 85%** (opacity-85)
-- Título: "Eter Somos"
-- Subtítulo sobre Registros Akáshicos
-- 2 botones: "Ver Membresías" (→ #membresias) y "Pedí tu Lectura" (→ /lecturas) con icono BookOpen
-- Indicador de scroll abajo
+- Título: CMS (hero_title, vacío por defecto → usa "Eter Somos" hardcodeado)
+- Tagline: CMS (hero_tagline: "Un espacio para vivir tu espiritualidad de forma cercana, humana y sobre todo desde la consciencia")
+- 2 botones: "Ver servicios" (→ #espacios) y "Pedí tu Lectura" (→ /lecturas) con icono BookOpen
 
-### 3. SOBRE LOS REGISTROS (#sobre)
-- 3 cards: "Qué son", "Cómo funciona", "Beneficios"
+### 3. ESPACIOS (#espacios)
+- 4 cards: Lectura de Registros Akáshicos ($20.000 ARS · US$20), Cursos (contribución voluntaria), Membresías (Desde $5.000 ARS · US$5/mes), Cristales (Solo envío en Argentina)
+- Cada card con icono, título, descripción, precio y link a la sección/página correspondiente
 
-### 4. LECTURAS (#lecturas)
-- Card de "Lectura Akáshica Individual" con features
-- Botón "Solicitar mi Lectura" → link a /lecturas (página dedicada con formulario completo)
-- Precio: $18.000 ARS / US$20
-- Badge de plazo: 5 días hábiles
+### 4. SOBRE FER (#sobre)
+- Foto de Fer Cardozo (public/images/fer-sobre.webp) con overlay violeta
+- Bio: "Soy Fer Cardozo, Viajera, emprendedora, guía espiritual..."
+- 3 stats: 500+ lecturas realizadas, 200+ alumnos, 5 años de experiencia
+- Título CMS: "Fer Cardozo", subtítulo: "Conoce a tu guía"
 
-### 5. MEMBRESÍAS (#membresias)
-- **IMPORTANTE (cambio 23/04)**: Los botones del index NO son de pago directo
-- Cada tarjeta tiene un botón "Suscribirme a [nombre]" → redirige a `/membresias`
-- Fondo: membresias-bg.webp (foto de nebulosa de Unsplash, 3840x2160 → 2560x1440 WebP)
-- Overlay: bg-mystic-950/80
-- 3 tarjetas con emojis personalizados (PNG, NO Unicode):
-  - Raíz de Luz: /images/membresia-emoji-1.png ($5.000 AR / $5 USD) — 2 envíos mensuales
-  - Corazón Solar: /images/membresia-emoji-2.png ($10.000 AR / $8 USD) — 3 envíos mensuales — Badge "Más Popular"
-  - Puente Estelar: /images/membresia-emoji-3.png ($15.000 AR / $12 USD) — 4 envíos mensuales (semanal)
-- Botones estética mystic: bg-foreground para sólido, variant="outline" para secundario
+### 5. TESTIMONIOS
+- 3 cards con nombre, ubicación, testimonio, rating estrellas
+- Datos CMS-driven (testimonials.section)
 
-### 6. PÁGINA /membresías (DISEÑO DEDICADO)
-- **Fondo**: membresias-bg.webp (mismo que la sección del index) con overlay mystic-950/80
+### 6. FAQ
+- Accordion con 6 preguntas frecuentes
+- Datos CMS-driven (faq.section)
+- Items: ¿Qué son los Registros Akáshicos?, ¿Cómo funciona una lectura?, ¿Es confidencial?, ¿Qué cursos ofrecen?, ¿Qué incluyen las membresías?, ¿Envíos de cristales?
+
+### 7. FOOTER (#contacto)
+- Links de navegación, Instagram, Copyright
+- Email de contacto: etersomos@gmail.com
+- WhatsApp: +54 9 3518 62-9325
+- Disclaimer legal
+
+### 8. BOTÓN "VOLVER ARRIBA"
+- Flecha ArrowUp fija abajo a la derecha
+- Solo se muestra al hacer scroll
+
+### PÁGINAS SEPARADAS (no están en la homepage):
+
+### /membresías (DISEÑO DEDICADO)
+- **Fondo**: membresias-bg.webp con overlay mystic-950/80
 - **Estrellas animadas** (twinkle) en el hero
 - **Sección "Cómo suscribirte"** con 4 pasos:
   1. Elegí la membresía (Star)
   2. Dejá tu correo (Mail) - completar formulario de inscripción
   3. Suscribite (CreditCard) - MercadoPago o PayPal
   4. ¡Listo! (Check)
-- **Tarjetas de membresía** (mismo diseño que index, con collapsible):
+- **Tarjetas de membresía** (con collapsible):
   - Emojis personalizados (mismos PNG que index)
   - Badge de frecuencia centrado (flex justify-center)
   - **FLUJO**: Primero formulario, después botones de pago:
@@ -452,7 +463,7 @@ El admin panel está **en el mismo proyecto** que el sitio público bajo `/admin
 - **Contacto**: Email (etersomos@gmail.com) + WhatsApp (+54 9 3518 62-9325)
 - **Layout propio** (layout.tsx): header con "Volver al inicio" + footer
 
-### 7. CURSOS (#cursos)
+### /cursos (#cursos)
 Grid 2x2 en desktop, 1 columna en mobile:
 
 | ID | Nombre | Precio ARS | Precio USD | Badge | Link |
@@ -466,7 +477,7 @@ IMPORTANTE: Cada card lleva a su página dedicada con formulario completo de ins
 Los links de pago que estaban en los formularios originales de Google NO se usan.
 TODOS los pagos pasan por la pasarela del sitio web (MercadoPago o PayPal).
 
-### 8. CRISTALES / TIENDA (/tienda — PÁGINA SEPARADA desde sesión 8)
+### /tienda (TIENDA DE CRISTALES — PÁGINA SEPARADA desde sesión 8)
 - Página propia en /tienda (NO está en la página principal)
 - Fondo: crystals-banner.webp (imagen cósmica oscura, 4000x2251 → 2560x1440 WebP, oscurecida)
 - Filtros por categoría (Todos, Amatista, Cuarzo Rosa, etc.)
@@ -476,26 +487,29 @@ TODOS los pagos pasan por la pasarela del sitio web (MercadoPago o PayPal).
 - **Solo MercadoPago** (producto físico, sin PayPal)
 - Navbar propio + footer con "Volver al inicio"
 
-### 9. RECURSOS GRATUITOS (/recursos — PÁGINA SEPARADA desde sesión 8)
+### /recursos (RECURSOS GRATUITOS — PÁGINA SEPARADA desde sesión 8)
 - Página propia en /recursos (NO está en la página principal)
 - Formulario de newsletter (email + suscribirme)
 - Backend real de newsletter: POST /api/newsletter/subscribe → DB + email admin
 - Grid de recursos gratuitos cargados desde la DB (tabla Resource, active=1)
 - Cada recurso muestra título, descripción, tipo de archivo, botón de descarga
+- **Modelo de contribución voluntaria**: Recursos gratuitos + links opcionales de MP/PayPal para contribuir
+- ProtectedPlayer para video/audio (anti-descarga)
+- Navbar propio con links correctos (Inicio, Lecturas, Cursos, Mentorías, Membresías, Recursos, Tienda) + footer
 - API: GET /api/resources?public=true
 - Descarga: GET /api/resources/download?key=... (stream desde R2)
-- Navbar propio + footer con "Volver al inicio"
 
-### 10. TESTIMONIOS
-- 3 cards con nombre, ubicación, testimonio, rating estrellas
-
-### 11. FOOTER
-- Links de navegación, Instagram, Copyright
-- Email de contacto: etersomos@gmail.com
-
-### 12. BOTÓN "VOLVER ARRIBA"
-- Flecha ArrowUp fija abajo a la derecha
-- Solo se muestra al hacer scroll
+### /mentorias (MENTORÍAS — PÁGINA DEDICADA, agregada sesión 21)
+- Título: "Mentorías para Lectores de Registros Akáshicos"
+- Badge: "MENTORÍAS"
+- Info cards: Videollamada 1:1 · 2 horas · Semanal
+- Para graduados de Nivel 1 y Nivel 2
+- **Precios**: Sesión individual $20.000 ARS / Pack 3+ sesiones $15.000 ARS/sesión
+- Acuerdo/condiciones (collapsible) con checkbox de aceptación
+- Formulario de inscripción: email, nombre, nacionalidad, ciudad, teléfono, nivel completado, cantidad de encuentros, motivo, disponibilidad horaria, cómo te enteraste, método de pago
+- Métodos de pago: MercadoPago, Transferencia bancaria (Brubank), PayPal, Western Union
+- Soporte de form pause via /api/settings
+- Navbar propio + footer
 
 ---
 
@@ -519,7 +533,13 @@ TODOS los pagos pasan por la pasarela del sitio web (MercadoPago o PayPal).
 - Ambos Cursos (1er + 2do Nivel) — $70.000 ARS / US$55 (~25 campos)
 
 ### /lecturas
-- Lectura Akáshica Individual — $18.000 ARS / US$20 (~21 campos)
+- Lectura Akáshica Individual — $20.000 ARS / US$20 (~21 campos)
+
+### /mentorias
+- Mentorías para Lectores de Registros Akáshicos
+- Sesión individual $20.000 ARS / Pack 3+ sesiones $15.000 ARS/sesión
+- Formulario completo con aceptación de condiciones
+- Métodos de pago: MercadoPago, Transferencia bancaria, PayPal, Western Union
 
 ---
 
@@ -545,7 +565,9 @@ TODOS los pagos pasan por la pasarela del sitio web (MercadoPago o PayPal).
 ### Servicios
 | Servicio | Precio ARS | Precio USD |
 |----------|-----------|-----------|
-| Lectura Akáshica | $18.000 | $20 |
+| Lectura Akáshica | $20.000 | $20 |
+| Mentoría Individual | $20.000 | — |
+| Mentoría Pack (3+) | $15.000/sesión | — |
 | N1 Solo Teórico | Voluntario | Voluntario |
 | N1 con Práctica | $35.000 | $30 |
 | N2 Completo | $45.000 | $45 |
@@ -617,6 +639,8 @@ TODOS los pagos pasan por la pasarela del sitio web (MercadoPago o PayPal).
 | hero-bg-v2.webp | public/ | Pexels (galaxia, 5441x3661) | 2560x1440 WebP |
 | membresias-bg.webp | public/ | Unsplash (nebulosa, 3840x2160) | 2560x1440 WebP |
 | crystals-banner.webp | public/ | Dark cosmic (4000x2251), oscurecida | 2560x1440 WebP |
+| akashic-bg.png | public/images/ | Fondo lecturas/cursos | — |
+| fer-sobre.webp | public/images/ | Foto de Fer (800x1066), brillo -12%, tinte violeta 15% | — |
 
 ### Emojis personalizados de membresías:
 | Archivo | Membresía | Notas |
@@ -637,8 +661,10 @@ TODOS los pagos pasan por la pasarela del sitio web (MercadoPago o PayPal).
 - src/app/page.tsx - Página principal (~3000 líneas, sin Tienda ni Recursos desde sesión 8)
 - src/app/tienda/page.tsx - Página tienda de cristales (carrito, checkout, filtros)
 - src/app/tienda/layout.tsx - Layout de tienda (metadata)
-- src/app/recursos/page.tsx - Página recursos gratuitos (newsletter)
+- src/app/recursos/page.tsx - Página recursos gratuitos (newsletter, contribución voluntaria)
 - src/app/recursos/layout.tsx - Layout de recursos (metadata)
+- src/app/mentorias/page.tsx - Página Mentorías para Lectores de Registros Akáshicos (formulario)
+- src/app/mentorias/layout.tsx - Layout de mentorías (metadata)
 - src/app/admin/page.tsx - Panel admin completo (~2700 líneas): stats, kanban, form toggles, recursos
 - src/app/membresias/page.tsx - Página dedicada de membresías con formulario
 - src/app/membresias/layout.tsx - Layout de membresías (header volver + footer)
@@ -650,7 +676,7 @@ TODOS los pagos pasan por la pasarela del sitio web (MercadoPago o PayPal).
 - src/app/cursos/n1-practica/page.tsx - Formulario N1 con Práctica
 - src/app/cursos/n2/page.tsx - Formulario N2 Completo
 - src/app/cursos/ambos/page.tsx - Formulario Ambos Cursos
-- src/app/layout.tsx - Layout raíz con fuentes Playfair + Josefin
+- src/app/layout.tsx - Layout raíz con fuentes Playfair + Josefin + SiteContentProvider
 
 ### APIs - Auth
 - src/app/api/auth/login/route.ts - POST login admin (valida password, devuelve Bearer token)
@@ -693,11 +719,20 @@ TODOS los pagos pasan por la pasarela del sitio web (MercadoPago o PayPal).
 - src/lib/paypal.ts - Funciones PayPal REST API (mantenido por compatibilidad, no se usa activamente)
 - src/lib/mercadopago.ts - Funciones MercadoPago
 - src/lib/notifications.ts - Notificaciones
+- src/lib/cms-defaults.ts - Valores por defecto del CMS (34+ campos en 16 secciones)
+- src/lib/cms-helpers.ts - Funciones helper para CMS (fetchCmsContent, cmsValue, cmsJson, cmsNumber)
+- src/lib/resource-payment.ts - Funciones de pago para recursos
 - src/middleware.ts - Middleware de seguridad (auth Bearer + security headers)
 
 ### Componentes
 - src/components/form-paused-banner.tsx - Banner reutilizable para formularios pausados
+- src/components/protected-player.tsx - Reproductor de video/audio protegido contra descarga (ProtectedVideoPlayer + ProtectedAudioPlayer)
 - src/components/ui/* - Componentes shadcn/ui (tabs, card, badge, button, input, etc.)
+
+### Hooks
+- src/hooks/use-site-content.ts - Hook React para CMS (SiteContentProvider, getValue, getJson, auto-refresh cross-tab/focus/visibility)
+- src/hooks/use-toast.ts - Hook de toasts
+- src/hooks/use-mobile.ts - Hook para detección mobile
 
 ### Configuración
 - prisma/schema.prisma - Schema Prisma (ReadingBooking, Membership, CrystalOrder) — NO tiene Settings model
@@ -958,14 +993,15 @@ TODOS los pagos pasan por la pasarela del sitio web (MercadoPago o PayPal).
 
 ## BACKUPS
 
-### Backup más reciente (17/05/2026):
-- **Código + DB + env (session18-s2)**: /home/z/my-project/download/backup-etersomos-20260517-s2/ (3.3MB)
-- **Código + DB + env (session18-s1)**: /home/z/my-project/download/backup-etersomos-20260517/ (3.3MB)
-- **Código (session17)**: /home/z/my-project/download/etersomos-backup-session17.tar.gz (3.2MB)
-- **Código (session16)**: /home/z/my-project/download/etersomos-backup-20260514-v2.tar.gz (185MB)
-- **GitHub**: https://github.com/gpaulero/etersomos (repo privado, main branch)
-- **DB Turso**: en cada backup hay un turso-db-dump.sql actualizado
-- **Env vars**: en cada backup hay env.local.backup + vercel-env-vars.json
+### Backup más reciente (03/06/2026):
+- **Código + env + git info**: /home/z/my-project/download/backup-etersomos-20260603/ (3.3MB)
+- **GitHub**: https://github.com/gpaulero/etersomos (repo privado, main branch, commit 170d48a)
+
+### Backups anteriores:
+- **29/05/2026**: /home/z/my-project/download/backup-etersomos-20260529/
+- **17/05/2026 (session18-s2)**: /home/z/my-project/download/backup-etersomos-20260517-s2/
+- **17/05/2026 (session18-s1)**: /home/z/my-project/download/backup-etersomos-20260517/
+- **17/05/2026 (session17)**: /home/z/my-project/download/etersomos-backup-session17.tar.gz
 
 ### Crear nuevo backup manual:
 ```bash
@@ -1001,13 +1037,14 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 6. Dominio custom para el sitio (etersomos.com u otro)
 7. Notificaciones WhatsApp mejoradas (CallMeBot/Meta API)
 8. Google Business Profile (gratuito, ayuda al SEO local)
-9. ~~Configurar Cloudflare R2 para storage de archivos~~ — HECHO (sesión 18, 17/05/2026)
+9. ~~Configurar Cloudflare R2 para storage de archivos~~ — HECHO (sesión 18)
 10. Página de política de privacidad y términos
 11. Testimonios reales (reemplazar placeholders actuales)
 12. Ajuste de precios a rango de mercado
 13. Google Analytics / Search Console
-14. ~~Construir página /recursos (lead magnet con meditaciones + PDFs)~~ — HECHO (sesión 18, 17/05/2026)
+14. ~~Construir página /recursos~~ — HECHO (sesión 18)
 15. Obtener token de Vercel con acceso al proyecto original (etersomos-gpauleros-projects.vercel.app) si se necesita
+16. Verificar que todos los cambios del CMS persisten correctamente en producción (bug de sesión 24)
 
 ---
 
@@ -1015,13 +1052,14 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 - Cristales se pagan SOLO con MercadoPago (producto físico, solo Argentina). No hay botón de PayPal.
 - Membresías usan links directos de suscripción de MP y PayPal (no pasan por API propia).
 - Cursos y lecturas pueden pagarse con MercadoPago o PayPal.me personal (paypal.me/registrosakashicos9).
+- Mentorías se pagan con MercadoPago, Transferencia bancaria (Brubank), PayPal o Western Union.
 - El admin panel se accede en `/admin` con contraseña `eter2024admin` (o triple-click en logo del Eter).
 - Los formularios de cursos y lecturas guardan en localStorage antes del pago.
 - Después del pago, se guarda en DB y se envían emails.
 - data/settings.json ya NO se usa — todo se guarda en DB Turso (tabla Settings con key/value).
-- La tabla Settings se crea automáticamente en ensureSchema() — no requiere migración manual.
+- **CMS IMPORTANTE**: Los cambios en código (defaults) se ven un segundo y luego se revierten si la DB tiene valores viejos. Para cambios persistentes: actualizar BOTH cms-defaults.ts AND la DB via API bulk (PUT /api/cms/content/bulk).
 - El sitio usa fuentes: Playfair Display + Josefin Sans
-- Tema oscuro mystic con acentos dorados (gold-400)
+- Tema oscuro mystic con acentos dorados (gold-400) y violetas (violet-400)
 - El nombre correcto es "Eter Somos" (con espacio), NO "EterSomos"
 - Siempre que se necesite forzar deploy: usar API de Vercel POST /v13/deployments con gitSource y repoId: 1217270869
 - Los fondos usan fotos REALES de alta resolución (Pexels/Unsplash), NO imágenes generadas por IA
@@ -1029,6 +1067,10 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 - Los estados de órdenes se normalizan al cargar: "pagado" → "pendiente"/"inscrito" según el tipo
 - El drag & drop del Kanban usa HTML5 Drag API nativo (sin librerías externas)
 - Los CSV de contactos se deduplican por email y exportan la entrada más reciente
+- Recursos usan modelo de contribución voluntaria: todos gratuitos, con links opcionales de MP/PayPal
+- ProtectedPlayer protege video/audio contra descarga (Blob URL, controlsList="nodownload", etc.)
+- SiteContentProvider en layout.tsx provee CMS a toda la app con auto-refresh cross-tab/focus/visibility
+- Commit actual: 170d48a
 
 ### SESIÓN 19 (17/05/2026 — Revisión completa del sistema + Fix CMS revalidation)
 
@@ -1175,3 +1217,50 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
    - `39d038a` — feat: voluntary contribution model - remove payment gate, all resources free + optional MP/PayPal contribution
    - `c7a5f2f` — fix: admin revalidation bug - add revalidatePath + dynamic=force-dynamic to settings API, cache-busting on all settings fetches, fix CMS seed revalidation
    - `90412b2` — fix: critical security + revalidation + MP webhook + resource email template
+
+### SESIÓN 21 (29/05/2026 — Restauración baseline + Mentorías + Expansión)
+1. **Restauración a baseline limpia (16/05)**: git reset --hard a commit base pre-carrusel
+2. **Cherry-pick de páginas**: Mentorías (/mentorias) y Expansión restauradas con selectividad
+3. **Página /mentorias creada**: Formulario de inscripción para mentorías 1:1
+   - Badge "MENTORÍAS", info cards (Videollamada 1:1, 2 horas, Semanal)
+   - Dos precios: Sesión individual $20.000 ARS / Pack 3+ $15.000 ARS/sesión
+   - Acuerdo/condiciones con checkbox de aceptación
+   - Formulario completo: ~15 campos + método de pago
+   - Layout propio: src/app/mentorias/page.tsx + layout.tsx
+4. **Página /recursos renombrada** de "Expansión" a "Recursos" en navbar
+5. **Backup creado**: /home/z/my-project/download/backup-etersomos-20260529/
+
+### SESIÓN 22 (29/05/2026 — Múltiples cambios de contenido y estructura)
+1. **Navbar**: "Sesiones" → "Lecturas", "Membresía" → "Membresías", "Expansión" → "Recursos"
+2. **Hero**: Título y subtítulo vacíos en CMS (usan fallback hardcodeado), tagline actualizado
+3. **Espacios**: Card 1 "Lectura de Registros Akáshicos" (no "Lecturas Akáshicas"), precio $20.000 ARS · US$20
+4. **Sobre Fer**: Título "Fer Cardozo", bio completa con "Viajera, emprendedora, guía espiritual..."
+5. **FAQ**: Textos corregidos (Akasha, esencia no alma, Nivel 1 con Práctica)
+6. **Membresías**: Precio Raíz de Luz confirmado US$5
+7. **Mentorías**: Título en color blanco (unificado con otras secciones)
+8. **Commit**: `2b9aa18` — feat: múltiples cambios de contenido, colores y estructura
+
+### SESIÓN 23 (29/05/2026 — CMS defaults + navLinks fix)
+1. **cms-defaults.ts actualizado**: Valores sincronizados con textos correctos del sitio
+   - hero_title: "" (vacío para usar fallback), hero_subtitle: ""
+   - nav.link_sesiones: "Lecturas" (era "Sesiones")
+   - nav.link_membresia: "Membresías" (era "Membresía")
+   - nav.link_recursos: "Recursos" (era "Expansión")
+   - espacios.card1_title: "Lectura de Registros Akáshicos"
+   - espacios.card1_price: "$20.000 ARS · US$20"
+   - sobre_bio con Fer Cardozo completo
+   - FAQ items corregidos
+2. **navLinks en Recursos page**: Corregidos labels y URLs (quitado "Sesiones", "Expansión", "Membresía" sin í)
+3. **Mentorías**: Color del título cambiado de violet-400 a white
+4. **Commit**: `aea52e1` — fix: sincronizar CMS defaults con textos actualizados
+
+### SESIÓN 24 (03/06/2026 — CMS revert bug fix + PROJECT_SPEC update)
+1. **BUG CRÍTICO — "Los cambios se ven un segundo y vuelven al estado anterior"**:
+   - Causa raíz: El CMS carga valores desde la DB (Turso) que sobreescriben los defaults del código
+   - Al cargar la página, React renderiza primero con defaults del código → luego el CMS fetch reemplaza con valores de la DB
+   - Solución: Actualizar CMS defaults en cms-defaults.ts + actualizar valores en DB via API bulk
+   - Valores corregidos en DB: hero_title/subtitle, nav links, espacios card1, sobre_bio, FAQ items
+2. **GitHub PAT actualizado**: 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 (token anterior expirado)
+3. **Commit**: `170d48a` — fix: corregir CMS defaults y fallbacks - cambios ya no se revierten
+4. **PROJECT_SPEC.md actualizado** con sesiones 21-24, navbar actualizado, /mentorias documentado, precios actualizados
+5. **Backup creado**: /home/z/my-project/download/backup-etersomos-20260603/
