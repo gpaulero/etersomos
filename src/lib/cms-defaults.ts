@@ -108,8 +108,8 @@ const defaultMembershipTiers = [
 /* ── All default CMS items ── */
 export const defaultSiteContent: SiteContentItem[] = [
   // ── Site (general) ──
-  { key: "site.hero_title", value: "Eter Somos", section: "site", label: "Título principal del Hero", type: "text" },
-  { key: "site.hero_subtitle", value: "Registros Akáshicos · Lecturas · Cursos", section: "site", label: "Subtítulo del Hero", type: "text" },
+  { key: "site.hero_title", value: "", section: "site", label: "Título principal del Hero", type: "text" },
+  { key: "site.hero_subtitle", value: "", section: "site", label: "Subtítulo del Hero", type: "text" },
   { key: "site.hero_tagline", value: "Un espacio para vivir tu espiritualidad de forma cercana, humana y sobre todo desde la consciencia", section: "site", label: "Tagline del Hero", type: "text" },
   { key: "site.contact_email", value: "etersomos@gmail.com", section: "site", label: "Email de contacto", type: "text" },
   { key: "site.contact_whatsapp", value: "+54 9 3518 62-9325", section: "site", label: "WhatsApp (display)", type: "text" },
@@ -175,7 +175,7 @@ export const defaultSiteContent: SiteContentItem[] = [
   { key: "espacios.card4_price", value: "Solo envío en Argentina", section: "espacios", label: "Card 4 - Precio", type: "text" },
 
   // ── Home Sections ──
-  { key: "home.sobre_title", value: "Sobre Fer", section: "home_sections", label: "Título sección Sobre Fer", type: "text" },
+  { key: "home.sobre_title", value: "Fer Cardozo", section: "home_sections", label: "Título sección Sobre Fer", type: "text" },
   { key: "home.sobre_bio_1", value: "Soy Fer Cardozo, Viajera, emprendedora, lectora y terapeuta de Conciencia Akáshica, canalizadora y activadora de la Energía Arcturiana. Acompaño a personas en su proceso de autoconocimiento y sanación a través de esta herramienta ancestral.", section: "home_sections", label: "Bio de Fer - Párrafo 1", type: "textarea" },
   { key: "home.sobre_bio_2", value: "Desde hace años, me dedico a facilitar espacios de conexión con la esencia del alma. Cada lectura y cada curso que ofrezco nace desde un lugar de servicio y profundo respeto por el camino de cada ser.", section: "home_sections", label: "Bio de Fer - Párrafo 2", type: "textarea" },
   { key: "home.sobre_stat_lecturas", value: "500+", section: "home_sections", label: "Stat: Lecturas realizadas", type: "text" },

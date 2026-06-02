@@ -200,7 +200,7 @@ const navLinksData = [
   { label: "Cursos", href: "/cursos", cmsKey: 'nav.link_cursos' },
   { label: "Mentorías", href: "/mentorias", cmsKey: 'nav.link_mentorias' },
   { label: "Membresías", href: "/membresias", cmsKey: 'nav.link_membresia' },
-  { label: "Expansión", href: "/recursos", cmsKey: 'nav.link_recursos' },
+  { label: "Recursos", href: "/recursos", cmsKey: 'nav.link_recursos' },
   { label: "Tienda", href: "/tienda", cmsKey: 'nav.link_tienda' },
 ];
 
@@ -410,7 +410,7 @@ export default function Home() {
   const navLinkCursos = cmsValue(cmsMap, 'nav.link_cursos', 'Cursos');
   const navLinkMentorias = cmsValue(cmsMap, 'nav.link_mentorias', 'Mentorías');
   const navLinkMembresia = cmsValue(cmsMap, 'nav.link_membresia', 'Membresías');
-  const navLinkRecursos = cmsValue(cmsMap, 'nav.link_recursos', 'Expansión');
+  const navLinkRecursos = cmsValue(cmsMap, 'nav.link_recursos', 'Recursos');
   const navLinkTienda = cmsValue(cmsMap, 'nav.link_tienda', 'Tienda');
 
   // Hero buttons

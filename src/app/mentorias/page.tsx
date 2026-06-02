@@ -274,7 +274,7 @@ export default function MentoriasPage() {
       {/* ── Title ── */}
       <div className="text-center space-y-3">
         <Badge variant="secondary">MENTORÍAS</Badge>
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-violet-400 leading-snug">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-white leading-snug">
           Mentorías para Lectores de Registros Akáshicos
         </h1>
         <p className="text-foreground/50 font-serif italic max-w-lg mx-auto">
