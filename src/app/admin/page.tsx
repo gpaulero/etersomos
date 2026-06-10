@@ -639,16 +639,17 @@ function KanbanColumn({
             Sin registros
           </div>
         ) : (
-          items.map((item) => {
+          items.map((item, index) => {
             const isDragging = draggedId === item.id;
-            const isUpdating = updatingId === item.id;
+            const isUpdating = updatingId !== null && updatingId === item.id;
             const isOpen = expandedRows.has(item.id);
 
             return (
               <div
-                key={item.id}
+                key={item.id || `item-${index}`}
                 draggable
                 onDragStart={(e) => {
+                  if (!item.id) { e.preventDefault(); return; }
                   setDraggedId(item.id);
                   e.dataTransfer.effectAllowed = "move";
                   e.dataTransfer.setData("text/plain", item.id);

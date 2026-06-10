@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 import { createClient, type Client } from '@libsql/client'
+import { randomUUID } from 'crypto'
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
@@ -196,7 +197,11 @@ function createModelProxy(client: Client, tableName: string) {
 
       if (prop === 'create') {
         return async (args: { data: Record<string, unknown> }) => {
-          const data = args.data
+          const data = { ...args.data }
+          // Auto-generate id if not provided (Prisma @default(cuid()) / @default(uuid()))
+          if (!data.id) {
+            data.id = generateId()
+          }
           const cols = Object.keys(data)
           const placeholders = cols.map(() => '?').join(', ')
           const values = cols.map(k => {
@@ -210,16 +215,13 @@ function createModelProxy(client: Client, tableName: string) {
           const sql = `INSERT INTO ${tableName} (${cols.join(', ')}) VALUES (${placeholders})`
           await client.execute({ sql, args: values })
 
-          // Return the created record
-          const id = data.id
-          if (id) {
-            const result = await client.execute({
-              sql: `SELECT * FROM ${tableName} WHERE id = ?`,
-              args: [id as string]
-            })
-            return result.rows.length > 0 ? mapRowToJs(result.rows[0]) : data
-          }
-          return data
+          // Return the created record with the generated id
+          const id = data.id as string
+          const result = await client.execute({
+            sql: `SELECT * FROM ${tableName} WHERE id = ?`,
+            args: [id]
+          })
+          return result.rows.length > 0 ? mapRowToJs(result.rows[0]) : data
         }
       }
 
@@ -370,6 +372,18 @@ function createSiteContentProxy(client: Client) {
       return mapRowToJs((await client.execute({ sql: `SELECT * FROM SiteContent WHERE key = ?`, args: [args.where.key] })).rows[0])
     },
   }
+}
+
+/**
+ * Generate a unique ID compatible with Prisma's @default(cuid()).
+ * Uses a format similar to cuid2: lowercase alphanumeric, 25 chars.
+ */
+function generateId(): string {
+  // Use crypto.randomUUID() as base (already available in Node.js 19+ / Vercel)
+  // Format: remove hyphens and add a short prefix like Prisma cuid does
+  const uuid = randomUUID().replace(/-/g, '')
+  // Prisma cuid2 format: 25 chars, lowercase + digits
+  return `cl${uuid.substring(0, 23)}`
 }
 
 /** Map a libSQL row (which may have Buffer values) to a plain JS object. */
