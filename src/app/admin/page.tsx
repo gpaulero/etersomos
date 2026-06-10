@@ -3180,7 +3180,7 @@ export default function AdminPage() {
                                   <SelectContent>
                                     {courseOptions.map((c) => (
                                       <SelectItem key={c.id} value={c.id}>{c.label}</SelectItem>
-                                    }))}
+                                    ))}
                                   </SelectContent>
                                 </Select>
                               ) : (
