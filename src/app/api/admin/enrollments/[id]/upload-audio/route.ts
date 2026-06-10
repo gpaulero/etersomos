@@ -35,7 +35,8 @@ export async function POST(
 /**
  * PUT /api/admin/enrollments/[id]/upload-audio
  * Step 2 (after file upload to R2): Update the enrollment with r2Key + fileName
- * Body: { r2Key, fileName }
+ * Also accepts expiresAt to set/update expiration date
+ * Body: { r2Key, fileName, expiresAt? }
  */
 export async function PUT(
   request: NextRequest,
@@ -43,21 +44,23 @@ export async function PUT(
 ) {
   try {
     const { id: enrollmentId } = await params
-    const { r2Key, fileName } = await request.json()
+    const { r2Key, fileName, expiresAt } = await request.json()
 
-    if (!r2Key) {
-      return NextResponse.json({ error: 'r2Key es requerido' }, { status: 400 })
+    if (!r2Key && !expiresAt) {
+      return NextResponse.json({ error: 'r2Key o expiresAt es requerido' }, { status: 400 })
     }
 
     const { db } = await import('@/lib/db')
     await ensureSchema()
 
+    const data: Record<string, unknown> = {}
+    if (r2Key) data.r2Key = r2Key
+    if (fileName) data.fileName = fileName
+    if (expiresAt !== undefined) data.expiresAt = expiresAt || null
+
     const enrollment = await (db as any).studentEnrollment.update({
       where: { id: enrollmentId },
-      data: {
-        r2Key,
-        fileName: fileName || '',
-      }
+      data,
     })
 
     return NextResponse.json({ success: true, enrollment })

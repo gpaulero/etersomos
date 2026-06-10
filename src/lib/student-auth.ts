@@ -123,6 +123,7 @@ export async function createEnrollment(data: {
   notes?: string
   r2Key?: string
   fileName?: string
+  expiresAt?: string | null
 }) {
   await ensureSchema()
   const id = `enr_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
@@ -138,6 +139,7 @@ export async function createEnrollment(data: {
       notes: data.notes || null,
       r2Key: data.r2Key || '',
       fileName: data.fileName || '',
+      expiresAt: data.expiresAt || null,
     }
   })
 }

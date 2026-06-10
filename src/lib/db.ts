@@ -577,6 +577,7 @@ export async function ensureSchema() {
         notes        TEXT,
         r2Key        TEXT NOT NULL DEFAULT '',
         fileName     TEXT NOT NULL DEFAULT '',
+        expiresAt    TEXT,
         createdAt    TEXT NOT NULL DEFAULT (datetime('now')),
         updatedAt    TEXT NOT NULL DEFAULT (datetime('now'))
       )
@@ -633,11 +634,37 @@ export async function ensureSchema() {
           console.warn("[DB] Could not add fileName column:", msg)
         }
       }
+      // Add expiresAt column to StudentEnrollment if missing (for lectura expiration)
+      try {
+        await client.execute(`ALTER TABLE StudentEnrollment ADD COLUMN expiresAt TEXT`)
+        console.log("[DB] Added expiresAt column to StudentEnrollment")
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : String(e)
+        if (!msg.includes('duplicate column') && !msg.includes('already exists')) {
+          console.warn("[DB] Could not add expiresAt column:", msg)
+        }
+      }
     } else {
       await prisma.$executeRawUnsafe(siteContentSql)
       await prisma.$executeRawUnsafe(studentSql)
       await prisma.$executeRawUnsafe(studentEnrollmentSql)
       await prisma.$executeRawUnsafe(courseContentSql)
+      // Add r2Key, fileName, expiresAt columns to StudentEnrollment if missing (existing local DBs)
+      for (const col of [
+        { name: 'r2Key', sql: `ALTER TABLE StudentEnrollment ADD COLUMN r2Key TEXT NOT NULL DEFAULT ''` },
+        { name: 'fileName', sql: `ALTER TABLE StudentEnrollment ADD COLUMN fileName TEXT NOT NULL DEFAULT ''` },
+        { name: 'expiresAt', sql: `ALTER TABLE StudentEnrollment ADD COLUMN expiresAt TEXT` },
+      ]) {
+        try {
+          await prisma.$executeRawUnsafe(col.sql)
+          console.log(`[DB] Added ${col.name} column to StudentEnrollment`)
+        } catch (e: unknown) {
+          const msg = e instanceof Error ? e.message : String(e)
+          if (!msg.includes('duplicate column') && !msg.includes('already exists')) {
+            console.warn(`[DB] Could not add ${col.name} column:`, msg)
+          }
+        }
+      }
     }
     console.log("[DB] Schema ensured: all tables ready (including Student, StudentEnrollment, CourseContent)")
   } catch (err) {

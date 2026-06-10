@@ -43,11 +43,18 @@ export async function GET(request: NextRequest) {
     if (key.startsWith('lecturas/')) {
       // For lecturas: verify the student has an enrollment with this r2Key
       const allEnrollments = await (db as any).studentEnrollment.findMany({
-        where: { studentId: payload.id }
+        where: { studentId: payload.id, type: 'lectura' }
       })
-      const ownsLectura = allEnrollments.some((e: any) => e.r2Key === key)
-      if (!ownsLectura) {
+      const enrollment = allEnrollments.find((e: any) => e.r2Key === key)
+      if (!enrollment) {
         return NextResponse.json({ error: 'No tenés acceso a esta lectura' }, { status: 403 })
+      }
+      // Check expiration
+      if (enrollment.expiresAt) {
+        const expiresAt = new Date(enrollment.expiresAt)
+        if (expiresAt.getTime() < Date.now()) {
+          return NextResponse.json({ error: 'Esta lectura ha expirado y ya no está disponible' }, { status: 410 })
+        }
       }
     } else {
       // For cursos: find the CourseContent item by r2Key and verify enrollment

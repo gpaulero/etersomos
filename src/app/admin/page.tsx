@@ -600,7 +600,7 @@ export default function AdminPage() {
   const [newStudentForm, setNewStudentForm] = useState({ email: "", nombre: "", phone: "", password: "" });
   const [selectedStudent, setSelectedStudent] = useState<any | null>(null);
   const [studentEnrollments, setStudentEnrollments] = useState<any[]>([]);
-  const [enrollmentForm, setEnrollmentForm] = useState({ type: "curso", title: "", referenceId: "", notes: "" });
+  const [enrollmentForm, setEnrollmentForm] = useState({ type: "curso", title: "", referenceId: "", notes: "", expiresAt: "" });
   const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
   const [lecturaAudioFile, setLecturaAudioFile] = useState<File | null>(null);
   const [uploadingLecturaAudio, setUploadingLecturaAudio] = useState(false);
@@ -1033,7 +1033,7 @@ export default function AdminPage() {
       }
 
       toast.success(`${enrollmentForm.type} "${enrollmentForm.title}" asignado${r2Key ? " con audio" : ""}`);
-      setEnrollmentForm({ type: "curso", title: "", referenceId: "", notes: "" });
+      setEnrollmentForm({ type: "curso", title: "", referenceId: "", notes: "", expiresAt: "" });
       setLecturaAudioFile(null);
       handleSelectStudent(selectedStudent);
     } catch {
@@ -1105,6 +1105,40 @@ export default function AdminPage() {
       }
     } catch {
       toast.error("Error al eliminar audio");
+    }
+  };
+
+  const handleCleanupExpiredLecturas = async () => {
+    if (!confirm("¿Limpiar lecturas expiradas? Esto eliminará los audios de Cloudflare para las lecturas vencidas.")) return;
+    try {
+      const res = await authFetch("/api/admin/cleanup-lecturas", { method: "POST" });
+      if (res.ok) {
+        const data = await res.json();
+        toast.success(`${data.cleaned} lecturas expiradas limpiadas${data.errors > 0 ? ` (${data.errors} errores)` : ""}`);
+        if (selectedStudent) handleSelectStudent(selectedStudent);
+      } else {
+        toast.error("Error al limpiar lecturas expiradas");
+      }
+    } catch {
+      toast.error("Error al limpiar lecturas expiradas");
+    }
+  };
+
+  const handleUpdateEnrollmentExpiration = async (enrollmentId: string, expiresAt: string) => {
+    try {
+      const res = await authFetch(`/api/admin/enrollments/${enrollmentId}/upload-audio`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ expiresAt }),
+      });
+      if (res.ok) {
+        toast.success("Fecha de expiración actualizada");
+        if (selectedStudent) handleSelectStudent(selectedStudent);
+      } else {
+        toast.error("Error al actualizar expiración");
+      }
+    } catch {
+      toast.error("Error al actualizar expiración");
     }
   };
 
@@ -2987,6 +3021,18 @@ export default function AdminPage() {
                                               Audio
                                             </Badge>
                                           )}
+                                          {enr.type === "lectura" && enr.expiresAt && (
+                                            <Badge variant="outline" className={`text-xs gap-1 ${
+                                              new Date(enr.expiresAt).getTime() < Date.now()
+                                                ? "border-red-500/30 text-red-300"
+                                                : "border-amber-500/30 text-amber-300"
+                                            }`}>
+                                              <Clock className="w-3 h-3" />
+                                              {new Date(enr.expiresAt).getTime() < Date.now()
+                                                ? "Expirada"
+                                                : `Expira: ${new Date(enr.expiresAt).toLocaleDateString("es-AR", { month: "short", day: "numeric" })}`}
+                                            </Badge>
+                                          )}
                                         </div>
                                       </div>
                                     </div>
@@ -3000,18 +3046,47 @@ export default function AdminPage() {
                                   </div>
                                   {/* Lectura audio actions */}
                                   {enr.type === "lectura" && (
-                                    <div className="mt-2 pt-2 border-t border-mystic-700/30 flex items-center gap-2">
+                                    <div className="mt-2 pt-2 border-t border-mystic-700/30 space-y-2">
                                       {enr.r2Key ? (
                                         <>
-                                          <span className="text-mystic-400 text-xs font-sans">Audio cargado: {enr.fileName}</span>
-                                          <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="text-red-400 hover:text-red-300 h-6 text-xs"
-                                            onClick={() => handleRemoveEnrollmentAudio(enr.id)}
-                                          >
-                                            <Trash2 className="w-3 h-3 mr-1" /> Quitar audio
-                                          </Button>
+                                          <div className="flex items-center gap-2 flex-wrap">
+                                            <span className="text-mystic-400 text-xs font-sans">Audio: {enr.fileName}</span>
+                                            {enr.expiresAt && (
+                                              <span className={`text-xs font-sans ${
+                                                new Date(enr.expiresAt).getTime() < Date.now()
+                                                  ? "text-red-400"
+                                                  : "text-amber-400"
+                                              }`}>
+                                                {new Date(enr.expiresAt).getTime() < Date.now()
+                                                  ? "Expirada"
+                                                  : `Expira: ${new Date(enr.expiresAt).toLocaleDateString("es-AR")}`}
+                                              </span>
+                                            )}
+                                            <Button
+                                              variant="ghost"
+                                              size="sm"
+                                              className="text-red-400 hover:text-red-300 h-6 text-xs"
+                                              onClick={() => handleRemoveEnrollmentAudio(enr.id)}
+                                            >
+                                              <Trash2 className="w-3 h-3 mr-1" /> Quitar audio
+                                            </Button>
+                                          </div>
+                                          {/* Expiration date editor */}
+                                          <div className="flex items-center gap-2">
+                                            <Clock className="w-3 h-3 text-mystic-500" />
+                                            <Input
+                                              type="date"
+                                              defaultValue={enr.expiresAt ? new Date(enr.expiresAt).toISOString().split('T')[0] : ""}
+                                              className="bg-mystic-800/40 border-mystic-700/40 text-cream-100 text-xs h-6 w-36"
+                                              min={new Date().toISOString().split('T')[0]}
+                                              onChange={(e) => {
+                                                if (e.target.value) {
+                                                  handleUpdateEnrollmentExpiration(enr.id, e.target.value);
+                                                }
+                                              }}
+                                            />
+                                            <span className="text-mystic-500 text-xs font-sans">Expiración</span>
+                                          </div>
                                         </>
                                       ) : (
                                         <div className="flex items-center gap-2 w-full">
@@ -3105,12 +3180,67 @@ export default function AdminPage() {
                               />
                               {lecturaAudioFile && (
                                 <p className="text-mystic-400 text-xs font-sans">
-                                  {(lecturaAudioFile.size / (1024 * 1024)).toFixed(1)} MB — El alumno podrá escucharlo desde su Aula Virtual
+                                  {(lecturaAudioFile.size / (1024 * 1024)).toFixed(1)} MB — El alumno podrá escucharlo y descargarlo desde su Aula Virtual
                                 </p>
                               )}
-                              <p className="text-mystic-500 text-xs font-sans">
-                                Subí el audio que antes enviabas por email. El alumno lo escuchará directamente en su aula, sin poder descargarlo.
-                              </p>
+                              {/* Expiration date */}
+                              <div className="space-y-1">
+                                <label className="text-violet-300 text-xs font-josefin uppercase tracking-wider flex items-center gap-1">
+                                  <Clock className="w-3.5 h-3.5" />
+                                  Fecha de expiración
+                                </label>
+                                <Input
+                                  type="date"
+                                  value={enrollmentForm.expiresAt || ""}
+                                  onChange={(e) => setEnrollmentForm({ ...enrollmentForm, expiresAt: e.target.value })}
+                                  className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm"
+                                  min={new Date().toISOString().split('T')[0]}
+                                />
+                                <div className="flex gap-2">
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="border-mystic-700/50 text-mystic-300 hover:text-cream-100 text-xs h-6"
+                                    onClick={() => {
+                                      const d = new Date();
+                                      d.setMonth(d.getMonth() + 1);
+                                      setEnrollmentForm({ ...enrollmentForm, expiresAt: d.toISOString().split('T')[0] });
+                                    }}
+                                  >
+                                    1 mes
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="border-mystic-700/50 text-mystic-300 hover:text-cream-100 text-xs h-6"
+                                    onClick={() => {
+                                      const d = new Date();
+                                      d.setMonth(d.getMonth() + 2);
+                                      setEnrollmentForm({ ...enrollmentForm, expiresAt: d.toISOString().split('T')[0] });
+                                    }}
+                                  >
+                                    2 meses
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="border-mystic-700/50 text-mystic-300 hover:text-cream-100 text-xs h-6"
+                                    onClick={() => {
+                                      const d = new Date();
+                                      d.setMonth(d.getMonth() + 3);
+                                      setEnrollmentForm({ ...enrollmentForm, expiresAt: d.toISOString().split('T')[0] });
+                                    }}
+                                  >
+                                    3 meses
+                                  </Button>
+                                </div>
+                                <p className="text-mystic-500 text-xs font-sans">
+                                  Después de esta fecha, el audio se elimina de Cloudflare para no ocupar espacio. El alumno puede descargarlo antes de que expire.
+                                </p>
+                              </div>
                             </div>
                           )}
                           <Button
@@ -3141,10 +3271,21 @@ export default function AdminPage() {
 
               {/* ═══ COURSE CONTENT MANAGEMENT ═══ */}
               <div className="border-t border-mystic-700/40 pt-6">
-                <h3 className="font-serif text-lg text-gold-300 flex items-center gap-2 mb-4">
-                  <FolderOpen className="w-5 h-5" />
-                  Contenido de Cursos
-                </h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-serif text-lg text-gold-300 flex items-center gap-2">
+                    <FolderOpen className="w-5 h-5" />
+                    Contenido de Cursos
+                  </h3>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-amber-500/30 text-amber-300 hover:bg-amber-500/10 text-xs gap-1"
+                    onClick={handleCleanupExpiredLecturas}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    Limpiar lecturas expiradas
+                  </Button>
+                </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                   {/* Course selector */}

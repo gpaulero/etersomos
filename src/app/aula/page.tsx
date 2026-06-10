@@ -22,6 +22,8 @@ import {
   Volume2,
   VolumeX,
   Headphones,
+  Download,
+  AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -45,6 +47,7 @@ interface Enrollment {
   notes: string | null;
   r2Key?: string;
   fileName?: string;
+  expiresAt?: string | null;
   createdAt: string;
 }
 
@@ -55,6 +58,7 @@ const statusConfig: Record<string, { label: string; color: string; icon: React.R
   completada: { label: "Completada", color: "bg-violet-500/20 text-violet-300 border-violet-500/30", icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
   entregada: { label: "Entregada", color: "bg-violet-500/20 text-violet-300 border-violet-500/30", icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
   cancelada: { label: "Cancelada", color: "bg-red-500/20 text-red-300 border-red-500/30", icon: <AlertCircle className="w-3.5 h-3.5" /> },
+  expirada: { label: "Expirada", color: "bg-red-500/20 text-red-300 border-red-500/30", icon: <AlertCircle className="w-3.5 h-3.5" /> },
 };
 
 const typeConfig: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
@@ -63,8 +67,41 @@ const typeConfig: Record<string, { label: string; icon: React.ReactNode; color: 
   mentoria: { label: "Mentoría", icon: <Sparkles className="w-5 h-5" />, color: "text-gold-400" },
 };
 
+/* ── Helper: time remaining until expiration ── */
+function getTimeRemaining(expiresAt: string): { text: string; urgent: boolean; expired: boolean } {
+  const now = Date.now();
+  const expires = new Date(expiresAt).getTime();
+  const diff = expires - now;
+
+  if (diff <= 0) {
+    return { text: "Expirada", urgent: true, expired: true };
+  }
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+
+  if (days > 7) {
+    return { text: `${days} días restantes`, urgent: false, expired: false };
+  }
+  if (days > 0) {
+    return { text: `${days}d ${hours}h restantes`, urgent: days <= 3, expired: false };
+  }
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  return { text: `${hours}h ${minutes}m restantes`, urgent: true, expired: false };
+}
+
 /* ── Inline Audio Player for Lecturas ── */
-function LecturaAudioPlayer({ r2Key, title }: { r2Key: string; title: string }) {
+function LecturaAudioPlayer({
+  r2Key,
+  title,
+  fileName,
+  expiresAt,
+}: {
+  r2Key: string;
+  title: string;
+  fileName?: string;
+  expiresAt?: string | null;
+}) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -74,6 +111,11 @@ function LecturaAudioPlayer({ r2Key, title }: { r2Key: string; title: string }) 
   const progressRef = useRef<HTMLDivElement>(null);
 
   const streamUrl = `/api/student/stream?key=${encodeURIComponent(r2Key)}`;
+  const downloadUrl = `/api/student/download-lectura?key=${encodeURIComponent(r2Key)}`;
+
+  // Check if expired
+  const isExpired = expiresAt ? new Date(expiresAt).getTime() < Date.now() : false;
+  const timeInfo = expiresAt ? getTimeRemaining(expiresAt) : null;
 
   const togglePlay = () => {
     if (!audioRef.current) return;
@@ -102,6 +144,21 @@ function LecturaAudioPlayer({ r2Key, title }: { r2Key: string; title: string }) 
       audioRef.current.currentTime = Math.max(0, Math.min(duration, audioRef.current.currentTime + seconds));
     }
   };
+
+  if (isExpired) {
+    return (
+      <div className="bg-red-950/30 rounded-xl border border-red-500/20 p-4 mt-3">
+        <div className="flex items-center gap-2 mb-2">
+          <AlertTriangle className="w-4 h-4 text-red-400" />
+          <span className="text-red-300 text-xs font-sans font-medium">Lectura expirada</span>
+        </div>
+        <p className="text-red-400/70 text-xs font-sans">
+          El audio de esta lectura ya no está disponible porque expiró el{" "}
+          {expiresAt && new Date(expiresAt).toLocaleDateString("es-AR", { year: "numeric", month: "long", day: "numeric" })}.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-mystic-900/80 rounded-xl border border-violet-500/20 p-4 mt-3 select-none" style={{ userSelect: "none" }}>
@@ -160,6 +217,25 @@ function LecturaAudioPlayer({ r2Key, title }: { r2Key: string; title: string }) 
           </Button>
           <span className="text-mystic-500 text-xs font-sans">{formatTime(duration)}</span>
         </div>
+      </div>
+      {/* Download button + expiration info */}
+      <div className="mt-3 pt-3 border-t border-mystic-700/40 flex items-center justify-between gap-3">
+        <a
+          href={downloadUrl}
+          download={fileName || "lectura.mp3"}
+          className="inline-flex items-center gap-1.5 text-violet-300 hover:text-violet-200 text-xs font-sans transition-colors"
+        >
+          <Download className="w-3.5 h-3.5" />
+          Descargar audio
+        </a>
+        {timeInfo && (
+          <div className={`flex items-center gap-1 text-xs font-sans ${
+            timeInfo.urgent ? "text-amber-300" : "text-mystic-400"
+          }`}>
+            <Clock className="w-3 h-3" />
+            {timeInfo.text}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -271,7 +347,7 @@ export default function AulaDashboard() {
             Tu Aula Virtual
           </h1>
           <p className="text-mystic-300 font-sans">
-            Acá podés ver tus cursos, escuchar tus lecturas y acceder a tus mentorías con Fer Cardozo.
+            Acá podés ver tus cursos, escuchar y descargar tus lecturas, y acceder a tus mentorías con Fer Cardozo.
           </p>
         </div>
 
@@ -421,7 +497,7 @@ export default function AulaDashboard() {
   );
 }
 
-/* ── Lectura Card Component (with inline audio player) ── */
+/* ── Lectura Card Component (with inline audio player + download + expiration) ── */
 
 function LecturaCard({
   enrollment,
@@ -434,9 +510,13 @@ function LecturaCard({
 }) {
   const sc = statusConfig[enrollment.status] || statusConfig.pendiente;
   const hasAudio = !!(enrollment.r2Key);
+  const isExpired = enrollment.expiresAt ? new Date(enrollment.expiresAt).getTime() < Date.now() : false;
+  const timeInfo = enrollment.expiresAt ? getTimeRemaining(enrollment.expiresAt) : null;
 
   return (
-    <Card className="bg-mystic-900/60 border-mystic-700/40 backdrop-blur hover:border-violet-500/30 transition-colors">
+    <Card className={`bg-mystic-900/60 backdrop-blur hover:border-violet-500/30 transition-colors ${
+      isExpired ? "border-red-500/20 opacity-70" : "border-mystic-700/40"
+    }`}>
       <CardContent className="p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-3 flex-1 min-w-0">
@@ -451,10 +531,26 @@ function LecturaCard({
                   {sc.label}
                 </Badge>
                 <span className="text-mystic-500 text-xs font-sans">Lectura</span>
-                {hasAudio && (
+                {hasAudio && !isExpired && (
                   <Badge variant="outline" className="text-xs border-violet-400/30 text-violet-300 gap-1">
                     <Headphones className="w-3 h-3" />
                     Audio disponible
+                  </Badge>
+                )}
+                {hasAudio && isExpired && (
+                  <Badge variant="outline" className="text-xs border-red-500/30 text-red-300 gap-1">
+                    <AlertCircle className="w-3 h-3" />
+                    Audio expirado
+                  </Badge>
+                )}
+                {timeInfo && !timeInfo.expired && (
+                  <Badge variant="outline" className={`text-xs gap-1 ${
+                    timeInfo.urgent
+                      ? "border-amber-500/30 text-amber-300"
+                      : "border-mystic-600/30 text-mystic-400"
+                  }`}>
+                    <Clock className="w-3 h-3" />
+                    {timeInfo.text}
                   </Badge>
                 )}
               </div>
@@ -480,9 +576,14 @@ function LecturaCard({
                 </p>
               </div>
             )}
-            {/* Inline audio player */}
+            {/* Inline audio player with download */}
             {hasAudio && enrollment.r2Key && (
-              <LecturaAudioPlayer r2Key={enrollment.r2Key} title={enrollment.title} />
+              <LecturaAudioPlayer
+                r2Key={enrollment.r2Key}
+                title={enrollment.title}
+                fileName={enrollment.fileName}
+                expiresAt={enrollment.expiresAt}
+              />
             )}
             {!hasAudio && (
               <div className="bg-mystic-900/40 rounded-lg p-3 text-center">
