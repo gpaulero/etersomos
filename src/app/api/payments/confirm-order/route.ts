@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { sendAdminNotification, sendCustomerConfirmation, sendAulaWelcomeEmail, sendAulaExistingStudentEmail } from "@/lib/email";
+import { sendAdminNotification, sendCustomerConfirmation, sendAulaWelcomeEmail } from "@/lib/email";
 import { ensureStudentWithEnrollment } from "@/lib/student-auth";
 
 type OrderType = "crystal_order" | "course_enrollment" | "mentoria_enrollment" | "reading" | "resource_purchase";
@@ -541,7 +541,7 @@ async function handleResourcePurchase(body: Record<string, unknown>) {
    When someone pays for a course, reading, or mentoría, automatically:
    1. Create a Student record (if not exists)
    2. Create a StudentEnrollment
-   3. Send welcome email with Aula Virtual credentials (if new student)
+   3. Send welcome email with Aula Virtual credentials (always, password regenerated for existing students)
    ═══════════════════════════════════════════════════════════════════════ */
 
 function autoEnrollStudent(params: {
@@ -568,12 +568,11 @@ function autoEnrollStudent(params: {
       });
 
       console.log(
-        `[AutoEnroll] ${result.isNewStudent ? 'NEW' : 'EXISTING'} student ${result.studentId}, enrollment ${result.enrollmentId}`
+        `[AutoEnroll] ${result.isNewStudent ? 'NEW' : 'EXISTING'} student ${result.studentId}, enrollment ${result.enrollmentId}, hasPassword=${!!result.generatedPassword}`
       );
 
-      // Send appropriate Aula Virtual email
-      if (result.isNewStudent && result.generatedPassword) {
-        // New student — send welcome email with credentials
+      // Always send welcome email with credentials (password is always regenerated)
+      if (result.generatedPassword) {
         try {
           await sendAulaWelcomeEmail({
             customerName: params.name,
@@ -582,21 +581,12 @@ function autoEnrollStudent(params: {
             enrollmentType: params.enrollmentType,
             enrollmentTitle: params.enrollmentTitle,
           });
+          console.log(`[AutoEnroll] Welcome email with credentials sent to ${params.email}`);
         } catch (emailErr) {
           console.error('[AutoEnroll] Welcome email failed:', (emailErr as Error).message);
         }
-      } else if (!result.isNewStudent) {
-        // Existing student — send reminder about Aula Virtual
-        try {
-          await sendAulaExistingStudentEmail({
-            customerName: params.name,
-            customerEmail: params.email.trim().toLowerCase(),
-            enrollmentType: params.enrollmentType,
-            enrollmentTitle: params.enrollmentTitle,
-          });
-        } catch (emailErr) {
-          console.error('[AutoEnroll] Existing student email failed:', (emailErr as Error).message);
-        }
+      } else {
+        console.warn(`[AutoEnroll] No generatedPassword returned — credentials email NOT sent`);
       }
     } catch (err) {
       // Log error but never fail the main order flow

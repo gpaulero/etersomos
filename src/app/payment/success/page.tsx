@@ -56,7 +56,7 @@ const TYPE_CONFIG: Record<string, {
   reading: {
     processingTitle: "Procesando tu solicitud...",
     successTitle: "¡Solicitud Registrada!",
-    successMessage: (name) => `${name}, tu solicitud de lectura fue registrada. Recibirás tu lectura grabada por email en los próximos 5 días hábiles.`,
+    successMessage: (name) => `${name}, tu solicitud de lectura fue registrada. Vas a recibir un email con tus credenciales para ingresar al Aula Virtual, donde podrás escuchar tu lectura cuando esté lista.`,
     summaryLabel: "Resumen de solicitud",
     summaryIcon: <Eye className="size-4" />,
   },

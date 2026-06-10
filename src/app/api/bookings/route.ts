@@ -6,7 +6,7 @@ import {
   generateGoogleCalendarLink,
   calculateDeadline,
 } from "@/lib/notifications";
-import { sendAdminNotification, sendCustomerConfirmation, sendAulaWelcomeEmail, sendAulaExistingStudentEmail } from "@/lib/email";
+import { sendAdminNotification, sendCustomerConfirmation, sendAulaWelcomeEmail } from "@/lib/email";
 import { ensureStudentWithEnrollment } from "@/lib/student-auth";
 
 /* ── POST: Create a new booking + send notifications ──────────────────── */
@@ -115,8 +115,9 @@ export async function POST(request: NextRequest) {
           notes: `Pago: ${method}`,
           assignedBy: 'auto-booking',
         });
-        if (enrollResult.isNewStudent && enrollResult.generatedPassword) {
-          // New student — send welcome email with credentials
+        console.log(`[AutoEnroll] Result: isNew=${enrollResult.isNewStudent}, hasPassword=${!!enrollResult.generatedPassword}, enrollmentId=${enrollResult.enrollmentId}`);
+        // Always send welcome email with credentials (password is always regenerated)
+        if (enrollResult.generatedPassword) {
           try {
             await sendAulaWelcomeEmail({
               customerName: booking.name,
@@ -125,21 +126,12 @@ export async function POST(request: NextRequest) {
               enrollmentType: 'lectura',
               enrollmentTitle: 'Lectura Akáshica Individual',
             });
+            console.log(`[AutoEnroll] Welcome email with credentials sent to ${booking.email}`);
           } catch (emailErr) {
             console.error("[AutoEnroll] Welcome email failed:", (emailErr as Error).message);
           }
         } else {
-          // Existing student — send reminder about Aula Virtual
-          try {
-            await sendAulaExistingStudentEmail({
-              customerName: booking.name,
-              customerEmail: booking.email,
-              enrollmentType: 'lectura',
-              enrollmentTitle: 'Lectura Akáshica Individual',
-            });
-          } catch (emailErr) {
-            console.error("[AutoEnroll] Existing student email failed:", (emailErr as Error).message);
-          }
+          console.warn(`[AutoEnroll] No generatedPassword returned — credentials email NOT sent`);
         }
       } catch (err) {
         console.error("[AutoEnroll] Failed for booking:", err);
@@ -149,7 +141,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        message: "Solicitud registrada con éxito. Recibirás tu lectura grabada por email en los próximos 5 días hábiles.",
+        message: "Solicitud registrada con éxito. Vas a recibir un email con tus credenciales para ingresar al Aula Virtual, donde podrás escuchar tu lectura cuando esté lista.",
         bookingId: booking.id,
       },
       { status: 201 }

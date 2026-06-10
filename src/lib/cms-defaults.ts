@@ -34,7 +34,7 @@ const defaultTestimonials = [
 /* ── FAQ ── */
 const defaultFaqItems = [
   { question: "¿Qué son los Registros Akáshicos?", answer: "Akasha es un campo al que pertenecés, en sánscrito significa Éter, aquello que lo contiene todo, es un campo de memoria universal. Los Registros Akáshicos son información viva, vibracional. Conectar con ellos no solo es \"ver cosas\" es poder distinguir con claridad y honestidad, que te da miedo, lo que deseás, lo que sabés profundamente." },
-  { question: "¿Cómo funciona una lectura?", answer: "A través de una conexión sagrada, accedo a los registros de tu esencia para responder tus preguntas. Recibís la lectura grabada en audio, personalizada y confidencial." },
+  { question: "¿Cómo funciona una lectura?", answer: "A través de una conexión sagrada, accedo a los registros de tu esencia para responder tus preguntas. Recibís la lectura grabada en audio a través del Aula Virtual, personalizada y confidencial." },
   { question: "¿Es seguro o confidencial?", answer: "Absolutamente. Todo lo que se comparte en una lectura es estrictamente confidencial. No se comparte información con terceros bajo ninguna circunstancia." },
   { question: "¿Necesito experiencia previa para los cursos?", answer: "No. El Nivel 1 Teórico es ideal para principiantes. El Nivel 1 con Práctica y el Nivel 2 van paso a paso con acompañamiento personalizado." },
   { question: "¿Las membresías tienen compromiso?", answer: "No. Podés cancelar tu membresía en cualquier momento desde MercadoPago o PayPal. Sin preguntas, sin penalidades." },

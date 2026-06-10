@@ -304,7 +304,7 @@ const faqItems = [
   {
     question: "¿Cómo funciona una lectura?",
     answer:
-      "A través de una conexión sagrada, accedo a los registros de tu esencia para responder tus preguntas. Recibís la lectura grabada en audio, personalizada y confidencial.",
+      "A través de una conexión sagrada, accedo a los registros de tu esencia para responder tus preguntas. Recibís la lectura grabada en audio a través del Aula Virtual, personalizada y confidencial.",
   },
   {
     question: "¿Es seguro o confidencial?",
@@ -810,7 +810,7 @@ export default function Home() {
       if (res.ok && data.success) {
         toast.success("Solicitud registrada con éxito", {
           description:
-            "Recibiremos tu lectura grabada por email en los próximos 5 días hábiles.",
+            "Vas a recibir un email con tus credenciales para ingresar al Aula Virtual, donde podrás escuchar tu lectura cuando esté lista.",
           duration: 6000,
         });
         setFormData({ name: "", email: "", phone: "", message: "" });

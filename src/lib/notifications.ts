@@ -70,7 +70,7 @@ function buildWhatsAppMessage(booking: BookingData): string {
     lines.push(`💬 *Mensaje:* ${booking.message}`);
   }
   lines.push("");
-  lines.push("⏰ *Recordá:* Enviar la lectura grabada por email dentro de los 5 días hábiles.");
+  lines.push("⏰ *Recordá:* Subir la lectura al Aula Virtual dentro de los 5 días hábiles.");
   return encodeURIComponent(lines.join("\n"));
 }
 
@@ -184,14 +184,14 @@ export function generateGoogleCalendarLink(
       `Teléfono: ${booking.phone}`,
       booking.message ? `Mensaje del consultante: ${booking.message}` : "",
       "",
-      "PLAZO: Hoy vencen los 5 días hábiles para enviar la lectura grabada por email.",
+      "PLAZO: Hoy vencen los 5 días hábiles para subir la lectura al Aula Virtual.",
       "",
       "---",
       "Eter Somos | Registros Akáshicos",
     ]
       .filter(Boolean)
       .join("\n"),
-    location: "Online (envío por email)",
+    location: "Online (Aula Virtual)",
   });
 
   return `https://calendar.google.com/calendar/render?${params.toString()}`;

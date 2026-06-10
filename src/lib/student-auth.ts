@@ -94,6 +94,7 @@ export async function createStudent(data: { email: string; password: string; nom
   await ensureSchema()
   const id = `student_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
   const passwordHash = await hashPassword(data.password)
+  const now = new Date()
   return (db as any).student.create({
     data: {
       id,
@@ -101,6 +102,8 @@ export async function createStudent(data: { email: string; password: string; nom
       passwordHash,
       nombre: data.nombre,
       phone: data.phone || '',
+      createdAt: now,
+      updatedAt: now,
     }
   })
 }
@@ -127,6 +130,7 @@ export async function createEnrollment(data: {
 }) {
   await ensureSchema()
   const id = `enr_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+  const now = new Date()
   return (db as any).studentEnrollment.create({
     data: {
       id,
@@ -140,6 +144,8 @@ export async function createEnrollment(data: {
       r2Key: data.r2Key || '',
       fileName: data.fileName || '',
       expiresAt: data.expiresAt || null,
+      createdAt: now,
+      updatedAt: now,
     }
   })
 }
@@ -165,7 +171,8 @@ export interface AutoEnrollResult {
 /**
  * Ensures a Student exists (creates if not) and creates a StudentEnrollment.
  * Called automatically when someone pays for a course, reading, or mentoría.
- * Returns the student ID, whether it's newly created, and the generated password (only for new students).
+ * Returns the student ID, whether it's newly created, and the generated password.
+ * For existing students, the password is regenerated so they always receive credentials.
  */
 export async function ensureStudentWithEnrollment(params: {
   name: string
@@ -199,7 +206,20 @@ export async function ensureStudentWithEnrollment(params: {
     generatedPassword = rawPassword
     console.log(`[AutoEnroll] Created new student: ${student.id} (${normalizedEmail})`)
   } else {
-    console.log(`[AutoEnroll] Existing student found: ${student.id} (${normalizedEmail})`)
+    // Existing student — regenerate password so they always get credentials
+    const rawPassword = generateRandomPassword(10)
+    const passwordHash = await hashPassword(rawPassword)
+    await (db as any).student.update({
+      where: { id: student.id },
+      data: {
+        passwordHash,
+        nombre: params.name.trim() || student.nombre,
+        phone: params.phone?.trim() || student.phone,
+        updatedAt: new Date(),
+      },
+    })
+    generatedPassword = rawPassword
+    console.log(`[AutoEnroll] Existing student found: ${student.id} (${normalizedEmail}) — password regenerated`)
   }
 
   // 3. Check if enrollment already exists for this student + type + referenceId

@@ -193,7 +193,7 @@ export default function LecturasPage() {
         if (res.ok) {
           localStorage.removeItem(FORM_KEY);
           toast.success("Solicitud registrada con éxito", {
-            description: "Recibiremos tu lectura por email en la semana siguiente. Recordá realizar la transferencia/envío con los datos indicados.",
+            description: "Vas a recibir un email con tus credenciales para ingresar al Aula Virtual, donde podrás escuchar tu lectura cuando esté lista. Recordá realizar la transferencia/envío con los datos indicados.",
             duration: 8000,
           });
         } else {
@@ -352,7 +352,7 @@ export default function LecturasPage() {
                       <div className="p-4 rounded-xl bg-gold-500/10 border border-gold-400/20">
                         <p className="text-foreground/80 font-semibold mb-1 text-gold-300">NOTA IMPORTANTE:</p>
                         <p>
-                          Procederé a enviar tu lectura por mail en el transcurso de la semana siguiente a la que completas este formulario. Eventualmente puedo indicarte una fecha de entrega pasada esta semana, depende de la cantidad de solicitudes que hayan ingresado. Si estás solicitando tu lectura con urgencia o sentís que no podés esperar toda la semana siguiente, no completes este formulario. Por favor ten paciencia y disfrutá el proceso! 🙏🥰
+                          Tu lectura estará disponible en el Aula Virtual dentro de la semana siguiente a la que completas este formulario. Vas a recibir un email con tus credenciales de acceso para ingresar y escuchar tu lectura cuando esté lista. Eventualmente puedo indicarte una fecha de entrega pasada esta semana, depende de la cantidad de solicitudes que hayan ingresado. Si estás solicitando tu lectura con urgencia o sentís que no podés esperar toda la semana siguiente, no completes este formulario. Por favor ten paciencia y disfrutá el proceso! 🙏🥰
                         </p>
                       </div>
 
@@ -369,7 +369,7 @@ export default function LecturasPage() {
                       </p>
 
                       <p>
-                        El consultante, solicitará a través de este acuerdo y completando el formulario de solicitud de Lectura, una <strong className="text-foreground/90">LECTURA DE REGISTROS AKÁSHICOS</strong>. En la misma se responderán dos preguntas proporcionadas por el consultante, las mismas serán entregadas en audios, enviadas al mail que me indiques aquí.
+                        El consultante, solicitará a través de este acuerdo y completando el formulario de solicitud de Lectura, una <strong className="text-foreground/90">LECTURA DE REGISTROS AKÁSHICOS</strong>. En la misma se responderán dos preguntas proporcionadas por el consultante, las mismas serán entregadas en audios a través del Aula Virtual, donde podrás acceder con tus credenciales.
                       </p>
 
                       <Separator className="bg-mystic-800/30 my-4" />
