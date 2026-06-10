@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { db, ensureSchema } from "@/lib/db";
+import { sendLecturaReadyEmail } from "@/lib/email";
+import { findStudentByEmail } from "@/lib/student-auth";
 
 const VALID_STATUSES = ["pendiente", "en_progreso", "entregada", "cancelada"];
 
@@ -49,6 +51,21 @@ export async function PUT(
       where: { id },
       data: updateData,
     });
+
+    // ── Send "lectura lista" email when status changes to "entregada" ──
+    if (status === 'entregada' && existing.status !== 'entregada') {
+      // Find the student by email to get their name
+      const student = await findStudentByEmail(existing.email).catch(() => null);
+      const customerName = student?.nombre || existing.name;
+
+      sendLecturaReadyEmail({
+        customerName,
+        customerEmail: existing.email,
+        enrollmentTitle: existing.readingType || 'Lectura Akashica Individual',
+      }).catch(err => {
+        console.error('[Admin Bookings] Failed to send lectura ready email:', err);
+      });
+    }
 
     // Revalidate pages that display booking data
     revalidatePath('/', 'layout');

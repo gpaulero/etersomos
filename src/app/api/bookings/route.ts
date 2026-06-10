@@ -6,7 +6,7 @@ import {
   generateGoogleCalendarLink,
   calculateDeadline,
 } from "@/lib/notifications";
-import { sendAdminNotification, sendCustomerConfirmation, sendAulaWelcomeEmail } from "@/lib/email";
+import { sendAdminNotification, sendCustomerConfirmation, sendAulaWelcomeEmail, sendAulaExistingStudentEmail } from "@/lib/email";
 import { ensureStudentWithEnrollment } from "@/lib/student-auth";
 
 /* ── POST: Create a new booking + send notifications ──────────────────── */
@@ -76,17 +76,19 @@ export async function POST(request: NextRequest) {
 
     // ── Auto-enroll + send Aula Virtual credentials FIRST (critical, must succeed) ──
     // This is awaited so errors are properly logged and the user gets their credentials
+    // We use booking.id as referenceId so each reading gets its own enrollment
     const enrollResult = await ensureStudentWithEnrollment({
       name: booking.name,
       email: booking.email,
       phone: booking.phone,
       enrollmentType: 'lectura',
       enrollmentTitle: 'Lectura Akáshica Individual',
+      referenceId: booking.id, // Each booking = unique enrollment
       notes: `Pago: ${method}`,
       assignedBy: 'auto-booking',
     }).catch(err => {
       console.error("[AutoEnroll] Failed for booking:", err);
-      return { generatedPassword: null } as any;
+      return { generatedPassword: null, isNewStudent: false, isNewEnrollment: false } as any;
     });
 
     // ── Send all emails in parallel (non-blocking for response) ──
@@ -114,8 +116,8 @@ export async function POST(request: NextRequest) {
         paymentMethod: method,
       }).catch(err => console.error("[Email] Customer confirmation failed:", err)),
 
-      // 3. Aula Virtual credentials email (only if enrollment succeeded)
-      enrollResult.generatedPassword
+      // 3. Aula Virtual credentials email (only for NEW students)
+      enrollResult.generatedPassword && enrollResult.isNewStudent
         ? sendAulaWelcomeEmail({
             customerName: booking.name,
             customerEmail: booking.email,
@@ -123,6 +125,16 @@ export async function POST(request: NextRequest) {
             enrollmentType: 'lectura',
             enrollmentTitle: 'Lectura Akáshica Individual',
           }).catch(err => console.error("[Email] Aula welcome email failed:", err))
+        : Promise.resolve(),
+
+      // 4. Aula Virtual existing student email (for returning students with new enrollment)
+      enrollResult.generatedPassword === null && !enrollResult.isNewStudent && enrollResult.isNewEnrollment
+        ? sendAulaExistingStudentEmail({
+            customerName: booking.name,
+            customerEmail: booking.email,
+            enrollmentType: 'lectura',
+            enrollmentTitle: 'Lectura Akáshica Individual',
+          }).catch(err => console.error("[Email] Aula existing student email failed:", err))
         : Promise.resolve(),
     ]).catch(() => {}); // swallow top-level errors, already handled per-promise
 

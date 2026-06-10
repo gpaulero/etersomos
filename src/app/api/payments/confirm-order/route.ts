@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { sendAdminNotification, sendCustomerConfirmation, sendAulaWelcomeEmail } from "@/lib/email";
+import { sendAdminNotification, sendCustomerConfirmation, sendAulaWelcomeEmail, sendAulaExistingStudentEmail } from "@/lib/email";
 import { ensureStudentWithEnrollment } from "@/lib/student-auth";
 
 type OrderType = "crystal_order" | "course_enrollment" | "mentoria_enrollment" | "reading" | "resource_purchase";
@@ -408,6 +408,7 @@ async function handleReadingOrder(body: Record<string, unknown>) {
     phone: customerPhone,
     enrollmentType: 'lectura',
     enrollmentTitle: 'Lectura Akáshica Individual',
+    referenceId: booking.id, // Each booking = unique enrollment
     notes: `Pago: ${paymentMethod}`,
   });
 
@@ -541,7 +542,7 @@ async function handleResourcePurchase(body: Record<string, unknown>) {
    When someone pays for a course, reading, or mentoría, automatically:
    1. Create a Student record (if not exists)
    2. Create a StudentEnrollment
-   3. Send welcome email with Aula Virtual credentials (always, password regenerated for existing students)
+   3. Send welcome email with credentials (new students) or existing student notification (returning students)
    ═══════════════════════════════════════════════════════════════════════ */
 
 function autoEnrollStudent(params: {
@@ -568,11 +569,11 @@ function autoEnrollStudent(params: {
       });
 
       console.log(
-        `[AutoEnroll] ${result.isNewStudent ? 'NEW' : 'EXISTING'} student ${result.studentId}, enrollment ${result.enrollmentId}, hasPassword=${!!result.generatedPassword}`
+        `[AutoEnroll] ${result.isNewStudent ? 'NEW' : 'EXISTING'} student ${result.studentId}, enrollment ${result.enrollmentId}, newEnrollment=${result.isNewEnrollment}, hasPassword=${!!result.generatedPassword}`
       );
 
-      // Always send welcome email with credentials (password is always regenerated)
-      if (result.generatedPassword) {
+      // Send welcome email with credentials ONLY for new students
+      if (result.generatedPassword && result.isNewStudent) {
         try {
           await sendAulaWelcomeEmail({
             customerName: params.name,
@@ -585,8 +586,20 @@ function autoEnrollStudent(params: {
         } catch (emailErr) {
           console.error('[AutoEnroll] Welcome email failed:', (emailErr as Error).message);
         }
-      } else {
-        console.warn(`[AutoEnroll] No generatedPassword returned — credentials email NOT sent`);
+      }
+      // For existing students with a new enrollment, send a different email
+      else if (!result.isNewStudent && result.isNewEnrollment) {
+        try {
+          await sendAulaExistingStudentEmail({
+            customerName: params.name,
+            customerEmail: params.email.trim().toLowerCase(),
+            enrollmentType: params.enrollmentType,
+            enrollmentTitle: params.enrollmentTitle,
+          });
+          console.log(`[AutoEnroll] Existing student notification sent to ${params.email}`);
+        } catch (emailErr) {
+          console.error('[AutoEnroll] Existing student email failed:', (emailErr as Error).message);
+        }
       }
     } catch (err) {
       // Log error but never fail the main order flow

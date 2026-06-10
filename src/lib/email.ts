@@ -717,6 +717,75 @@ export async function sendLecturaReadyEmail(params: {
 
 /* ── HTML escape utility ──────────────────────────────────────────────── */
 
+/* ═══════════════════════════════════════════════════════════════════════
+   AULA VIRTUAL EXISTING STUDENT EMAIL
+   Sent when an existing student makes a new purchase (reading/course/mentoria).
+   Reminds them to log in with their existing credentials.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+export async function sendAulaExistingStudentEmail(params: {
+  customerName: string
+  customerEmail: string
+  enrollmentType: 'curso' | 'lectura' | 'mentoria'
+  enrollmentTitle: string
+}): Promise<void> {
+  const transporter = createTransporter();
+
+  const typeLabels = {
+    curso: 'curso',
+    lectura: 'lectura',
+    mentoria: 'mentoria',
+  };
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://etersomos-iota.vercel.app';
+  const aulaUrl = `${baseUrl}/aula`;
+
+  const html = `
+    <div style="max-width: 560px; margin: 0 auto; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #161310; border-radius: 12px; overflow: hidden;">
+      <div style="background: linear-gradient(135deg, #1a1510 0%, #0d0b08 100%); padding: 40px 24px; text-align: center; border-bottom: 1px solid #2a252066;">
+        <h1 style="margin: 0; color: #d4a853; font-size: 22px; letter-spacing: 0.05em;">NUEVA INSCRIPCION EN TU AULA</h1>
+        <p style="margin: 8px 0 0; color: #8a8070; font-size: 13px;">Eter Somos | Registros Akashicos</p>
+      </div>
+
+      <div style="padding: 24px;">
+        <p style="margin: 0 0 16px; color: #f0ebe5; font-size: 15px; line-height: 1.6;">
+          Hola, <strong style="color: #d4a853;">${escapeHtml(params.customerName)}</strong>! Se registro una nueva inscripcion a la ${typeLabels[params.enrollmentType]} en tu cuenta del Aula Virtual. Podes acceder con tus credenciales habituales.
+        </p>
+
+        <div style="background: #1a1510; border: 1px solid #2a252066; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+          <p style="margin: 0 0 8px; color: #d4a853; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;">Nueva inscripcion</p>
+          <p style="margin: 0; color: #f0ebe5; font-size: 16px; font-weight: 600;">${escapeHtml(params.enrollmentTitle)}</p>
+        </div>
+
+        <div style="background: #1a1510; border: 1px solid #d4a85333; border-radius: 8px; padding: 16px;">
+          <p style="margin: 0; color: #8a8070; font-size: 13px; line-height: 1.5;">
+            Ingresá al Aula Virtual con tu email y contrasena habitual. Si no recordas tu contrasena, podes restablecerla desde la pagina de login.
+          </p>
+        </div>
+      </div>
+
+      <div style="padding: 0 24px 24px; text-align: center;">
+        <a href="${aulaUrl}" style="display: inline-block; background: linear-gradient(135deg, #7c3aed, #5b21b6); color: #f0ebe5; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px; letter-spacing: 0.03em;">Ingresar al Aula Virtual</a>
+      </div>
+
+      <div style="padding: 24px; text-align: center; border-top: 1px solid #2a252066;">
+        <p style="margin: 0; color: #d4a853; font-size: 14px; font-weight: 600;">Eter Somos</p>
+        <p style="margin: 4px 0 0; color: #5a5545; font-size: 12px;">Registros Akashicos y Cristales</p>
+        <p style="margin: 8px 0 0; color: #5a5545; font-size: 11px;">etersomos@gmail.com</p>
+      </div>
+    </div>
+  `;
+
+  await transporter.sendMail({
+    from: `"Eter Somos" <${SMTP_USER}>`,
+    to: [params.customerEmail],
+    subject: `Eter Somos - Nueva inscripcion en tu Aula Virtual (${typeLabels[params.enrollmentType]}: ${params.enrollmentTitle})`,
+    html,
+  });
+
+  console.log(`[Email] Aula existing student email sent to ${params.customerEmail}`);
+}
+
 function escapeHtml(text: string): string {
   return text
     .replace(/&/g, "&amp;")

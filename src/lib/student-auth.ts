@@ -166,6 +166,7 @@ export interface AutoEnrollResult {
   isNewStudent: boolean
   generatedPassword: string | null
   enrollmentId: string
+  isNewEnrollment: boolean
 }
 
 /**
@@ -206,20 +207,18 @@ export async function ensureStudentWithEnrollment(params: {
     generatedPassword = rawPassword
     console.log(`[AutoEnroll] Created new student: ${student.id} (${normalizedEmail})`)
   } else {
-    // Existing student — regenerate password so they always get credentials
-    const rawPassword = generateRandomPassword(10)
-    const passwordHash = await hashPassword(rawPassword)
+    // Existing student — update name/phone but do NOT regenerate password
+    // They already have credentials; they'll use their existing password
     await (db as any).student.update({
       where: { id: student.id },
       data: {
-        passwordHash,
         nombre: params.name.trim() || student.nombre,
         phone: params.phone?.trim() || student.phone,
         updatedAt: new Date(),
       },
     })
-    generatedPassword = rawPassword
-    console.log(`[AutoEnroll] Existing student found: ${student.id} (${normalizedEmail}) — password regenerated`)
+    generatedPassword = null // No new password for existing students
+    console.log(`[AutoEnroll] Existing student found: ${student.id} (${normalizedEmail}) — no password change`)
   }
 
   // 3. Check if enrollment already exists for this student + type + referenceId
@@ -242,6 +241,7 @@ export async function ensureStudentWithEnrollment(params: {
       isNewStudent,
       generatedPassword,
       enrollmentId: duplicate.id,
+      isNewEnrollment: false,
     }
   }
 
@@ -263,5 +263,6 @@ export async function ensureStudentWithEnrollment(params: {
     isNewStudent,
     generatedPassword,
     enrollmentId: enrollment.id,
+    isNewEnrollment: true,
   }
 }
