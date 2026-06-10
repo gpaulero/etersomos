@@ -236,7 +236,7 @@ export default function LecturasPage() {
     }
   };
 
-  const readingsPriceArs = cmsNumber(cmsMap, 'readings.price_ars', 18000);
+  const readingsPriceArs = cmsNumber(cmsMap, 'readings.price_ars', 20000);
   const readingsPriceUsd = cmsNumber(cmsMap, 'readings.price_usd', 20);
 
   const paymentOptions: { value: PaymentMethod; label: string; price: string; icon: React.ReactNode; note?: string }[] = [

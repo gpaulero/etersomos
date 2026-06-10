@@ -1,6 +1,6 @@
 # ETÉR SOMOS - Especificación Completa del Proyecto
 ## (Archivo de referencia CRÍTICO - NO BORRAR)
-## Última actualización: 2026-06-03
+## Última actualización: 2026-06-10
 
 Este documento describe TODO el estado actual, credenciales, estructura y requisitos del sitio web.
 **Siempre consultar antes de hacer cambios.**
@@ -42,8 +42,9 @@ https://etersomos-iota.vercel.app
 ## CREDENCIALES Y CONFIGURACIÓN
 
 **TODAS las credenciales están en `.env.local` (archivo local, NO se commitea).**
-Copiar `.env.example` a `.env.local` y completar los valores.
 BACKUP de `.env.local` en: `/home/z/my-project/etersomos-backups/2026-04-23/env.local.backup`
+
+**⚠️ NOTA (10/06/2026): `.env.example` NO existe actualmente en el repo.** Si se necesita recrear, debe contener placeholders para las 16 variables obligatorias (ver tabla abajo).
 
 ### Vercel Token
 - vcp_52GvKUqT6kZxgfW8ymTCysvu0X1R7F4JfdRwjWBAqm5mFtvn3x1lHd1F (actualizado 17/05/2026)
@@ -109,12 +110,12 @@ BACKUP de `.env.local` en: `/home/z/my-project/etersomos-backups/2026-04-23/env.
 
 ### Estado actual (14/05/2026):
 - TODAS las credenciales se guardan en `.env.local` (NO se commitea)
-- `.env.example` contiene placeholders sin valores reales (SÍ se commitea)
-- `.gitignore` tiene regla `!.env.example` para permitir el archivo de ejemplo
+- `.env.example` NO existe actualmente (ver nota arriba en Credenciales)
 - El historial de git fue limpiado con `git-filter-repo` para eliminar secrets expuestos
 - GitGuardian detectó la Resend API Key expuesta - RESUELTO: eliminada del historial completo
 - Si se vuelve a exponer un secret: usar `git-filter-repo --blob-callback` para reemplazarlo y luego `git push --force`
 - **SESIÓN 9: Middleware de seguridad implementado** (ver abajo)
+- **⚠️ NOTA (10/06/2026):** `src/app/page.tsx` tiene un check de admin password client-side (`process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "eter2024admin"`) en `handleOpenAdmin()`. Esto es menos seguro que el admin panel que usa `/api/auth/login` server-side. El admin panel en `/admin` sí valida correctamente via server-side.
 
 ### Middleware de Seguridad (actualizado 17/05/2026):
 - **Archivo:** `src/middleware.ts` — se ejecuta en TODAS las rutas `/api/*` y `/admin/*`
@@ -180,7 +181,7 @@ TODAS las funcionalidades del sitio (emails, pagos, DB) dejan de funcionar si la
 ```bash
 cd /home/z/my-project
 curl -s "https://api.vercel.com/v10/projects/prj_oW3VNypSr0K7xkv8dm0wBRQbXZGY/env" \
-  -H "Authorization: Bearer vcp_4LujBKhqwrKpCWAxOJY4aKtXOp8Ltw1zsx3BBqPUkARgtMlWEL2qq3xt" | python3 -c "
+  -H "Authorization: Bearer vcp_52GvKUqT6kZxgfW8ymTCysvu0X1R7F4JfdRwjWBAqm5mFtvn3x1lHd1F" | python3 -c "
 import sys, json
 data = json.load(sys.stdin)
 envs = data.get('envs', [])
@@ -194,20 +195,15 @@ for e in envs:
 
 ### PASO 2: Restaurar variables (solo si faltan)
 
-Ejecutar el script de restauración:
-```bash
-cd /home/z/my-project
-source .env.local
-bash scripts/restore-vercel-env.sh
-```
+**⚠️ NOTA (10/06/2026): `scripts/restore-vercel-env.sh` NO existe actualmente.** Usar el método manual:
 
-O manualmente con la API de Vercel:
+Restaurar manualmente con la API de Vercel:
 ```bash
 cd /home/z/my-project && source .env.local
 
 create_env() {
   curl -s -X POST "https://api.vercel.com/v10/projects/prj_oW3VNypSr0K7xkv8dm0wBRQbXZGY/env" \
-    -H "Authorization: Bearer vcp_4LujBKhqwrKpCWAxOJY4aKtXOp8Ltw1zsx3BBqPUkARgtMlWEL2qq3xt" \
+    -H "Authorization: Bearer vcp_52GvKUqT6kZxgfW8ymTCysvu0X1R7F4JfdRwjWBAqm5mFtvn3x1lHd1F" \
     -H "Content-Type: application/json" \
     -d "{\"key\":\"$1\",\"value\":\"$2\",\"type\":\"$3\",\"target\":[\"production\",\"preview\"]}" > /dev/null 2>&1
   echo "OK: $1"
@@ -216,12 +212,19 @@ create_env() {
 create_env "RESEND_API_KEY" "$RESEND_API_KEY" "encrypted"
 create_env "ADMIN_EMAIL" "$ADMIN_EMAIL" "plain"
 create_env "DATABASE_URL" "$DATABASE_URL" "encrypted"
+create_env "DATABASE_AUTH_TOKEN" "$DATABASE_AUTH_TOKEN" "encrypted"
 create_env "PAYPAL_CLIENT_ID" "$PAYPAL_CLIENT_ID" "encrypted"
 create_env "PAYPAL_CLIENT_SECRET" "$PAYPAL_CLIENT_SECRET" "encrypted"
 create_env "PAYPAL_MODE" "$PAYPAL_MODE" "plain"
 create_env "MERCADOPAGO_ACCESS_TOKEN" "$MERCADOPAGO_ACCESS_TOKEN" "encrypted"
 create_env "NEXT_PUBLIC_MP_PUBLIC_KEY" "$NEXT_PUBLIC_MP_PUBLIC_KEY" "plain"
 create_env "NEXT_PUBLIC_BASE_URL" "$NEXT_PUBLIC_BASE_URL" "plain"
+create_env "ADMIN_API_SECRET" "$ADMIN_API_SECRET" "encrypted"
+create_env "ADMIN_PASSWORD" "$ADMIN_PASSWORD" "encrypted"
+create_env "R2_ACCOUNT_ID" "$R2_ACCOUNT_ID" "plain"
+create_env "R2_ACCESS_KEY_ID" "$R2_ACCESS_KEY_ID" "plain"
+create_env "R2_SECRET_ACCESS_KEY" "$R2_SECRET_ACCESS_KEY" "plain"
+create_env "R2_BUCKET_NAME" "$R2_BUCKET_NAME" "plain"
 ```
 
 ### PASO 3: Redeploy (obligatorio después de recrear variables)
@@ -231,7 +234,7 @@ Las variables nuevas NO se aplican al deploy actual. Hay que forzar un nuevo dep
 cd /home/z/my-project && source .env.local
 SHA=$(git rev-parse HEAD)
 curl -s -X POST "https://api.vercel.com/v13/deployments" \
-  -H "Authorization: Bearer vcp_4LujBKhqwrKpCWAxOJY4aKtXOp8Ltw1zsx3BBqPUkARgtMlWEL2qq3xt" \
+  -H "Authorization: Bearer vcp_52GvKUqT6kZxgfW8ymTCysvu0X1R7F4JfdRwjWBAqm5mFtvn3x1lHd1F" \
   -H "Content-Type: application/json" \
   -d "{
     \"name\": \"etersomos\",
@@ -289,7 +292,8 @@ curl -s -X POST "https://etersomos-iota.vercel.app/api/memberships/subscribe" \
 - Prisma ORM, TypeScript, React 19
 
 ### Directorio del proyecto:
-- **Raíz:** `/home/z/my-project/` (NO usar /home/z/my-project/etersomos/)
+- **Repo clonado en:** `/home/z/my-project/etersomos/`
+- **Raíz del proyecto Next.js:** `/home/z/my-project/` (NO la subcarpeta etersomos/)
 - **next.config.ts:** Turbopack root apunta a ".."
 - **.vercel/project.json:** Linkeado a etersomos (prj_oW3VNypSr0K7xkv8dm0wBRQbXZGY)
 
@@ -741,13 +745,13 @@ TODOS los pagos pasan por la pasarela del sitio web (MercadoPago o PayPal).
 - tailwind.config.ts - Configuración Tailwind
 - package.json - Dependencias
 - .env.local - Variables de entorno con credenciales reales (NO se commitea)
-- .env.example - Template sin valores reales (SÍ se commitea)
-- .gitignore - Incluye .env.local, permite .env.example con !.env.example
+- .env.example - **NO EXISTE ACTUALMENTE** — debe ser creado con placeholders
+- .gitignore - Incluye .env.local
 - .vercel/project.json - Config link a Vercel
 - components.json - Configuración shadcn/ui
 
 ### Scripts
-- scripts/restore-vercel-env.sh - Restaurar variables de entorno en Vercel (ejecutar si se borran)
+- scripts/restore-vercel-env.sh - **NO EXISTE ACTUALMENTE** — usar restauración manual (ver PASO 2 del Checklist)
 
 ---
 
@@ -993,11 +997,12 @@ TODOS los pagos pasan por la pasarela del sitio web (MercadoPago o PayPal).
 
 ## BACKUPS
 
-### Backup más reciente (03/06/2026):
-- **Código + env + git info**: /home/z/my-project/download/backup-etersomos-20260603/ (3.3MB)
-- **GitHub**: https://github.com/gpaulero/etersomos (repo privado, main branch, commit 170d48a)
+### Backup más reciente (10/06/2026):
+- **Código + git info**: /home/z/my-project/download/backup-etersomos-20260610/ (3.3MB)
+- **GitHub**: https://github.com/gpaulero/etersomos (repo privado, main branch, commit ecdbddc)
 
 ### Backups anteriores:
+- **03/06/2026**: /home/z/my-project/download/backup-etersomos-20260603/ (3.3MB)
 - **29/05/2026**: /home/z/my-project/download/backup-etersomos-20260529/
 - **17/05/2026 (session18-s2)**: /home/z/my-project/download/backup-etersomos-20260517-s2/
 - **17/05/2026 (session18-s1)**: /home/z/my-project/download/backup-etersomos-20260517/
@@ -1044,7 +1049,13 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 13. Google Analytics / Search Console
 14. ~~Construir página /recursos~~ — HECHO (sesión 18)
 15. Obtener token de Vercel con acceso al proyecto original (etersomos-gpauleros-projects.vercel.app) si se necesita
-16. Verificar que todos los cambios del CMS persisten correctamente en producción (bug de sesión 24)
+16. ~~Verificar que todos los cambios del CMS persisten correctamente en producción~~ — PARCIALMENTE RESUELTO (sesión 24-25)
+17. **Crear `.env.example`** con placeholders para las 16 variables obligatorias
+18. **Crear `scripts/restore-vercel-env.sh`** para restaurar variables Vercel automáticamente
+19. **Corregir handleOpenAdmin()** en page.tsx para usar validación server-side en vez de client-side
+20. **Agregar toggle "mentorias"** a formLabels en index y admin (soporte de form pause)
+21. **Limpiar archivos innecesarios del repo**: `etersomos-backup-files/`, `skills/`, `upload/PROJECT_SPEC.md`, `Caddyfile`, `worklog.md`
+22. **Agregar navbar propio** a /mentorias (como tienen /recursos y /tienda)
 
 ---
 
@@ -1056,7 +1067,7 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 - El admin panel se accede en `/admin` con contraseña `eter2024admin` (o triple-click en logo del Eter).
 - Los formularios de cursos y lecturas guardan en localStorage antes del pago.
 - Después del pago, se guarda en DB y se envían emails.
-- data/settings.json ya NO se usa — todo se guarda en DB Turso (tabla Settings con key/value).
+- data/settings.json fue ELIMINADO (sesión 25) — todo se guarda en DB Turso (tabla Settings con key/value).
 - **CMS IMPORTANTE**: Los cambios en código (defaults) se ven un segundo y luego se revierten si la DB tiene valores viejos. Para cambios persistentes: actualizar BOTH cms-defaults.ts AND la DB via API bulk (PUT /api/cms/content/bulk).
 - El sitio usa fuentes: Playfair Display + Josefin Sans
 - Tema oscuro mystic con acentos dorados (gold-400) y violetas (violet-400)
@@ -1070,7 +1081,7 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 - Recursos usan modelo de contribución voluntaria: todos gratuitos, con links opcionales de MP/PayPal
 - ProtectedPlayer protege video/audio contra descarga (Blob URL, controlsList="nodownload", etc.)
 - SiteContentProvider en layout.tsx provee CMS a toda la app con auto-refresh cross-tab/focus/visibility
-- Commit actual: 170d48a
+- Commit actual: ecdbddc
 
 ### SESIÓN 19 (17/05/2026 — Revisión completa del sistema + Fix CMS revalidation)
 
@@ -1264,3 +1275,41 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 3. **Commit**: `170d48a` — fix: corregir CMS defaults y fallbacks - cambios ya no se revierten
 4. **PROJECT_SPEC.md actualizado** con sesiones 21-24, navbar actualizado, /mentorias documentado, precios actualizados
 5. **Backup creado**: /home/z/my-project/download/backup-etersomos-20260603/
+
+### SESIÓN 25 (10/06/2026 — Auditoría completa + Bug fixes + PROJECT_SPEC update)
+
+**Auditoría exhaustiva del código vs PROJECT_SPEC.md — discrepancias encontradas y corregidas:**
+
+1. **BUG: Precio de lecturas incorrecto en código ($18.000 → $20.000)**:
+   - `src/app/lecturas/page.tsx` fallback: 18000 → 20000
+   - `src/lib/pricing.ts` readingPrice.ars: 18000 → 20000
+   - `src/app/api/bookings/route.ts` fallback: 18000 → 20000 (2 lugares)
+   - El cms-defaults.ts ya tenía 20000 correcto, pero los fallbacks hardcodeados estaban desactualizados
+
+2. **BUG: Email incorrecto en footer de Recursos**:
+   - `src/app/recursos/page.tsx` footer: `contacto@etersomos.com` → `etersomos@gmail.com`
+   - Todas las demás páginas ya usaban el email correcto
+
+3. **Archivo eliminado: src/app/api/route.ts ("Hello World")**:
+   - La sesión 6 decía que se eliminó, pero aún existía
+   - Eliminado definitivamente
+
+4. **Archivo eliminado: data/settings.json**:
+   - El spec decía "ya NO se usa", pero seguía en el repo
+   - Eliminado definitivamente
+
+5. **Discrepancias documentadas en PROJECT_SPEC.md**:
+   - `.env.example` NO existe (spec decía que sí) — nota actualizada
+   - `scripts/restore-vercel-env.sh` NO existe (spec decía que sí) — nota actualizada, restauración manual documentada con las 16 variables completas
+   - Token Vercel corregido en todos los comandos (antes usaba token expirado)
+   - Nota sobre admin password client-side en page.tsx
+   - Directorio del proyecto clarificado (repo clonado en /etersomos/)
+
+6. **Discrepancias conocidas NO corregidas (requieren decisión del usuario)**:
+   - `src/app/page.tsx` handleOpenAdmin() valida password client-side (menos seguro)
+   - Admin form toggles: tiene "tienda" pero no "mentorias"; spec dice 6 toggles pero hay 7
+   - `nav.link_contacto` en cms-defaults.ts está huérfano (ninguna página lo usa)
+   - Página /mentorias no tiene navbar propio inline (usa layout padre)
+   - Archivos en repo que no deberían estar: `etersomos-backup-files/`, `skills/`, `upload/PROJECT_SPEC.md`, `Caddyfile`, `worklog.md`
+
+7. **Backup creado**: /home/z/my-project/download/backup-etersomos-20260610/

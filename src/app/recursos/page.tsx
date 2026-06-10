@@ -582,7 +582,7 @@ export default function RecursosPage() {
             <a href="https://instagram.com/etersomos" target="_blank" rel="noopener noreferrer" className="text-foreground/30 hover:text-violet-400 transition-colors" aria-label="Instagram">
               <Instagram className="size-4" />
             </a>
-            <a href="mailto:contacto@etersomos.com" className="text-foreground/30 hover:text-violet-400 transition-colors" aria-label="Email">
+            <a href="mailto:etersomos@gmail.com" className="text-foreground/30 hover:text-violet-400 transition-colors" aria-label="Email">
               <Mail className="size-4" />
             </a>
           </div>
