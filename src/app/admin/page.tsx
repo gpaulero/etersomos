@@ -51,8 +51,18 @@ import {
   Headphones,
   Plus,
   Eye,
+  Menu,
+  LayoutDashboard,
+  LogOut,
 } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -223,6 +233,134 @@ const statusLabels: Record<string, string> = {
   activa: "Activa",
   vencida: "Vencida",
 };
+
+/* ── Sidebar Nav Config ──────────────────────────────────────────────────── */
+
+const navGroups: Array<{
+  label: string;
+  items: Array<{ id: string; label: string; icon: React.ElementType; countKey?: string }>;
+}> = [
+  {
+    label: "PRINCIPAL",
+    items: [
+      { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { id: "lecturas", label: "Lecturas", icon: BookOpen, countKey: "bookings" },
+      { id: "cristales", label: "Cristales", icon: ShoppingCart, countKey: "crystals" },
+      { id: "cursos", label: "Cursos", icon: GraduationCap, countKey: "courses" },
+      { id: "membresias", label: "Membresías", icon: Crown, countKey: "memberships" },
+    ],
+  },
+  {
+    label: "AULA VIRTUAL",
+    items: [
+      { id: "alumnos", label: "Alumnos", icon: Users, countKey: "students" },
+      { id: "curso-contenido", label: "Contenido", icon: Video },
+    ],
+  },
+  {
+    label: "SITIO WEB",
+    items: [
+      { id: "cms", label: "Contenido", icon: FileText },
+      { id: "recursos", label: "Recursos", icon: FolderOpen, countKey: "resources" },
+      { id: "formularios", label: "Formularios", icon: Power },
+    ],
+  },
+  {
+    label: "DATOS",
+    items: [
+      { id: "suscriptores", label: "Suscriptores", icon: Mail, countKey: "subscribers" },
+    ],
+  },
+];
+
+/* ── Sidebar Component ──────────────────────────────────────────────────── */
+
+function SidebarContent({
+  activeSection,
+  onNavClick,
+  onLogout,
+  counts,
+}: {
+  activeSection: string;
+  onNavClick: (id: string) => void;
+  onLogout: () => void;
+  counts: Record<string, number>;
+}) {
+  return (
+    <div className="flex flex-col h-full">
+      {/* Logo area */}
+      <div className="p-4 border-b border-mystic-700/40">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-full overflow-hidden border border-gold-400/30 shrink-0">
+            <img src="/images/logo-etersomos.jpg" alt="Eter Somos" className="w-full h-full object-cover" />
+          </div>
+          <div>
+            <span className="font-playfair text-base text-cream-100 block leading-tight">Admin</span>
+            <span className="text-mystic-500 text-[10px] font-josefin uppercase tracking-wider">Eter Somos</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 p-3 space-y-4 overflow-y-auto">
+        {navGroups.map((group) => (
+          <div key={group.label}>
+            <p className="text-[10px] text-mystic-600 font-josefin uppercase tracking-widest px-3 mb-1.5">
+              {group.label}
+            </p>
+            <div className="space-y-0.5">
+              {group.items.map((item) => {
+                const Icon = item.icon;
+                const isActive = activeSection === item.id;
+                const count = item.countKey ? counts[item.countKey] || 0 : 0;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => onNavClick(item.id)}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-josefin transition-all ${
+                      isActive
+                        ? "bg-violet-500/15 text-violet-200 border border-violet-500/20"
+                        : "text-mystic-400 hover:text-cream-100 hover:bg-mystic-800/40 border border-transparent"
+                    }`}
+                  >
+                    <Icon className={`w-4 h-4 ${isActive ? "text-violet-400" : ""}`} />
+                    <span className="flex-1 text-left">{item.label}</span>
+                    {count > 0 && (
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                        isActive
+                          ? "bg-violet-500/20 text-violet-300"
+                          : "bg-mystic-800/60 text-mystic-500"
+                      }`}>
+                        {count}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </nav>
+
+      {/* Bottom section */}
+      <div className="p-3 border-t border-mystic-700/40 space-y-1">
+        <a href="/" target="_blank" rel="noopener noreferrer">
+          <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-josefin text-mystic-400 hover:text-cream-100 hover:bg-mystic-800/40 transition-all">
+            <ExternalLink className="w-4 h-4" />
+            <span>Ver sitio</span>
+          </button>
+        </a>
+        <button
+          onClick={onLogout}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-josefin text-mystic-400 hover:text-red-300 hover:bg-red-500/10 transition-all"
+        >
+          <LogOut className="w-4 h-4" />
+          <span>Cerrar sesión</span>
+        </button>
+      </div>
+    </div>
+  );
+}
 
 /* ── Small Components ───────────────────────────────────────────────────── */
 
@@ -429,6 +567,7 @@ function KanbanColumn({
   renderCard,
   exportType,
   exportLabel,
+  fetchFn,
 }: {
   column: { key: string; label: string; icon: React.ElementType; color: string; border: string };
   items: Array<{ id: string }>;
@@ -560,6 +699,8 @@ export default function AdminPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [refreshing, setRefreshing] = useState(false);
+  const [activeSection, setActiveSection] = useState("dashboard");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // CMS Content state
   const [cmsContent, setCmsContent] = useState<Record<string, Record<string, { value: string; label: string; type: string; updatedAt: string }>>>({});
@@ -1568,8 +1709,32 @@ export default function AdminPage() {
   }
 
   /* ── ADMIN DASHBOARD ── */
+  // Nav counts for sidebar badges
+  const navCounts: Record<string, number> = {
+    bookings: filteredBookings.length,
+    crystals: crystalOrders.length,
+    courses: courseOrders.length,
+    memberships: filteredMemberships.length,
+    students: students.length,
+    resources: resources.length,
+    subscribers: subscribers.length,
+  };
+
+  const handleNavClick = (sectionId: string) => {
+    setActiveSection(sectionId);
+    setMobileMenuOpen(false);
+  };
+
+  const handleLogout = () => {
+    setAuthenticated(false);
+    sessionStorage.removeItem("admin_token");
+  };
+
   return (
-    <div className="min-h-screen bg-mystic-950">
+    <div className="min-h-screen relative">
+      {/* Background */}
+      <div className="fixed inset-0 bg-gradient-to-br from-mystic-950 via-mystic-950 to-violet-950/40 -z-10" />
+
       <Toaster
         position="bottom-right"
         toastOptions={{
@@ -1580,277 +1745,252 @@ export default function AdminPage() {
           },
         }}
       />
-      {/* Header */}
-      <header className="sticky top-0 z-50 glass border-b border-mystic-700/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Star className="w-6 h-6 text-gold-400" />
+
+      {/* Mobile Header */}
+      <header className="lg:hidden bg-mystic-900/80 backdrop-blur-xl border-b border-mystic-700/40 sticky top-0 z-50">
+        <div className="flex items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-full overflow-hidden border border-gold-400/30">
+              <img src="/images/logo-etersomos.jpg" alt="Eter Somos" className="w-full h-full object-cover" />
+            </div>
             <div>
-              <h1 className="text-lg font-playfair text-cream-100">
-                Panel de Administracion
-              </h1>
-              <p className="text-xs text-mystic-400 font-josefin">
-                Eter Somos — Backoffice
-              </p>
+              <span className="font-playfair text-base text-cream-100">Admin</span>
+              <span className="text-mystic-500 text-[10px] font-josefin uppercase tracking-wider ml-2">Eter Somos</span>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <ExportButton type="all" label="Exportar Todo" fetchFn={authFetch} />
             <Button
               variant="ghost"
               size="sm"
               onClick={handleRefresh}
               disabled={refreshing}
-              className="text-mystic-300 hover:text-gold-400 hover:bg-mystic-800/60"
+              className="text-mystic-300 hover:text-gold-400 hover:bg-mystic-800/60 h-8 w-8 p-0"
             >
-              <RefreshCw
-                className={`w-4 h-4 mr-1 ${refreshing ? "animate-spin" : ""}`}
-              />
-              <span className="hidden sm:inline">Actualizar</span>
+              <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setAuthenticated(false);
-                sessionStorage.removeItem("admin_token");
-              }}
-              className="text-mystic-300 hover:text-red-400 hover:bg-mystic-800/60"
-            >
-              <X className="w-4 h-4 mr-1" />
-              <span className="hidden sm:inline">Salir</span>
-            </Button>
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="text-mystic-300">
+                  <Menu className="w-5 h-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="bg-mystic-950 border-mystic-700/40 p-0 w-64">
+                <SheetHeader className="sr-only">
+                  <SheetTitle>Navegación</SheetTitle>
+                </SheetHeader>
+                <SidebarContent
+                  activeSection={activeSection}
+                  onNavClick={handleNavClick}
+                  onLogout={handleLogout}
+                  counts={navCounts}
+                />
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
-        {/* Stats Overview */}
-        {stats && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-            <StatCard
-              title="Lecturas"
-              value={stats.overview.totalBookings}
-              subtitle={
-                stats.overview.recentBookings > 0
-                  ? `${stats.overview.recentBookings} esta semana`
-                  : undefined
-              }
-              icon={BookOpen}
-              trend={stats.overview.recentBookings > 0 ? "up" : "neutral"}
-            />
-            <StatCard
-              title="Pedidos Cristales"
-              value={stats.overview.totalCrystalOrders}
-              subtitle={`${formatCurrency(stats.overview.crystalRevenue, "mercadopago")}`}
-              icon={ShoppingCart}
-            />
-            <StatCard
-              title="Inscripciones Cursos"
-              value={stats.overview.totalCourseEnrollments}
-              subtitle={`${formatCurrency(stats.overview.courseRevenue, "mercadopago")}`}
-              icon={GraduationCap}
-            />
-            <StatCard
-              title="Membresias"
-              value={stats.overview.totalMemberships}
-              subtitle={
-                stats.overview.recentMemberships > 0
-                  ? `${stats.overview.recentMemberships} esta semana`
-                  : undefined
-              }
-              icon={Crown}
-              trend={stats.overview.recentMemberships > 0 ? "up" : "neutral"}
-            />
-            <StatCard
-              title="Ingresos Totales"
-              value={formatCurrency(stats.overview.totalRevenue, "mercadopago")}
-              icon={DollarSign}
-            />
-          </div>
-        )}
-
-        {/* Revenue breakdown cards */}
-        {stats && Object.keys(stats.paymentBreakdown).length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Card className="bg-mystic-900/40 border-mystic-700/40">
-              <CardHeader className="pb-2 pt-4 px-4">
-                <CardTitle className="text-sm font-josefin text-gold-400/70 uppercase tracking-wider flex items-center gap-2">
-                  <CreditCard className="w-4 h-4" />
-                  Metodos de Pago
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="px-4 pb-4">
-                <div className="space-y-2">
-                  {Object.entries(stats.paymentBreakdown).map(
-                    ([method, data]) => (
-                      <div key={method} className="flex items-center justify-between text-sm">
-                        <span className="text-cream-200 font-josefin capitalize">
-                          {method === "mercadopago" ? "MercadoPago" : method === "paypal" ? "PayPal" : method}
-                        </span>
-                        <div className="flex items-center gap-3">
-                          <span className="text-mystic-400 text-xs">{data.count} pedidos</span>
-                          <span className="text-gold-400 font-playfair font-semibold">
-                            {formatCurrency(data.total, method)}
-                          </span>
-                        </div>
-                      </div>
-                    )
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-mystic-900/40 border-mystic-700/40">
-              <CardHeader className="pb-2 pt-4 px-4">
-                <CardTitle className="text-sm font-josefin text-gold-400/70 uppercase tracking-wider flex items-center gap-2">
-                  <BarChart3 className="w-4 h-4" />
-                  Estados
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="px-4 pb-4">
-                <div className="space-y-2">
-                  {Object.entries({ ...stats.orderStatuses, ...stats.bookingStatuses })
-                    .filter(([k]) => k !== "undefined")
-                    .map(([status, count]) => (
-                      <div key={status} className="flex items-center justify-between text-sm">
-                        <span className="text-cream-200 font-josefin">
-                          {statusLabels[status] || status}
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <div className="w-24 h-1.5 bg-mystic-800 rounded-full overflow-hidden">
-                            <div
-                              className={`h-full rounded-full transition-all ${
-                                status === "pagado" || status === "enviado" || status === "entregado"
-                                  ? "bg-emerald-500"
-                                  : status === "pendiente" || status === "inscrito"
-                                  ? "bg-amber-500"
-                                  : status === "cancelado" || status === "cancelada"
-                                  ? "bg-red-500"
-                                  : "bg-blue-500"
-                              }`}
-                              style={{
-                                width: `${Math.min(
-                                  (count / Math.max(...Object.values({ ...stats.orderStatuses, ...stats.bookingStatuses }))) * 100,
-                                  100
-                                )}%`,
-                              }}
-                            />
-                          </div>
-                          <span className="text-mystic-400 text-xs w-6 text-right">{count}</span>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        <Separator className="bg-mystic-700/30" />
-
-        {/* Search Bar */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mystic-500" />
-          <Input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Buscar por nombre o email..."
-            className="pl-9 bg-mystic-900/60 border-mystic-700/50 text-cream-100 placeholder:text-mystic-500 focus:border-gold-400/50"
+      <div className="flex">
+        {/* Desktop Sidebar */}
+        <aside className="hidden lg:block fixed left-0 top-0 bottom-0 w-60 bg-mystic-950/90 backdrop-blur-xl border-r border-mystic-700/40 z-40">
+          <SidebarContent
+            activeSection={activeSection}
+            onNavClick={handleNavClick}
+            onLogout={handleLogout}
+            counts={navCounts}
           />
-        </div>
+        </aside>
 
-        {/* Data Tabs */}
-        <Tabs defaultValue="bookings" className="space-y-4">
-          <TabsList className="bg-mystic-900/60 border border-mystic-700/40 p-1 h-auto flex-wrap">
-            <TabsTrigger
-              value="bookings"
-              className="data-[state=active]:bg-gold-400/20 data-[state=active]:text-gold-300 font-josefin text-mystic-300 gap-2"
-            >
-              <BookOpen className="w-4 h-4" />
-              Lecturas
-              <Badge variant="secondary" className="bg-mystic-800/60 text-mystic-300 text-xs">
-                {bookings.length}
-              </Badge>
-            </TabsTrigger>
-            <TabsTrigger
-              value="crystals"
-              className="data-[state=active]:bg-gold-400/20 data-[state=active]:text-gold-300 font-josefin text-mystic-300 gap-2"
-            >
-              <ShoppingCart className="w-4 h-4" />
-              Cristales
-              <Badge variant="secondary" className="bg-mystic-800/60 text-mystic-300 text-xs">
-                {crystalOrders.length}
-              </Badge>
-            </TabsTrigger>
-            <TabsTrigger
-              value="courses"
-              className="data-[state=active]:bg-gold-400/20 data-[state=active]:text-gold-300 font-josefin text-mystic-300 gap-2"
-            >
-              <GraduationCap className="w-4 h-4" />
-              Cursos
-              <Badge variant="secondary" className="bg-mystic-800/60 text-mystic-300 text-xs">
-                {courseOrders.length}
-              </Badge>
-            </TabsTrigger>
-            <TabsTrigger
-              value="memberships"
-              className="data-[state=active]:bg-gold-400/20 data-[state=active]:text-gold-300 font-josefin text-mystic-300 gap-2"
-            >
-              <Crown className="w-4 h-4" />
-              Membresias
-              <Badge variant="secondary" className="bg-mystic-800/60 text-mystic-300 text-xs">
-                {memberships.length}
-              </Badge>
-            </TabsTrigger>
-            <TabsTrigger
-              value="formularios"
-              className="data-[state=active]:bg-gold-400/20 data-[state=active]:text-gold-300 font-josefin text-mystic-300 gap-2"
-            >
-              <Power className="w-4 h-4" />
-              Formularios
-            </TabsTrigger>
-            <TabsTrigger
-              value="suscriptores"
-              className="data-[state=active]:bg-gold-400/20 data-[state=active]:text-gold-300 font-josefin text-mystic-300 gap-2"
-            >
-              <Users className="w-4 h-4" />
-              Suscriptores
-              <Badge variant="secondary" className="bg-mystic-800/60 text-mystic-300 text-xs">
-                {subscribers.length}
-              </Badge>
-            </TabsTrigger>
-            <TabsTrigger
-              value="recursos"
-              className="data-[state=active]:bg-gold-400/20 data-[state=active]:text-gold-300 font-josefin text-mystic-300 gap-2"
-            >
-              <FolderOpen className="w-4 h-4" />
-              Recursos
-              <Badge variant="secondary" className="bg-mystic-800/60 text-mystic-300 text-xs">
-                {resources.length}
-              </Badge>
-            </TabsTrigger>
-            <TabsTrigger
-              value="contenido"
-              className="data-[state=active]:bg-gold-400/20 data-[state=active]:text-gold-300 font-josefin text-mystic-300 gap-2"
-            >
-              <FileText className="w-4 h-4" />
-              Contenido
-            </TabsTrigger>
-            <TabsTrigger
-              value="alumnos"
-              className="data-[state=active]:bg-gold-400/20 data-[state=active]:text-gold-300 font-josefin text-mystic-300 gap-2"
-            >
-              <GraduationCap className="w-4 h-4" />
-              Alumnos
-              <Badge variant="secondary" className="bg-mystic-800/60 text-mystic-300 text-xs">
-                {students.length}
-              </Badge>
-            </TabsTrigger>
-          </TabsList>
+        {/* Main Content Area */}
+        <main className="flex-1 lg:ml-60">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
 
-          {/* ═══ BOOKINGS TAB - KANBAN ═══ */}
-          <TabsContent value="bookings">
+          {/* Section header with search + actions */}
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-2">
+              {(() => {
+                const currentNav = navGroups.flatMap(g => g.items).find(i => i.id === activeSection);
+                if (!currentNav) return null;
+                const Icon = currentNav.icon;
+                return (
+                  <>
+                    <Icon className="w-5 h-5 text-violet-400" />
+                    <h2 className="font-playfair text-xl text-cream-100">{currentNav.label}</h2>
+                  </>
+                );
+              })()}
+            </div>
+            <div className="flex items-center gap-2">
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mystic-500" />
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Buscar por nombre o email..."
+                  className="pl-9 bg-mystic-900/60 border-mystic-700/50 text-cream-100 placeholder:text-mystic-500 focus:border-gold-400/50 h-9 w-48 sm:w-64 text-sm"
+                />
+              </div>
+              <ExportButton type="all" label="Exportar" fetchFn={authFetch as any} />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleRefresh}
+                disabled={refreshing}
+                className="text-mystic-300 hover:text-gold-400 hover:bg-mystic-800/60 h-9 w-9 p-0"
+              >
+                <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
+              </Button>
+            </div>
+          </div>
+
+          {/* Section Content */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeSection}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+
+          {/* ═══ DASHBOARD ═══ */}
+          {activeSection === "dashboard" && (
+            <div className="space-y-6">
+              {/* Welcome */}
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+                <h1 className="font-playfair text-2xl sm:text-3xl text-cream-100 mb-1">Panel de Administración</h1>
+                <p className="text-mystic-400 font-josefin text-sm">Resumen general de la actividad de Eter Somos</p>
+              </motion.div>
+
+              {/* Stats Overview */}
+              {stats && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+                  <StatCard
+                    title="Lecturas"
+                    value={stats.overview.totalBookings}
+                    subtitle={stats.overview.recentBookings > 0 ? `${stats.overview.recentBookings} esta semana` : undefined}
+                    icon={BookOpen}
+                    trend={stats.overview.recentBookings > 0 ? "up" : "neutral"}
+                  />
+                  <StatCard
+                    title="Pedidos Cristales"
+                    value={stats.overview.totalCrystalOrders}
+                    subtitle={`${formatCurrency(stats.overview.crystalRevenue, "mercadopago")}`}
+                    icon={ShoppingCart}
+                  />
+                  <StatCard
+                    title="Inscripciones Cursos"
+                    value={stats.overview.totalCourseEnrollments}
+                    subtitle={`${formatCurrency(stats.overview.courseRevenue, "mercadopago")}`}
+                    icon={GraduationCap}
+                  />
+                  <StatCard
+                    title="Membresias"
+                    value={stats.overview.totalMemberships}
+                    subtitle={stats.overview.recentMemberships > 0 ? `${stats.overview.recentMemberships} esta semana` : undefined}
+                    icon={Crown}
+                    trend={stats.overview.recentMemberships > 0 ? "up" : "neutral"}
+                  />
+                  <StatCard
+                    title="Ingresos Totales"
+                    value={formatCurrency(stats.overview.totalRevenue, "mercadopago")}
+                    icon={DollarSign}
+                  />
+                </div>
+              )}
+
+              {/* Revenue breakdown cards */}
+              {stats && Object.keys(stats.paymentBreakdown).length > 0 && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Card className="bg-mystic-900/40 border-mystic-700/40">
+                    <CardHeader className="pb-2 pt-4 px-4">
+                      <CardTitle className="text-sm font-josefin text-gold-400/70 uppercase tracking-wider flex items-center gap-2">
+                        <CreditCard className="w-4 h-4" />
+                        Metodos de Pago
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="px-4 pb-4">
+                      <div className="space-y-2">
+                        {Object.entries(stats.paymentBreakdown).map(([method, data]) => (
+                          <div key={method} className="flex items-center justify-between text-sm">
+                            <span className="text-cream-200 font-josefin capitalize">
+                              {method === "mercadopago" ? "MercadoPago" : method === "paypal" ? "PayPal" : method}
+                            </span>
+                            <div className="flex items-center gap-3">
+                              <span className="text-mystic-400 text-xs">{data.count} pedidos</span>
+                              <span className="text-gold-400 font-playfair font-semibold">{formatCurrency(data.total, method)}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-mystic-900/40 border-mystic-700/40">
+                    <CardHeader className="pb-2 pt-4 px-4">
+                      <CardTitle className="text-sm font-josefin text-gold-400/70 uppercase tracking-wider flex items-center gap-2">
+                        <BarChart3 className="w-4 h-4" />
+                        Estados
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="px-4 pb-4">
+                      <div className="space-y-2">
+                        {Object.entries({ ...stats.orderStatuses, ...stats.bookingStatuses })
+                          .filter(([k]) => k !== "undefined")
+                          .map(([status, count]) => (
+                            <div key={status} className="flex items-center justify-between text-sm">
+                              <span className="text-cream-200 font-josefin">{statusLabels[status] || status}</span>
+                              <div className="flex items-center gap-2">
+                                <div className="w-24 h-1.5 bg-mystic-800 rounded-full overflow-hidden">
+                                  <div
+                                    className={`h-full rounded-full transition-all ${
+                                      status === "pagado" || status === "enviado" || status === "entregado" ? "bg-emerald-500"
+                                      : status === "pendiente" || status === "inscrito" ? "bg-amber-500"
+                                      : status === "cancelado" || status === "cancelada" ? "bg-red-500"
+                                      : "bg-blue-500"
+                                    }`}
+                                    style={{ width: `${Math.min((count / Math.max(...Object.values({ ...stats.orderStatuses, ...stats.bookingStatuses }))) * 100, 100)}%` }}
+                                  />
+                                </div>
+                                <span className="text-mystic-400 text-xs w-6 text-right">{count}</span>
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+
+              {/* Quick actions */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {[
+                  { id: "lecturas", label: "Lecturas", icon: BookOpen, count: bookings.length, color: "text-violet-400 bg-violet-500/10 border-violet-500/20" },
+                  { id: "cristales", label: "Cristales", icon: ShoppingCart, count: crystalOrders.length, color: "text-amber-400 bg-amber-500/10 border-amber-500/20" },
+                  { id: "cursos", label: "Cursos", icon: GraduationCap, count: courseOrders.length, color: "text-blue-400 bg-blue-500/10 border-blue-500/20" },
+                  { id: "alumnos", label: "Alumnos", icon: Users, count: students.length, color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" },
+                ].map((action) => {
+                  const Icon = action.icon;
+                  return (
+                    <button
+                      key={action.id}
+                      onClick={() => setActiveSection(action.id)}
+                      className={`p-4 rounded-xl border text-left transition-all hover:scale-[1.02] ${action.color}`}
+                    >
+                      <Icon className="w-5 h-5 mb-2" />
+                      <p className="text-cream-100 text-sm font-josefin font-medium">{action.label}</p>
+                      <p className="text-mystic-400 text-xs font-sans">{action.count} registro{action.count !== 1 ? "s" : ""}</p>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* ═══ BOOKINGS - KANBAN ═══ */}
+          {activeSection === "lecturas" && (
+            <>
             {filteredBookings.length === 0 ? (
               <Card className="bg-mystic-900/40 border-mystic-700/40">
                 <div className="py-12 text-center text-mystic-400 font-josefin">
@@ -1870,7 +2010,7 @@ export default function AdminPage() {
                     <GripVertical className="w-3 h-3" />
                     Arrastra las tarjetas entre columnas para cambiar el estado
                   </div>
-                  <ExportButton type="bookings" label="Descargar Mails" fetchFn={authFetch} />
+                  <ExportButton type="bookings" label="Descargar Mails" fetchFn={authFetch as any} />
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -1974,10 +2114,12 @@ export default function AdminPage() {
                 </div>
               </>
             )}
-          </TabsContent>
+          </>
+          )}
 
-          {/* ═══ CRYSTALS TAB - KANBAN ═══ */}
-          <TabsContent value="crystals">
+          {/* ═══ CRYSTALS - KANBAN ═══ */}
+          {activeSection === "cristales" && (
+          <>
             {crystalOrders.length === 0 ? (
               <Card className="bg-mystic-900/40 border-mystic-700/40">
                 <div className="py-12 text-center text-mystic-400 font-josefin">
@@ -2102,10 +2244,12 @@ export default function AdminPage() {
                 </div>
               </>
             )}
-          </TabsContent>
+          </>
+          )}
 
-          {/* ═══ COURSES TAB - KANBAN ═══ */}
-          <TabsContent value="courses">
+          {/* ═══ COURSES - KANBAN ═══ */}
+          {activeSection === "cursos" && (
+          <>
             {courseOrders.length === 0 ? (
               <Card className="bg-mystic-900/40 border-mystic-700/40">
                 <div className="py-12 text-center text-mystic-400 font-josefin">
@@ -2217,10 +2361,12 @@ export default function AdminPage() {
                 </div>
               </>
             )}
-          </TabsContent>
+          </>
+          )}
 
-          {/* ═══ MEMBERSHIPS TAB - KANBAN ═══ */}
-          <TabsContent value="memberships">
+          {/* ═══ MEMBERSHIPS - KANBAN ═══ */}
+          {activeSection === "membresias" && (
+          <>
             {filteredMemberships.length === 0 ? (
               <Card className="bg-mystic-900/40 border-mystic-700/40">
                 <div className="py-12 text-center text-mystic-400 font-josefin">
@@ -2309,10 +2455,11 @@ export default function AdminPage() {
                 </div>
               </>
             )}
-          </TabsContent>
+          </>
+          )}
 
-          {/* ═══ SUSCRIPTORES TAB ═══ */}
-          <TabsContent value="suscriptores">
+          {/* ═══ SUSCRIPTORES ═══ */}
+          {activeSection === "suscriptores" && (
             <Card className="bg-mystic-900/40 border-mystic-700/40">
               <CardHeader className="pb-2 pt-4 px-5">
                 <div className="flex items-center justify-between">
@@ -2398,10 +2545,10 @@ export default function AdminPage() {
                 )}
               </CardContent>
             </Card>
-          </TabsContent>
+          )}
 
-          {/* ═══ RECURSOS TAB ═══ */}
-          <TabsContent value="recursos">
+          {/* ═══ RECURSOS ═══ */}
+          {activeSection === "recursos" && (
             <Card className="bg-mystic-900/40 border-mystic-700/40">
               <CardHeader className="pb-2 pt-4 px-5">
                 <div className="flex items-center justify-between flex-wrap gap-3">
@@ -2602,10 +2749,11 @@ export default function AdminPage() {
                 )}
               </CardContent>
             </Card>
-          </TabsContent>
+          )}
 
-          {/* ═══ CONTENIDO TAB (CMS) ═══ */}
-          <TabsContent value="contenido">
+          {/* ═══ CONTENIDO (CMS) ═══ */}
+          {activeSection === "cms" && (
+            <>
             {cmsLoading ? (
               <Card className="bg-mystic-900/40 border-mystic-700/40">
                 <div className="py-12 text-center text-mystic-400 font-josefin">
@@ -2754,10 +2902,11 @@ export default function AdminPage() {
                 </Accordion>
               </>
             )}
-          </TabsContent>
+            </>
+          )}
 
-          {/* ═══ FORMULARIOS TAB ═══ */}
-          <TabsContent value="formularios">
+          {/* ═══ FORMULARIOS ═══ */}
+          {activeSection === "formularios" && (
             <Card className="bg-mystic-900/40 border-mystic-700/40">
               <CardHeader className="pb-2 pt-4 px-5">
                 <div className="flex items-center justify-between">
@@ -2840,10 +2989,10 @@ export default function AdminPage() {
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
+          )}
 
-          {/* ═══ ALUMNOS TAB (AULA VIRTUAL) ═══ */}
-          <TabsContent value="alumnos">
+          {/* ═══ ALUMNOS (AULA VIRTUAL) ═══ */}
+          {activeSection === "alumnos" && (
             <div className="space-y-6">
               {/* Header */}
               <div className="flex items-center justify-between">
@@ -3320,267 +3469,273 @@ export default function AdminPage() {
                   )}
                 </div>
               </div>
+            </div>
+          )}
 
-              {/* ═══ COURSE CONTENT MANAGEMENT ═══ */}
-              <div className="border-t border-mystic-700/40 pt-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-serif text-lg text-gold-300 flex items-center gap-2">
-                    <FolderOpen className="w-5 h-5" />
-                    Contenido de Cursos
-                  </h3>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border-amber-500/30 text-amber-300 hover:bg-amber-500/10 text-xs gap-1"
-                    onClick={handleCleanupExpiredLecturas}
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                    Limpiar lecturas expiradas
-                  </Button>
-                </div>
+          {/* ═══ CURSO CONTENIDO ═══ */}
+          {activeSection === "curso-contenido" && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-serif text-lg text-gold-300 flex items-center gap-2">
+                  <FolderOpen className="w-5 h-5" />
+                  Contenido de Cursos
+                </h3>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-amber-500/30 text-amber-300 hover:bg-amber-500/10 text-xs gap-1"
+                  onClick={handleCleanupExpiredLecturas}
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Limpiar lecturas expiradas
+                </Button>
+              </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                  {/* Course selector */}
-                  <div className="lg:col-span-1">
-                    <Card className="bg-mystic-900/40 border-mystic-700/40">
-                      <CardContent className="p-4 space-y-3">
-                        <h4 className="text-mystic-400 text-xs font-josefin uppercase tracking-wider">
-                          Seleccionar curso
-                        </h4>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                {/* Course selector */}
+                <div className="lg:col-span-1">
+                  <Card className="bg-mystic-900/40 border-mystic-700/40">
+                    <CardContent className="p-4 space-y-3">
+                      <h4 className="text-mystic-400 text-xs font-josefin uppercase tracking-wider">
+                        Seleccionar curso
+                      </h4>
 
-                        {/* Quick course ID buttons */}
-                        <div className="space-y-1">
-                          {courseOptions.map((course) => (
-                            <button
-                              key={course.id}
-                              onClick={() => fetchCourseContents(course.id)}
-                              className={`w-full text-left px-3 py-2 rounded-lg transition-colors text-sm font-sans ${
-                                selectedCourseId === course.id
-                                  ? "bg-blue-500/20 text-blue-200 border border-blue-500/30"
-                                  : "hover:bg-mystic-800/60 text-mystic-300"
-                              }`}
-                            >
-                              <GraduationCap className="w-4 h-4 inline mr-2 text-blue-400" />
-                              {course.label}
-                            </button>
-                          ))}
-                        </div>
-
-                        <Separator className="bg-mystic-700/40" />
-
-                        {/* Custom course ID input */}
-                        <div className="space-y-2">
-                          <label className="text-mystic-500 text-xs font-sans">O ingresar ID de curso:</label>
-                          <div className="flex gap-2">
-                            <Input
-                              placeholder="mi-curso"
-                              value={newCourseId}
-                              onChange={(e) => setNewCourseId(e.target.value)}
-                              className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm flex-1"
-                            />
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="border-blue-400/30 text-blue-300 hover:bg-blue-400/10 shrink-0"
-                              onClick={() => { if (newCourseId) fetchCourseContents(newCourseId); }}
-                            >
-                              Ver
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  {/* Course content list + upload */}
-                  <div className="lg:col-span-2">
-                    {selectedCourseId ? (
-                      <div className="space-y-4">
-                        {/* Course header + upload button */}
-                        <div className="flex items-center justify-between">
-                          <h4 className="font-serif text-foreground flex items-center gap-2">
-                            <GraduationCap className="w-4 h-4 text-blue-400" />
-                            Contenido: <span className="text-blue-300">{selectedCourseId}</span>
-                            <Badge variant="secondary" className="bg-mystic-800/60 text-mystic-300 text-xs ml-1">
-                              {courseContents.length}
-                            </Badge>
-                          </h4>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setShowContentUpload(!showContentUpload)}
-                            className="border-blue-400/30 text-blue-300 hover:bg-blue-400/10 font-josefin gap-1"
+                      {/* Quick course ID buttons */}
+                      <div className="space-y-1">
+                        {courseOptions.map((course) => (
+                          <button
+                            key={course.id}
+                            onClick={() => fetchCourseContents(course.id)}
+                            className={`w-full text-left px-3 py-2 rounded-lg transition-colors text-sm font-sans ${
+                              selectedCourseId === course.id
+                                ? "bg-blue-500/20 text-blue-200 border border-blue-500/30"
+                                : "hover:bg-mystic-800/60 text-mystic-300"
+                            }`}
                           >
-                            <Plus className="w-4 h-4" />
-                            {showContentUpload ? "Cancelar" : "Subir contenido"}
+                            <GraduationCap className="w-4 h-4 inline mr-2 text-blue-400" />
+                            {course.label}
+                          </button>
+                        ))}
+                      </div>
+
+                      <Separator className="bg-mystic-700/40" />
+
+                      {/* Custom course ID input */}
+                      <div className="space-y-2">
+                        <label className="text-mystic-500 text-xs font-sans">O ingresar ID de curso:</label>
+                        <div className="flex gap-2">
+                          <Input
+                            placeholder="mi-curso"
+                            value={newCourseId}
+                            onChange={(e) => setNewCourseId(e.target.value)}
+                            className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm flex-1"
+                          />
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-blue-400/30 text-blue-300 hover:bg-blue-400/10 shrink-0"
+                            onClick={() => { if (newCourseId) fetchCourseContents(newCourseId); }}
+                          >
+                            Ver
                           </Button>
                         </div>
-
-                        {/* Upload form */}
-                        {showContentUpload && (
-                          <Card className="bg-mystic-900/40 border-blue-500/20">
-                            <CardContent className="p-4 space-y-3">
-                              <h5 className="text-blue-300 text-xs font-josefin uppercase tracking-wider">
-                                Subir nuevo contenido
-                              </h5>
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div>
-                                  <label className="text-mystic-500 text-xs font-sans">Título</label>
-                                  <Input
-                                    placeholder="Ej: Clase 1 - Introducción"
-                                    value={contentUploadForm.title}
-                                    onChange={(e) => setContentUploadForm({ ...contentUploadForm, title: e.target.value })}
-                                    className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm"
-                                  />
-                                </div>
-                                <div>
-                                  <label className="text-mystic-500 text-xs font-sans">Tipo de archivo</label>
-                                  <Select value={contentUploadForm.fileType} onValueChange={(v) => setContentUploadForm({ ...contentUploadForm, fileType: v })}>
-                                    <SelectTrigger className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm">
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="video">Video</SelectItem>
-                                      <SelectItem value="audio">Audio</SelectItem>
-                                      <SelectItem value="pdf">PDF</SelectItem>
-                                      <SelectItem value="documento">Documento</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                                <div className="sm:col-span-2">
-                                  <label className="text-mystic-500 text-xs font-sans">Descripción (opcional)</label>
-                                  <Input
-                                    placeholder="Breve descripción del contenido"
-                                    value={contentUploadForm.description}
-                                    onChange={(e) => setContentUploadForm({ ...contentUploadForm, description: e.target.value })}
-                                    className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm"
-                                  />
-                                </div>
-                                <div className="sm:col-span-2">
-                                  <label className="text-mystic-500 text-xs font-sans">Archivo</label>
-                                  <Input
-                                    type="file"
-                                    accept="video/*,audio/*,.pdf,.doc,.docx,.ppt,.pptx"
-                                    onChange={(e) => setContentFile(e.target.files?.[0] || null)}
-                                    className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm"
-                                  />
-                                  {contentFile && (
-                                    <p className="text-mystic-400 text-xs mt-1 font-sans">
-                                      {(contentFile.size / (1024 * 1024)).toFixed(1)} MB — {contentFile.type || "tipo desconocido"}
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
-                              <Button
-                                size="sm"
-                                onClick={handleUploadCourseContent}
-                                disabled={uploadingContent || !contentFile || !contentUploadForm.title}
-                                className="bg-blue-500 hover:bg-blue-400 text-white font-josefin gap-2"
-                              >
-                                {uploadingContent ? (
-                                  <>
-                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                    Subiendo...
-                                  </>
-                                ) : (
-                                  <>
-                                    <Upload className="w-4 h-4" />
-                                    Subir al curso
-                                  </>
-                                )}
-                              </Button>
-                            </CardContent>
-                          </Card>
-                        )}
-
-                        {/* Content list */}
-                        {courseContents.length === 0 ? (
-                          <Card className="bg-mystic-900/40 border-mystic-700/40">
-                            <CardContent className="p-8 text-center">
-                              <Video className="w-8 h-8 text-mystic-600 mx-auto mb-3" />
-                              <p className="text-mystic-400 font-josefin text-sm">Este curso no tiene contenido</p>
-                              <p className="text-mystic-500 text-xs font-sans mt-1">Subí videos, audios o documentos para los alumnos</p>
-                            </CardContent>
-                          </Card>
-                        ) : (
-                          <div className="space-y-2">
-                            {courseContents
-                              .sort((a: any, b: any) => (a.sortOrder || 0) - (b.sortOrder || 0))
-                              .map((item: any) => (
-                              <Card
-                                key={item.id}
-                                className={`bg-mystic-900/40 border-mystic-700/40 hover:border-blue-500/20 transition-colors ${
-                                  !item.active ? "opacity-50" : ""
-                                }`}
-                              >
-                                <CardContent className="p-3 flex items-center justify-between gap-3">
-                                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                                    <div className="shrink-0">
-                                      {item.fileType === "video" && <Video className="w-5 h-5 text-blue-400" />}
-                                      {item.fileType === "audio" && <Headphones className="w-5 h-5 text-violet-400" />}
-                                      {item.fileType === "pdf" && <FileText className="w-5 h-5 text-red-400" />}
-                                      {(!item.fileType || item.fileType === "documento") && <FileText className="w-5 h-5 text-amber-400" />}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                      <p className="text-foreground text-sm font-sans truncate">{item.title}</p>
-                                      <div className="flex items-center gap-2 mt-0.5">
-                                        <Badge variant="outline" className="text-xs text-mystic-400 border-mystic-600/40">
-                                          {item.fileName?.split(".").pop()?.toUpperCase() || item.fileType}
-                                        </Badge>
-                                        {item.description && (
-                                          <span className="text-mystic-500 text-xs font-sans truncate">{item.description}</span>
-                                        )}
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div className="flex items-center gap-1 shrink-0">
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="text-mystic-400 hover:text-foreground h-8 w-8 p-0"
-                                      onClick={() => handleToggleContentActive(item.id, item.active)}
-                                      title={item.active ? "Ocultar" : "Mostrar"}
-                                    >
-                                      <Eye className={`w-4 h-4 ${item.active ? "text-emerald-400" : "text-mystic-600"}`} />
-                                    </Button>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-8 w-8 p-0"
-                                      onClick={() => handleDeleteCourseContent(item.id)}
-                                    >
-                                      <Trash2 className="w-4 h-4" />
-                                    </Button>
-                                  </div>
-                                </CardContent>
-                              </Card>
-                            ))}
-                          </div>
-                        )}
                       </div>
-                    ) : (
-                      <Card className="bg-mystic-900/40 border-mystic-700/40">
-                        <CardContent className="p-12 text-center">
-                          <FolderOpen className="w-10 h-10 text-mystic-600 mx-auto mb-3" />
-                          <p className="text-mystic-400 font-josefin">Seleccioná un curso para gestionar su contenido</p>
-                          <p className="text-mystic-500 text-xs font-sans mt-1">
-                            Elegí un curso existente o creá uno nuevo con un ID personalizado
-                          </p>
-                        </CardContent>
-                      </Card>
-                    )}
-                  </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Course content list + upload */}
+                <div className="lg:col-span-2">
+                  {selectedCourseId ? (
+                    <div className="space-y-4">
+                      {/* Course header + upload button */}
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-serif text-foreground flex items-center gap-2">
+                          <GraduationCap className="w-4 h-4 text-blue-400" />
+                          Contenido: <span className="text-blue-300">{selectedCourseId}</span>
+                          <Badge variant="secondary" className="bg-mystic-800/60 text-mystic-300 text-xs ml-1">
+                            {courseContents.length}
+                          </Badge>
+                        </h4>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowContentUpload(!showContentUpload)}
+                          className="border-blue-400/30 text-blue-300 hover:bg-blue-400/10 font-josefin gap-1"
+                        >
+                          <Plus className="w-4 h-4" />
+                          {showContentUpload ? "Cancelar" : "Subir contenido"}
+                        </Button>
+                      </div>
+
+                      {/* Upload form */}
+                      {showContentUpload && (
+                        <Card className="bg-mystic-900/40 border-blue-500/20">
+                          <CardContent className="p-4 space-y-3">
+                            <h5 className="text-blue-300 text-xs font-josefin uppercase tracking-wider">
+                              Subir nuevo contenido
+                            </h5>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div>
+                                <label className="text-mystic-500 text-xs font-sans">Título</label>
+                                <Input
+                                  placeholder="Ej: Clase 1 - Introducción"
+                                  value={contentUploadForm.title}
+                                  onChange={(e) => setContentUploadForm({ ...contentUploadForm, title: e.target.value })}
+                                  className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm"
+                                />
+                              </div>
+                              <div>
+                                <label className="text-mystic-500 text-xs font-sans">Tipo de archivo</label>
+                                <Select value={contentUploadForm.fileType} onValueChange={(v) => setContentUploadForm({ ...contentUploadForm, fileType: v })}>
+                                  <SelectTrigger className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="video">Video</SelectItem>
+                                    <SelectItem value="audio">Audio</SelectItem>
+                                    <SelectItem value="pdf">PDF</SelectItem>
+                                    <SelectItem value="documento">Documento</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div className="sm:col-span-2">
+                                <label className="text-mystic-500 text-xs font-sans">Descripción (opcional)</label>
+                                <Input
+                                  placeholder="Breve descripción del contenido"
+                                  value={contentUploadForm.description}
+                                  onChange={(e) => setContentUploadForm({ ...contentUploadForm, description: e.target.value })}
+                                  className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm"
+                                />
+                              </div>
+                              <div className="sm:col-span-2">
+                                <label className="text-mystic-500 text-xs font-sans">Archivo</label>
+                                <Input
+                                  type="file"
+                                  accept="video/*,audio/*,.pdf,.doc,.docx,.ppt,.pptx"
+                                  onChange={(e) => setContentFile(e.target.files?.[0] || null)}
+                                  className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm"
+                                />
+                                {contentFile && (
+                                  <p className="text-mystic-400 text-xs mt-1 font-sans">
+                                    {(contentFile.size / (1024 * 1024)).toFixed(1)} MB — {contentFile.type || "tipo desconocido"}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                            <Button
+                              size="sm"
+                              onClick={handleUploadCourseContent}
+                              disabled={uploadingContent || !contentFile || !contentUploadForm.title}
+                              className="bg-blue-500 hover:bg-blue-400 text-white font-josefin gap-2"
+                            >
+                              {uploadingContent ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                  Subiendo...
+                                </>
+                              ) : (
+                                <>
+                                  <Upload className="w-4 h-4" />
+                                  Subir al curso
+                                </>
+                              )}
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      )}
+
+                      {/* Content list */}
+                      {courseContents.length === 0 ? (
+                        <Card className="bg-mystic-900/40 border-mystic-700/40">
+                          <CardContent className="p-8 text-center">
+                            <Video className="w-8 h-8 text-mystic-600 mx-auto mb-3" />
+                            <p className="text-mystic-400 font-josefin text-sm">Este curso no tiene contenido</p>
+                            <p className="text-mystic-500 text-xs font-sans mt-1">Subí videos, audios o documentos para los alumnos</p>
+                          </CardContent>
+                        </Card>
+                      ) : (
+                        <div className="space-y-2">
+                          {courseContents
+                            .sort((a: any, b: any) => (a.sortOrder || 0) - (b.sortOrder || 0))
+                            .map((item: any) => (
+                            <Card
+                              key={item.id}
+                              className={`bg-mystic-900/40 border-mystic-700/40 hover:border-blue-500/20 transition-colors ${
+                                !item.active ? "opacity-50" : ""
+                              }`}
+                            >
+                              <CardContent className="p-3 flex items-center justify-between gap-3">
+                                <div className="flex items-center gap-3 flex-1 min-w-0">
+                                  <div className="shrink-0">
+                                    {item.fileType === "video" && <Video className="w-5 h-5 text-blue-400" />}
+                                    {item.fileType === "audio" && <Headphones className="w-5 h-5 text-violet-400" />}
+                                    {item.fileType === "pdf" && <FileText className="w-5 h-5 text-red-400" />}
+                                    {(!item.fileType || item.fileType === "documento") && <FileText className="w-5 h-5 text-amber-400" />}
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-foreground text-sm font-sans truncate">{item.title}</p>
+                                    <div className="flex items-center gap-2 mt-0.5">
+                                      <Badge variant="outline" className="text-xs text-mystic-400 border-mystic-600/40">
+                                        {item.fileName?.split(".").pop()?.toUpperCase() || item.fileType}
+                                      </Badge>
+                                      {item.description && (
+                                        <span className="text-mystic-500 text-xs font-sans truncate">{item.description}</span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-1 shrink-0">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-mystic-400 hover:text-foreground h-8 w-8 p-0"
+                                    onClick={() => handleToggleContentActive(item.id, item.active)}
+                                    title={item.active ? "Ocultar" : "Mostrar"}
+                                  >
+                                    <Eye className={`w-4 h-4 ${item.active ? "text-emerald-400" : "text-mystic-600"}`} />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-8 w-8 p-0"
+                                    onClick={() => handleDeleteCourseContent(item.id)}
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <Card className="bg-mystic-900/40 border-mystic-700/40">
+                      <CardContent className="p-12 text-center">
+                        <FolderOpen className="w-10 h-10 text-mystic-600 mx-auto mb-3" />
+                        <p className="text-mystic-400 font-josefin">Seleccioná un curso para gestionar su contenido</p>
+                        <p className="text-mystic-500 text-xs font-sans mt-1">
+                          Elegí un curso existente o creá uno nuevo con un ID personalizado
+                        </p>
+                      </CardContent>
+                    </Card>
+                  )}
                 </div>
               </div>
             </div>
-          </TabsContent>
-        </Tabs>
+          )}
 
-        {/* Footer */}
-        <div className="text-center text-xs text-mystic-600 font-josefin py-4">
-          <p>Eter Somos — Panel de Administracion | Datos actualizados en tiempo real</p>
-        </div>
-      </main>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Footer */}
+          <div className="text-center text-xs text-mystic-600 font-josefin py-4">
+            <p>Eter Somos — Panel de Administración</p>
+          </div>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
