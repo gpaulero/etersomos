@@ -987,33 +987,24 @@ export default function AdminPage() {
       let r2Key = "";
       let audioFileName = "";
 
-      // If it's a lectura and has an audio file, upload it first
+      // If it's a lectura and has an audio file, upload it first via server-side endpoint
       if (enrollmentForm.type === "lectura" && lecturaAudioFile) {
-        // Step 1: Get presigned URL for lecturas/ prefix
-        const audioPresignRes = await authFetch(`/api/admin/enrollments/new/upload-audio`, {
+        const formData = new FormData();
+        formData.append("file", lecturaAudioFile);
+
+        const uploadRes = await authFetch(`/api/admin/lectura-upload`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ fileName: lecturaAudioFile.name, contentType: lecturaAudioFile.type }),
+          body: formData,
+          // Note: Don't set Content-Type header - browser sets it with boundary for FormData
         });
-        const audioPresignData = await audioPresignRes.json();
-        if (!audioPresignRes.ok) {
-          toast.error(audioPresignData.error || "Error al preparar subida de audio");
+        const uploadData = await uploadRes.json();
+        if (!uploadRes.ok) {
+          toast.error(uploadData.error || "Error al subir audio");
           return;
         }
 
-        // Step 2: Upload to R2
-        const audioUploadRes = await fetch(audioPresignData.uploadUrl, {
-          method: "PUT",
-          headers: { "Content-Type": lecturaAudioFile.type },
-          body: lecturaAudioFile,
-        });
-        if (!audioUploadRes.ok) {
-          toast.error("Error al subir audio");
-          return;
-        }
-
-        r2Key = audioPresignData.r2Key;
-        audioFileName = lecturaAudioFile.name;
+        r2Key = uploadData.r2Key;
+        audioFileName = uploadData.fileName;
       }
 
       // Create the enrollment
@@ -1036,7 +1027,8 @@ export default function AdminPage() {
       setEnrollmentForm({ type: "curso", title: "", referenceId: "", notes: "", expiresAt: "" });
       setLecturaAudioFile(null);
       handleSelectStudent(selectedStudent);
-    } catch {
+    } catch (err) {
+      console.error("[Admin] Error al asignar:", err);
       toast.error("Error al asignar");
     } finally {
       setUploadingLecturaAudio(false);
@@ -1051,34 +1043,26 @@ export default function AdminPage() {
     }
     setUploadingLecturaAudio(true);
     try {
-      // Step 1: Get presigned URL
-      const presignRes = await authFetch(`/api/admin/enrollments/${enrollmentId}/upload-audio`, {
+      // Upload file via server-side endpoint (avoids CORS issues with direct R2 upload)
+      const formData = new FormData();
+      formData.append("file", lecturaAudioFile);
+      formData.append("enrollmentId", enrollmentId);
+
+      const uploadRes = await authFetch(`/api/admin/lectura-upload`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fileName: lecturaAudioFile.name, contentType: lecturaAudioFile.type }),
+        body: formData,
       });
-      const presignData = await presignRes.json();
-      if (!presignRes.ok) {
-        toast.error(presignData.error || "Error al obtener URL de subida");
-        return;
-      }
-
-      // Step 2: Upload to R2
-      const uploadRes = await fetch(presignData.uploadUrl, {
-        method: "PUT",
-        headers: { "Content-Type": lecturaAudioFile.type },
-        body: lecturaAudioFile,
-      });
+      const uploadData = await uploadRes.json();
       if (!uploadRes.ok) {
-        toast.error("Error al subir audio a R2");
+        toast.error(uploadData.error || "Error al subir audio");
         return;
       }
 
-      // Step 3: Update the enrollment with r2Key
+      // Update the enrollment with r2Key
       const updateRes = await authFetch(`/api/admin/enrollments/${enrollmentId}/upload-audio`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ r2Key: presignData.r2Key, fileName: lecturaAudioFile.name }),
+        body: JSON.stringify({ r2Key: uploadData.r2Key, fileName: uploadData.fileName }),
       });
       if (!updateRes.ok) {
         toast.error("Error al actualizar inscripción");
@@ -1088,7 +1072,8 @@ export default function AdminPage() {
       toast.success("Audio subido correctamente");
       setLecturaAudioFile(null);
       handleSelectStudent(selectedStudent);
-    } catch {
+    } catch (err) {
+      console.error("[Admin] Error al subir audio:", err);
       toast.error("Error al subir audio");
     } finally {
       setUploadingLecturaAudio(false);
