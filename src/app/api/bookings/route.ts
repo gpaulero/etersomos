@@ -6,7 +6,8 @@ import {
   generateGoogleCalendarLink,
   calculateDeadline,
 } from "@/lib/notifications";
-import { sendAdminNotification, sendCustomerConfirmation } from "@/lib/email";
+import { sendAdminNotification, sendCustomerConfirmation, sendAulaWelcomeEmail } from "@/lib/email";
+import { ensureStudentWithEnrollment } from "@/lib/student-auth";
 
 /* ── POST: Create a new booking + send notifications ──────────────────── */
 
@@ -99,6 +100,34 @@ export async function POST(request: NextRequest) {
         });
       } catch (err) {
         console.error("[Email] Failed to send customer confirmation for transfer reading:", err);
+      }
+
+      // Auto-create student + enrollment in Aula Virtual
+      try {
+        const enrollResult = await ensureStudentWithEnrollment({
+          name: booking.name,
+          email: booking.email,
+          phone: booking.phone,
+          enrollmentType: 'lectura',
+          enrollmentTitle: 'Lectura Akáshica Individual',
+          notes: `Pago: ${method}`,
+          assignedBy: 'auto-booking',
+        });
+        if (enrollResult.isNewStudent && enrollResult.generatedPassword) {
+          try {
+            await sendAulaWelcomeEmail({
+              customerName: booking.name,
+              customerEmail: booking.email,
+              password: enrollResult.generatedPassword,
+              enrollmentType: 'lectura',
+              enrollmentTitle: 'Lectura Akáshica Individual',
+            });
+          } catch (emailErr) {
+            console.error("[AutoEnroll] Welcome email failed (sandbox?):", (emailErr as Error).message);
+          }
+        }
+      } catch (err) {
+        console.error("[AutoEnroll] Failed for booking:", err);
       }
     })();
 

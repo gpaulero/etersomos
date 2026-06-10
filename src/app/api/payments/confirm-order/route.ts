@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { sendAdminNotification, sendCustomerConfirmation } from "@/lib/email";
+import { sendAdminNotification, sendCustomerConfirmation, sendAulaWelcomeEmail } from "@/lib/email";
+import { ensureStudentWithEnrollment } from "@/lib/student-auth";
 
 type OrderType = "crystal_order" | "course_enrollment" | "mentoria_enrollment" | "reading" | "resource_purchase";
 
@@ -240,6 +241,16 @@ async function handleCourseEnrollment(body: Record<string, unknown>) {
     extraData: extraData || {},
   });
 
+  // Auto-create student + enrollment in Aula Virtual
+  autoEnrollStudent({
+    name: customerName,
+    email: customerEmail,
+    phone: customerPhone,
+    enrollmentType: 'curso',
+    enrollmentTitle: items[0]?.name || 'Curso',
+    referenceId: (extraData?.courseId as string) || items[0]?.id?.toString() || '',
+  });
+
   return NextResponse.json(
     {
       success: true,
@@ -307,6 +318,15 @@ async function handleMentoriaEnrollment(body: Record<string, unknown>) {
     paymentId: order.paymentId,
     orderId: order.id,
     extraData: extraData || {},
+  });
+
+  // Auto-create student + enrollment in Aula Virtual
+  autoEnrollStudent({
+    name: customerName,
+    email: customerEmail,
+    phone: customerPhone,
+    enrollmentType: 'mentoria',
+    enrollmentTitle: items[0]?.name || 'Mentoría Akáshica',
   });
 
   return NextResponse.json(
@@ -379,6 +399,16 @@ async function handleReadingOrder(body: Record<string, unknown>) {
     paymentId: paymentId || null,
     orderId: booking.id,
     extraData: extraData || {},
+  });
+
+  // Auto-create student + enrollment in Aula Virtual
+  autoEnrollStudent({
+    name: customerName,
+    email: customerEmail,
+    phone: customerPhone,
+    enrollmentType: 'lectura',
+    enrollmentTitle: 'Lectura Akáshica Individual',
+    notes: `Pago: ${paymentMethod}`,
   });
 
   return NextResponse.json(
@@ -504,6 +534,63 @@ async function handleResourcePurchase(body: Record<string, unknown>) {
     },
     { status: 201 }
   );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   AUTO-ENROLL STUDENT HELPER (fire and forget)
+   When someone pays for a course, reading, or mentoría, automatically:
+   1. Create a Student record (if not exists)
+   2. Create a StudentEnrollment
+   3. Send welcome email with Aula Virtual credentials (if new student)
+   ═══════════════════════════════════════════════════════════════════════ */
+
+function autoEnrollStudent(params: {
+  name: string;
+  email: string;
+  phone?: string;
+  enrollmentType: 'curso' | 'lectura' | 'mentoria';
+  enrollmentTitle: string;
+  referenceId?: string;
+  notes?: string;
+}): void {
+  // Fire and forget — never block the response
+  (async () => {
+    try {
+      const result = await ensureStudentWithEnrollment({
+        name: params.name,
+        email: params.email,
+        phone: params.phone,
+        enrollmentType: params.enrollmentType,
+        enrollmentTitle: params.enrollmentTitle,
+        referenceId: params.referenceId,
+        notes: params.notes,
+        assignedBy: 'auto-purchase',
+      });
+
+      console.log(
+        `[AutoEnroll] ${result.isNewStudent ? 'NEW' : 'EXISTING'} student ${result.studentId}, enrollment ${result.enrollmentId}`
+      );
+
+      // Send welcome email only for new students (has generated password)
+      if (result.isNewStudent && result.generatedPassword) {
+        try {
+          await sendAulaWelcomeEmail({
+            customerName: params.name,
+            customerEmail: params.email.trim().toLowerCase(),
+            password: result.generatedPassword,
+            enrollmentType: params.enrollmentType,
+            enrollmentTitle: params.enrollmentTitle,
+          });
+        } catch (emailErr) {
+          // Resend sandbox may fail for non-verified emails — that's OK
+          console.error('[AutoEnroll] Welcome email failed (sandbox?):', (emailErr as Error).message);
+        }
+      }
+    } catch (err) {
+      // Log error but never fail the main order flow
+      console.error('[AutoEnroll] Failed:', err);
+    }
+  })();
 }
 
 /* ═══════════════════════════════════════════════════════════════════════

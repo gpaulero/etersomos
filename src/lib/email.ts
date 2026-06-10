@@ -563,3 +563,100 @@ function escapeHtml(text: string): string {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   AULA VIRTUAL WELCOME EMAIL
+   Sent automatically when a student is created via auto-enrollment.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+export async function sendAulaWelcomeEmail(params: {
+  customerName: string
+  customerEmail: string
+  password: string
+  enrollmentType: 'curso' | 'lectura' | 'mentoria'
+  enrollmentTitle: string
+}): Promise<void> {
+  const resend = createResendClient();
+
+  const typeLabels = {
+    curso: 'curso',
+    lectura: 'lectura',
+    mentoria: 'mentoría',
+  };
+
+  const typeIcons = {
+    curso: '📚',
+    lectura: '🔮',
+    mentoria: '🌟',
+  };
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://etersomos-iota.vercel.app';
+  const aulaUrl = `${baseUrl}/aula`;
+
+  const html = `
+    <div style="max-width: 560px; margin: 0 auto; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #161310; border-radius: 12px; overflow: hidden;">
+      <div style="background: linear-gradient(135deg, #1a1510 0%, #0d0b08 100%); padding: 40px 24px; text-align: center; border-bottom: 1px solid #2a252066;">
+        <p style="margin: 0 0 8px; font-size: 36px;">🎓</p>
+        <h1 style="margin: 0; color: #d4a853; font-size: 22px; letter-spacing: 0.05em;">TU AULA VIRTUAL ESTÁ LISTA</h1>
+        <p style="margin: 8px 0 0; color: #8a8070; font-size: 13px;">Eter Somos | Registros Akáshicos</p>
+      </div>
+
+      <div style="padding: 24px;">
+        <p style="margin: 0 0 16px; color: #f0ebe5; font-size: 15px; line-height: 1.6;">
+          ¡Hola, <strong style="color: #d4a853;">${escapeHtml(params.customerName)}</strong>! Tu inscripción a la ${typeLabels[params.enrollmentType]} ha sido confirmada y te hemos creado una cuenta en el Aula Virtual para que accedas a tu contenido.
+        </p>
+
+        <div style="background: #1a1510; border: 1px solid #2a252066; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+          <p style="margin: 0 0 8px; color: #d4a853; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;">${typeIcons[params.enrollmentType]} Tu inscripción</p>
+          <p style="margin: 0; color: #f0ebe5; font-size: 16px; font-weight: 600;">${escapeHtml(params.enrollmentTitle)}</p>
+        </div>
+      </div>
+
+      <div style="padding: 0 24px 24px;">
+        <h2 style="margin: 0 0 16px; color: #d4a853; font-size: 18px; border-bottom: 1px solid #2a252066; padding-bottom: 8px;">🔐 Tus datos de acceso</h2>
+        <div style="background: #1a1510; border: 1px solid #d4a85333; border-radius: 8px; padding: 16px;">
+          <table style="width: 100%; font-size: 14px;">
+            <tr>
+              <td style="padding: 6px 0; color: #8a8070; width: 30%;">Email:</td>
+              <td style="padding: 6px 0; color: #f0ebe5; font-weight: 600;">${escapeHtml(params.customerEmail)}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #8a8070;">Contraseña:</td>
+              <td style="padding: 6px 0; color: #d4a853; font-family: monospace; font-size: 16px; font-weight: 700; letter-spacing: 0.1em;">${escapeHtml(params.password)}</td>
+            </tr>
+          </table>
+          <p style="margin: 12px 0 0; color: #8a8070; font-size: 12px;">Podés cambiar tu contraseña desde tu perfil en el Aula Virtual.</p>
+        </div>
+      </div>
+
+      <div style="padding: 0 24px 24px; text-align: center;">
+        <a href="${aulaUrl}" style="display: inline-block; background: linear-gradient(135deg, #7c3aed, #5b21b6); color: #f0ebe5; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px; letter-spacing: 0.03em;">Ingresar al Aula Virtual</a>
+      </div>
+
+      <div style="padding: 0 24px 24px;">
+        <h2 style="margin: 0 0 12px; color: #d4a853; font-size: 16px;">¿Qué encontrás en el Aula?</h2>
+        <ul style="margin: 0; padding-left: 20px;">
+          <li style="padding: 4px 0; color: #f0ebe5; font-size: 14px;">Acceso a tus cursos, lecturas y mentorías</li>
+          <li style="padding: 4px 0; color: #f0ebe5; font-size: 14px;">Material de estudio y contenido exclusivo</li>
+          <li style="padding: 4px 0; color: #f0ebe5; font-size: 14px;">Seguimiento de tu progreso</li>
+          <li style="padding: 4px 0; color: #f0ebe5; font-size: 14px;">Descarga de audios y documentos</li>
+        </ul>
+      </div>
+
+      <div style="padding: 24px; text-align: center; border-top: 1px solid #2a252066;">
+        <p style="margin: 0; color: #d4a853; font-size: 14px; font-weight: 600;">Eter Somos</p>
+        <p style="margin: 4px 0 0; color: #5a5545; font-size: 12px;">Registros Akáshicos y Cristales</p>
+        <p style="margin: 8px 0 0; color: #5a5545; font-size: 11px;">etersomos@gmail.com</p>
+      </div>
+    </div>
+  `;
+
+  await resend.emails.send({
+    from: SENDER,
+    to: [params.customerEmail],
+    subject: `Eter Somos — Tu acceso al Aula Virtual (${typeLabels[params.enrollmentType]}: ${params.enrollmentTitle})`,
+    html,
+  });
+
+  console.log(`[Email] Aula welcome email sent to ${params.customerEmail}`);
+}

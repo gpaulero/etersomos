@@ -143,3 +143,105 @@ export async function createEnrollment(data: {
     }
   })
 }
+
+/* ── Auto-create student + enrollment on purchase ── */
+
+function generateRandomPassword(length = 10): string {
+  const chars = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  let password = ''
+  for (let i = 0; i < length; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length))
+  }
+  return password
+}
+
+export interface AutoEnrollResult {
+  studentId: string
+  isNewStudent: boolean
+  generatedPassword: string | null
+  enrollmentId: string
+}
+
+/**
+ * Ensures a Student exists (creates if not) and creates a StudentEnrollment.
+ * Called automatically when someone pays for a course, reading, or mentoría.
+ * Returns the student ID, whether it's newly created, and the generated password (only for new students).
+ */
+export async function ensureStudentWithEnrollment(params: {
+  name: string
+  email: string
+  phone?: string
+  enrollmentType: 'curso' | 'lectura' | 'mentoria'
+  enrollmentTitle: string
+  referenceId?: string
+  notes?: string
+  assignedBy?: string
+}): Promise<AutoEnrollResult> {
+  await ensureSchema()
+
+  const normalizedEmail = params.email.trim().toLowerCase()
+
+  // 1. Check if student already exists
+  let student = await findStudentByEmail(normalizedEmail)
+  let isNewStudent = false
+  let generatedPassword: string | null = null
+
+  if (!student) {
+    // 2. Create new student with auto-generated password
+    const rawPassword = generateRandomPassword(10)
+    student = await createStudent({
+      email: normalizedEmail,
+      password: rawPassword,
+      nombre: params.name.trim(),
+      phone: params.phone?.trim() || '',
+    })
+    isNewStudent = true
+    generatedPassword = rawPassword
+    console.log(`[AutoEnroll] Created new student: ${student.id} (${normalizedEmail})`)
+  } else {
+    console.log(`[AutoEnroll] Existing student found: ${student.id} (${normalizedEmail})`)
+  }
+
+  // 3. Check if enrollment already exists for this student + type + referenceId
+  const existingEnrollments: Array<{ id: string; type: string; referenceId: string; title: string }> =
+    await (db as any).studentEnrollment.findMany({
+      where: { studentId: student.id },
+    })
+
+  const duplicate = existingEnrollments.find(
+    (e) =>
+      e.type === params.enrollmentType &&
+      e.referenceId === (params.referenceId || '') &&
+      e.title === params.enrollmentTitle
+  )
+
+  if (duplicate) {
+    console.log(`[AutoEnroll] Enrollment already exists: ${duplicate.id} — skipping creation`)
+    return {
+      studentId: student.id,
+      isNewStudent,
+      generatedPassword,
+      enrollmentId: duplicate.id,
+    }
+  }
+
+  // 4. Create enrollment
+  const enrollment = await createEnrollment({
+    studentId: student.id,
+    type: params.enrollmentType,
+    referenceId: params.referenceId,
+    title: params.enrollmentTitle,
+    status: 'activa',
+    assignedBy: params.assignedBy || 'auto-purchase',
+    notes: params.notes || undefined,
+  })
+
+  console.log(`[AutoEnroll] Created enrollment: ${enrollment.id} (${params.enrollmentType}: ${params.enrollmentTitle})`)
+
+  return {
+    studentId: student.id,
+    isNewStudent,
+    generatedPassword,
+    enrollmentId: enrollment.id,
+  }
+}
