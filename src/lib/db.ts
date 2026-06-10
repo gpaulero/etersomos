@@ -86,13 +86,16 @@ function createTursoDbProxy() {
         }
       }
 
-      // Model access (readingBooking, crystalOrder, membership, settings)
+      // Model access
       if (prop === 'readingBooking') return createModelProxy(client, 'ReadingBooking')
       if (prop === 'crystalOrder') return createModelProxy(client, 'CrystalOrder')
       if (prop === 'membership') return createModelProxy(client, 'Membership')
       if (prop === 'newsletterSubscriber') return createModelProxy(client, 'NewsletterSubscriber')
       if (prop === 'settings') return createSettingsProxy(client)
       if (prop === 'siteContent') return createSiteContentProxy(client)
+      if (prop === 'student') return createModelProxy(client, 'Student')
+      if (prop === 'studentEnrollment') return createModelProxy(client, 'StudentEnrollment')
+      if (prop === 'courseContent') return createModelProxy(client, 'CourseContent')
 
       // $transaction support
       if (prop === '$transaction') {
@@ -547,15 +550,75 @@ export async function ensureSchema() {
         updatedAt TEXT NOT NULL DEFAULT (datetime('now'))
       )
     `
+
+    // Student table (aula virtual)
+    const studentSql = `
+      CREATE TABLE IF NOT EXISTS Student (
+        id           TEXT PRIMARY KEY,
+        email        TEXT NOT NULL UNIQUE,
+        passwordHash TEXT NOT NULL,
+        nombre       TEXT NOT NULL DEFAULT '',
+        phone        TEXT NOT NULL DEFAULT '',
+        createdAt    TEXT NOT NULL DEFAULT (datetime('now')),
+        updatedAt    TEXT NOT NULL DEFAULT (datetime('now'))
+      )
+    `
+
+    // StudentEnrollment table (what each student has access to)
+    const studentEnrollmentSql = `
+      CREATE TABLE IF NOT EXISTS StudentEnrollment (
+        id           TEXT PRIMARY KEY,
+        studentId    TEXT NOT NULL,
+        type         TEXT NOT NULL,
+        referenceId  TEXT NOT NULL DEFAULT '',
+        title        TEXT NOT NULL DEFAULT '',
+        status       TEXT NOT NULL DEFAULT 'activa',
+        assignedBy   TEXT,
+        notes        TEXT,
+        createdAt    TEXT NOT NULL DEFAULT (datetime('now')),
+        updatedAt    TEXT NOT NULL DEFAULT (datetime('now'))
+      )
+    `
+
+    // CourseContent table (material for courses in R2)
+    const courseContentSql = `
+      CREATE TABLE IF NOT EXISTS CourseContent (
+        id           TEXT PRIMARY KEY,
+        courseId     TEXT NOT NULL,
+        title        TEXT NOT NULL,
+        description  TEXT NOT NULL DEFAULT '',
+        fileType     TEXT NOT NULL DEFAULT '',
+        r2Key        TEXT NOT NULL,
+        fileName     TEXT NOT NULL DEFAULT '',
+        sortOrder    INTEGER NOT NULL DEFAULT 0,
+        active       INTEGER NOT NULL DEFAULT 1,
+        createdAt    TEXT NOT NULL DEFAULT (datetime('now'))
+      )
+    `
     if (client) {
       await client.execute(siteContentSql)
+      await client.execute(studentSql)
+      await client.execute(studentEnrollmentSql)
+      await client.execute(courseContentSql)
       try {
         await client.execute(`CREATE UNIQUE INDEX IF NOT EXISTS idx_sitecontent_key ON SiteContent(key)`)
       } catch {}
+      try {
+        await client.execute(`CREATE UNIQUE INDEX IF NOT EXISTS idx_student_email ON Student(email)`)
+      } catch {}
+      try {
+        await client.execute(`CREATE INDEX IF NOT EXISTS idx_enrollment_student ON StudentEnrollment(studentId)`)
+      } catch {}
+      try {
+        await client.execute(`CREATE INDEX IF NOT EXISTS idx_coursecontent_course ON CourseContent(courseId)`)
+      } catch {}
     } else {
       await prisma.$executeRawUnsafe(siteContentSql)
+      await prisma.$executeRawUnsafe(studentSql)
+      await prisma.$executeRawUnsafe(studentEnrollmentSql)
+      await prisma.$executeRawUnsafe(courseContentSql)
     }
-    console.log("[DB] Schema ensured: Membership + NewsletterSubscriber + Settings + SiteContent tables ready")
+    console.log("[DB] Schema ensured: all tables ready (including Student, StudentEnrollment, CourseContent)")
   } catch (err) {
     console.error("[DB] Failed to ensure schema:", err)
   }

@@ -1,0 +1,384 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import {
+  BookOpen,
+  GraduationCap,
+  Eye,
+  LogOut,
+  User,
+  Clock,
+  CheckCircle2,
+  AlertCircle,
+  Sparkles,
+  ChevronDown,
+  ChevronUp,
+  Play,
+  FileText,
+  Download,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { toast, Toaster } from "sonner";
+
+interface Student {
+  id: string;
+  email: string;
+  nombre: string;
+  phone?: string;
+}
+
+interface Enrollment {
+  id: string;
+  type: string;
+  referenceId: string;
+  title: string;
+  status: string;
+  assignedBy: string | null;
+  notes: string | null;
+  createdAt: string;
+}
+
+const statusConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
+  activa: { label: "Activa", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30", icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
+  pendiente: { label: "Pendiente", color: "bg-amber-500/20 text-amber-300 border-amber-500/30", icon: <Clock className="w-3.5 h-3.5" /> },
+  en_progreso: { label: "En progreso", color: "bg-blue-500/20 text-blue-300 border-blue-500/30", icon: <Eye className="w-3.5 h-3.5" /> },
+  completada: { label: "Completada", color: "bg-violet-500/20 text-violet-300 border-violet-500/30", icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
+  entregada: { label: "Entregada", color: "bg-violet-500/20 text-violet-300 border-violet-500/30", icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
+  cancelada: { label: "Cancelada", color: "bg-red-500/20 text-red-300 border-red-500/30", icon: <AlertCircle className="w-3.5 h-3.5" /> },
+};
+
+const typeConfig: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
+  curso: { label: "Curso", icon: <GraduationCap className="w-5 h-5" />, color: "text-blue-400" },
+  lectura: { label: "Lectura", icon: <BookOpen className="w-5 h-5" />, color: "text-violet-400" },
+  mentoria: { label: "Mentoría", icon: <Sparkles className="w-5 h-5" />, color: "text-gold-400" },
+};
+
+export default function AulaDashboard() {
+  const router = useRouter();
+  const [student, setStudent] = useState<Student | null>(null);
+  const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [expandedEnrollment, setExpandedEnrollment] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadStudentData();
+  }, []);
+
+  const loadStudentData = async () => {
+    try {
+      // Get student profile
+      const meRes = await fetch("/api/student/auth/me");
+      if (!meRes.ok) {
+        router.push("/aula/login");
+        return;
+      }
+      const meData = await meRes.json();
+      setStudent(meData);
+
+      // Get enrollments
+      const enrRes = await fetch("/api/student/enrollments");
+      if (enrRes.ok) {
+        const enrData = await enrRes.json();
+        setEnrollments(enrData.enrollments || []);
+      }
+    } catch {
+      router.push("/aula/login");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    await fetch("/api/student/auth/logout", { method: "POST" });
+    toast.success("Sesión cerrada");
+    setTimeout(() => router.push("/aula/login"), 500);
+  };
+
+  const cursos = enrollments.filter((e) => e.type === "curso");
+  const lecturas = enrollments.filter((e) => e.type === "lectura");
+  const mentorias = enrollments.filter((e) => e.type === "mentoria");
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <svg className="animate-spin h-8 w-8 mx-auto mb-4 text-violet-400" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+          <p className="text-mystic-300 font-sans">Cargando tu aula...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!student) return null;
+
+  return (
+    <div className="min-h-screen relative">
+      {/* Background */}
+      <div className="fixed inset-0 bg-gradient-to-br from-mystic-950 via-mystic-950 to-violet-950/40 -z-10" />
+
+      {/* Header */}
+      <header className="bg-mystic-900/60 backdrop-blur-xl border-b border-mystic-700/40 sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link href="/" className="flex items-center gap-2">
+              <div className="w-9 h-9 rounded-full overflow-hidden border border-violet-400/30">
+                <img src="/images/logo-etersomos.jpg" alt="Eter Somos" className="w-full h-full object-cover" />
+              </div>
+              <span className="font-serif text-lg text-foreground hidden sm:block">Aula Virtual</span>
+            </Link>
+            <span className="text-mystic-500 hidden md:block">|</span>
+            <span className="text-mystic-300 font-sans text-sm hidden md:block">
+              Hola, <span className="text-violet-300">{student.nombre}</span>
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <Link href="/">
+              <Button variant="ghost" className="text-mystic-400 hover:text-foreground text-sm">
+                ← Inicio
+              </Button>
+            </Link>
+            <Button
+              variant="ghost"
+              className="text-mystic-400 hover:text-foreground text-sm gap-1"
+              onClick={handleLogout}
+            >
+              <LogOut className="w-4 h-4" />
+              Salir
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-6xl mx-auto px-4 py-8">
+        {/* Welcome */}
+        <div className="mb-8">
+          <h1 className="font-serif text-3xl md:text-4xl text-foreground mb-2">
+            Tu Aula Virtual
+          </h1>
+          <p className="text-mystic-300 font-sans">
+            Acá podés ver tus cursos, lecturas y mentorías con Fer Cardozo.
+          </p>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <Card className="bg-mystic-900/60 border-mystic-700/40 backdrop-blur">
+            <CardContent className="p-4 text-center">
+              <GraduationCap className="w-6 h-6 text-blue-400 mx-auto mb-1" />
+              <p className="text-2xl font-serif text-foreground">{cursos.length}</p>
+              <p className="text-mystic-400 text-xs font-sans">Cursos</p>
+            </CardContent>
+          </Card>
+          <Card className="bg-mystic-900/60 border-mystic-700/40 backdrop-blur">
+            <CardContent className="p-4 text-center">
+              <BookOpen className="w-6 h-6 text-violet-400 mx-auto mb-1" />
+              <p className="text-2xl font-serif text-foreground">{lecturas.length}</p>
+              <p className="text-mystic-400 text-xs font-sans">Lecturas</p>
+            </CardContent>
+          </Card>
+          <Card className="bg-mystic-900/60 border-mystic-700/40 backdrop-blur">
+            <CardContent className="p-4 text-center">
+              <Sparkles className="w-6 h-6 text-gold-400 mx-auto mb-1" />
+              <p className="text-2xl font-serif text-foreground">{mentorias.length}</p>
+              <p className="text-mystic-400 text-xs font-sans">Mentorías</p>
+            </CardContent>
+          </Card>
+          <Card className="bg-mystic-900/60 border-mystic-700/40 backdrop-blur">
+            <CardContent className="p-4 text-center">
+              <CheckCircle2 className="w-6 h-6 text-emerald-400 mx-auto mb-1" />
+              <p className="text-2xl font-serif text-foreground">
+                {enrollments.filter((e) => e.status === "completada" || e.status === "entregada").length}
+              </p>
+              <p className="text-mystic-400 text-xs font-sans">Completados</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Sections */}
+        {enrollments.length === 0 ? (
+          <Card className="bg-mystic-900/60 border-mystic-700/40 backdrop-blur">
+            <CardContent className="p-12 text-center">
+              <BookOpen className="w-12 h-12 text-mystic-600 mx-auto mb-4" />
+              <h3 className="font-serif text-xl text-foreground mb-2">Tu aula está vacía</h3>
+              <p className="text-mystic-400 font-sans text-sm max-w-md mx-auto">
+                Cuando te inscribas a un curso, solicites una lectura o te asignen una mentoría,
+                van a aparecer acá. ¡Explorá lo que Eter Somos tiene para ofrecerte!
+              </p>
+              <Link href="/#espacios" className="inline-block mt-4">
+                <Button className="bg-violet-500 hover:bg-violet-400 text-white gap-2">
+                  <Sparkles className="w-4 h-4" />
+                  Ver servicios
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-8">
+            {/* Cursos */}
+            {cursos.length > 0 && (
+              <section>
+                <h2 className="font-serif text-2xl text-foreground mb-4 flex items-center gap-2">
+                  <GraduationCap className="w-6 h-6 text-blue-400" />
+                  Mis Cursos
+                </h2>
+                <div className="grid gap-4">
+                  {cursos.map((enr) => (
+                    <EnrollmentCard
+                      key={enr.id}
+                      enrollment={enr}
+                      expanded={expandedEnrollment === enr.id}
+                      onToggle={() => setExpandedEnrollment(expandedEnrollment === enr.id ? null : enr.id)}
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Lecturas */}
+            {lecturas.length > 0 && (
+              <section>
+                <h2 className="font-serif text-2xl text-foreground mb-4 flex items-center gap-2">
+                  <BookOpen className="w-6 h-6 text-violet-400" />
+                  Mis Lecturas
+                </h2>
+                <div className="grid gap-4">
+                  {lecturas.map((enr) => (
+                    <EnrollmentCard
+                      key={enr.id}
+                      enrollment={enr}
+                      expanded={expandedEnrollment === enr.id}
+                      onToggle={() => setExpandedEnrollment(expandedEnrollment === enr.id ? null : enr.id)}
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Mentorías */}
+            {mentorias.length > 0 && (
+              <section>
+                <h2 className="font-serif text-2xl text-foreground mb-4 flex items-center gap-2">
+                  <Sparkles className="w-6 h-6 text-gold-400" />
+                  Mis Mentorías
+                </h2>
+                <div className="grid gap-4">
+                  {mentorias.map((enr) => (
+                    <EnrollmentCard
+                      key={enr.id}
+                      enrollment={enr}
+                      expanded={expandedEnrollment === enr.id}
+                      onToggle={() => setExpandedEnrollment(expandedEnrollment === enr.id ? null : enr.id)}
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
+        )}
+
+        {/* Profile section */}
+        <Card className="bg-mystic-900/40 border-mystic-700/30 mt-8">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <User className="w-5 h-5 text-violet-400" />
+              <h3 className="font-serif text-lg text-foreground">Mi Perfil</h3>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+              <div>
+                <p className="text-mystic-500 font-sans">Nombre</p>
+                <p className="text-foreground font-sans">{student.nombre}</p>
+              </div>
+              <div>
+                <p className="text-mystic-500 font-sans">Email</p>
+                <p className="text-foreground font-sans">{student.email}</p>
+              </div>
+              <div>
+                <p className="text-mystic-500 font-sans">Teléfono</p>
+                <p className="text-foreground font-sans">{student.phone || "—"}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </main>
+
+      <Toaster richColors position="top-center" />
+    </div>
+  );
+}
+
+/* ── Enrollment Card Component ── */
+
+function EnrollmentCard({
+  enrollment,
+  expanded,
+  onToggle,
+}: {
+  enrollment: Enrollment;
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  const tc = typeConfig[enrollment.type] || typeConfig.curso;
+  const sc = statusConfig[enrollment.status] || statusConfig.pendiente;
+  const dateStr = enrollment.createdAt
+    ? new Date(enrollment.createdAt).toLocaleDateString("es-AR", { year: "numeric", month: "short", day: "numeric" })
+    : "";
+
+  return (
+    <Card className="bg-mystic-900/60 border-mystic-700/40 backdrop-blur hover:border-violet-500/30 transition-colors">
+      <CardContent className="p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start gap-3 flex-1 min-w-0">
+            <div className={`${tc.color} mt-0.5 shrink-0`}>{tc.icon}</div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-serif text-lg text-foreground truncate">{enrollment.title}</h3>
+              <div className="flex items-center gap-2 mt-1 flex-wrap">
+                <Badge variant="outline" className={`${sc.color} text-xs gap-1 border`}>
+                  {sc.icon}
+                  {sc.label}
+                </Badge>
+                <span className="text-mystic-500 text-xs font-sans">{tc.label}</span>
+                {dateStr && <span className="text-mystic-500 text-xs font-sans">· {dateStr}</span>}
+              </div>
+            </div>
+          </div>
+          <Button variant="ghost" size="sm" className="text-mystic-400 shrink-0" onClick={onToggle}>
+            {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </Button>
+        </div>
+
+        {expanded && (
+          <div className="mt-4 pt-4 border-t border-mystic-700/40 space-y-3">
+            {enrollment.notes && (
+              <div>
+                <p className="text-mystic-500 text-xs font-sans mb-1">Notas</p>
+                <p className="text-mystic-200 text-sm font-sans">{enrollment.notes}</p>
+              </div>
+            )}
+            {enrollment.assignedBy && (
+              <div>
+                <p className="text-mystic-500 text-xs font-sans">
+                  Asignado por: <span className="text-mystic-200">{enrollment.assignedBy}</span>
+                </p>
+              </div>
+            )}
+            {enrollment.type === "curso" && enrollment.status !== "pendiente" && (
+              <Link href={`/aula/curso/${enrollment.referenceId || enrollment.id}`}>
+                <Button className="bg-violet-500 hover:bg-violet-400 text-white text-sm gap-2 mt-2">
+                  <Play className="w-4 h-4" />
+                  Acceder al curso
+                </Button>
+              </Link>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}

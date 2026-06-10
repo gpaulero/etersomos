@@ -46,6 +46,7 @@ import {
   Upload,
   FolderOpen,
   ExternalLink,
+  UserPlus,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -588,6 +589,16 @@ export default function AdminPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [editingResource, setEditingResource] = useState<string | null>(null);
 
+  // Students state (aula virtual)
+  const [students, setStudents] = useState<any[]>([]);
+  const [studentsLoading, setStudentsLoading] = useState(false);
+  const [showNewStudentForm, setShowNewStudentForm] = useState(false);
+  const [newStudentForm, setNewStudentForm] = useState({ email: "", nombre: "", phone: "", password: "" });
+  const [selectedStudent, setSelectedStudent] = useState<any | null>(null);
+  const [studentEnrollments, setStudentEnrollments] = useState<any[]>([]);
+  const [enrollmentForm, setEnrollmentForm] = useState({ type: "curso", title: "", referenceId: "", notes: "" });
+  const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
+
   // Generic drag state
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dragOverColumn, setDragOverColumn] = useState<string | null>(null);
@@ -680,6 +691,7 @@ export default function AdminPage() {
       fetchFormSettings();
       fetchCmsContent();
       fetchResources();
+      fetchStudents();
     }
   }, [authenticated, fetchData]);
 
@@ -893,6 +905,103 @@ export default function AdminPage() {
   };
 
   // ── Resources ──
+
+  const fetchStudents = async () => {
+    setStudentsLoading(true);
+    try {
+      const res = await authFetch("/api/admin/students");
+      if (res.ok) {
+        const data = await res.json();
+        setStudents(data.students || []);
+      }
+    } catch {
+      toast.error("Error al cargar alumnos");
+    } finally {
+      setStudentsLoading(false);
+    }
+  };
+
+  const handleCreateStudent = async () => {
+    if (!newStudentForm.email || !newStudentForm.nombre) {
+      toast.error("Email y nombre son requeridos");
+      return;
+    }
+    try {
+      const res = await authFetch("/api/admin/students", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newStudentForm),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || "Error al crear alumno");
+        return;
+      }
+      toast.success(`Alumno ${data.student.nombre} creado`);
+      if (data.generatedPassword) {
+        setGeneratedPassword(data.generatedPassword);
+      }
+      setNewStudentForm({ email: "", nombre: "", phone: "", password: "" });
+      fetchStudents();
+    } catch {
+      toast.error("Error al crear alumno");
+    }
+  };
+
+  const handleSelectStudent = async (student: any) => {
+    setSelectedStudent(student);
+    setStudentEnrollments([]);
+    try {
+      const res = await authFetch(`/api/admin/students/${student.id}`);
+      if (res.ok) {
+        const data = await res.json();
+        setStudentEnrollments(data.enrollments || []);
+      }
+    } catch {
+      toast.error("Error al cargar inscripciones");
+    }
+  };
+
+  const handleAssignEnrollment = async () => {
+    if (!selectedStudent || !enrollmentForm.title || !enrollmentForm.type) {
+      toast.error("Tipo y título son requeridos");
+      return;
+    }
+    try {
+      const res = await authFetch(`/api/admin/students/${selectedStudent.id}/enrollments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(enrollmentForm),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || "Error al asignar");
+        return;
+      }
+      toast.success(`${enrollmentForm.type} "${enrollmentForm.title}" asignado`);
+      setEnrollmentForm({ type: "curso", title: "", referenceId: "", notes: "" });
+      handleSelectStudent(selectedStudent);
+    } catch {
+      toast.error("Error al asignar");
+    }
+  };
+
+  const handleDeleteStudent = async (id: string) => {
+    if (!confirm("¿Eliminar este alumno y todas sus inscripciones?")) return;
+    try {
+      const res = await authFetch(`/api/admin/students/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        toast.success("Alumno eliminado");
+        if (selectedStudent?.id === id) {
+          setSelectedStudent(null);
+          setStudentEnrollments([]);
+        }
+        fetchStudents();
+      }
+    } catch {
+      toast.error("Error al eliminar");
+    }
+  };
 
   const fetchResources = async () => {
     setResourcesLoading(true);
@@ -1454,6 +1563,16 @@ export default function AdminPage() {
             >
               <FileText className="w-4 h-4" />
               Contenido
+            </TabsTrigger>
+            <TabsTrigger
+              value="alumnos"
+              className="data-[state=active]:bg-gold-400/20 data-[state=active]:text-gold-300 font-josefin text-mystic-300 gap-2"
+            >
+              <GraduationCap className="w-4 h-4" />
+              Alumnos
+              <Badge variant="secondary" className="bg-mystic-800/60 text-mystic-300 text-xs">
+                {students.length}
+              </Badge>
             </TabsTrigger>
           </TabsList>
 
@@ -2448,6 +2567,272 @@ export default function AdminPage() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* ═══ ALUMNOS TAB (AULA VIRTUAL) ═══ */}
+          <TabsContent value="alumnos">
+            <div className="space-y-4">
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <h3 className="font-serif text-lg text-gold-300 flex items-center gap-2">
+                  <GraduationCap className="w-5 h-5" />
+                  Aula Virtual — Alumnos
+                </h3>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowNewStudentForm(!showNewStudentForm)}
+                  className="border-violet-400/30 text-violet-300 hover:bg-violet-400/10 font-josefin gap-1"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  {showNewStudentForm ? "Cancelar" : "Nuevo alumno"}
+                </Button>
+              </div>
+
+              {/* Generated password alert */}
+              {generatedPassword && (
+                <Card className="bg-amber-500/10 border-amber-500/30">
+                  <CardContent className="p-4">
+                    <p className="text-amber-300 text-sm font-sans">
+                      Contraseña generada: <code className="bg-mystic-800 px-2 py-0.5 rounded text-amber-200">{generatedPassword}</code>
+                    </p>
+                    <p className="text-amber-400/70 text-xs font-sans mt-1">
+                      Copiá esta contraseña y envíasela al alumno. No se volverá a mostrar.
+                    </p>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-amber-300 text-xs mt-2"
+                      onClick={() => { navigator.clipboard.writeText(generatedPassword); toast.success("Copiada"); }}
+                    >
+                      Copiar
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* New student form */}
+              {showNewStudentForm && (
+                <Card className="bg-mystic-900/40 border-violet-500/30">
+                  <CardContent className="p-4 space-y-3">
+                    <h4 className="text-violet-300 font-josefin text-sm">Crear nuevo alumno</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <Input
+                        placeholder="Nombre"
+                        value={newStudentForm.nombre}
+                        onChange={(e) => setNewStudentForm({ ...newStudentForm, nombre: e.target.value })}
+                        className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm"
+                      />
+                      <Input
+                        placeholder="Email"
+                        type="email"
+                        value={newStudentForm.email}
+                        onChange={(e) => setNewStudentForm({ ...newStudentForm, email: e.target.value })}
+                        className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm"
+                      />
+                      <Input
+                        placeholder="Teléfono (opcional)"
+                        value={newStudentForm.phone}
+                        onChange={(e) => setNewStudentForm({ ...newStudentForm, phone: e.target.value })}
+                        className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm"
+                      />
+                      <Input
+                        placeholder="Contraseña (vacía = auto)"
+                        type="password"
+                        value={newStudentForm.password}
+                        onChange={(e) => setNewStudentForm({ ...newStudentForm, password: e.target.value })}
+                        className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm"
+                      />
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={handleCreateStudent}
+                      className="bg-violet-500 hover:bg-violet-400 text-white font-josefin"
+                    >
+                      Crear alumno
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Students list + detail */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                {/* Students list */}
+                <div className="lg:col-span-1">
+                  <Card className="bg-mystic-900/40 border-mystic-700/40">
+                    <CardContent className="p-3">
+                      <h4 className="text-mystic-400 text-xs font-josefin uppercase tracking-wider mb-2">
+                        Alumnos registrados ({students.length})
+                      </h4>
+                      {studentsLoading ? (
+                        <div className="text-center py-8"><Loader2 className="w-5 h-5 animate-spin mx-auto text-mystic-500" /></div>
+                      ) : students.length === 0 ? (
+                        <p className="text-mystic-500 text-sm font-sans text-center py-8">No hay alumnos registrados</p>
+                      ) : (
+                        <div className="space-y-1 max-h-96 overflow-y-auto">
+                          {students.map((s: any) => (
+                            <button
+                              key={s.id}
+                              onClick={() => handleSelectStudent(s)}
+                              className={`w-full text-left px-3 py-2 rounded-lg transition-colors text-sm font-sans ${
+                                selectedStudent?.id === s.id
+                                  ? "bg-violet-500/20 text-violet-200 border border-violet-500/30"
+                                  : "hover:bg-mystic-800/60 text-mystic-300"
+                              }`}
+                            >
+                              <p className="truncate">{s.nombre}</p>
+                              <p className="text-mystic-500 text-xs truncate">{s.email}</p>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Student detail */}
+                <div className="lg:col-span-2">
+                  {selectedStudent ? (
+                    <div className="space-y-4">
+                      {/* Student info */}
+                      <Card className="bg-mystic-900/40 border-mystic-700/40">
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="font-serif text-foreground flex items-center gap-2">
+                              <Users className="w-4 h-4 text-violet-400" />
+                              {selectedStudent.nombre}
+                            </h4>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                              onClick={() => handleDeleteStudent(selectedStudent.id)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                          <div className="grid grid-cols-2 gap-3 text-sm">
+                            <div>
+                              <p className="text-mystic-500 text-xs font-sans">Email</p>
+                              <p className="text-foreground font-sans">{selectedStudent.email}</p>
+                            </div>
+                            <div>
+                              <p className="text-mystic-500 text-xs font-sans">Teléfono</p>
+                              <p className="text-foreground font-sans">{selectedStudent.phone || "—"}</p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Current enrollments */}
+                      <Card className="bg-mystic-900/40 border-mystic-700/40">
+                        <CardContent className="p-4">
+                          <h5 className="text-mystic-400 text-xs font-josefin uppercase tracking-wider mb-3">
+                            Inscripciones ({studentEnrollments.length})
+                          </h5>
+                          {studentEnrollments.length === 0 ? (
+                            <p className="text-mystic-500 text-sm font-sans text-center py-4">
+                              Sin inscripciones. Asignale un curso o lectura.
+                            </p>
+                          ) : (
+                            <div className="space-y-2">
+                              {studentEnrollments.map((enr: any) => (
+                                <div key={enr.id} className="flex items-center justify-between bg-mystic-800/40 rounded-lg px-3 py-2">
+                                  <div className="flex items-center gap-2">
+                                    {enr.type === "curso" && <GraduationCap className="w-4 h-4 text-blue-400" />}
+                                    {enr.type === "lectura" && <BookOpen className="w-4 h-4 text-violet-400" />}
+                                    {enr.type === "mentoria" && <Star className="w-4 h-4 text-gold-400" />}
+                                    <div>
+                                      <p className="text-foreground text-sm font-sans">{enr.title}</p>
+                                      <p className="text-mystic-500 text-xs font-sans">
+                                        {enr.type} · {enr.status}
+                                        {enr.assignedBy && ` · por ${enr.assignedBy}`}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <Badge variant="outline" className={`text-xs ${
+                                    enr.status === "activa" ? "border-emerald-500/30 text-emerald-300" :
+                                    enr.status === "completada" ? "border-violet-500/30 text-violet-300" :
+                                    "border-mystic-600/30 text-mystic-400"
+                                  }`}>
+                                    {enr.status}
+                                  </Badge>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+
+                      {/* Assign enrollment form */}
+                      <Card className="bg-mystic-900/40 border-violet-500/20">
+                        <CardContent className="p-4 space-y-3">
+                          <h5 className="text-violet-300 text-xs font-josefin uppercase tracking-wider">
+                            Asignar curso / lectura / mentoría
+                          </h5>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                              <label className="text-mystic-500 text-xs font-sans">Tipo</label>
+                              <Select value={enrollmentForm.type} onValueChange={(v) => setEnrollmentForm({ ...enrollmentForm, type: v })}>
+                                <SelectTrigger className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="curso">Curso</SelectItem>
+                                  <SelectItem value="lectura">Lectura</SelectItem>
+                                  <SelectItem value="mentoria">Mentoría</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <label className="text-mystic-500 text-xs font-sans">Título</label>
+                              <Input
+                                placeholder="Ej: 1er Nivel con Práctica"
+                                value={enrollmentForm.title}
+                                onChange={(e) => setEnrollmentForm({ ...enrollmentForm, title: e.target.value })}
+                                className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-mystic-500 text-xs font-sans">ID referencia (opcional)</label>
+                              <Input
+                                placeholder="n1-practica"
+                                value={enrollmentForm.referenceId}
+                                onChange={(e) => setEnrollmentForm({ ...enrollmentForm, referenceId: e.target.value })}
+                                className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-mystic-500 text-xs font-sans">Notas</label>
+                              <Input
+                                placeholder="Notas opcionales"
+                                value={enrollmentForm.notes}
+                                onChange={(e) => setEnrollmentForm({ ...enrollmentForm, notes: e.target.value })}
+                                className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm"
+                              />
+                            </div>
+                          </div>
+                          <Button
+                            size="sm"
+                            onClick={handleAssignEnrollment}
+                            className="bg-violet-500 hover:bg-violet-400 text-white font-josefin"
+                          >
+                            Asignar
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  ) : (
+                    <Card className="bg-mystic-900/40 border-mystic-700/40">
+                      <CardContent className="p-12 text-center">
+                        <GraduationCap className="w-10 h-10 text-mystic-600 mx-auto mb-3" />
+                        <p className="text-mystic-400 font-josefin">Seleccioná un alumno para ver sus inscripciones</p>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
 

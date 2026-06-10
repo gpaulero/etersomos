@@ -9,6 +9,9 @@ const METHOD_PROTECTED: Record<string, string[]> = {
   "/api/resources": ["POST", "PUT", "DELETE"],
 };
 
+// Student-protected API routes (require student JWT cookie)
+const STUDENT_PROTECTED = ["/api/student/enrollments", "/api/student/auth/me"];
+
 function isProtectedRoute(pathname: string, method: string): boolean {
   for (const route of PROTECTED_ROUTES) {
     if (pathname.startsWith(route)) return true;
@@ -29,9 +32,18 @@ export function middleware(request: NextRequest) {
 
   if (!pathname.startsWith("/api/")) return addSecurityHeaders(request);
 
-  const PUBLIC_ROUTES = ["/api/auth", "/api/newsletter", "/api/payments", "/api/memberships"];
+  const PUBLIC_ROUTES = ["/api/auth", "/api/newsletter", "/api/payments", "/api/memberships", "/api/student/auth/login", "/api/student/auth/register", "/api/student/auth/logout"];
   for (const route of PUBLIC_ROUTES) {
     if (pathname.startsWith(route)) return addSecurityHeaders(request);
+  }
+
+  // Student-protected routes: allow if student cookie is present
+  for (const route of STUDENT_PROTECTED) {
+    if (pathname.startsWith(route)) {
+      const studentToken = request.cookies.get("student_token")?.value;
+      if (!studentToken) return NextResponse.json({ error: "Autenticacion de alumno requerida" }, { status: 401 });
+      return addSecurityHeaders(request);
+    }
   }
 
   if (!isProtectedRoute(pathname, method)) return addSecurityHeaders(request);
