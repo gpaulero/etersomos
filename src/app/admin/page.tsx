@@ -582,6 +582,14 @@ export default function AdminPage() {
     tienda: "Tienda de Cristales",
   };
 
+  // Predefined course options for Registros Akashicos
+  const courseOptions = [
+    { id: "n1-teorico", label: "RA N1 Teórico" },
+    { id: "n1-practica", label: "RA N1 con Práctica" },
+    { id: "n2", label: "RA N2 Completo" },
+    { id: "ambos", label: "Ambos Niveles (N1 + N2)" },
+  ];
+
   // Resources state
   const [resources, setResources] = useState<ResourceItem[]>([]);
   const [resourcesLoading, setResourcesLoading] = useState(false);
@@ -3135,7 +3143,7 @@ export default function AdminPage() {
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                               <label className="text-mystic-500 text-xs font-sans">Tipo</label>
-                              <Select value={enrollmentForm.type} onValueChange={(v) => { setEnrollmentForm({ ...enrollmentForm, type: v }); if (v !== "lectura") setLecturaAudioFile(null); }}>
+                              <Select value={enrollmentForm.type} onValueChange={(v) => { setEnrollmentForm({ ...enrollmentForm, type: v, referenceId: "" }); if (v !== "lectura") setLecturaAudioFile(null); }}>
                                 <SelectTrigger className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm">
                                   <SelectValue />
                                 </SelectTrigger>
@@ -3149,20 +3157,40 @@ export default function AdminPage() {
                             <div>
                               <label className="text-mystic-500 text-xs font-sans">Título</label>
                               <Input
-                                placeholder="Ej: Lectura Akáshica Individual"
+                                placeholder={enrollmentForm.type === "curso" ? "Se autocompleta al elegir curso" : "Ej: Lectura Akáshica Individual"}
                                 value={enrollmentForm.title}
                                 onChange={(e) => setEnrollmentForm({ ...enrollmentForm, title: e.target.value })}
                                 className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm"
                               />
                             </div>
                             <div>
-                              <label className="text-mystic-500 text-xs font-sans">ID referencia (opcional)</label>
-                              <Input
-                                placeholder="n1-practica"
-                                value={enrollmentForm.referenceId}
-                                onChange={(e) => setEnrollmentForm({ ...enrollmentForm, referenceId: e.target.value })}
-                                className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm"
-                              />
+                              <label className="text-mystic-500 text-xs font-sans">{enrollmentForm.type === "curso" ? "Curso" : "ID referencia"} {enrollmentForm.type !== "curso" ? "(opcional)" : ""}</label>
+                              {enrollmentForm.type === "curso" ? (
+                                <Select value={enrollmentForm.referenceId} onValueChange={(v) => {
+                                  const course = courseOptions.find(c => c.id === v);
+                                  setEnrollmentForm({
+                                    ...enrollmentForm,
+                                    referenceId: v,
+                                    title: course ? course.label : enrollmentForm.title,
+                                  });
+                                }}>
+                                  <SelectTrigger className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm">
+                                    <SelectValue placeholder="Seleccioná un curso..." />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {courseOptions.map((c) => (
+                                      <SelectItem key={c.id} value={c.id}>{c.label}</SelectItem>
+                                    }))}
+                                  </SelectContent>
+                                </Select>
+                              ) : (
+                                <Input
+                                  placeholder="id-referencia"
+                                  value={enrollmentForm.referenceId}
+                                  onChange={(e) => setEnrollmentForm({ ...enrollmentForm, referenceId: e.target.value })}
+                                  className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm"
+                                />
+                              )}
                             </div>
                             <div>
                               <label className="text-mystic-500 text-xs font-sans">Notas</label>
@@ -3320,20 +3348,20 @@ export default function AdminPage() {
                           Seleccionar curso
                         </h4>
 
-                        {/* Quick course ID buttons from existing enrollments */}
+                        {/* Quick course ID buttons */}
                         <div className="space-y-1">
-                          {["n1-teorico", "n1-practica", "n2", "ambos"].map((id) => (
+                          {courseOptions.map((course) => (
                             <button
-                              key={id}
-                              onClick={() => fetchCourseContents(id)}
+                              key={course.id}
+                              onClick={() => fetchCourseContents(course.id)}
                               className={`w-full text-left px-3 py-2 rounded-lg transition-colors text-sm font-sans ${
-                                selectedCourseId === id
+                                selectedCourseId === course.id
                                   ? "bg-blue-500/20 text-blue-200 border border-blue-500/30"
                                   : "hover:bg-mystic-800/60 text-mystic-300"
                               }`}
                             >
                               <GraduationCap className="w-4 h-4 inline mr-2 text-blue-400" />
-                              {id}
+                              {course.label}
                             </button>
                           ))}
                         </div>
