@@ -11,6 +11,76 @@ interface EmailItem {
   price: number;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════
+   BRAND DESIGN TOKENS — matches etersomos.com.ar website aesthetic
+   ═══════════════════════════════════════════════════════════════════════ */
+
+const BRAND = {
+  // Backgrounds
+  bg:          '#0a0908',  // mystic-950 — page background
+  card:        '#161310',  // card backgrounds
+  cardInner:   '#1a1714',  // secondary / inner card bg (mystic-800)
+  // Text
+  text:        '#f0ebe5',  // foreground — primary text
+  muted:       '#8a7e72',  // mystic-400 — muted text
+  mutedDark:   '#5c5349',  // mystic-500 — footer muted text
+  // Accent
+  violet:      '#a78bfa',  // violet-400 — primary accent (labels, headings)
+  violetDark:  '#8b5cf6',  // violet-500 — CTA buttons
+  violetDeep:  '#7c3aed',  // violet-600 — button hover / gradient
+  violetDeeper:'#5b21b6',  // violet-800 — gradient end
+  warm:        '#ebe3d6',  // gold-200 — warm sand accent
+  // Borders
+  border:      '#2a2520',  // mystic-700
+  borderLight: 'rgba(42,37,32,0.4)',
+  borderAccent:'rgba(167,139,250,0.2)',  // violet border accent
+  // Fonts
+  fontSerif:   "Georgia, 'Playfair Display', 'Times New Roman', serif",
+  fontSans:    "Helvetica, Arial, 'Josefin Sans', sans-serif",
+  // Radius
+  radius:      '10px',
+  radiusPill:  '50px',
+} as const;
+
+/* ── Shared email shell wrapper ─────────────────────────────────────── */
+
+function emailShell(content: string): string {
+  return `
+  <div style="background: ${BRAND.bg}; padding: 20px 0;">
+    <div style="max-width: 560px; margin: 0 auto; font-family: ${BRAND.fontSans}; background: ${BRAND.card}; border-radius: ${BRAND.radius}; overflow: hidden; border: 1px solid ${BRAND.borderLight};">
+      ${content}
+    </div>
+  </div>`;
+}
+
+function headerBlock(title: string, subtitle?: string): string {
+  return `
+    <div style="background: linear-gradient(135deg, ${BRAND.cardInner} 0%, ${BRAND.bg} 100%); padding: 40px 24px; text-align: center; border-bottom: 1px solid ${BRAND.borderLight};">
+      <h1 style="margin: 0; font-family: ${BRAND.fontSerif}; color: ${BRAND.violet}; font-size: 22px; letter-spacing: 0.05em;">${title}</h1>
+      ${subtitle ? `<p style="margin: 8px 0 0; color: ${BRAND.muted}; font-size: 13px;">${subtitle}</p>` : ''}
+    </div>`;
+}
+
+function footerBlock(): string {
+  return `
+    <div style="padding: 24px; text-align: center; border-top: 1px solid ${BRAND.borderLight};">
+      <p style="margin: 0; font-family: ${BRAND.fontSerif}; color: ${BRAND.violet}; font-size: 14px; font-weight: 600;">Eter Somos</p>
+      <p style="margin: 4px 0 0; color: ${BRAND.mutedDark}; font-size: 12px;">Registros Akashicos y Cristales</p>
+      <p style="margin: 8px 0 0; color: ${BRAND.mutedDark}; font-size: 11px;">etersomos@gmail.com</p>
+    </div>`;
+}
+
+function ctaButton(url: string, label: string): string {
+  return `
+    <div style="padding: 0 24px 24px; text-align: center;">
+      <a href="${url}" style="display: inline-block; background: ${BRAND.violetDark}; color: ${BRAND.bg}; padding: 14px 36px; border-radius: ${BRAND.radiusPill}; text-decoration: none; font-family: ${BRAND.fontSerif}; font-weight: 600; font-size: 16px; letter-spacing: 0.02em; box-shadow: 0 4px 14px rgba(139,92,246,0.3);">${label}</a>
+    </div>`;
+}
+
+function sectionLabel(text: string): string {
+  return `<p style="margin: 0 0 8px; color: ${BRAND.violet}; font-size: 11px; text-transform: uppercase; letter-spacing: 0.3em; font-weight: 600;">${text}</p>`;
+}
+
 /* ── Shared: Create Nodemailer transporter ─────────────────────────────── */
 
 function createTransporter() {
@@ -102,6 +172,32 @@ function buildAdminHtml(params: AdminNotificationParams): string {
   }
 }
 
+/* ── Admin email shared helpers ──────────────────────────────────────── */
+
+function adminHeader(title: string): string {
+  return `
+    <div style="background: linear-gradient(135deg, ${BRAND.cardInner} 0%, ${BRAND.bg} 100%); padding: 32px 24px; text-align: center; border-bottom: 1px solid ${BRAND.borderLight};">
+      <h1 style="margin: 0; font-family: ${BRAND.fontSerif}; color: ${BRAND.violet}; font-size: 20px; letter-spacing: 0.1em;">${title}</h1>
+      <p style="margin: 8px 0 0; color: ${BRAND.muted}; font-size: 13px;">Eter Somos | Registros Akashicos</p>
+    </div>`;
+}
+
+function adminSectionHeading(text: string): string {
+  return `<h2 style="margin: 0 0 16px; font-family: ${BRAND.fontSerif}; color: ${BRAND.violet}; font-size: 16px; border-bottom: 1px solid ${BRAND.borderLight}; padding-bottom: 8px;">${text}</h2>`;
+}
+
+function adminFooter(typeLabel: string): string {
+  return `
+    <div style="padding: 16px 24px; text-align: center; border-top: 1px solid ${BRAND.borderLight}; color: ${BRAND.mutedDark}; font-size: 12px;">
+      <p>Eter Somos | Registros Akashicos y Cristales</p>
+      <p>Este ${typeLabel} fue procesado automaticamente.</p>
+    </div>`;
+}
+
+function adminDataRow(label: string, value: string): string {
+  return `<tr><td style="padding: 4px 0; color: ${BRAND.muted};">${label}:</td><td style="padding: 4px 0; color: ${BRAND.text}; font-weight: 600;">${escapeHtml(value)}</td></tr>`;
+}
+
 /* ── Crystal Admin Email ──────────────────────────────────────────────── */
 
 function buildCrystalAdminHtml(params: AdminNotificationParams): string {
@@ -110,65 +206,57 @@ function buildCrystalAdminHtml(params: AdminNotificationParams): string {
     .map(
       (item) => `
       <tr>
-        <td style="padding: 10px 16px; border-bottom: 1px solid #2a252066; color: #f0ebe5;">${escapeHtml(item.name)}</td>
-        <td style="padding: 10px 16px; border-bottom: 1px solid #2a252066; color: #f0ebe5; text-align: center;">${item.quantity}</td>
-        <td style="padding: 10px 16px; border-bottom: 1px solid #2a252066; color: #d4a853; text-align: right;">$${item.price.toLocaleString("es-AR")} ARS</td>
+        <td style="padding: 10px 16px; border-bottom: 1px solid ${BRAND.borderLight}; color: ${BRAND.text};">${escapeHtml(item.name)}</td>
+        <td style="padding: 10px 16px; border-bottom: 1px solid ${BRAND.borderLight}; color: ${BRAND.text}; text-align: center;">${item.quantity}</td>
+        <td style="padding: 10px 16px; border-bottom: 1px solid ${BRAND.borderLight}; color: ${BRAND.violet}; text-align: right;">$${item.price.toLocaleString("es-AR")} ARS</td>
       </tr>`
     )
     .join("");
 
-  return `
-    <div style="max-width: 600px; margin: 0 auto; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #161310; border-radius: 12px; overflow: hidden;">
-      <div style="background: linear-gradient(135deg, #1a1510 0%, #0d0b08 100%); padding: 32px 24px; text-align: center; border-bottom: 1px solid #2a252066;">
-        <h1 style="margin: 0; color: #d4a853; font-size: 24px; letter-spacing: 0.1em;">NUEVO PEDIDO DE CRISTALES</h1>
-        <p style="margin: 8px 0 0; color: #8a8070; font-size: 14px;">Eter Somos | Registros Akashicos</p>
-      </div>
-      <div style="padding: 24px;">
-        <h2 style="margin: 0 0 16px; color: #d4a853; font-size: 18px; border-bottom: 1px solid #2a252066; padding-bottom: 8px;">Datos del Comprador</h2>
-        <table style="width: 100%; font-size: 14px;">
-          <tr><td style="padding: 4px 0; color: #8a8070;">Nombre:</td><td style="padding: 4px 0; color: #f0ebe5; font-weight: 600;">${escapeHtml(params.customerName)}</td></tr>
-          <tr><td style="padding: 4px 0; color: #8a8070;">Email:</td><td style="padding: 4px 0; color: #f0ebe5;">${escapeHtml(params.customerEmail)}</td></tr>
-          <tr><td style="padding: 4px 0; color: #8a8070;">Telefono:</td><td style="padding: 4px 0; color: #f0ebe5;">${escapeHtml(params.customerPhone || "")}</td></tr>
-          ${extra.address ? `<tr><td style="padding: 4px 0; color: #8a8070;">Direccion:</td><td style="padding: 4px 0; color: #f0ebe5;">${escapeHtml(String(extra.address))}</td></tr>` : ""}
-          ${extra.city ? `<tr><td style="padding: 4px 0; color: #8a8070;">Ciudad:</td><td style="padding: 4px 0; color: #f0ebe5;">${escapeHtml(String(extra.city))}</td></tr>` : ""}
-          ${extra.province ? `<tr><td style="padding: 4px 0; color: #8a8070;">Provincia:</td><td style="padding: 4px 0; color: #f0ebe5;">${escapeHtml(String(extra.province))}</td></tr>` : ""}
-          ${extra.postalCode ? `<tr><td style="padding: 4px 0; color: #8a8070;">C.P.:</td><td style="padding: 4px 0; color: #f0ebe5;">${escapeHtml(String(extra.postalCode))}</td></tr>` : ""}
-        </table>
-        ${extra.notes ? `<p style="margin: 12px 0 0; color: #8a8070; font-size: 14px;">Notas: <span style="color: #f0ebe5;">${escapeHtml(String(extra.notes))}</span></p>` : ""}
-      </div>
-      <div style="padding: 0 24px;">
-        <h2 style="margin: 0 0 16px; color: #d4a853; font-size: 18px; border-bottom: 1px solid #2a252066; padding-bottom: 8px;">Cristales</h2>
-        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-          <thead>
-            <tr style="border-bottom: 2px solid #d4a85333;">
-              <th style="padding: 8px 16px; text-align: left; color: #d4a853;">Producto</th>
-              <th style="padding: 8px 16px; text-align: center; color: #d4a853;">Cantidad</th>
-              <th style="padding: 8px 16px; text-align: right; color: #d4a853;">Precio</th>
-            </tr>
-          </thead>
-          <tbody>${itemsRows}</tbody>
-          <tfoot>
-            <tr>
-              <td colspan="2" style="padding: 12px 16px; color: #f0ebe5; font-weight: 700; font-size: 16px; text-align: right;">Total:</td>
-              <td style="padding: 12px 16px; color: #d4a853; font-weight: 700; font-size: 18px; text-align: right;">$${params.total.toLocaleString("es-AR")} ARS</td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-      <div style="padding: 24px;">
-        <h2 style="margin: 0 0 12px; color: #d4a853; font-size: 18px; border-bottom: 1px solid #2a252066; padding-bottom: 8px;">Pago</h2>
-        <table style="width: 100%; font-size: 14px;">
-          <tr><td style="padding: 4px 0; color: #8a8070;">Metodo:</td><td style="padding: 4px 0; color: #f0ebe5; font-weight: 600;">${paymentLabel(params.paymentMethod)}</td></tr>
-          <tr><td style="padding: 4px 0; color: #8a8070;">ID de Pago:</td><td style="padding: 4px 0; color: #f0ebe5; font-family: monospace; font-size: 12px;">${params.paymentId || "N/A"}</td></tr>
-          <tr><td style="padding: 4px 0; color: #8a8070;">ID de Pedido:</td><td style="padding: 4px 0; color: #f0ebe5; font-family: monospace; font-size: 12px;">${params.orderId || "N/A"}</td></tr>
-        </table>
-      </div>
-      <div style="padding: 16px 24px; text-align: center; border-top: 1px solid #2a252066; color: #5a5545; font-size: 12px;">
-        <p>Eter Somos | Registros Akashicos y Cristales</p>
-        <p>Este pedido fue procesado automaticamente.</p>
-      </div>
+  return emailShell(`
+    ${adminHeader("NUEVO PEDIDO DE CRISTALES")}
+    <div style="padding: 24px;">
+      ${adminSectionHeading("Datos del Comprador")}
+      <table style="width: 100%; font-size: 14px;">
+        ${adminDataRow("Nombre", params.customerName)}
+        ${adminDataRow("Email", params.customerEmail)}
+        ${adminDataRow("Telefono", params.customerPhone || "")}
+        ${extra.address ? adminDataRow("Direccion", String(extra.address)) : ""}
+        ${extra.city ? adminDataRow("Ciudad", String(extra.city)) : ""}
+        ${extra.province ? adminDataRow("Provincia", String(extra.province)) : ""}
+        ${extra.postalCode ? adminDataRow("C.P.", String(extra.postalCode)) : ""}
+      </table>
+      ${extra.notes ? `<p style="margin: 12px 0 0; color: ${BRAND.muted}; font-size: 14px;">Notas: <span style="color: ${BRAND.text};">${escapeHtml(String(extra.notes))}</span></p>` : ""}
     </div>
-  `;
+    <div style="padding: 0 24px;">
+      ${adminSectionHeading("Cristales")}
+      <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+        <thead>
+          <tr style="border-bottom: 2px solid ${BRAND.borderAccent};">
+            <th style="padding: 8px 16px; text-align: left; color: ${BRAND.violet};">Producto</th>
+            <th style="padding: 8px 16px; text-align: center; color: ${BRAND.violet};">Cantidad</th>
+            <th style="padding: 8px 16px; text-align: right; color: ${BRAND.violet};">Precio</th>
+          </tr>
+        </thead>
+        <tbody>${itemsRows}</tbody>
+        <tfoot>
+          <tr>
+            <td colspan="2" style="padding: 12px 16px; color: ${BRAND.text}; font-weight: 700; font-size: 16px; text-align: right;">Total:</td>
+            <td style="padding: 12px 16px; color: ${BRAND.violet}; font-weight: 700; font-size: 18px; text-align: right;">$${params.total.toLocaleString("es-AR")} ARS</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <div style="padding: 24px;">
+      ${adminSectionHeading("Pago")}
+      <table style="width: 100%; font-size: 14px;">
+        ${adminDataRow("Metodo", paymentLabel(params.paymentMethod))}
+        <tr><td style="padding: 4px 0; color: ${BRAND.muted};">ID de Pago:</td><td style="padding: 4px 0; color: ${BRAND.text}; font-family: monospace; font-size: 12px;">${params.paymentId || "N/A"}</td></tr>
+        <tr><td style="padding: 4px 0; color: ${BRAND.muted};">ID de Pedido:</td><td style="padding: 4px 0; color: ${BRAND.text}; font-family: monospace; font-size: 12px;">${params.orderId || "N/A"}</td></tr>
+      </table>
+    </div>
+    ${adminFooter("pedido")}
+  `);
 }
 
 /* ── Course Admin Email ───────────────────────────────────────────────── */
@@ -186,48 +274,37 @@ function buildCourseAdminHtml(params: AdminNotificationParams): string {
     ["Estado Civil", formData.estadoCivil || formData.maritalStatus || ""],
   ]
     .filter(([, val]) => val)
-    .map(
-      ([label, val]) =>
-        `<tr><td style="padding: 4px 0; color: #8a8070; width: 40%;">${label}:</td><td style="padding: 4px 0; color: #f0ebe5;">${escapeHtml(val)}</td></tr>`
-    )
+    .map(([label, val]) => adminDataRow(label, val))
     .join("");
 
   const courseName = params.items[0]?.name || "Curso";
 
-  return `
-    <div style="max-width: 600px; margin: 0 auto; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #161310; border-radius: 12px; overflow: hidden;">
-      <div style="background: linear-gradient(135deg, #1a1510 0%, #0d0b08 100%); padding: 32px 24px; text-align: center; border-bottom: 1px solid #2a252066;">
-        <h1 style="margin: 0; color: #d4a853; font-size: 24px; letter-spacing: 0.1em;">NUEVA INSCRIPCION A CURSO</h1>
-        <p style="margin: 8px 0 0; color: #8a8070; font-size: 14px;">Eter Somos | Registros Akashicos</p>
-      </div>
-      <div style="padding: 24px;">
-        <h2 style="margin: 0 0 16px; color: #d4a853; font-size: 18px; border-bottom: 1px solid #2a252066; padding-bottom: 8px;">Datos del Inscripto</h2>
-        <table style="width: 100%; font-size: 14px;">
-          <tr><td style="padding: 4px 0; color: #8a8070;">Nombre:</td><td style="padding: 4px 0; color: #f0ebe5; font-weight: 600;">${escapeHtml(params.customerName)}</td></tr>
-          ${detailRows}
-        </table>
-      </div>
-      <div style="padding: 0 24px;">
-        <h2 style="margin: 0 0 16px; color: #d4a853; font-size: 18px; border-bottom: 1px solid #2a252066; padding-bottom: 8px;">Curso</h2>
-        <div style="background: #1a1510; border: 1px solid #2a252066; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
-          <p style="margin: 0; color: #f0ebe5; font-size: 16px; font-weight: 600;">${escapeHtml(courseName)}</p>
-          <p style="margin: 8px 0 0; color: #d4a853; font-size: 20px; font-weight: 700;">$${params.total.toLocaleString("es-AR")} ARS</p>
-        </div>
-      </div>
-      <div style="padding: 24px;">
-        <h2 style="margin: 0 0 12px; color: #d4a853; font-size: 18px; border-bottom: 1px solid #2a252066; padding-bottom: 8px;">Pago</h2>
-        <table style="width: 100%; font-size: 14px;">
-          <tr><td style="padding: 4px 0; color: #8a8070;">Metodo:</td><td style="padding: 4px 0; color: #f0ebe5; font-weight: 600;">${paymentLabel(params.paymentMethod)}</td></tr>
-          <tr><td style="padding: 4px 0; color: #8a8070;">ID de Pago:</td><td style="padding: 4px 0; color: #f0ebe5; font-family: monospace; font-size: 12px;">${params.paymentId || "N/A"}</td></tr>
-          <tr><td style="padding: 4px 0; color: #8a8070;">ID de Registro:</td><td style="padding: 4px 0; color: #f0ebe5; font-family: monospace; font-size: 12px;">${params.orderId || "N/A"}</td></tr>
-        </table>
-      </div>
-      <div style="padding: 16px 24px; text-align: center; border-top: 1px solid #2a252066; color: #5a5545; font-size: 12px;">
-        <p>Eter Somos | Registros Akashicos</p>
-        <p>Esta inscripcion fue procesada automaticamente.</p>
+  return emailShell(`
+    ${adminHeader("NUEVA INSCRIPCION A CURSO")}
+    <div style="padding: 24px;">
+      ${adminSectionHeading("Datos del Inscripto")}
+      <table style="width: 100%; font-size: 14px;">
+        ${adminDataRow("Nombre", params.customerName)}
+        ${detailRows}
+      </table>
+    </div>
+    <div style="padding: 0 24px;">
+      ${adminSectionHeading("Curso")}
+      <div style="background: ${BRAND.cardInner}; border: 1px solid ${BRAND.borderLight}; border-radius: ${BRAND.radius}; padding: 16px; margin-bottom: 16px;">
+        <p style="margin: 0; color: ${BRAND.text}; font-size: 16px; font-weight: 600;">${escapeHtml(courseName)}</p>
+        <p style="margin: 8px 0 0; color: ${BRAND.violet}; font-size: 20px; font-weight: 700;">$${params.total.toLocaleString("es-AR")} ARS</p>
       </div>
     </div>
-  `;
+    <div style="padding: 24px;">
+      ${adminSectionHeading("Pago")}
+      <table style="width: 100%; font-size: 14px;">
+        ${adminDataRow("Metodo", paymentLabel(params.paymentMethod))}
+        <tr><td style="padding: 4px 0; color: ${BRAND.muted};">ID de Pago:</td><td style="padding: 4px 0; color: ${BRAND.text}; font-family: monospace; font-size: 12px;">${params.paymentId || "N/A"}</td></tr>
+        <tr><td style="padding: 4px 0; color: ${BRAND.muted};">ID de Registro:</td><td style="padding: 4px 0; color: ${BRAND.text}; font-family: monospace; font-size: 12px;">${params.orderId || "N/A"}</td></tr>
+      </table>
+    </div>
+    ${adminFooter("inscripcion")}
+  `);
 }
 
 /* ── Mentoria Admin Email ──────────────────────────────────────────────── */
@@ -250,48 +327,37 @@ function buildMentoriaAdminHtml(params: AdminNotificationParams): string {
     ["Recomendado por", formData.recomendadoNombre || ""],
   ]
     .filter(([, val]) => val)
-    .map(
-      ([label, val]) =>
-        `<tr><td style="padding: 4px 0; color: #8a8070; width: 40%;">${label}:</td><td style="padding: 4px 0; color: #f0ebe5;">${escapeHtml(val)}</td></tr>`
-    )
+    .map(([label, val]) => adminDataRow(label, val))
     .join("");
 
   const mentoriaName = params.items[0]?.name || "Mentoria Akashica";
 
-  return `
-    <div style="max-width: 600px; margin: 0 auto; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #161310; border-radius: 12px; overflow: hidden;">
-      <div style="background: linear-gradient(135deg, #1a1510 0%, #0d0b08 100%); padding: 32px 24px; text-align: center; border-bottom: 1px solid #2a252066;">
-        <h1 style="margin: 0; color: #d4a853; font-size: 24px; letter-spacing: 0.1em;">NUEVA INSCRIPCION A MENTORIA</h1>
-        <p style="margin: 8px 0 0; color: #8a8070; font-size: 14px;">Eter Somos | Registros Akashicos</p>
-      </div>
-      <div style="padding: 24px;">
-        <h2 style="margin: 0 0 16px; color: #d4a853; font-size: 18px; border-bottom: 1px solid #2a252066; padding-bottom: 8px;">Datos del Inscripto</h2>
-        <table style="width: 100%; font-size: 14px;">
-          <tr><td style="padding: 4px 0; color: #8a8070;">Nombre:</td><td style="padding: 4px 0; color: #f0ebe5; font-weight: 600;">${escapeHtml(params.customerName)}</td></tr>
-          ${detailRows}
-        </table>
-      </div>
-      <div style="padding: 0 24px;">
-        <h2 style="margin: 0 0 16px; color: #d4a853; font-size: 18px; border-bottom: 1px solid #2a252066; padding-bottom: 8px;">Mentoria</h2>
-        <div style="background: #1a1510; border: 1px solid #2a252066; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
-          <p style="margin: 0; color: #f0ebe5; font-size: 16px; font-weight: 600;">${escapeHtml(mentoriaName)}</p>
-          <p style="margin: 8px 0 0; color: #d4a853; font-size: 20px; font-weight: 700;">$${params.total.toLocaleString("es-AR")} ARS</p>
-        </div>
-      </div>
-      <div style="padding: 24px;">
-        <h2 style="margin: 0 0 12px; color: #d4a853; font-size: 18px; border-bottom: 1px solid #2a252066; padding-bottom: 8px;">Pago</h2>
-        <table style="width: 100%; font-size: 14px;">
-          <tr><td style="padding: 4px 0; color: #8a8070;">Metodo:</td><td style="padding: 4px 0; color: #f0ebe5; font-weight: 600;">${paymentLabel(params.paymentMethod)}</td></tr>
-          <tr><td style="padding: 4px 0; color: #8a8070;">ID de Pago:</td><td style="padding: 4px 0; color: #f0ebe5; font-family: monospace; font-size: 12px;">${params.paymentId || "N/A"}</td></tr>
-          <tr><td style="padding: 4px 0; color: #8a8070;">ID de Registro:</td><td style="padding: 4px 0; color: #f0ebe5; font-family: monospace; font-size: 12px;">${params.orderId || "N/A"}</td></tr>
-        </table>
-      </div>
-      <div style="padding: 16px 24px; text-align: center; border-top: 1px solid #2a252066; color: #5a5545; font-size: 12px;">
-        <p>Eter Somos | Registros Akashicos</p>
-        <p>Esta inscripcion fue procesada automaticamente.</p>
+  return emailShell(`
+    ${adminHeader("NUEVA INSCRIPCION A MENTORIA")}
+    <div style="padding: 24px;">
+      ${adminSectionHeading("Datos del Inscripto")}
+      <table style="width: 100%; font-size: 14px;">
+        ${adminDataRow("Nombre", params.customerName)}
+        ${detailRows}
+      </table>
+    </div>
+    <div style="padding: 0 24px;">
+      ${adminSectionHeading("Mentoria")}
+      <div style="background: ${BRAND.cardInner}; border: 1px solid ${BRAND.borderLight}; border-radius: ${BRAND.radius}; padding: 16px; margin-bottom: 16px;">
+        <p style="margin: 0; color: ${BRAND.text}; font-size: 16px; font-weight: 600;">${escapeHtml(mentoriaName)}</p>
+        <p style="margin: 8px 0 0; color: ${BRAND.violet}; font-size: 20px; font-weight: 700;">$${params.total.toLocaleString("es-AR")} ARS</p>
       </div>
     </div>
-  `;
+    <div style="padding: 24px;">
+      ${adminSectionHeading("Pago")}
+      <table style="width: 100%; font-size: 14px;">
+        ${adminDataRow("Metodo", paymentLabel(params.paymentMethod))}
+        <tr><td style="padding: 4px 0; color: ${BRAND.muted};">ID de Pago:</td><td style="padding: 4px 0; color: ${BRAND.text}; font-family: monospace; font-size: 12px;">${params.paymentId || "N/A"}</td></tr>
+        <tr><td style="padding: 4px 0; color: ${BRAND.muted};">ID de Registro:</td><td style="padding: 4px 0; color: ${BRAND.text}; font-family: monospace; font-size: 12px;">${params.orderId || "N/A"}</td></tr>
+      </table>
+    </div>
+    ${adminFooter("inscripcion")}
+  `);
 }
 
 /* ── Reading Admin Email ──────────────────────────────────────────────── */
@@ -310,10 +376,7 @@ function buildReadingAdminHtml(params: AdminNotificationParams): string {
     ["Estado Civil", formData.estadoCivil || ""],
   ]
     .filter(([, val]) => val)
-    .map(
-      ([label, val]) =>
-        `<tr><td style="padding: 4px 0; color: #8a8070; width: 40%;">${label}:</td><td style="padding: 4px 0; color: #f0ebe5;">${escapeHtml(val)}</td></tr>`
-    )
+    .map(([label, val]) => adminDataRow(label, val))
     .join("");
 
   const healthRows = [
@@ -324,57 +387,46 @@ function buildReadingAdminHtml(params: AdminNotificationParams): string {
     ["Medicacion Psiquiatrica", formData.medicacionPsiquiatrica || ""],
   ]
     .filter(([, val]) => val)
-    .map(
-      ([label, val]) =>
-        `<tr><td style="padding: 4px 0; color: #8a8070; width: 40%;">${label}:</td><td style="padding: 4px 0; color: #f0ebe5;">${escapeHtml(val)}</td></tr>`
-    )
+    .map(([label, val]) => adminDataRow(label, val))
     .join("");
 
-  return `
-    <div style="max-width: 600px; margin: 0 auto; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #161310; border-radius: 12px; overflow: hidden;">
-      <div style="background: linear-gradient(135deg, #1a1510 0%, #0d0b08 100%); padding: 32px 24px; text-align: center; border-bottom: 1px solid #2a252066;">
-        <h1 style="margin: 0; color: #d4a853; font-size: 24px; letter-spacing: 0.1em;">NUEVA SOLICITUD DE LECTURA</h1>
-        <p style="margin: 8px 0 0; color: #8a8070; font-size: 14px;">Eter Somos | Registros Akashicos</p>
-      </div>
-      <div style="padding: 24px;">
-        <h2 style="margin: 0 0 16px; color: #d4a853; font-size: 18px; border-bottom: 1px solid #2a252066; padding-bottom: 8px;">Datos del Consultante</h2>
-        <table style="width: 100%; font-size: 14px;">
-          <tr><td style="padding: 4px 0; color: #8a8070;">Nombre:</td><td style="padding: 4px 0; color: #f0ebe5; font-weight: 600;">${escapeHtml(params.customerName)}</td></tr>
-          ${detailRows}
-        </table>
-      </div>
-      ${healthRows ? `
-      <div style="padding: 0 24px;">
-        <h2 style="margin: 0 0 12px; color: #d4a853; font-size: 16px; border-bottom: 1px solid #2a252066; padding-bottom: 6px;">Salud</h2>
-        <table style="width: 100%; font-size: 13px;">${healthRows}</table>
-      </div>` : ""}
-      <div style="padding: 24px;">
-        <h2 style="margin: 0 0 16px; color: #d4a853; font-size: 18px; border-bottom: 1px solid #2a252066; padding-bottom: 8px;">Preguntas al Campo Akashico</h2>
-        <div style="background: #1a1510; border: 1px solid #2a252066; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
-          <p style="margin: 0 0 4px; color: #8a8070; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Pregunta N 1</p>
-          <p style="margin: 0; color: #f0ebe5; font-size: 15px;">${escapeHtml(formData.pregunta1 || "")}</p>
-        </div>
-        <div style="background: #1a1510; border: 1px solid #2a252066; border-radius: 8px; padding: 16px;">
-          <p style="margin: 0 0 4px; color: #8a8070; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Pregunta N 2</p>
-          <p style="margin: 0; color: #f0ebe5; font-size: 15px;">${escapeHtml(formData.pregunta2 || "")}</p>
-        </div>
-        ${formData.contextoAdicional ? `<p style="margin: 12px 0 0; color: #8a8070; font-size: 14px;">Contexto adicional: <span style="color: #f0ebe5;">${escapeHtml(formData.contextoAdicional)}</span></p>` : ""}
-      </div>
-      <div style="padding: 24px;">
-        <h2 style="margin: 0 0 12px; color: #d4a853; font-size: 18px; border-bottom: 1px solid #2a252066; padding-bottom: 8px;">Pago</h2>
-        <table style="width: 100%; font-size: 14px;">
-          <tr><td style="padding: 4px 0; color: #8a8070;">Metodo:</td><td style="padding: 4px 0; color: #f0ebe5; font-weight: 600;">${paymentLabel(params.paymentMethod)}</td></tr>
-          <tr><td style="padding: 4px 0; color: #8a8070;">Monto:</td><td style="padding: 4px 0; color: #d4a853; font-weight: 700;">$${params.total.toLocaleString("es-AR")} ARS</td></tr>
-          <tr><td style="padding: 4px 0; color: #8a8070;">ID de Pago:</td><td style="padding: 4px 0; color: #f0ebe5; font-family: monospace; font-size: 12px;">${params.paymentId || "N/A"}</td></tr>
-          <tr><td style="padding: 4px 0; color: #8a8070;">ID de Solicitud:</td><td style="padding: 4px 0; color: #f0ebe5; font-family: monospace; font-size: 12px;">${params.orderId || "N/A"}</td></tr>
-        </table>
-      </div>
-      <div style="padding: 16px 24px; text-align: center; border-top: 1px solid #2a252066; color: #5a5545; font-size: 12px;">
-        <p>Eter Somos | Registros Akashicos</p>
-        <p>Esta solicitud fue procesada automaticamente.</p>
-      </div>
+  return emailShell(`
+    ${adminHeader("NUEVA SOLICITUD DE LECTURA")}
+    <div style="padding: 24px;">
+      ${adminSectionHeading("Datos del Consultante")}
+      <table style="width: 100%; font-size: 14px;">
+        ${adminDataRow("Nombre", params.customerName)}
+        ${detailRows}
+      </table>
     </div>
-  `;
+    ${healthRows ? `
+    <div style="padding: 0 24px;">
+      ${adminSectionHeading("Salud")}
+      <table style="width: 100%; font-size: 13px;">${healthRows}</table>
+    </div>` : ""}
+    <div style="padding: 24px;">
+      ${adminSectionHeading("Preguntas al Campo Akashico")}
+      <div style="background: ${BRAND.cardInner}; border: 1px solid ${BRAND.borderLight}; border-radius: ${BRAND.radius}; padding: 16px; margin-bottom: 12px;">
+        ${sectionLabel("Pregunta N 1")}
+        <p style="margin: 0; color: ${BRAND.text}; font-size: 15px;">${escapeHtml(formData.pregunta1 || "")}</p>
+      </div>
+      <div style="background: ${BRAND.cardInner}; border: 1px solid ${BRAND.borderLight}; border-radius: ${BRAND.radius}; padding: 16px;">
+        ${sectionLabel("Pregunta N 2")}
+        <p style="margin: 0; color: ${BRAND.text}; font-size: 15px;">${escapeHtml(formData.pregunta2 || "")}</p>
+      </div>
+      ${formData.contextoAdicional ? `<p style="margin: 12px 0 0; color: ${BRAND.muted}; font-size: 14px;">Contexto adicional: <span style="color: ${BRAND.text};">${escapeHtml(formData.contextoAdicional)}</span></p>` : ""}
+    </div>
+    <div style="padding: 24px;">
+      ${adminSectionHeading("Pago")}
+      <table style="width: 100%; font-size: 14px;">
+        ${adminDataRow("Metodo", paymentLabel(params.paymentMethod))}
+        <tr><td style="padding: 4px 0; color: ${BRAND.muted};">Monto:</td><td style="padding: 4px 0; color: ${BRAND.violet}; font-weight: 700;">$${params.total.toLocaleString("es-AR")} ARS</td></tr>
+        <tr><td style="padding: 4px 0; color: ${BRAND.muted};">ID de Pago:</td><td style="padding: 4px 0; color: ${BRAND.text}; font-family: monospace; font-size: 12px;">${params.paymentId || "N/A"}</td></tr>
+        <tr><td style="padding: 4px 0; color: ${BRAND.muted};">ID de Solicitud:</td><td style="padding: 4px 0; color: ${BRAND.text}; font-family: monospace; font-size: 12px;">${params.orderId || "N/A"}</td></tr>
+      </table>
+    </div>
+    ${adminFooter("solicitud")}
+  `);
 }
 
 /* ── Resource Contribution Admin Email ─────────────────────────────────── */
@@ -383,46 +435,38 @@ function buildResourceAdminHtml(params: AdminNotificationParams): string {
   const extra = params.extraData || {};
   const resourceTitle = (extra.resourceTitle as string) || params.items[0]?.name || "Recurso";
 
-  return `
-    <div style="max-width: 600px; margin: 0 auto; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #161310; border-radius: 12px; overflow: hidden;">
-      <div style="background: linear-gradient(135deg, #1a1510 0%, #0d0b08 100%); padding: 32px 24px; text-align: center; border-bottom: 1px solid #2a252066;">
-        <h1 style="margin: 0; color: #d4a853; font-size: 24px; letter-spacing: 0.1em;">NUEVA CONTRIBUCION A RECURSO</h1>
-        <p style="margin: 8px 0 0; color: #8a8070; font-size: 14px;">Eter Somos | Contribucion Voluntaria</p>
-      </div>
-      <div style="padding: 24px;">
-        <h2 style="margin: 0 0 16px; color: #d4a853; font-size: 18px; border-bottom: 1px solid #2a252066; padding-bottom: 8px;">Datos del Contribuyente</h2>
-        <table style="width: 100%; font-size: 14px;">
-          <tr><td style="padding: 4px 0; color: #8a8070;">Nombre:</td><td style="padding: 4px 0; color: #f0ebe5; font-weight: 600;">${escapeHtml(params.customerName)}</td></tr>
-          <tr><td style="padding: 4px 0; color: #8a8070;">Email:</td><td style="padding: 4px 0; color: #f0ebe5;">${escapeHtml(params.customerEmail)}</td></tr>
-        </table>
-      </div>
-      <div style="padding: 0 24px;">
-        <h2 style="margin: 0 0 16px; color: #d4a853; font-size: 18px; border-bottom: 1px solid #2a252066; padding-bottom: 8px;">Recurso</h2>
-        <div style="background: #1a1510; border: 1px solid #2a252066; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
-          <p style="margin: 0; color: #f0ebe5; font-size: 16px; font-weight: 600;">${escapeHtml(resourceTitle)}</p>
-          ${params.total > 0 ? `<p style="margin: 8px 0 0; color: #d4a853; font-size: 20px; font-weight: 700;">$${params.total.toLocaleString("es-AR")} ARS</p>` : '<p style="margin: 8px 0 0; color: #8a8070; font-size: 14px;">Contribucion voluntaria (sin monto fijo)</p>'}
-        </div>
-      </div>
-      <div style="padding: 24px;">
-        <h2 style="margin: 0 0 12px; color: #d4a853; font-size: 18px; border-bottom: 1px solid #2a252066; padding-bottom: 8px;">Pago</h2>
-        <table style="width: 100%; font-size: 14px;">
-          <tr><td style="padding: 4px 0; color: #8a8070;">Metodo:</td><td style="padding: 4px 0; color: #f0ebe5; font-weight: 600;">${paymentLabel(params.paymentMethod)}</td></tr>
-          <tr><td style="padding: 4px 0; color: #8a8070;">ID de Pago:</td><td style="padding: 4px 0; color: #f0ebe5; font-family: monospace; font-size: 12px;">${params.paymentId || "N/A"}</td></tr>
-          <tr><td style="padding: 4px 0; color: #8a8070;">ID de Registro:</td><td style="padding: 4px 0; color: #f0ebe5; font-family: monospace; font-size: 12px;">${params.orderId || "N/A"}</td></tr>
-        </table>
-      </div>
-      ${extra.webhookAlert ? `
-      <div style="padding: 16px 24px; background: #3a1510; border-top: 1px solid #d4a85366;">
-        <p style="margin: 0; color: #d4a853; font-size: 14px; font-weight: 600;">Alerta: Pago recibido via webhook sin orden asociada</p>
-        <p style="margin: 4px 0 0; color: #f0ebe5; font-size: 13px;">El usuario pago pero no regreso a la pagina de confirmacion. Verifica manualmente.</p>
-      </div>
-      ` : ""}
-      <div style="padding: 16px 24px; text-align: center; border-top: 1px solid #2a252066; color: #5a5545; font-size: 12px;">
-        <p>Eter Somos | Registros Akashicos</p>
-        <p>Esta contribucion fue procesada automaticamente.</p>
+  return emailShell(`
+    ${adminHeader("NUEVA CONTRIBUCION A RECURSO")}
+    <div style="padding: 24px;">
+      ${adminSectionHeading("Datos del Contribuyente")}
+      <table style="width: 100%; font-size: 14px;">
+        ${adminDataRow("Nombre", params.customerName)}
+        ${adminDataRow("Email", params.customerEmail)}
+      </table>
+    </div>
+    <div style="padding: 0 24px;">
+      ${adminSectionHeading("Recurso")}
+      <div style="background: ${BRAND.cardInner}; border: 1px solid ${BRAND.borderLight}; border-radius: ${BRAND.radius}; padding: 16px; margin-bottom: 16px;">
+        <p style="margin: 0; color: ${BRAND.text}; font-size: 16px; font-weight: 600;">${escapeHtml(resourceTitle)}</p>
+        ${params.total > 0 ? `<p style="margin: 8px 0 0; color: ${BRAND.violet}; font-size: 20px; font-weight: 700;">$${params.total.toLocaleString("es-AR")} ARS</p>` : `<p style="margin: 8px 0 0; color: ${BRAND.muted}; font-size: 14px;">Contribucion voluntaria (sin monto fijo)</p>`}
       </div>
     </div>
-  `;
+    <div style="padding: 24px;">
+      ${adminSectionHeading("Pago")}
+      <table style="width: 100%; font-size: 14px;">
+        ${adminDataRow("Metodo", paymentLabel(params.paymentMethod))}
+        <tr><td style="padding: 4px 0; color: ${BRAND.muted};">ID de Pago:</td><td style="padding: 4px 0; color: ${BRAND.text}; font-family: monospace; font-size: 12px;">${params.paymentId || "N/A"}</td></tr>
+        <tr><td style="padding: 4px 0; color: ${BRAND.muted};">ID de Registro:</td><td style="padding: 4px 0; color: ${BRAND.text}; font-family: monospace; font-size: 12px;">${params.orderId || "N/A"}</td></tr>
+      </table>
+    </div>
+    ${extra.webhookAlert ? `
+    <div style="padding: 16px 24px; background: #3a1510; border-top: 1px solid ${BRAND.borderAccent};">
+      <p style="margin: 0; color: ${BRAND.violet}; font-size: 14px; font-weight: 600;">Alerta: Pago recibido via webhook sin orden asociada</p>
+      <p style="margin: 4px 0 0; color: ${BRAND.text}; font-size: 13px;">El usuario pago pero no regreso a la pagina de confirmacion. Verifica manualmente.</p>
+    </div>
+    ` : ""}
+    ${adminFooter("contribucion")}
+  `);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -512,52 +556,39 @@ function buildCustomerHtml(params: CustomerConfirmationParams): string {
 
   const info = typeLabels[params.type];
   const itemsList = params.items
-    .map((item) => `<li style="padding: 4px 0; color: #f0ebe5; font-size: 14px;">${escapeHtml(item.name)} - <span style="color: #d4a853;">$${item.price.toLocaleString("es-AR")} ARS</span></li>`)
+    .map((item) => `<li style="padding: 4px 0; color: ${BRAND.text}; font-size: 14px;">${escapeHtml(item.name)} - <span style="color: ${BRAND.violet};">$${item.price.toLocaleString("es-AR")} ARS</span></li>`)
     .join("");
 
   const nextStepsHtml = info.nextSteps
-    .map((step) => `<li style="padding: 4px 0; color: #f0ebe5; font-size: 14px;">${step}</li>`)
+    .map((step) => `<li style="padding: 4px 0; color: ${BRAND.text}; font-size: 14px;">${step}</li>`)
     .join("");
 
-  return `
-    <div style="max-width: 560px; margin: 0 auto; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #161310; border-radius: 12px; overflow: hidden;">
-      <div style="background: linear-gradient(135deg, #1a1510 0%, #0d0b08 100%); padding: 40px 24px; text-align: center; border-bottom: 1px solid #2a252066;">
-        <h1 style="margin: 0; color: #d4a853; font-size: 22px; letter-spacing: 0.05em;">${info.title}</h1>
-        <p style="margin: 8px 0 0; color: #8a8070; font-size: 13px;">Eter Somos | Registros Akashicos</p>
+  return emailShell(`
+    ${headerBlock(info.title, "Eter Somos | Registros Akashicos")}
+    <div style="padding: 24px;">
+      <p style="margin: 0 0 16px; color: ${BRAND.text}; font-size: 15px; line-height: 1.6;">
+        Hola, <strong style="color: ${BRAND.violet};">${escapeHtml(params.customerName)}</strong>! ${info.description}
+      </p>
+      ${itemsList ? `
+      <div style="background: ${BRAND.cardInner}; border: 1px solid ${BRAND.borderLight}; border-radius: ${BRAND.radius}; padding: 16px; margin-bottom: 20px;">
+        ${sectionLabel("Detalle")}
+        <ul style="margin: 0; padding-left: 16px;">${itemsList}</ul>
+        <p style="margin: 12px 0 0; color: ${BRAND.violet}; font-weight: 700; font-size: 16px; text-align: right;">Total: $${params.total.toLocaleString("es-AR")} ARS</p>
+        <p style="margin: 4px 0 0; color: ${BRAND.muted}; font-size: 12px; text-align: right;">Pago: ${paymentLabel(params.paymentMethod)}</p>
       </div>
-
-      <div style="padding: 24px;">
-        <p style="margin: 0 0 16px; color: #f0ebe5; font-size: 15px; line-height: 1.6;">
-          Hola, <strong style="color: #d4a853;">${escapeHtml(params.customerName)}</strong>! ${info.description}
-        </p>
-
-        ${itemsList ? `
-        <div style="background: #1a1510; border: 1px solid #2a252066; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
-          <p style="margin: 0 0 8px; color: #d4a853; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;">Detalle</p>
-          <ul style="margin: 0; padding-left: 16px;">${itemsList}</ul>
-          <p style="margin: 12px 0 0; color: #d4a853; font-weight: 700; font-size: 16px; text-align: right;">Total: $${params.total.toLocaleString("es-AR")} ARS</p>
-          <p style="margin: 4px 0 0; color: #8a8070; font-size: 12px; text-align: right;">Pago: ${paymentLabel(params.paymentMethod)}</p>
-        </div>
-        ` : ""}
-      </div>
-
-      <div style="padding: 0 24px 24px;">
-        <h2 style="margin: 0 0 12px; color: #d4a853; font-size: 16px;">Que sigue?</h2>
-        <ul style="margin: 0; padding-left: 20px;">${nextStepsHtml}</ul>
-      </div>
-
-      <div style="padding: 24px; text-align: center; border-top: 1px solid #2a252066;">
-        <p style="margin: 0; color: #d4a853; font-size: 14px; font-weight: 600;">Eter Somos</p>
-        <p style="margin: 4px 0 0; color: #5a5545; font-size: 12px;">Registros Akashicos y Cristales</p>
-        <p style="margin: 8px 0 0; color: #5a5545; font-size: 11px;">etersomos@gmail.com</p>
-      </div>
+      ` : ""}
     </div>
-  `;
+    <div style="padding: 0 24px 24px;">
+      <h2 style="margin: 0 0 12px; font-family: ${BRAND.fontSerif}; color: ${BRAND.violet}; font-size: 16px;">Que sigue?</h2>
+      <ul style="margin: 0; padding-left: 20px;">${nextStepsHtml}</ul>
+    </div>
+    ${footerBlock()}
+  `);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
    AULA VIRTUAL WELCOME EMAIL
-   Sent automatically when a student is created via auto-enrollment.
+   Sent automatically when a NEW student is created via auto-enrollment.
    ═══════════════════════════════════════════════════════════════════════ */
 
 export async function sendAulaWelcomeEmail(params: {
@@ -578,63 +609,45 @@ export async function sendAulaWelcomeEmail(params: {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://etersomos-iota.vercel.app';
   const aulaUrl = `${baseUrl}/aula`;
 
-  const html = `
-    <div style="max-width: 560px; margin: 0 auto; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #161310; border-radius: 12px; overflow: hidden;">
-      <div style="background: linear-gradient(135deg, #1a1510 0%, #0d0b08 100%); padding: 40px 24px; text-align: center; border-bottom: 1px solid #2a252066;">
-        <p style="margin: 0 0 8px; font-size: 36px;">&#x1F393;</p>
-        <h1 style="margin: 0; color: #d4a853; font-size: 22px; letter-spacing: 0.05em;">TU AULA VIRTUAL ESTA LISTA</h1>
-        <p style="margin: 8px 0 0; color: #8a8070; font-size: 13px;">Eter Somos | Registros Akashicos</p>
-      </div>
-
-      <div style="padding: 24px;">
-        <p style="margin: 0 0 16px; color: #f0ebe5; font-size: 15px; line-height: 1.6;">
-          Hola, <strong style="color: #d4a853;">${escapeHtml(params.customerName)}</strong>! Tu inscripcion a la ${typeLabels[params.enrollmentType]} ha sido confirmada y te hemos creado una cuenta en el Aula Virtual para que accedas a tu contenido.
-        </p>
-
-        <div style="background: #1a1510; border: 1px solid #2a252066; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
-          <p style="margin: 0 0 8px; color: #d4a853; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;">Tu inscripcion</p>
-          <p style="margin: 0; color: #f0ebe5; font-size: 16px; font-weight: 600;">${escapeHtml(params.enrollmentTitle)}</p>
-        </div>
-      </div>
-
-      <div style="padding: 0 24px 24px;">
-        <h2 style="margin: 0 0 16px; color: #d4a853; font-size: 18px; border-bottom: 1px solid #2a252066; padding-bottom: 8px;">Tus datos de acceso</h2>
-        <div style="background: #1a1510; border: 1px solid #d4a85333; border-radius: 8px; padding: 16px;">
-          <table style="width: 100%; font-size: 14px;">
-            <tr>
-              <td style="padding: 6px 0; color: #8a8070; width: 30%;">Email:</td>
-              <td style="padding: 6px 0; color: #f0ebe5; font-weight: 600;">${escapeHtml(params.customerEmail)}</td>
-            </tr>
-            <tr>
-              <td style="padding: 6px 0; color: #8a8070;">Contrasena:</td>
-              <td style="padding: 6px 0; color: #d4a853; font-family: monospace; font-size: 16px; font-weight: 700; letter-spacing: 0.1em;">${escapeHtml(params.password)}</td>
-            </tr>
-          </table>
-          <p style="margin: 12px 0 0; color: #8a8070; font-size: 12px;">Podes cambiar tu contrasena desde tu perfil en el Aula Virtual.</p>
-        </div>
-      </div>
-
-      <div style="padding: 0 24px 24px; text-align: center;">
-        <a href="${aulaUrl}" style="display: inline-block; background: linear-gradient(135deg, #7c3aed, #5b21b6); color: #f0ebe5; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px; letter-spacing: 0.03em;">Ingresar al Aula Virtual</a>
-      </div>
-
-      <div style="padding: 0 24px 24px;">
-        <h2 style="margin: 0 0 12px; color: #d4a853; font-size: 16px;">Que encontras en el Aula?</h2>
-        <ul style="margin: 0; padding-left: 20px;">
-          <li style="padding: 4px 0; color: #f0ebe5; font-size: 14px;">Acceso a tus cursos, lecturas y mentorias</li>
-          <li style="padding: 4px 0; color: #f0ebe5; font-size: 14px;">Material de estudio y contenido exclusivo</li>
-          <li style="padding: 4px 0; color: #f0ebe5; font-size: 14px;">Seguimiento de tu progreso</li>
-          <li style="padding: 4px 0; color: #f0ebe5; font-size: 14px;">Descarga de audios y documentos</li>
-        </ul>
-      </div>
-
-      <div style="padding: 24px; text-align: center; border-top: 1px solid #2a252066;">
-        <p style="margin: 0; color: #d4a853; font-size: 14px; font-weight: 600;">Eter Somos</p>
-        <p style="margin: 4px 0 0; color: #5a5545; font-size: 12px;">Registros Akashicos y Cristales</p>
-        <p style="margin: 8px 0 0; color: #5a5545; font-size: 11px;">etersomos@gmail.com</p>
+  const html = emailShell(`
+    ${headerBlock("TU AULA VIRTUAL ESTA LISTA", "Eter Somos | Registros Akashicos")}
+    <div style="padding: 24px;">
+      <p style="margin: 0 0 16px; color: ${BRAND.text}; font-size: 15px; line-height: 1.6;">
+        Hola, <strong style="color: ${BRAND.violet};">${escapeHtml(params.customerName)}</strong>! Tu inscripcion a la ${typeLabels[params.enrollmentType]} ha sido confirmada y te hemos creado una cuenta en el Aula Virtual para que accedas a tu contenido.
+      </p>
+      <div style="background: ${BRAND.cardInner}; border: 1px solid ${BRAND.borderLight}; border-radius: ${BRAND.radius}; padding: 16px; margin-bottom: 20px;">
+        ${sectionLabel("Tu inscripcion")}
+        <p style="margin: 0; color: ${BRAND.text}; font-size: 16px; font-weight: 600;">${escapeHtml(params.enrollmentTitle)}</p>
       </div>
     </div>
-  `;
+    <div style="padding: 0 24px 24px;">
+      <h2 style="margin: 0 0 16px; font-family: ${BRAND.fontSerif}; color: ${BRAND.violet}; font-size: 18px; border-bottom: 1px solid ${BRAND.borderLight}; padding-bottom: 8px;">Tus datos de acceso</h2>
+      <div style="background: ${BRAND.cardInner}; border: 1px solid ${BRAND.borderAccent}; border-radius: ${BRAND.radius}; padding: 16px;">
+        <table style="width: 100%; font-size: 14px;">
+          <tr>
+            <td style="padding: 6px 0; color: ${BRAND.muted}; width: 30%;">Email:</td>
+            <td style="padding: 6px 0; color: ${BRAND.text}; font-weight: 600;">${escapeHtml(params.customerEmail)}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; color: ${BRAND.muted};">Contrasena:</td>
+            <td style="padding: 6px 0; color: ${BRAND.violet}; font-family: monospace; font-size: 16px; font-weight: 700; letter-spacing: 0.1em;">${escapeHtml(params.password)}</td>
+          </tr>
+        </table>
+        <p style="margin: 12px 0 0; color: ${BRAND.muted}; font-size: 12px;">Podes cambiar tu contrasena desde tu perfil en el Aula Virtual.</p>
+      </div>
+    </div>
+    ${ctaButton(aulaUrl, "Ingresar al Aula Virtual")}
+    <div style="padding: 0 24px 24px;">
+      <h2 style="margin: 0 0 12px; font-family: ${BRAND.fontSerif}; color: ${BRAND.violet}; font-size: 16px;">Que encontras en el Aula?</h2>
+      <ul style="margin: 0; padding-left: 20px;">
+        <li style="padding: 4px 0; color: ${BRAND.text}; font-size: 14px;">Acceso a tus cursos, lecturas y mentorias</li>
+        <li style="padding: 4px 0; color: ${BRAND.text}; font-size: 14px;">Material de estudio y contenido exclusivo</li>
+        <li style="padding: 4px 0; color: ${BRAND.text}; font-size: 14px;">Seguimiento de tu progreso</li>
+        <li style="padding: 4px 0; color: ${BRAND.text}; font-size: 14px;">Descarga de audios y documentos</li>
+      </ul>
+    </div>
+    ${footerBlock()}
+  `);
 
   await transporter.sendMail({
     from: `"Eter Somos" <${SMTP_USER}>`,
@@ -662,42 +675,25 @@ export async function sendLecturaReadyEmail(params: {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://etersomos-iota.vercel.app';
   const aulaUrl = `${baseUrl}/aula`;
 
-  const html = `
-    <div style="max-width: 560px; margin: 0 auto; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #161310; border-radius: 12px; overflow: hidden;">
-      <div style="background: linear-gradient(135deg, #1a1510 0%, #0d0b08 100%); padding: 40px 24px; text-align: center; border-bottom: 1px solid #2a252066;">
-        <p style="margin: 0 0 8px; font-size: 36px;">&#x2728;</p>
-        <h1 style="margin: 0; color: #d4a853; font-size: 22px; letter-spacing: 0.05em;">TU LECTURA ESTA LISTA</h1>
-        <p style="margin: 8px 0 0; color: #8a8070; font-size: 13px;">Eter Somos | Registros Akashicos</p>
+  const html = emailShell(`
+    ${headerBlock("TU LECTURA ESTA LISTA", "Eter Somos | Registros Akashicos")}
+    <div style="padding: 24px;">
+      <p style="margin: 0 0 16px; color: ${BRAND.text}; font-size: 15px; line-height: 1.6;">
+        Hola, <strong style="color: ${BRAND.violet};">${escapeHtml(params.customerName)}</strong>! Tu lectura ya esta disponible en el Aula Virtual. Podes escucharla cuando quieras desde tu cuenta.
+      </p>
+      <div style="background: ${BRAND.cardInner}; border: 1px solid ${BRAND.borderLight}; border-radius: ${BRAND.radius}; padding: 16px; margin-bottom: 20px;">
+        ${sectionLabel("Tu lectura")}
+        <p style="margin: 0; color: ${BRAND.text}; font-size: 16px; font-weight: 600;">${escapeHtml(params.enrollmentTitle)}</p>
       </div>
-
-      <div style="padding: 24px;">
-        <p style="margin: 0 0 16px; color: #f0ebe5; font-size: 15px; line-height: 1.6;">
-          Hola, <strong style="color: #d4a853;">${escapeHtml(params.customerName)}</strong>! Tu lectura ya esta disponible en el Aula Virtual. Podes escucharla cuando quieras desde tu cuenta.
+      <div style="background: ${BRAND.cardInner}; border: 1px solid ${BRAND.borderAccent}; border-radius: ${BRAND.radius}; padding: 16px;">
+        <p style="margin: 0; color: ${BRAND.muted}; font-size: 13px; line-height: 1.5;">
+          Ingresa al Aula Virtual con tu email y contrasena para acceder al audio de tu lectura. Si no recordas tu contrasena, podes restablecerla desde la pagina de login.
         </p>
-
-        <div style="background: #1a1510; border: 1px solid #2a252066; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
-          <p style="margin: 0 0 8px; color: #d4a853; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;">Tu lectura</p>
-          <p style="margin: 0; color: #f0ebe5; font-size: 16px; font-weight: 600;">${escapeHtml(params.enrollmentTitle)}</p>
-        </div>
-
-        <div style="background: #1a1510; border: 1px solid #d4a85333; border-radius: 8px; padding: 16px;">
-          <p style="margin: 0; color: #8a8070; font-size: 13px; line-height: 1.5;">
-            Ingresá al Aula Virtual con tu email y contraseña para acceder al audio de tu lectura. Si no recordás tu contraseña, podés restablecerla desde la página de login.
-          </p>
-        </div>
-      </div>
-
-      <div style="padding: 0 24px 24px; text-align: center;">
-        <a href="${aulaUrl}" style="display: inline-block; background: linear-gradient(135deg, #7c3aed, #5b21b6); color: #f0ebe5; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px; letter-spacing: 0.03em;">Escuchar mi lectura</a>
-      </div>
-
-      <div style="padding: 24px; text-align: center; border-top: 1px solid #2a252066;">
-        <p style="margin: 0; color: #d4a853; font-size: 14px; font-weight: 600;">Eter Somos</p>
-        <p style="margin: 4px 0 0; color: #5a5545; font-size: 12px;">Registros Akashicos y Cristales</p>
-        <p style="margin: 8px 0 0; color: #5a5545; font-size: 11px;">etersomos@gmail.com</p>
       </div>
     </div>
-  `;
+    ${ctaButton(aulaUrl, "Escuchar mi lectura")}
+    ${footerBlock()}
+  `);
 
   await transporter.sendMail({
     from: `"Eter Somos" <${SMTP_USER}>`,
@@ -708,14 +704,6 @@ export async function sendLecturaReadyEmail(params: {
 
   console.log(`[Email] Lectura ready email sent to ${params.customerEmail}`);
 }
-
-/* ═══════════════════════════════════════════════════════════════════════
-   ═══════════════════════════════════════════════════════════════════════ */
-
-/* NOTE: sendAulaExistingStudentEmail was removed — we now always regenerate
-   the password and send sendAulaWelcomeEmail so every student gets credentials. */
-
-/* ── HTML escape utility ──────────────────────────────────────────────── */
 
 /* ═══════════════════════════════════════════════════════════════════════
    AULA VIRTUAL EXISTING STUDENT EMAIL
@@ -740,41 +728,25 @@ export async function sendAulaExistingStudentEmail(params: {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://etersomos-iota.vercel.app';
   const aulaUrl = `${baseUrl}/aula`;
 
-  const html = `
-    <div style="max-width: 560px; margin: 0 auto; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #161310; border-radius: 12px; overflow: hidden;">
-      <div style="background: linear-gradient(135deg, #1a1510 0%, #0d0b08 100%); padding: 40px 24px; text-align: center; border-bottom: 1px solid #2a252066;">
-        <h1 style="margin: 0; color: #d4a853; font-size: 22px; letter-spacing: 0.05em;">NUEVA INSCRIPCION EN TU AULA</h1>
-        <p style="margin: 8px 0 0; color: #8a8070; font-size: 13px;">Eter Somos | Registros Akashicos</p>
+  const html = emailShell(`
+    ${headerBlock("NUEVA INSCRIPCION EN TU AULA", "Eter Somos | Registros Akashicos")}
+    <div style="padding: 24px;">
+      <p style="margin: 0 0 16px; color: ${BRAND.text}; font-size: 15px; line-height: 1.6;">
+        Hola, <strong style="color: ${BRAND.violet};">${escapeHtml(params.customerName)}</strong>! Se registro una nueva inscripcion a la ${typeLabels[params.enrollmentType]} en tu cuenta del Aula Virtual. Podes acceder con tus credenciales habituales.
+      </p>
+      <div style="background: ${BRAND.cardInner}; border: 1px solid ${BRAND.borderLight}; border-radius: ${BRAND.radius}; padding: 16px; margin-bottom: 20px;">
+        ${sectionLabel("Nueva inscripcion")}
+        <p style="margin: 0; color: ${BRAND.text}; font-size: 16px; font-weight: 600;">${escapeHtml(params.enrollmentTitle)}</p>
       </div>
-
-      <div style="padding: 24px;">
-        <p style="margin: 0 0 16px; color: #f0ebe5; font-size: 15px; line-height: 1.6;">
-          Hola, <strong style="color: #d4a853;">${escapeHtml(params.customerName)}</strong>! Se registro una nueva inscripcion a la ${typeLabels[params.enrollmentType]} en tu cuenta del Aula Virtual. Podes acceder con tus credenciales habituales.
+      <div style="background: ${BRAND.cardInner}; border: 1px solid ${BRAND.borderAccent}; border-radius: ${BRAND.radius}; padding: 16px;">
+        <p style="margin: 0; color: ${BRAND.muted}; font-size: 13px; line-height: 1.5;">
+          Ingresa al Aula Virtual con tu email y contrasena habitual. Si no recordas tu contrasena, podes restablecerla desde la pagina de login.
         </p>
-
-        <div style="background: #1a1510; border: 1px solid #2a252066; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
-          <p style="margin: 0 0 8px; color: #d4a853; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;">Nueva inscripcion</p>
-          <p style="margin: 0; color: #f0ebe5; font-size: 16px; font-weight: 600;">${escapeHtml(params.enrollmentTitle)}</p>
-        </div>
-
-        <div style="background: #1a1510; border: 1px solid #d4a85333; border-radius: 8px; padding: 16px;">
-          <p style="margin: 0; color: #8a8070; font-size: 13px; line-height: 1.5;">
-            Ingresá al Aula Virtual con tu email y contrasena habitual. Si no recordas tu contrasena, podes restablecerla desde la pagina de login.
-          </p>
-        </div>
-      </div>
-
-      <div style="padding: 0 24px 24px; text-align: center;">
-        <a href="${aulaUrl}" style="display: inline-block; background: linear-gradient(135deg, #7c3aed, #5b21b6); color: #f0ebe5; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px; letter-spacing: 0.03em;">Ingresar al Aula Virtual</a>
-      </div>
-
-      <div style="padding: 24px; text-align: center; border-top: 1px solid #2a252066;">
-        <p style="margin: 0; color: #d4a853; font-size: 14px; font-weight: 600;">Eter Somos</p>
-        <p style="margin: 4px 0 0; color: #5a5545; font-size: 12px;">Registros Akashicos y Cristales</p>
-        <p style="margin: 8px 0 0; color: #5a5545; font-size: 11px;">etersomos@gmail.com</p>
       </div>
     </div>
-  `;
+    ${ctaButton(aulaUrl, "Ingresar al Aula Virtual")}
+    ${footerBlock()}
+  `);
 
   await transporter.sendMail({
     from: `"Eter Somos" <${SMTP_USER}>`,
@@ -785,6 +757,8 @@ export async function sendAulaExistingStudentEmail(params: {
 
   console.log(`[Email] Aula existing student email sent to ${params.customerEmail}`);
 }
+
+/* ── HTML escape utility ──────────────────────────────────────────────── */
 
 function escapeHtml(text: string): string {
   return text
