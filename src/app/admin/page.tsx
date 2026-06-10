@@ -1573,9 +1573,14 @@ export default function AdminPage() {
       if (res.ok) {
         // Refresh data for consistency
         fetchData();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        console.error("Error updating status:", data.error || res.statusText);
+        toast.error(`Error al actualizar: ${data.error || res.statusText}`);
       }
     } catch (err) {
       console.error("Error updating status:", err);
+      toast.error("Error de conexión al actualizar estado");
     } finally {
       setUpdatingId(null);
     }
@@ -2036,6 +2041,19 @@ export default function AdminPage() {
                       renderCard={(booking, isDragging, isUpdating, isOpen) => {
                         const b = booking as Booking;
                         const isOverdue = b.deliveryDate && new Date(b.deliveryDate) < new Date();
+                        // Status action buttons for bookings
+                        const bookingStatusActions: Record<string, Array<{ status: string; label: string; color: string }>> = {
+                          pendiente: [
+                            { status: "en_progreso", label: "Iniciar", color: "bg-purple-500/20 text-purple-300 hover:bg-purple-500/30" },
+                          ],
+                          en_progreso: [
+                            { status: "entregada", label: "Entregar", color: "bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30" },
+                            { status: "pendiente", label: "Volver", color: "bg-amber-500/20 text-amber-300 hover:bg-amber-500/30" },
+                          ],
+                          entregada: [
+                            { status: "en_progreso", label: "Reabrir", color: "bg-purple-500/20 text-purple-300 hover:bg-purple-500/30" },
+                          ],
+                        };
                         return (
                           <>
                             <div className="px-3 pt-3 pb-2 flex items-start gap-2" onClick={() => toggleRow(b.id)}>
@@ -2079,6 +2097,24 @@ export default function AdminPage() {
                                   <span>{b.phone}</span>
                                 </div>
                               </div>
+                              {/* Status action buttons */}
+                              {bookingStatusActions[b.status] && (
+                                <div className="flex gap-1.5 flex-wrap">
+                                  {bookingStatusActions[b.status].map((action) => (
+                                    <button
+                                      key={action.status}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        updateStatus("bookings", b.id, action.status);
+                                      }}
+                                      disabled={isUpdating}
+                                      className={`text-[10px] px-2 py-1 rounded font-josefin font-medium transition-colors ${action.color} disabled:opacity-50`}
+                                    >
+                                      {isUpdating ? "..." : action.label}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
                               {isOpen && (
                                 <div className="pt-2 border-t border-mystic-800/40 space-y-2">
                                   {b.preferredDate && (

@@ -74,51 +74,44 @@ export async function POST(request: NextRequest) {
     } catch {}
     const total = (method === "paypal" || method === "western_union") ? priceUsd : priceArs;
 
-    (async () => {
-      try {
-        await sendAdminNotification({
-          type: "reading",
-          customerName: booking.name,
-          customerEmail: booking.email,
-          customerPhone: booking.phone,
-          items: [{ name: "Lectura del Campo Akáshico", quantity: 1, price: total }],
-          total,
-          paymentMethod: method,
-          orderId: booking.id,
-          extraData: { formData: formDataSafe },
-        });
-      } catch (err) {
-        console.error("[Email] Failed to send admin notification for transfer reading:", err);
-      }
+    // ── Send all emails + auto-enroll in parallel (much faster) ──
+    Promise.all([
+      // 1. Admin notification
+      sendAdminNotification({
+        type: "reading",
+        customerName: booking.name,
+        customerEmail: booking.email,
+        customerPhone: booking.phone,
+        items: [{ name: "Lectura del Campo Akáshico", quantity: 1, price: total }],
+        total,
+        paymentMethod: method,
+        orderId: booking.id,
+        extraData: { formData: formDataSafe },
+      }).catch(err => console.error("[Email] Admin notification failed:", err)),
 
-      try {
-        await sendCustomerConfirmation({
-          customerName: booking.name,
-          customerEmail: booking.email,
-          type: "reading",
-          items: [{ name: "Lectura del Campo Akáshico", quantity: 1, price: total }],
-          total,
-          paymentMethod: method,
-        });
-      } catch (err) {
-        console.error("[Email] Failed to send customer confirmation for transfer reading:", err);
-      }
+      // 2. Customer confirmation
+      sendCustomerConfirmation({
+        customerName: booking.name,
+        customerEmail: booking.email,
+        type: "reading",
+        items: [{ name: "Lectura del Campo Akáshico", quantity: 1, price: total }],
+        total,
+        paymentMethod: method,
+      }).catch(err => console.error("[Email] Customer confirmation failed:", err)),
 
-      // Auto-create student + enrollment in Aula Virtual
-      try {
-        const enrollResult = await ensureStudentWithEnrollment({
-          name: booking.name,
-          email: booking.email,
-          phone: booking.phone,
-          enrollmentType: 'lectura',
-          enrollmentTitle: 'Lectura Akáshica Individual',
-          notes: `Pago: ${method}`,
-          assignedBy: 'auto-booking',
-        });
-        console.log(`[AutoEnroll] Result: isNew=${enrollResult.isNewStudent}, hasPassword=${!!enrollResult.generatedPassword}, enrollmentId=${enrollResult.enrollmentId}`);
-        // Always send welcome email with credentials (password is always regenerated)
-        if (enrollResult.generatedPassword) {
-          try {
+      // 3. Auto-enroll + send Aula Virtual credentials
+      (async () => {
+        try {
+          const enrollResult = await ensureStudentWithEnrollment({
+            name: booking.name,
+            email: booking.email,
+            phone: booking.phone,
+            enrollmentType: 'lectura',
+            enrollmentTitle: 'Lectura Akáshica Individual',
+            notes: `Pago: ${method}`,
+            assignedBy: 'auto-booking',
+          });
+          if (enrollResult.generatedPassword) {
             await sendAulaWelcomeEmail({
               customerName: booking.name,
               customerEmail: booking.email,
@@ -126,17 +119,12 @@ export async function POST(request: NextRequest) {
               enrollmentType: 'lectura',
               enrollmentTitle: 'Lectura Akáshica Individual',
             });
-            console.log(`[AutoEnroll] Welcome email with credentials sent to ${booking.email}`);
-          } catch (emailErr) {
-            console.error("[AutoEnroll] Welcome email failed:", (emailErr as Error).message);
           }
-        } else {
-          console.warn(`[AutoEnroll] No generatedPassword returned — credentials email NOT sent`);
+        } catch (err) {
+          console.error("[AutoEnroll] Failed for booking:", err);
         }
-      } catch (err) {
-        console.error("[AutoEnroll] Failed for booking:", err);
-      }
-    })();
+      })(),
+    ]).catch(() => {}); // swallow top-level errors, already handled per-promise
 
     return NextResponse.json(
       {
@@ -219,7 +207,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "ID de reserva requerido." }, { status: 400 });
     }
 
-    const validStatuses = ["pendiente", "confirmada", "en_progreso", "enviada", "cancelada"];
+    const validStatuses = ["pendiente", "en_progreso", "entregada", "cancelada"];
     if (status && !validStatuses.includes(status)) {
       return NextResponse.json(
         { error: `Estado inválido. Estados válidos: ${validStatuses.join(", ")}` },
