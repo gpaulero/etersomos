@@ -1,6 +1,6 @@
 # ETÉR SOMOS - Especificación Completa del Proyecto
 ## (Archivo de referencia CRÍTICO - NO BORRAR)
-## Última actualización: 2026-06-11 (sesión 28)
+## Última actualización: 2026-06-11 (sesión 29)
 
 Este documento describe TODO el estado actual, credenciales, estructura y requisitos del sitio web.
 **Siempre consultar antes de hacer cambios.**
@@ -55,11 +55,20 @@ BACKUP de `.env.local` en: `/home/z/my-project/etersomos-backups/2026-04-23/env.
 - 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 (actualizado 03/06/2026)
 - Token anterior: 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 (EXPIRADO)
 
-### Resend (Emails)
+### Resend (Emails) — LEGACY, ya no se usa activamente
 - Ver variables `RESEND_API_KEY` y `ADMIN_EMAIL` en `.env.local`
 - Estado: SANDBOX (solo envía a emails verificados en Resend)
-- Nota: Hay que configurar dominio custom para enviar a cualquier email
-- Sender: onboarding@resend.dev (sandbox)
+- **Reemplazado por Nodemailer + Gmail SMTP** en sesión 29 (ver sección "Emails (Nodemailer)" abajo)
+- Sender anterior: onboarding@resend.dev (sandbox)
+
+### Emails (Nodemailer + Gmail SMTP) — PROVEEDOR ACTUAL
+- Cuenta Gmail: etersomos@gmail.com
+- App Password: qarpqbgcdhlkxksa
+- Env vars: SMTP_USER, SMTP_APP_PASSWORD
+- Sender: "Eter Somos" <etersomos@gmail.com>
+- **Ventaja sobre Resend**: Envía a cualquier email sin necesidad de verificar dominio
+- Todos los templates usan BRAND tokens con la estética del sitio (fondos oscuros, violeta, gold)
+- Ver sección "SISTEMA DE EMAILS" para detalle completo de templates
 
 ### PayPal
 - Modo: SANDBOX (testeo)
@@ -260,11 +269,13 @@ curl -s -X POST "https://etersomos-iota.vercel.app/api/memberships/subscribe" \
 # Debe devolver {"success":true} (no 500)
 ```
 
-### Las 16 variables que DEBEN estar siempre:
+### Las 18 variables que DEBEN estar siempre:
 
 | Variable | Tipo | Valor |
 |----------|------|-------|
-| RESEND_API_KEY | encrypted | ver .env.local |
+| SMTP_USER | plain | etersomos@gmail.com |
+| SMTP_APP_PASSWORD | encrypted | qarpqbgcdhlkxksa |
+| RESEND_API_KEY | encrypted | ver .env.local (legacy) |
 | ADMIN_EMAIL | plain | ver .env.local |
 | DATABASE_URL | plain | ver .env.local |
 | DATABASE_AUTH_TOKEN | encrypted | ver .env.local |
@@ -287,7 +298,7 @@ curl -s -X POST "https://etersomos-iota.vercel.app/api/memberships/subscribe" \
 
 ### Stack:
 - Next.js 16 (App Router, Turbopack), Tailwind CSS 4, shadcn/ui, Framer Motion
-- Turso (libSQL) para DB, Resend para emails, Sonner (toasts)
+- Turso (libSQL) para DB, Nodemailer + Gmail SMTP para emails (reemplazó Resend), Sonner (toasts)
 - PayPal REST API (sandbox), MercadoPago Checkout Pro (producción)
 - Prisma ORM, TypeScript, React 19
 
@@ -640,20 +651,58 @@ TODOS los pagos pasan por la pasarela del sitio web (MercadoPago o PayPal).
 
 ## SISTEMA DE EMAILS
 
-### Tipos de email:
-1. **crystal_order**: "Nuevo pedido de cristales" → admin + confirmación al cliente
-2. **course_enrollment**: "Nueva inscripción a curso" → admin + confirmación al cliente
-3. **reading**: "Nueva solicitud de lectura" → admin + confirmación al cliente
-4. **membership_subscription**: "Nueva suscripción registrada" → solo al admin (etersomos@gmail.com)
+### Proveedor de emails:
+- **Nodemailer + Gmail SMTP** (reemplazó Resend en sesión 29)
+- Cuenta: etersomos@gmail.com
+- App Password: qarpqbgcdhlkxksa (almacenada en SMTP_APP_PASSWORD)
+- Env vars: SMTP_USER, SMTP_APP_PASSWORD
+- Sender: "Eter Somos" <etersomos@gmail.com>
+- **Ventaja**: Envía a cualquier email (no limitado como Resend sandbox)
+
+### Tipos de email (7 templates con estética Eter Somos):
+1. **sendAdminNotification** — Notificación al admin de nuevo pedido/inscripción/solicitud (5 variantes: crystal, course, mentoria, reading, resource)
+2. **sendCustomerConfirmation** — Confirmación al cliente de su pedido/inscripción/solicitud
+3. **sendAulaWelcomeEmail** — Credenciales del Aula Virtual para NUEVOS alumnos (solo cuando generatedPassword && isNewStudent)
+4. **sendAulaExistingStudentEmail** — Notificación de nueva inscripción para alumnos EXISTENTES (sin credenciales)
+5. **sendLecturaReadyEmail** — Notificación al alumno cuando la lectura está lista (status → "entregada")
+
+### Diseño visual de emails (BRAND tokens):
+Todos los emails usan el sistema de design tokens `BRAND` que replica la estética del sitio web:
+- **Fondos**: bg (#0a0908), card (#161310), cardInner (#1a1714)
+- **Texto**: text (#f0ebe5), muted (#8a7e72), mutedDark (#5c5349)
+- **Violeta**: violet (#a78bfa), violetDark (#8b5cf6), violetDeep (#7c3aed), violetDeeper (#5b21b6)
+- **Bordes**: border (#2a2520), borderLight, borderAccent
+- **Fuentes**: Serif (Georgia, Playfair Display) para títulos, Sans (Helvetica, Josefin Sans) para cuerpo
+- **CTA**: Botones pill con bg violet-500, box-shadow violet glow
+- **Componentes compartidos**: emailShell(), headerBlock(), footerBlock(), ctaButton(), sectionLabel()
+
+### Auto-enrollment (inscripción automática):
+- **Archivo**: src/lib/student-auth.ts → `ensureStudentWithEnrollment()`
+- **Flujo**: Cuando alguien paga por lectura/curso/mentoria → crea Student + StudentEnrollment automáticamente
+- **Alumno nuevo**: Genera password aleatorio, envía `sendAulaWelcomeEmail` con credenciales
+- **Alumno existente**: NO regenera password, envía `sendAulaExistingStudentEmail` recordando usar credenciales existentes
+- **Deduplicación**: Verifica type + referenceId + title para evitar inscripciones duplicadas
+- **referenceId**: Para lecturas, usa `booking.id` para que cada lectura sea una inscripción única
+- **Resultado**: `AutoEnrollResult { studentId, isNewStudent, generatedPassword, enrollmentId, isNewEnrollment }`
+
+### Email de lectura lista:
+- **Trigger**: Admin cambia status a "entregada" en el panel kanban
+- **Archivo**: src/app/api/admin/bookings/[id]/route.ts
+- **Flujo**: Busca student por email → envía `sendLecturaReadyEmail` con nombre y título de lectura
+- **Contenido**: Notifica que la lectura está disponible en el Aula Virtual + botón CTA "Escuchar mi lectura"
+
+### Puntos de envío:
+- `/api/bookings` (POST) → Auto-enroll + sendAulaWelcomeEmail o sendAulaExistingStudentEmail + sendAdminNotification + sendCustomerConfirmation
+- `/api/payments/confirm-order` (POST) → Auto-enroll + emails según tipo (crystal/course/mentoria/reading/resource)
+- `/api/admin/bookings/[id]` (PUT) → sendLecturaReadyEmail cuando status cambia a "entregada"
+- `/api/memberships/subscribe` (POST) → Email simple de notificación al admin
 
 ### Archivos:
-- src/lib/email.ts - Sistema de emails para cristales, cursos y lecturas
-- src/app/api/memberships/subscribe/route.ts - Email de notificación de suscripción a membresía
-
-### Estado actual:
-- Resend en modo sandbox → solo envía a emails verificados en Resend
-- Para enviar a cualquier email → configurar dominio custom en Resend
-- Sender: onboarding@resend.dev (sandbox)
+- src/lib/email.ts - Sistema completo de emails (7 templates con estética Eter Somos, Nodemailer + Gmail SMTP)
+- src/lib/student-auth.ts - Auto-enrollment: ensureStudentWithEnrollment(), createStudent(), createEnrollment()
+- src/app/api/bookings/route.ts - Lecturas: auto-enroll + emails
+- src/app/api/payments/confirm-order/route.ts - Pagos: auto-enroll + emails por tipo
+- src/app/api/admin/bookings/[id]/route.ts - Admin: email lectura lista al cambiar status
 
 ---
 
@@ -1465,3 +1514,14 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
    - Sección activa con Framer Motion AnimatePresence para transiciones suaves
    - Header con breadcrumb dinámico (muestra grupo + sección activa)
    - Botón logout en sidebar
+
+### SESIÓN 29 (11/06/2026 — Bug fixes + Email branding + PROJECT_SPEC update)
+1. **Fix: Alumnos existentes recibian credenciales de nuevo** — `ensureStudentWithEnrollment()` ya NO regenera password para alumnos existentes. `generatedPassword = null` para alumnos existentes. Solo se envía `sendAulaWelcomeEmail` cuando `generatedPassword && isNewStudent`.
+2. **Fix: Nuevas lecturas no aparecian en kanban admin** — El sistema de deduplicacion verificaba `type + referenceId + title`. Como `referenceId` estaba vacio para todas las lecturas, una segunda "Lectura Akashica Individual" se consideraba duplicada. Fix: pasar `booking.id` como `referenceId` para que cada lectura sea una inscripcion unica.
+3. **Nuevo: Email de lectura lista** — Cuando admin cambia status a "entregada" en el kanban, se envia automaticamente `sendLecturaReadyEmail` al alumno notificando que su lectura esta disponible en el Aula Virtual. Archivo: `src/app/api/admin/bookings/[id]/route.ts`.
+4. **Nuevo: Email para alumnos existentes** — `sendAulaExistingStudentEmail()` notifica al alumno existente sobre su nueva inscripcion sin enviar credenciales (recordandole que use las existentes).
+5. **Email branding Eter Somos** — Todos los emails usan BRAND tokens que replican la estetica del sitio: fondos oscuros (#0a0908, #161310), violeta (#a78bfa, #8b5cf6), bordes sutiles, tipografia serif/sans, CTA pill con glow violeta. Componentes compartidos: `emailShell()`, `headerBlock()`, `footerBlock()`, `ctaButton()`, `sectionLabel()`.
+6. **Proveedor de emails: Nodemailer + Gmail SMTP** — Reemplazo Resend (sandbox). Cuenta: etersomos@gmail.com, App Password: qarpqbgcdhlkxksa. Ventaja: envia a cualquier email sin limitaciones.
+7. **Nuevas env vars: SMTP_USER, SMTP_APP_PASSWORD** — Total: 18 variables (antes 16).
+8. **Backup completo** — Archivos respaldados en `/home/z/my-project/etersomos-backups/2026-06-11/`.
+9. **AutoEnrollResult actualizado** — Nuevo campo `isNewEnrollment: boolean` para distinguir entre inscripciones nuevas vs duplicadas.
