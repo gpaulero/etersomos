@@ -1313,3 +1313,59 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
    - Archivos en repo que no deberían estar: `etersomos-backup-files/`, `skills/`, `upload/PROJECT_SPEC.md`, `Caddyfile`, `worklog.md`
 
 7. **Backup creado**: /home/z/my-project/download/backup-etersomos-20260610/
+
+### SESIÓN 26 (10/06/2026 — Aula Virtual MVP)
+
+**Feature completa: Aula Virtual con auth de alumnos, dashboard personal y admin de alumnos.**
+
+1. **Nuevas tablas en Turso DB**:
+   - `Student` (id, email UNIQUE, passwordHash, nombre, phone, createdAt, updatedAt)
+   - `StudentEnrollment` (id, studentId, type, referenceId, title, status, assignedBy, notes, createdAt, updatedAt)
+   - `CourseContent` (id, courseId, title, description, fileType, r2Key, fileName, sortOrder, active, createdAt)
+   - Índices: idx_student_email, idx_enrollment_student, idx_coursecontent_course
+
+2. **Sistema de autenticación para alumnos**:
+   - Archivo: `src/lib/student-auth.ts`
+   - JWT con `jose` + cookies httpOnly (cookie: `student_token`, 7 días)
+   - Passwords hasheados con `bcryptjs`
+   - Registro directo en /aula/registro (email + password + nombre)
+   - Login en /aula/login
+   - Logout vía POST /api/student/auth/logout
+
+3. **APIs de alumno** (públicas, sin auth admin):
+   - POST /api/student/auth/login — login con email + password
+   - POST /api/student/auth/register — registro de nuevo alumno
+   - GET /api/student/auth/me — perfil del alumno logueado
+   - POST /api/student/auth/logout — cerrar sesión
+   - GET /api/student/enrollments — inscripciones del alumno
+   - GET /api/student/course-content?courseId= — contenido de curso (verifica inscripción)
+
+4. **APIs de admin para alumnos** (requieren auth admin):
+   - GET /api/admin/students — listar alumnos
+   - POST /api/admin/students — crear alumno (auto-genera password si no se provee)
+   - GET /api/admin/students/[id] — detalle + inscripciones
+   - DELETE /api/admin/students/[id] — eliminar alumno + inscripciones
+   - POST /api/admin/students/[id]/enrollments — asignar curso/lectura/mentoría
+
+5. **Páginas del Aula Virtual**:
+   - `/aula/login` — login con email + contraseña (diseño mystic)
+   - `/aula/registro` — registro de nuevo alumno (nombre, email, teléfono, contraseña)
+   - `/aula` — dashboard personal: stats, mis cursos, mis lecturas, mis mentorías, perfil
+   - `/aula/curso/[courseId]` — contenido de curso (archivos descargables)
+
+6. **Admin — Tab "Alumnos"** (9no tab en panel admin):
+   - Lista de alumnos registrados (panel izquierdo)
+   - Detalle del alumno con inscripciones (panel derecho)
+   - Crear alumno desde admin (con auto-generación de contraseña)
+   - Asignar curso/lectura/mentoría a un alumno
+   - Eliminar alumno
+   - Contraseña generada se muestra una sola vez con botón de copiar
+
+7. **Middleware actualizado**:
+   - Rutas públicas: /api/student/auth/login, /register, /logout
+   - Rutas protegidas por cookie student_token: /api/student/enrollments, /api/student/auth/me
+   - Admin sigue requiriendo Bearer token para /api/admin/students
+
+8. **Dependencias nuevas**: bcryptjs, jose (ya estaban instaladas en node_modules)
+
+9. **Commit**: `589fd98` — feat: aula virtual - student auth, dashboard, admin alumnos tab, course content API
