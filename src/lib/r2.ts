@@ -170,3 +170,28 @@ export async function getPresignedLecturaUploadUrl(fileName: string, contentType
   const url = await getSignedUrl(r2Client, command, { expiresIn: 600 });
   return { url, key };
 }
+
+export async function uploadLecturaResource(file: File) {
+  const timestamp = Date.now();
+  const fileName = `${timestamp}-${file.name}`;
+  const key = `lecturas/${fileName}`;
+
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+
+  await r2Client.send(
+    new PutObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+      Body: buffer,
+      ContentType: file.type || 'audio/mpeg',
+    })
+  );
+
+  return {
+    key,
+    name: fileName,
+    size: buffer.length,
+    lastModified: new Date().toISOString(),
+  };
+}

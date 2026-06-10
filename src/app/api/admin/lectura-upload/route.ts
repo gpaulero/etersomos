@@ -1,50 +1,46 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getPresignedLecturaUploadUrl } from '@/lib/r2'
+import { uploadLecturaResource } from '@/lib/r2'
 
-export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 /**
  * POST /api/admin/lectura-upload
- * Server-side upload for lectura audio files.
- * Receives the file as FormData, uploads to R2, returns the r2Key.
- * This avoids CORS issues with direct browser-to-R2 uploads.
+ * Upload a lectura audio file directly to R2 (server-side upload).
+ * Accepts FormData with a "file" field.
+ * Returns { r2Key, fileName, size }
  */
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData()
     const file = formData.get('file') as File | null
-    const enrollmentId = formData.get('enrollmentId') as string | null
 
     if (!file) {
-      return NextResponse.json({ error: 'Archivo es requerido' }, { status: 400 })
+      return NextResponse.json({ error: 'No se envió ningún archivo' }, { status: 400 })
     }
 
-    // Get presigned upload URL for lecturas/ prefix
-    const contentType = file.type || 'audio/mpeg'
-    const { url, key } = await getPresignedLecturaUploadUrl(file.name, contentType)
-
-    // Upload to R2 from server side (no CORS issues)
-    const arrayBuffer = await file.arrayBuffer()
-    const uploadRes = await fetch(url, {
-      method: 'PUT',
-      headers: { 'Content-Type': contentType },
-      body: arrayBuffer,
-    })
-
-    if (!uploadRes.ok) {
-      console.error('[Lectura Upload] R2 upload failed:', uploadRes.status, await uploadRes.text().catch(() => ''))
-      return NextResponse.json({ error: `Error al subir a R2 (${uploadRes.status})` }, { status: 500 })
+    // Validate file type (audio only)
+    const validTypes = ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/mp4', 'audio/x-m4a', 'audio/flac', 'audio/aac', 'audio/webm']
+    const validExts = ['.mp3', '.wav', '.ogg', '.m4a', '.flac', '.aac', '.webm']
+    const ext = file.name.toLowerCase().slice(file.name.lastIndexOf('.'))
+    if (!validTypes.includes(file.type) && !validExts.includes(ext)) {
+      return NextResponse.json({ error: 'Solo se permiten archivos de audio (mp3, wav, ogg, m4a, flac, aac, webm)' }, { status: 400 })
     }
+
+    // Max file size: 200MB
+    const maxSize = 200 * 1024 * 1024
+    if (file.size > maxSize) {
+      return NextResponse.json({ error: 'El archivo excede el límite de 200MB' }, { status: 400 })
+    }
+
+    const result = await uploadLecturaResource(file)
 
     return NextResponse.json({
-      success: true,
-      r2Key: key,
+      r2Key: result.key,
       fileName: file.name,
-      enrollmentId: enrollmentId || null,
+      size: result.size,
     })
   } catch (error) {
-    console.error('[Lectura Upload Error]', error)
-    return NextResponse.json({ error: 'Error interno al subir audio' }, { status: 500 })
+    console.error('[Admin Lectura Upload Error]', error)
+    return NextResponse.json({ error: 'Error interno al subir archivo' }, { status: 500 })
   }
 }
