@@ -126,6 +126,7 @@ export const defaultSiteContent: SiteContentItem[] = [
   { key: "nav.link_membresia", value: "Membresías", section: "nav", label: "Link Membresías", type: "text" },
   { key: "nav.link_recursos", value: "Recursos", section: "nav", label: "Link Recursos", type: "text" },
   { key: "nav.link_tienda", value: "Tienda", section: "nav", label: "Link Tienda", type: "text" },
+  { key: "nav.link_aula", value: "Aula", section: "nav", label: "Link Aula Virtual", type: "text" },
   { key: "nav.link_contacto", value: "Contacto", section: "nav", label: "Link Contacto", type: "text" },
 
   // ── Crystals (tienda) ──

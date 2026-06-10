@@ -10,7 +10,7 @@ const METHOD_PROTECTED: Record<string, string[]> = {
 };
 
 // Student-protected API routes (require student JWT cookie)
-const STUDENT_PROTECTED = ["/api/student/enrollments", "/api/student/auth/me"];
+const STUDENT_PROTECTED = ["/api/student/enrollments", "/api/student/auth/me", "/api/student/course-content", "/api/student/stream"];
 
 function isProtectedRoute(pathname: string, method: string): boolean {
   for (const route of PROTECTED_ROUTES) {

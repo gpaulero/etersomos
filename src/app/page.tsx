@@ -202,6 +202,7 @@ const navLinksData = [
   { label: "Membresías", href: "/membresias", cmsKey: 'nav.link_membresia' },
   { label: "Recursos", href: "/recursos", cmsKey: 'nav.link_recursos' },
   { label: "Tienda", href: "/tienda", cmsKey: 'nav.link_tienda' },
+  { label: "Aula", href: "/aula", cmsKey: 'nav.link_aula' },
 ];
 
 const crystalCategories = [
@@ -412,6 +413,7 @@ export default function Home() {
   const navLinkMembresia = cmsValue(cmsMap, 'nav.link_membresia', 'Membresías');
   const navLinkRecursos = cmsValue(cmsMap, 'nav.link_recursos', 'Recursos');
   const navLinkTienda = cmsValue(cmsMap, 'nav.link_tienda', 'Tienda');
+  const navLinkAula = cmsValue(cmsMap, 'nav.link_aula', 'Aula');
 
   // Hero buttons
   const heroBtnServices = cmsValue(cmsMap, 'site.hero_btn_services', 'Ver servicios');

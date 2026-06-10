@@ -99,3 +99,60 @@ export async function getResourceStream(key: string) {
   );
   return result;
 }
+
+/* ── Course content upload helpers (cursos/ prefix) ── */
+
+export async function getPresignedCourseUploadUrl(fileName: string, contentType: string) {
+  const timestamp = Date.now();
+  const key = `cursos/${timestamp}-${fileName}`;
+  const command = new PutObjectCommand({
+    Bucket: BUCKET_NAME,
+    Key: key,
+    ContentType: contentType,
+  });
+  const url = await getSignedUrl(r2Client, command, { expiresIn: 600 });
+  return { url, key };
+}
+
+export async function uploadCourseResource(file: File, customKey?: string) {
+  const timestamp = Date.now();
+  const fileName = `${timestamp}-${file.name}`;
+  const key = customKey || `cursos/${fileName}`;
+
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+
+  await r2Client.send(
+    new PutObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+      Body: buffer,
+      ContentType: file.type,
+    })
+  );
+
+  return {
+    key,
+    name: fileName,
+    size: buffer.length,
+    lastModified: new Date().toISOString(),
+  };
+}
+
+export async function listCourseResources(courseId?: string) {
+  const prefix = courseId ? `cursos/${courseId}/` : "cursos/";
+  const result = await r2Client.send(
+    new ListObjectsV2Command({
+      Bucket: BUCKET_NAME,
+      Prefix: prefix,
+    })
+  );
+  return (result.Contents || [])
+    .filter((obj) => obj.Key && obj.Key !== prefix && obj.Size! > 0)
+    .map((obj) => ({
+      key: obj.Key!,
+      name: obj.Key!.split("/").pop()!,
+      size: obj.Size!,
+      lastModified: obj.LastModified!.toISOString(),
+    }));
+}

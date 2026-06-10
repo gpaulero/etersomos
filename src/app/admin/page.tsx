@@ -47,6 +47,10 @@ import {
   FolderOpen,
   ExternalLink,
   UserPlus,
+  Video,
+  Headphones,
+  Plus,
+  Eye,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -599,6 +603,15 @@ export default function AdminPage() {
   const [enrollmentForm, setEnrollmentForm] = useState({ type: "curso", title: "", referenceId: "", notes: "" });
   const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
 
+  // Course Content state (aula virtual)
+  const [courseContents, setCourseContents] = useState<any[]>([]);
+  const [selectedCourseId, setSelectedCourseId] = useState<string>("");
+  const [showContentUpload, setShowContentUpload] = useState(false);
+  const [contentUploadForm, setContentUploadForm] = useState({ title: "", description: "", fileType: "video" });
+  const [contentFile, setContentFile] = useState<File | null>(null);
+  const [uploadingContent, setUploadingContent] = useState(false);
+  const [newCourseId, setNewCourseId] = useState("");
+
   // Generic drag state
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dragOverColumn, setDragOverColumn] = useState<string | null>(null);
@@ -1000,6 +1013,115 @@ export default function AdminPage() {
       }
     } catch {
       toast.error("Error al eliminar");
+    }
+  };
+
+  // ── Course Content Management ──
+
+  const fetchCourseContents = async (courseId: string) => {
+    setSelectedCourseId(courseId);
+    try {
+      const res = await authFetch(`/api/admin/course-content?courseId=${encodeURIComponent(courseId)}`);
+      if (res.ok) {
+        const data = await res.json();
+        setCourseContents(data.contents || []);
+      }
+    } catch {
+      toast.error("Error al cargar contenido del curso");
+    }
+  };
+
+  const handleUploadCourseContent = async () => {
+    if (!selectedCourseId || !contentUploadForm.title || !contentFile) {
+      toast.error("Curso, título y archivo son requeridos");
+      return;
+    }
+    setUploadingContent(true);
+    try {
+      // Step 1: Get presigned upload URL
+      const presignRes = await authFetch("/api/admin/course-content/presign", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fileName: contentFile.name,
+          contentType: contentFile.type,
+        }),
+      });
+      const presignData = await presignRes.json();
+      if (!presignRes.ok) {
+        toast.error(presignData.error || "Error al obtener URL de subida");
+        return;
+      }
+
+      // Step 2: Upload file to R2 via presigned URL
+      const uploadRes = await fetch(presignData.uploadUrl, {
+        method: "PUT",
+        headers: { "Content-Type": contentFile.type },
+        body: contentFile,
+      });
+      if (!uploadRes.ok) {
+        toast.error("Error al subir archivo a R2");
+        return;
+      }
+
+      // Step 3: Create content record in DB
+      const createRes = await authFetch("/api/admin/course-content", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          courseId: selectedCourseId,
+          title: contentUploadForm.title,
+          description: contentUploadForm.description,
+          fileType: contentUploadForm.fileType,
+          r2Key: presignData.key,
+          fileName: contentFile.name,
+          sortOrder: courseContents.length,
+          active: 1,
+        }),
+      });
+      const createData = await createRes.json();
+      if (!createRes.ok) {
+        toast.error(createData.error || "Error al crear contenido");
+        return;
+      }
+
+      toast.success(`"${contentUploadForm.title}" subido correctamente`);
+      setContentUploadForm({ title: "", description: "", fileType: "video" });
+      setContentFile(null);
+      setShowContentUpload(false);
+      fetchCourseContents(selectedCourseId);
+    } catch {
+      toast.error("Error al subir contenido");
+    } finally {
+      setUploadingContent(false);
+    }
+  };
+
+  const handleDeleteCourseContent = async (id: string) => {
+    if (!confirm("¿Eliminar este contenido?")) return;
+    try {
+      const res = await authFetch(`/api/admin/course-content?id=${id}`, { method: "DELETE" });
+      if (res.ok) {
+        toast.success("Contenido eliminado");
+        fetchCourseContents(selectedCourseId);
+      }
+    } catch {
+      toast.error("Error al eliminar contenido");
+    }
+  };
+
+  const handleToggleContentActive = async (id: string, currentActive: number) => {
+    try {
+      const res = await authFetch("/api/admin/course-content", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, active: currentActive ? 0 : 1 }),
+      });
+      if (res.ok) {
+        fetchCourseContents(selectedCourseId);
+      }
+    } catch {
+      toast.error("Error al actualizar contenido");
     }
   };
 
@@ -2571,7 +2693,7 @@ export default function AdminPage() {
 
           {/* ═══ ALUMNOS TAB (AULA VIRTUAL) ═══ */}
           <TabsContent value="alumnos">
-            <div className="space-y-4">
+            <div className="space-y-6">
               {/* Header */}
               <div className="flex items-center justify-between">
                 <h3 className="font-serif text-lg text-gold-300 flex items-center gap-2">
@@ -2830,6 +2952,247 @@ export default function AdminPage() {
                       </CardContent>
                     </Card>
                   )}
+                </div>
+              </div>
+
+              {/* ═══ COURSE CONTENT MANAGEMENT ═══ */}
+              <div className="border-t border-mystic-700/40 pt-6">
+                <h3 className="font-serif text-lg text-gold-300 flex items-center gap-2 mb-4">
+                  <FolderOpen className="w-5 h-5" />
+                  Contenido de Cursos
+                </h3>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                  {/* Course selector */}
+                  <div className="lg:col-span-1">
+                    <Card className="bg-mystic-900/40 border-mystic-700/40">
+                      <CardContent className="p-4 space-y-3">
+                        <h4 className="text-mystic-400 text-xs font-josefin uppercase tracking-wider">
+                          Seleccionar curso
+                        </h4>
+
+                        {/* Quick course ID buttons from existing enrollments */}
+                        <div className="space-y-1">
+                          {["n1-teorico", "n1-practica", "n2", "ambos"].map((id) => (
+                            <button
+                              key={id}
+                              onClick={() => fetchCourseContents(id)}
+                              className={`w-full text-left px-3 py-2 rounded-lg transition-colors text-sm font-sans ${
+                                selectedCourseId === id
+                                  ? "bg-blue-500/20 text-blue-200 border border-blue-500/30"
+                                  : "hover:bg-mystic-800/60 text-mystic-300"
+                              }`}
+                            >
+                              <GraduationCap className="w-4 h-4 inline mr-2 text-blue-400" />
+                              {id}
+                            </button>
+                          ))}
+                        </div>
+
+                        <Separator className="bg-mystic-700/40" />
+
+                        {/* Custom course ID input */}
+                        <div className="space-y-2">
+                          <label className="text-mystic-500 text-xs font-sans">O ingresar ID de curso:</label>
+                          <div className="flex gap-2">
+                            <Input
+                              placeholder="mi-curso"
+                              value={newCourseId}
+                              onChange={(e) => setNewCourseId(e.target.value)}
+                              className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm flex-1"
+                            />
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-blue-400/30 text-blue-300 hover:bg-blue-400/10 shrink-0"
+                              onClick={() => { if (newCourseId) fetchCourseContents(newCourseId); }}
+                            >
+                              Ver
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Course content list + upload */}
+                  <div className="lg:col-span-2">
+                    {selectedCourseId ? (
+                      <div className="space-y-4">
+                        {/* Course header + upload button */}
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-serif text-foreground flex items-center gap-2">
+                            <GraduationCap className="w-4 h-4 text-blue-400" />
+                            Contenido: <span className="text-blue-300">{selectedCourseId}</span>
+                            <Badge variant="secondary" className="bg-mystic-800/60 text-mystic-300 text-xs ml-1">
+                              {courseContents.length}
+                            </Badge>
+                          </h4>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowContentUpload(!showContentUpload)}
+                            className="border-blue-400/30 text-blue-300 hover:bg-blue-400/10 font-josefin gap-1"
+                          >
+                            <Plus className="w-4 h-4" />
+                            {showContentUpload ? "Cancelar" : "Subir contenido"}
+                          </Button>
+                        </div>
+
+                        {/* Upload form */}
+                        {showContentUpload && (
+                          <Card className="bg-mystic-900/40 border-blue-500/20">
+                            <CardContent className="p-4 space-y-3">
+                              <h5 className="text-blue-300 text-xs font-josefin uppercase tracking-wider">
+                                Subir nuevo contenido
+                              </h5>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                  <label className="text-mystic-500 text-xs font-sans">Título</label>
+                                  <Input
+                                    placeholder="Ej: Clase 1 - Introducción"
+                                    value={contentUploadForm.title}
+                                    onChange={(e) => setContentUploadForm({ ...contentUploadForm, title: e.target.value })}
+                                    className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-mystic-500 text-xs font-sans">Tipo de archivo</label>
+                                  <Select value={contentUploadForm.fileType} onValueChange={(v) => setContentUploadForm({ ...contentUploadForm, fileType: v })}>
+                                    <SelectTrigger className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="video">Video</SelectItem>
+                                      <SelectItem value="audio">Audio</SelectItem>
+                                      <SelectItem value="pdf">PDF</SelectItem>
+                                      <SelectItem value="documento">Documento</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div className="sm:col-span-2">
+                                  <label className="text-mystic-500 text-xs font-sans">Descripción (opcional)</label>
+                                  <Input
+                                    placeholder="Breve descripción del contenido"
+                                    value={contentUploadForm.description}
+                                    onChange={(e) => setContentUploadForm({ ...contentUploadForm, description: e.target.value })}
+                                    className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm"
+                                  />
+                                </div>
+                                <div className="sm:col-span-2">
+                                  <label className="text-mystic-500 text-xs font-sans">Archivo</label>
+                                  <Input
+                                    type="file"
+                                    accept="video/*,audio/*,.pdf,.doc,.docx,.ppt,.pptx"
+                                    onChange={(e) => setContentFile(e.target.files?.[0] || null)}
+                                    className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm"
+                                  />
+                                  {contentFile && (
+                                    <p className="text-mystic-400 text-xs mt-1 font-sans">
+                                      {(contentFile.size / (1024 * 1024)).toFixed(1)} MB — {contentFile.type || "tipo desconocido"}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                              <Button
+                                size="sm"
+                                onClick={handleUploadCourseContent}
+                                disabled={uploadingContent || !contentFile || !contentUploadForm.title}
+                                className="bg-blue-500 hover:bg-blue-400 text-white font-josefin gap-2"
+                              >
+                                {uploadingContent ? (
+                                  <>
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    Subiendo...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Upload className="w-4 h-4" />
+                                    Subir al curso
+                                  </>
+                                )}
+                              </Button>
+                            </CardContent>
+                          </Card>
+                        )}
+
+                        {/* Content list */}
+                        {courseContents.length === 0 ? (
+                          <Card className="bg-mystic-900/40 border-mystic-700/40">
+                            <CardContent className="p-8 text-center">
+                              <Video className="w-8 h-8 text-mystic-600 mx-auto mb-3" />
+                              <p className="text-mystic-400 font-josefin text-sm">Este curso no tiene contenido</p>
+                              <p className="text-mystic-500 text-xs font-sans mt-1">Subí videos, audios o documentos para los alumnos</p>
+                            </CardContent>
+                          </Card>
+                        ) : (
+                          <div className="space-y-2">
+                            {courseContents
+                              .sort((a: any, b: any) => (a.sortOrder || 0) - (b.sortOrder || 0))
+                              .map((item: any) => (
+                              <Card
+                                key={item.id}
+                                className={`bg-mystic-900/40 border-mystic-700/40 hover:border-blue-500/20 transition-colors ${
+                                  !item.active ? "opacity-50" : ""
+                                }`}
+                              >
+                                <CardContent className="p-3 flex items-center justify-between gap-3">
+                                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                                    <div className="shrink-0">
+                                      {item.fileType === "video" && <Video className="w-5 h-5 text-blue-400" />}
+                                      {item.fileType === "audio" && <Headphones className="w-5 h-5 text-violet-400" />}
+                                      {item.fileType === "pdf" && <FileText className="w-5 h-5 text-red-400" />}
+                                      {(!item.fileType || item.fileType === "documento") && <FileText className="w-5 h-5 text-amber-400" />}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-foreground text-sm font-sans truncate">{item.title}</p>
+                                      <div className="flex items-center gap-2 mt-0.5">
+                                        <Badge variant="outline" className="text-xs text-mystic-400 border-mystic-600/40">
+                                          {item.fileName?.split(".").pop()?.toUpperCase() || item.fileType}
+                                        </Badge>
+                                        {item.description && (
+                                          <span className="text-mystic-500 text-xs font-sans truncate">{item.description}</span>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center gap-1 shrink-0">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="text-mystic-400 hover:text-foreground h-8 w-8 p-0"
+                                      onClick={() => handleToggleContentActive(item.id, item.active)}
+                                      title={item.active ? "Ocultar" : "Mostrar"}
+                                    >
+                                      <Eye className={`w-4 h-4 ${item.active ? "text-emerald-400" : "text-mystic-600"}`} />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-8 w-8 p-0"
+                                      onClick={() => handleDeleteCourseContent(item.id)}
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </Button>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <Card className="bg-mystic-900/40 border-mystic-700/40">
+                        <CardContent className="p-12 text-center">
+                          <FolderOpen className="w-10 h-10 text-mystic-600 mx-auto mb-3" />
+                          <p className="text-mystic-400 font-josefin">Seleccioná un curso para gestionar su contenido</p>
+                          <p className="text-mystic-500 text-xs font-sans mt-1">
+                            Elegí un curso existente o creá uno nuevo con un ID personalizado
+                          </p>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
