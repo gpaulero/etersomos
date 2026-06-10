@@ -37,6 +37,8 @@ export async function POST(request: NextRequest) {
         phone: phone.trim(),
         readingType: "Lectura Akáshica Individual",
         message: message?.trim() || null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
     });
 
@@ -141,9 +143,8 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error("Error al crear reserva:", error);
-    const errorMsg = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: "Hubo un error al procesar tu reserva. Intentá de nuevo en unos minutos.", debug: errorMsg },
+      { error: "Hubo un error al procesar tu reserva. Intentá de nuevo en unos minutos." },
       { status: 500 }
     );
   }
