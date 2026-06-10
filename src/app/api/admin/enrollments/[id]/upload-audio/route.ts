@@ -35,7 +35,7 @@ export async function POST(
 /**
  * PUT /api/admin/enrollments/[id]/upload-audio
  * Step 2 (after file upload to R2): Update the enrollment with r2Key + fileName
- * Also accepts expiresAt to set/update expiration date
+ * Also sends a "lectura ready" email to the student
  * Body: { r2Key, fileName, expiresAt? }
  */
 export async function PUT(
@@ -62,6 +62,27 @@ export async function PUT(
       where: { id: enrollmentId },
       data,
     })
+
+    // Send "lectura ready" email to the student (fire and forget, don't block response)
+    if (r2Key && enrollment.studentId) {
+      (async () => {
+        try {
+          const student = await (db as any).student.findUnique({
+            where: { id: enrollment.studentId },
+          })
+          if (student?.email) {
+            const { sendLecturaReadyEmail } = await import('@/lib/email')
+            await sendLecturaReadyEmail({
+              customerName: student.nombre || student.email,
+              customerEmail: student.email,
+              enrollmentTitle: enrollment.title || 'Lectura Akashica',
+            })
+          }
+        } catch (emailErr) {
+          console.error('[Admin Upload Audio] Failed to send lectura ready email:', emailErr)
+        }
+      })()
+    }
 
     return NextResponse.json({ success: true, enrollment })
   } catch (error) {

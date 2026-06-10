@@ -647,6 +647,69 @@ export async function sendAulaWelcomeEmail(params: {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
+   LECTURA READY EMAIL
+   Sent when the admin uploads the lectura audio to the Aula Virtual.
+   Notifies the student that their reading is ready to listen to.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+export async function sendLecturaReadyEmail(params: {
+  customerName: string
+  customerEmail: string
+  enrollmentTitle: string
+}): Promise<void> {
+  const transporter = createTransporter();
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://etersomos-iota.vercel.app';
+  const aulaUrl = `${baseUrl}/aula`;
+
+  const html = `
+    <div style="max-width: 560px; margin: 0 auto; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #161310; border-radius: 12px; overflow: hidden;">
+      <div style="background: linear-gradient(135deg, #1a1510 0%, #0d0b08 100%); padding: 40px 24px; text-align: center; border-bottom: 1px solid #2a252066;">
+        <p style="margin: 0 0 8px; font-size: 36px;">&#x2728;</p>
+        <h1 style="margin: 0; color: #d4a853; font-size: 22px; letter-spacing: 0.05em;">TU LECTURA ESTA LISTA</h1>
+        <p style="margin: 8px 0 0; color: #8a8070; font-size: 13px;">Eter Somos | Registros Akashicos</p>
+      </div>
+
+      <div style="padding: 24px;">
+        <p style="margin: 0 0 16px; color: #f0ebe5; font-size: 15px; line-height: 1.6;">
+          Hola, <strong style="color: #d4a853;">${escapeHtml(params.customerName)}</strong>! Tu lectura ya esta disponible en el Aula Virtual. Podes escucharla cuando quieras desde tu cuenta.
+        </p>
+
+        <div style="background: #1a1510; border: 1px solid #2a252066; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+          <p style="margin: 0 0 8px; color: #d4a853; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;">Tu lectura</p>
+          <p style="margin: 0; color: #f0ebe5; font-size: 16px; font-weight: 600;">${escapeHtml(params.enrollmentTitle)}</p>
+        </div>
+
+        <div style="background: #1a1510; border: 1px solid #d4a85333; border-radius: 8px; padding: 16px;">
+          <p style="margin: 0; color: #8a8070; font-size: 13px; line-height: 1.5;">
+            Ingresá al Aula Virtual con tu email y contraseña para acceder al audio de tu lectura. Si no recordás tu contraseña, podés restablecerla desde la página de login.
+          </p>
+        </div>
+      </div>
+
+      <div style="padding: 0 24px 24px; text-align: center;">
+        <a href="${aulaUrl}" style="display: inline-block; background: linear-gradient(135deg, #7c3aed, #5b21b6); color: #f0ebe5; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px; letter-spacing: 0.03em;">Escuchar mi lectura</a>
+      </div>
+
+      <div style="padding: 24px; text-align: center; border-top: 1px solid #2a252066;">
+        <p style="margin: 0; color: #d4a853; font-size: 14px; font-weight: 600;">Eter Somos</p>
+        <p style="margin: 4px 0 0; color: #5a5545; font-size: 12px;">Registros Akashicos y Cristales</p>
+        <p style="margin: 8px 0 0; color: #5a5545; font-size: 11px;">etersomos@gmail.com</p>
+      </div>
+    </div>
+  `;
+
+  await transporter.sendMail({
+    from: `"Eter Somos" <${SMTP_USER}>`,
+    to: [params.customerEmail],
+    subject: `Eter Somos - Tu lectura esta lista! (${params.enrollmentTitle})`,
+    html,
+  });
+
+  console.log(`[Email] Lectura ready email sent to ${params.customerEmail}`);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
    ═══════════════════════════════════════════════════════════════════════ */
 
 /* NOTE: sendAulaExistingStudentEmail was removed — we now always regenerate

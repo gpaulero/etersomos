@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createEnrollment } from '@/lib/student-auth'
+import { db, ensureSchema } from '@/lib/db'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,6 +34,28 @@ export async function POST(
       fileName: fileName || '',
       expiresAt: expiresAt || null,
     })
+
+    // If it's a lectura with audio uploaded, send "lectura ready" email to the student
+    if (type === 'lectura' && r2Key) {
+      (async () => {
+        try {
+          await ensureSchema()
+          const student = await (db as any).student.findUnique({
+            where: { id: studentId },
+          })
+          if (student?.email) {
+            const { sendLecturaReadyEmail } = await import('@/lib/email')
+            await sendLecturaReadyEmail({
+              customerName: student.nombre || student.email,
+              customerEmail: student.email,
+              enrollmentTitle: title || 'Lectura Akashica',
+            })
+          }
+        } catch (emailErr) {
+          console.error('[Admin Enrollment POST] Failed to send lectura ready email:', emailErr)
+        }
+      })()
+    }
 
     return NextResponse.json({ success: true, enrollment })
   } catch (error) {
