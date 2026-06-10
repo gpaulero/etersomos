@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { sendAdminNotification, sendCustomerConfirmation, sendAulaWelcomeEmail } from "@/lib/email";
+import { sendAdminNotification, sendCustomerConfirmation, sendAulaWelcomeEmail, sendAulaExistingStudentEmail } from "@/lib/email";
 import { ensureStudentWithEnrollment } from "@/lib/student-auth";
 
 type OrderType = "crystal_order" | "course_enrollment" | "mentoria_enrollment" | "reading" | "resource_purchase";
@@ -571,8 +571,9 @@ function autoEnrollStudent(params: {
         `[AutoEnroll] ${result.isNewStudent ? 'NEW' : 'EXISTING'} student ${result.studentId}, enrollment ${result.enrollmentId}`
       );
 
-      // Send welcome email only for new students (has generated password)
+      // Send appropriate Aula Virtual email
       if (result.isNewStudent && result.generatedPassword) {
+        // New student — send welcome email with credentials
         try {
           await sendAulaWelcomeEmail({
             customerName: params.name,
@@ -583,6 +584,18 @@ function autoEnrollStudent(params: {
           });
         } catch (emailErr) {
           console.error('[AutoEnroll] Welcome email failed:', (emailErr as Error).message);
+        }
+      } else if (!result.isNewStudent) {
+        // Existing student — send reminder about Aula Virtual
+        try {
+          await sendAulaExistingStudentEmail({
+            customerName: params.name,
+            customerEmail: params.email.trim().toLowerCase(),
+            enrollmentType: params.enrollmentType,
+            enrollmentTitle: params.enrollmentTitle,
+          });
+        } catch (emailErr) {
+          console.error('[AutoEnroll] Existing student email failed:', (emailErr as Error).message);
         }
       }
     } catch (err) {

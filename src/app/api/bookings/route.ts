@@ -6,7 +6,7 @@ import {
   generateGoogleCalendarLink,
   calculateDeadline,
 } from "@/lib/notifications";
-import { sendAdminNotification, sendCustomerConfirmation, sendAulaWelcomeEmail } from "@/lib/email";
+import { sendAdminNotification, sendCustomerConfirmation, sendAulaWelcomeEmail, sendAulaExistingStudentEmail } from "@/lib/email";
 import { ensureStudentWithEnrollment } from "@/lib/student-auth";
 
 /* ── POST: Create a new booking + send notifications ──────────────────── */
@@ -116,6 +116,7 @@ export async function POST(request: NextRequest) {
           assignedBy: 'auto-booking',
         });
         if (enrollResult.isNewStudent && enrollResult.generatedPassword) {
+          // New student — send welcome email with credentials
           try {
             await sendAulaWelcomeEmail({
               customerName: booking.name,
@@ -126,6 +127,18 @@ export async function POST(request: NextRequest) {
             });
           } catch (emailErr) {
             console.error("[AutoEnroll] Welcome email failed:", (emailErr as Error).message);
+          }
+        } else {
+          // Existing student — send reminder about Aula Virtual
+          try {
+            await sendAulaExistingStudentEmail({
+              customerName: booking.name,
+              customerEmail: booking.email,
+              enrollmentType: 'lectura',
+              enrollmentTitle: 'Lectura Akáshica Individual',
+            });
+          } catch (emailErr) {
+            console.error("[AutoEnroll] Existing student email failed:", (emailErr as Error).message);
           }
         }
       } catch (err) {

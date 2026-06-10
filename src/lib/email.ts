@@ -473,17 +473,18 @@ function buildCustomerHtml(params: CustomerConfirmationParams): string {
     },
     course: {
       title: "Inscripcion al Curso Confirmada",
-      description: "Tu inscripcion ha sido registrada exitosamente. Bienvenido/a a tu camino de aprendizaje.",
+      description: "Tu inscripcion ha sido registrada exitosamente. Bienvenido/a a tu camino de aprendizaje. Vas a recibir un email aparte con tus datos de acceso al Aula Virtual.",
       nextSteps: [
-        "Te enviaremos los datos de acceso al curso por email.",
-        "Te contactaremos con la informacion de las clases y material.",
+        "Vas a recibir tus credenciales de acceso al Aula Virtual por email.",
+        "En el Aula Virtual vas a encontrar el material del curso y las clases.",
         "Si tenes alguna consulta, no dudes en escribirnos.",
       ],
     },
     mentoria: {
       title: "Inscripcion a Mentoria Confirmada",
-      description: "Tu inscripcion a las mentorias ha sido registrada exitosamente. Te acompanaremos en tu camino de profundizacion.",
+      description: "Tu inscripcion a las mentorias ha sido registrada exitosamente. Te acompanaremos en tu camino de profundizacion. Vas a recibir un email aparte con tus datos de acceso al Aula Virtual.",
       nextSteps: [
+        "Vas a recibir tus credenciales de acceso al Aula Virtual por email.",
         "Te contactaremos para coordinar los horarios de los encuentros.",
         "Los encuentros son por videollamada 1:1 de 2 horas cada uno.",
         "Si tenes alguna consulta, no dudes en escribirnos.",
@@ -491,9 +492,10 @@ function buildCustomerHtml(params: CustomerConfirmationParams): string {
     },
     reading: {
       title: "Solicitud de Lectura Registrada",
-      description: "Tu solicitud de lectura akashica ha sido registrada exitosamente.",
+      description: "Tu solicitud de lectura akashica ha sido registrada exitosamente. Vas a recibir un email aparte con tus datos de acceso al Aula Virtual, donde podras ver tu lectura cuando este lista.",
       nextSteps: [
-        "Recibiras tu lectura grabada por email en los proximos 5 dias habiles.",
+        "Vas a recibir tus credenciales de acceso al Aula Virtual por email.",
+        "Tu lectura estara disponible en el Aula Virtual en los proximos 5 dias habiles.",
         "Si necesitamos informacion adicional, te contactaremos.",
         "Recorda: las preguntas se responden de forma profunda y espiritual.",
       ],
@@ -642,6 +644,75 @@ export async function sendAulaWelcomeEmail(params: {
   });
 
   console.log(`[Email] Aula welcome email sent to ${params.customerEmail}`);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   AULA VIRTUAL EXISTING STUDENT EMAIL
+   Sent when an existing student gets a new enrollment (they already have credentials).
+   ═══════════════════════════════════════════════════════════════════════ */
+
+export async function sendAulaExistingStudentEmail(params: {
+  customerName: string
+  customerEmail: string
+  enrollmentType: 'curso' | 'lectura' | 'mentoria'
+  enrollmentTitle: string
+}): Promise<void> {
+  const transporter = createTransporter();
+
+  const typeLabels = {
+    curso: 'curso',
+    lectura: 'lectura',
+    mentoria: 'mentoria',
+  };
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://etersomos-iota.vercel.app';
+  const aulaUrl = `${baseUrl}/aula`;
+
+  const html = `
+    <div style="max-width: 560px; margin: 0 auto; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #161310; border-radius: 12px; overflow: hidden;">
+      <div style="background: linear-gradient(135deg, #1a1510 0%, #0d0b08 100%); padding: 40px 24px; text-align: center; border-bottom: 1px solid #2a252066;">
+        <p style="margin: 0 0 8px; font-size: 36px;">&#x1F393;</p>
+        <h1 style="margin: 0; color: #d4a853; font-size: 22px; letter-spacing: 0.05em;">NUEVA INSCRIPCION EN TU AULA VIRTUAL</h1>
+        <p style="margin: 8px 0 0; color: #8a8070; font-size: 13px;">Eter Somos | Registros Akashicos</p>
+      </div>
+
+      <div style="padding: 24px;">
+        <p style="margin: 0 0 16px; color: #f0ebe5; font-size: 15px; line-height: 1.6;">
+          Hola, <strong style="color: #d4a853;">${escapeHtml(params.customerName)}</strong>! Tu inscripcion a la ${typeLabels[params.enrollmentType]} ha sido confirmada. Ya tenes una cuenta en el Aula Virtual, asi que podes ingresar directamente con tu email y contrasena.
+        </p>
+
+        <div style="background: #1a1510; border: 1px solid #2a252066; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+          <p style="margin: 0 0 8px; color: #d4a853; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;">Tu nueva inscripcion</p>
+          <p style="margin: 0; color: #f0ebe5; font-size: 16px; font-weight: 600;">${escapeHtml(params.enrollmentTitle)}</p>
+        </div>
+
+        <div style="background: #1a1510; border: 1px solid #d4a85333; border-radius: 8px; padding: 16px;">
+          <p style="margin: 0; color: #8a8070; font-size: 13px;">
+            Si no recordas tu contrasena, podes restablecerla desde la pagina de login del Aula Virtual.
+          </p>
+        </div>
+      </div>
+
+      <div style="padding: 0 24px 24px; text-align: center;">
+        <a href="${aulaUrl}" style="display: inline-block; background: linear-gradient(135deg, #7c3aed, #5b21b6); color: #f0ebe5; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px; letter-spacing: 0.03em;">Ingresar al Aula Virtual</a>
+      </div>
+
+      <div style="padding: 24px; text-align: center; border-top: 1px solid #2a252066;">
+        <p style="margin: 0; color: #d4a853; font-size: 14px; font-weight: 600;">Eter Somos</p>
+        <p style="margin: 4px 0 0; color: #5a5545; font-size: 12px;">Registros Akashicos y Cristales</p>
+        <p style="margin: 8px 0 0; color: #5a5545; font-size: 11px;">etersomos@gmail.com</p>
+      </div>
+    </div>
+  `;
+
+  await transporter.sendMail({
+    from: `"Eter Somos" <${SMTP_USER}>`,
+    to: [params.customerEmail],
+    subject: `Eter Somos - Nueva inscripcion en tu Aula Virtual (${typeLabels[params.enrollmentType]}: ${params.enrollmentTitle})`,
+    html,
+  });
+
+  console.log(`[Email] Aula existing student email sent to ${params.customerEmail}`);
 }
 
 /* ── HTML escape utility ──────────────────────────────────────────────── */
