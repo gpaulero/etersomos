@@ -1,6 +1,6 @@
 # ETÉR SOMOS - Especificación Completa del Proyecto
 ## (Archivo de referencia CRÍTICO - NO BORRAR)
-## Última actualización: 2026-06-11 (sesión 28)
+## Última actualización: 2026-06-10 (sesión 27)
 
 Este documento describe TODO el estado actual, credenciales, estructura y requisitos del sitio web.
 **Siempre consultar antes de hacer cambios.**
@@ -343,37 +343,15 @@ El admin panel está **en el mismo proyecto** que el sitio público bajo `/admin
 - Password: eter2024admin
 - Auth: sessionStorage (persiste mientras la pestaña esté abierta)
 
-### Navegación: Sidebar con secciones agrupadas (rediseño sesión 27-28):
-- **Layout**: Sidebar fija en desktop (240px) + Sheet drawer en mobile, reemplazó Tabs (commit 1043243)
-- **Sección activa**: `activeSection` state con renderizado condicional
-- **Animaciones**: Framer Motion (AnimatePresence) para transiciones entre secciones
-
-| Grupo | Sección | ID | Icono |
-|-------|---------|-----|-------|
-| PRINCIPAL | Dashboard | dashboard | LayoutDashboard |
-| PRINCIPAL | Lecturas | lecturas | BookOpen |
-| PRINCIPAL | Cristales | cristales | ShoppingCart |
-| PRINCIPAL | Cursos | cursos | GraduationCap |
-| PRINCIPAL | Membresías | membresias | Crown |
-| AULA VIRTUAL | Alumnos | alumnos | Users |
-| AULA VIRTUAL | Contenido Cursos | curso-contenido | Video |
-| SITIO WEB | Contenido (CMS) | cms | FileText |
-| SITIO WEB | Recursos | recursos | FolderOpen |
-| SITIO WEB | Formularios | formularios | Power |
-| DATOS | Suscriptores | suscriptores | Users |
-
-### Contenido por sección:
-1. **Dashboard** — Stats overview (5 cards: lecturas, cristales, cursos, membresías, ingresos) + revenue breakdown
-2. **Lecturas** — Kanban: Pendientes → En Proceso → Entregadas
-3. **Cristales** — Kanban: Pendientes de Envío → Preparando → Entregados
-4. **Cursos** — Kanban: Inscritos → En Curso → Completados
-5. **Membresías** — Kanban: Activas → Pendientes → Vencidas/Canceladas
-6. **Formularios** — 6 toggles individuales + pausar/activar todos + mensaje de pausa
-7. **Suscriptores** — Listado de suscriptores a recursos gratuitos, eliminar, exportar CSV
-8. **Contenido** — CMS: editor de textos, precios, productos, testimonios, FAQ (34 campos, 7 secciones)
-9. **Recursos** — Upload/download de archivos a Cloudflare R2, gestionar metadata, activar/desactivar
-10. **Alumnos** — Gestión de alumnos del Aula Virtual (lista, detalle, inscripciones, crear, eliminar)
-11. **Contenido Cursos** — Gestión de contenido de cursos (upload video/audio/PDF, playlist)
+### 8 Tabs:
+1. **Lecturas** — Kanban: Pendientes → En Proceso → Entregadas
+2. **Cristales** — Kanban: Pendientes de Envío → Preparando → Entregados
+3. **Cursos** — Kanban: Inscritos → En Curso → Completados
+4. **Membresías** — Kanban: Activas → Pendientes → Vencidas/Canceladas
+5. **Formularios** — 6 toggles individuales + pausar/activar todos + mensaje de pausa
+6. **Suscriptores** — Listado de suscriptores a recursos gratuitos, eliminar, exportar CSV
+7. **Contenido** — CMS: editor de textos, precios, productos, testimonios, FAQ (34 campos, 7 secciones)
+8. **Recursos** — Upload/download de archivos a Cloudflare R2, gestionar metadata, activar/desactivar
 
 ### Features del Admin:
 - Drag & drop kanban (HTML5 Drag API nativo, sin librerías externas)
@@ -691,7 +669,7 @@ TODOS los pagos pasan por la pasarela del sitio web (MercadoPago o PayPal).
 - src/app/recursos/layout.tsx - Layout de recursos (metadata)
 - src/app/mentorias/page.tsx - Página Mentorías para Lectores de Registros Akáshicos (formulario)
 - src/app/mentorias/layout.tsx - Layout de mentorías (metadata)
-- src/app/admin/page.tsx - Panel admin completo (~3741 líneas): sidebar nav, dashboard, kanban, form toggles, recursos, alumnos, aula virtual
+- src/app/admin/page.tsx - Panel admin completo (~3400 líneas): stats, kanban, form toggles, recursos, alumnos, aula virtual
 - src/app/aula/page.tsx - Aula Virtual dashboard (~1164 líneas): sidebar nav, hero, cursos, lecturas, mentorías, perfil
 - src/app/aula/curso/[courseId]/page.tsx - Reproductor de curso (~604 líneas): video/audio/PDF, playlist, navegación
 - src/app/aula/login/page.tsx - Login aula virtual (~264 líneas): orbes animados, toggle password
@@ -1042,11 +1020,9 @@ TODOS los pagos pasan por la pasarela del sitio web (MercadoPago o PayPal).
 
 ## BACKUPS
 
-### Backup más reciente (11/06/2026):
-- **Full file backup (98 archivos)**: /home/z/my-project/etersomos/etersomos-backup-files/backup-20260611/ (1.3MB)
-  - Incluye: todas las páginas, APIs, librerías, hooks, componentes, config files, prisma schema, PROJECT_SPEC.md
-- **GitHub**: https://github.com/gpaulero/etersomos (repo privado, main branch, commit 1043243)
-- **Git tag**: v2026-06-10-session27
+### Backup más reciente (10/06/2026):
+- **Código + git info**: /home/z/my-project/download/backup-etersomos-20260610/ (3.3MB)
+- **GitHub**: https://github.com/gpaulero/etersomos (repo privado, main branch, commit ecdbddc)
 
 ### Backups anteriores:
 - **03/06/2026**: /home/z/my-project/download/backup-etersomos-20260603/ (3.3MB)
@@ -1128,7 +1104,7 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 - Recursos usan modelo de contribución voluntaria: todos gratuitos, con links opcionales de MP/PayPal
 - ProtectedPlayer protege video/audio contra descarga (Blob URL, controlsList="nodownload", etc.)
 - SiteContentProvider en layout.tsx provee CMS a toda la app con auto-refresh cross-tab/focus/visibility
-- Commit actual: 1043243
+- Commit actual: ecdbddc
 
 ### SESIÓN 19 (17/05/2026 — Revisión completa del sistema + Fix CMS revalidation)
 
@@ -1437,31 +1413,3 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 7. **Fix JSX syntax**: Corregido `}))}` → `))}` en dropdown de cursos del admin (error de TypeScript).
 
 8. **Git tag backup**: `v2026-06-10-session27`
-
-### SESIÓN 28 (11/06/2026 — Full backup + PROJECT_SPEC update + Admin sidebar redesign documentation)
-
-1. **Backup completo de todos los archivos del proyecto**:
-   - 98 archivos respaldados en `/home/z/my-project/etersomos/etersomos-backup-files/backup-20260611/` (1.3MB)
-   - Incluye: todas las páginas (admin, aula, home, cursos, lecturas, membresías, mentorías, recursos, tienda, payment), todas las API routes, todas las librerías (db, r2, student-auth, email, paypal, mercadopago, pricing, cms, etc.), hooks, componentes custom, config files, prisma schema, PROJECT_SPEC.md
-   - Cada archivo tiene extensión `.bak` para diferenciar de los originales
-
-2. **PROJECT_SPEC.md actualizado con cambios de la sesión 27-28**:
-   - Sección "Admin Panel" reescrita: Tabs → Sidebar con secciones agrupadas (4 grupos: PRINCIPAL, AULA VIRTUAL, SITIO WEB, DATOS, 11 secciones)
-   - Agregada tabla de navegación con IDs e iconos para cada sección del admin
-   - Dashboard agregado como sección principal (antes era solo un header en el Tabs)
-   - Alumnos y Contenido Cursos documentados como secciones propias
-   - Líneas del admin actualizadas: ~3400 → ~3741
-   - Backup section actualizada con backup del 11/06
-   - Commit actualizado: ecdbddc → 1043243
-
-3. **Admin panel sidebar — documentación del rediseño** (commit 1043243, aplicado en sesión previa):
-   - `Tabs` import reemplazado por `Sheet` (sidebar mobile drawer)
-   - Nuevos imports: `Menu`, `LogOut`, `LayoutDashboard` de lucide-react
-   - Import `framer-motion` agregado (`motion`, `AnimatePresence`)
-   - `navGroups` array definido fuera del componente (4 grupos, 11 items)
-   - `SidebarContent` componente separado (reutilizado en desktop y mobile Sheet)
-   - State: `activeSection` (default "dashboard") y `mobileMenuOpen`
-   - Layout: sidebar fija 240px desktop + Sheet drawer mobile
-   - Sección activa con Framer Motion AnimatePresence para transiciones suaves
-   - Header con breadcrumb dinámico (muestra grupo + sección activa)
-   - Botón logout en sidebar
