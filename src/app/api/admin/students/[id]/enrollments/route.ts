@@ -10,7 +10,7 @@ export async function POST(
 ) {
   try {
     const { id: studentId } = await params
-    const { type, referenceId, title, status, notes } = await request.json()
+    const { type, referenceId, title, status, notes, r2Key, fileName } = await request.json()
 
     if (!type || !title) {
       return NextResponse.json({ error: 'Tipo y título son requeridos' }, { status: 400 })
@@ -29,6 +29,8 @@ export async function POST(
       status: status || 'activa',
       assignedBy: 'admin',
       notes: notes || '',
+      r2Key: r2Key || '',
+      fileName: fileName || '',
     })
 
     return NextResponse.json({ success: true, enrollment })

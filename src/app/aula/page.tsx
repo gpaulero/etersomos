@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -16,11 +16,15 @@ import {
   ChevronDown,
   ChevronUp,
   Play,
-  FileText,
-  Download,
+  Pause,
+  SkipForward,
+  SkipBack,
+  Volume2,
+  VolumeX,
+  Headphones,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast, Toaster } from "sonner";
 
@@ -39,6 +43,8 @@ interface Enrollment {
   status: string;
   assignedBy: string | null;
   notes: string | null;
+  r2Key?: string;
+  fileName?: string;
   createdAt: string;
 }
 
@@ -56,6 +62,108 @@ const typeConfig: Record<string, { label: string; icon: React.ReactNode; color: 
   lectura: { label: "Lectura", icon: <BookOpen className="w-5 h-5" />, color: "text-violet-400" },
   mentoria: { label: "Mentoría", icon: <Sparkles className="w-5 h-5" />, color: "text-gold-400" },
 };
+
+/* ── Inline Audio Player for Lecturas ── */
+function LecturaAudioPlayer({ r2Key, title }: { r2Key: string; title: string }) {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [playing, setPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [muted, setMuted] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const progressRef = useRef<HTMLDivElement>(null);
+
+  const streamUrl = `/api/student/stream?key=${encodeURIComponent(r2Key)}`;
+
+  const togglePlay = () => {
+    if (!audioRef.current) return;
+    if (playing) audioRef.current.pause();
+    else audioRef.current.play();
+    setPlaying(!playing);
+  };
+
+  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!progressRef.current || !audioRef.current || !duration) return;
+    const rect = progressRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const pct = x / rect.width;
+    audioRef.current.currentTime = pct * duration;
+  };
+
+  const formatTime = (t: number) => {
+    if (!t || isNaN(t)) return "0:00";
+    const m = Math.floor(t / 60);
+    const s = Math.floor(t % 60);
+    return `${m}:${s.toString().padStart(2, "0")}`;
+  };
+
+  const skip = (seconds: number) => {
+    if (audioRef.current && duration) {
+      audioRef.current.currentTime = Math.max(0, Math.min(duration, audioRef.current.currentTime + seconds));
+    }
+  };
+
+  return (
+    <div className="bg-mystic-900/80 rounded-xl border border-violet-500/20 p-4 mt-3 select-none" style={{ userSelect: "none" }}>
+      <audio
+        ref={audioRef}
+        src={streamUrl}
+        onTimeUpdate={() => audioRef.current && setCurrentTime(audioRef.current.currentTime)}
+        onLoadedMetadata={() => {
+          if (audioRef.current) {
+            setDuration(audioRef.current.duration);
+            setLoading(false);
+          }
+        }}
+        onEnded={() => setPlaying(false)}
+        onCanPlay={() => setLoading(false)}
+        preload="metadata"
+      />
+      <div className="flex items-center gap-2 mb-3">
+        <Headphones className="w-4 h-4 text-violet-400" />
+        <span className="text-violet-300 text-xs font-sans font-medium">Audio de tu lectura</span>
+      </div>
+      {/* Progress bar */}
+      <div
+        ref={progressRef}
+        onClick={handleSeek}
+        className="w-full h-2 bg-mystic-700/60 rounded-full cursor-pointer mb-3 group"
+      >
+        <div
+          className="h-full bg-violet-500 rounded-full transition-all group-hover:bg-violet-400 relative"
+          style={{ width: duration ? `${(currentTime / duration) * 100}%` : "0%" }}
+        >
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-violet-300 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+        </div>
+      </div>
+      {/* Controls */}
+      <div className="flex items-center justify-between">
+        <span className="text-mystic-400 text-xs font-sans w-12">{formatTime(currentTime)}</span>
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="icon" className="text-mystic-300 hover:text-foreground h-7 w-7" onClick={() => skip(-10)}>
+            <SkipBack className="w-3.5 h-3.5" />
+          </Button>
+          <Button
+            className="h-9 w-9 rounded-full bg-violet-500 hover:bg-violet-400 text-white"
+            onClick={togglePlay}
+            disabled={loading}
+          >
+            {playing ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
+          </Button>
+          <Button variant="ghost" size="icon" className="text-mystic-300 hover:text-foreground h-7 w-7" onClick={() => skip(10)}>
+            <SkipForward className="w-3.5 h-3.5" />
+          </Button>
+        </div>
+        <div className="flex items-center gap-1 w-12 justify-end">
+          <Button variant="ghost" size="icon" className="text-mystic-400 hover:text-foreground h-7 w-7" onClick={() => setMuted(!muted)}>
+            {muted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+          </Button>
+          <span className="text-mystic-500 text-xs font-sans">{formatTime(duration)}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function AulaDashboard() {
   const router = useRouter();
@@ -163,7 +271,7 @@ export default function AulaDashboard() {
             Tu Aula Virtual
           </h1>
           <p className="text-mystic-300 font-sans">
-            Acá podés ver tus cursos, lecturas y mentorías con Fer Cardozo.
+            Acá podés ver tus cursos, escuchar tus lecturas y acceder a tus mentorías con Fer Cardozo.
           </p>
         </div>
 
@@ -221,16 +329,16 @@ export default function AulaDashboard() {
           </Card>
         ) : (
           <div className="space-y-8">
-            {/* Cursos */}
-            {cursos.length > 0 && (
+            {/* Lecturas - shown first since they have audio */}
+            {lecturas.length > 0 && (
               <section>
                 <h2 className="font-serif text-2xl text-foreground mb-4 flex items-center gap-2">
-                  <GraduationCap className="w-6 h-6 text-blue-400" />
-                  Mis Cursos
+                  <BookOpen className="w-6 h-6 text-violet-400" />
+                  Mis Lecturas
                 </h2>
                 <div className="grid gap-4">
-                  {cursos.map((enr) => (
-                    <EnrollmentCard
+                  {lecturas.map((enr) => (
+                    <LecturaCard
                       key={enr.id}
                       enrollment={enr}
                       expanded={expandedEnrollment === enr.id}
@@ -241,15 +349,15 @@ export default function AulaDashboard() {
               </section>
             )}
 
-            {/* Lecturas */}
-            {lecturas.length > 0 && (
+            {/* Cursos */}
+            {cursos.length > 0 && (
               <section>
                 <h2 className="font-serif text-2xl text-foreground mb-4 flex items-center gap-2">
-                  <BookOpen className="w-6 h-6 text-violet-400" />
-                  Mis Lecturas
+                  <GraduationCap className="w-6 h-6 text-blue-400" />
+                  Mis Cursos
                 </h2>
                 <div className="grid gap-4">
-                  {lecturas.map((enr) => (
+                  {cursos.map((enr) => (
                     <EnrollmentCard
                       key={enr.id}
                       enrollment={enr}
@@ -313,7 +421,83 @@ export default function AulaDashboard() {
   );
 }
 
-/* ── Enrollment Card Component ── */
+/* ── Lectura Card Component (with inline audio player) ── */
+
+function LecturaCard({
+  enrollment,
+  expanded,
+  onToggle,
+}: {
+  enrollment: Enrollment;
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  const sc = statusConfig[enrollment.status] || statusConfig.pendiente;
+  const hasAudio = !!(enrollment.r2Key);
+
+  return (
+    <Card className="bg-mystic-900/60 border-mystic-700/40 backdrop-blur hover:border-violet-500/30 transition-colors">
+      <CardContent className="p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start gap-3 flex-1 min-w-0">
+            <div className="text-violet-400 mt-0.5 shrink-0">
+              <BookOpen className="w-5 h-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-serif text-lg text-foreground truncate">{enrollment.title}</h3>
+              <div className="flex items-center gap-2 mt-1 flex-wrap">
+                <Badge variant="outline" className={`${sc.color} text-xs gap-1 border`}>
+                  {sc.icon}
+                  {sc.label}
+                </Badge>
+                <span className="text-mystic-500 text-xs font-sans">Lectura</span>
+                {hasAudio && (
+                  <Badge variant="outline" className="text-xs border-violet-400/30 text-violet-300 gap-1">
+                    <Headphones className="w-3 h-3" />
+                    Audio disponible
+                  </Badge>
+                )}
+              </div>
+            </div>
+          </div>
+          <Button variant="ghost" size="sm" className="text-mystic-400 shrink-0" onClick={onToggle}>
+            {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </Button>
+        </div>
+
+        {expanded && (
+          <div className="mt-4 pt-4 border-t border-mystic-700/40 space-y-3">
+            {enrollment.notes && (
+              <div>
+                <p className="text-mystic-500 text-xs font-sans mb-1">Notas</p>
+                <p className="text-mystic-200 text-sm font-sans">{enrollment.notes}</p>
+              </div>
+            )}
+            {enrollment.assignedBy && (
+              <div>
+                <p className="text-mystic-500 text-xs font-sans">
+                  Asignado por: <span className="text-mystic-200">{enrollment.assignedBy}</span>
+                </p>
+              </div>
+            )}
+            {/* Inline audio player */}
+            {hasAudio && enrollment.r2Key && (
+              <LecturaAudioPlayer r2Key={enrollment.r2Key} title={enrollment.title} />
+            )}
+            {!hasAudio && (
+              <div className="bg-mystic-900/40 rounded-lg p-3 text-center">
+                <Clock className="w-5 h-5 text-mystic-600 mx-auto mb-1" />
+                <p className="text-mystic-500 text-xs font-sans">El audio de tu lectura estará disponible pronto</p>
+              </div>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+/* ── Enrollment Card Component (cursos, mentorías) ── */
 
 function EnrollmentCard({
   enrollment,

@@ -602,6 +602,8 @@ export default function AdminPage() {
   const [studentEnrollments, setStudentEnrollments] = useState<any[]>([]);
   const [enrollmentForm, setEnrollmentForm] = useState({ type: "curso", title: "", referenceId: "", notes: "" });
   const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
+  const [lecturaAudioFile, setLecturaAudioFile] = useState<File | null>(null);
+  const [uploadingLecturaAudio, setUploadingLecturaAudio] = useState(false);
 
   // Course Content state (aula virtual)
   const [courseContents, setCourseContents] = useState<any[]>([]);
@@ -980,22 +982,129 @@ export default function AdminPage() {
       toast.error("Tipo y título son requeridos");
       return;
     }
+    setUploadingLecturaAudio(true);
     try {
+      let r2Key = "";
+      let audioFileName = "";
+
+      // If it's a lectura and has an audio file, upload it first
+      if (enrollmentForm.type === "lectura" && lecturaAudioFile) {
+        // Step 1: Get presigned URL for lecturas/ prefix
+        const audioPresignRes = await authFetch(`/api/admin/enrollments/new/upload-audio`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fileName: lecturaAudioFile.name, contentType: lecturaAudioFile.type }),
+        });
+        const audioPresignData = await audioPresignRes.json();
+        if (!audioPresignRes.ok) {
+          toast.error(audioPresignData.error || "Error al preparar subida de audio");
+          return;
+        }
+
+        // Step 2: Upload to R2
+        const audioUploadRes = await fetch(audioPresignData.uploadUrl, {
+          method: "PUT",
+          headers: { "Content-Type": lecturaAudioFile.type },
+          body: lecturaAudioFile,
+        });
+        if (!audioUploadRes.ok) {
+          toast.error("Error al subir audio");
+          return;
+        }
+
+        r2Key = audioPresignData.r2Key;
+        audioFileName = lecturaAudioFile.name;
+      }
+
+      // Create the enrollment
       const res = await authFetch(`/api/admin/students/${selectedStudent.id}/enrollments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(enrollmentForm),
+        body: JSON.stringify({
+          ...enrollmentForm,
+          r2Key,
+          fileName: audioFileName,
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
         toast.error(data.error || "Error al asignar");
         return;
       }
-      toast.success(`${enrollmentForm.type} "${enrollmentForm.title}" asignado`);
+
+      toast.success(`${enrollmentForm.type} "${enrollmentForm.title}" asignado${r2Key ? " con audio" : ""}`);
       setEnrollmentForm({ type: "curso", title: "", referenceId: "", notes: "" });
+      setLecturaAudioFile(null);
       handleSelectStudent(selectedStudent);
     } catch {
       toast.error("Error al asignar");
+    } finally {
+      setUploadingLecturaAudio(false);
+    }
+  };
+
+  // Upload audio to an existing enrollment (for adding audio later)
+  const handleUploadAudioToEnrollment = async (enrollmentId: string) => {
+    if (!lecturaAudioFile) {
+      toast.error("Seleccioná un archivo de audio");
+      return;
+    }
+    setUploadingLecturaAudio(true);
+    try {
+      // Step 1: Get presigned URL
+      const presignRes = await authFetch(`/api/admin/enrollments/${enrollmentId}/upload-audio`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fileName: lecturaAudioFile.name, contentType: lecturaAudioFile.type }),
+      });
+      const presignData = await presignRes.json();
+      if (!presignRes.ok) {
+        toast.error(presignData.error || "Error al obtener URL de subida");
+        return;
+      }
+
+      // Step 2: Upload to R2
+      const uploadRes = await fetch(presignData.uploadUrl, {
+        method: "PUT",
+        headers: { "Content-Type": lecturaAudioFile.type },
+        body: lecturaAudioFile,
+      });
+      if (!uploadRes.ok) {
+        toast.error("Error al subir audio a R2");
+        return;
+      }
+
+      // Step 3: Update the enrollment with r2Key
+      const updateRes = await authFetch(`/api/admin/enrollments/${enrollmentId}/upload-audio`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ r2Key: presignData.r2Key, fileName: lecturaAudioFile.name }),
+      });
+      if (!updateRes.ok) {
+        toast.error("Error al actualizar inscripción");
+        return;
+      }
+
+      toast.success("Audio subido correctamente");
+      setLecturaAudioFile(null);
+      handleSelectStudent(selectedStudent);
+    } catch {
+      toast.error("Error al subir audio");
+    } finally {
+      setUploadingLecturaAudio(false);
+    }
+  };
+
+  const handleRemoveEnrollmentAudio = async (enrollmentId: string) => {
+    if (!confirm("¿Eliminar el audio de esta lectura?")) return;
+    try {
+      const res = await authFetch(`/api/admin/enrollments/${enrollmentId}/upload-audio`, { method: "DELETE" });
+      if (res.ok) {
+        toast.success("Audio eliminado");
+        handleSelectStudent(selectedStudent);
+      }
+    } catch {
+      toast.error("Error al eliminar audio");
     }
   };
 
@@ -2859,26 +2968,73 @@ export default function AdminPage() {
                           ) : (
                             <div className="space-y-2">
                               {studentEnrollments.map((enr: any) => (
-                                <div key={enr.id} className="flex items-center justify-between bg-mystic-800/40 rounded-lg px-3 py-2">
-                                  <div className="flex items-center gap-2">
-                                    {enr.type === "curso" && <GraduationCap className="w-4 h-4 text-blue-400" />}
-                                    {enr.type === "lectura" && <BookOpen className="w-4 h-4 text-violet-400" />}
-                                    {enr.type === "mentoria" && <Star className="w-4 h-4 text-gold-400" />}
-                                    <div>
-                                      <p className="text-foreground text-sm font-sans">{enr.title}</p>
-                                      <p className="text-mystic-500 text-xs font-sans">
-                                        {enr.type} · {enr.status}
-                                        {enr.assignedBy && ` · por ${enr.assignedBy}`}
-                                      </p>
+                                <div key={enr.id} className="bg-mystic-800/40 rounded-lg px-3 py-2">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                      {enr.type === "curso" && <GraduationCap className="w-4 h-4 text-blue-400" />}
+                                      {enr.type === "lectura" && <BookOpen className="w-4 h-4 text-violet-400" />}
+                                      {enr.type === "mentoria" && <Star className="w-4 h-4 text-gold-400" />}
+                                      <div>
+                                        <p className="text-foreground text-sm font-sans">{enr.title}</p>
+                                        <div className="flex items-center gap-2">
+                                          <p className="text-mystic-500 text-xs font-sans">
+                                            {enr.type} · {enr.status}
+                                            {enr.assignedBy && ` · por ${enr.assignedBy}`}
+                                          </p>
+                                          {enr.type === "lectura" && enr.r2Key && (
+                                            <Badge variant="outline" className="text-xs border-violet-400/30 text-violet-300 gap-1">
+                                              <Headphones className="w-3 h-3" />
+                                              Audio
+                                            </Badge>
+                                          )}
+                                        </div>
+                                      </div>
                                     </div>
+                                    <Badge variant="outline" className={`text-xs ${
+                                      enr.status === "activa" ? "border-emerald-500/30 text-emerald-300" :
+                                      enr.status === "completada" ? "border-violet-500/30 text-violet-300" :
+                                      "border-mystic-600/30 text-mystic-400"
+                                    }`}>
+                                      {enr.status}
+                                    </Badge>
                                   </div>
-                                  <Badge variant="outline" className={`text-xs ${
-                                    enr.status === "activa" ? "border-emerald-500/30 text-emerald-300" :
-                                    enr.status === "completada" ? "border-violet-500/30 text-violet-300" :
-                                    "border-mystic-600/30 text-mystic-400"
-                                  }`}>
-                                    {enr.status}
-                                  </Badge>
+                                  {/* Lectura audio actions */}
+                                  {enr.type === "lectura" && (
+                                    <div className="mt-2 pt-2 border-t border-mystic-700/30 flex items-center gap-2">
+                                      {enr.r2Key ? (
+                                        <>
+                                          <span className="text-mystic-400 text-xs font-sans">Audio cargado: {enr.fileName}</span>
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="text-red-400 hover:text-red-300 h-6 text-xs"
+                                            onClick={() => handleRemoveEnrollmentAudio(enr.id)}
+                                          >
+                                            <Trash2 className="w-3 h-3 mr-1" /> Quitar audio
+                                          </Button>
+                                        </>
+                                      ) : (
+                                        <div className="flex items-center gap-2 w-full">
+                                          <Input
+                                            type="file"
+                                            accept="audio/*,.mp3,.wav,.ogg,.m4a"
+                                            onChange={(e) => setLecturaAudioFile(e.target.files?.[0] || null)}
+                                            className="bg-mystic-800/40 border-mystic-700/40 text-cream-100 text-xs h-7 flex-1"
+                                          />
+                                          <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="border-violet-400/30 text-violet-300 hover:bg-violet-400/10 h-7 text-xs gap-1"
+                                            disabled={uploadingLecturaAudio || !lecturaAudioFile}
+                                            onClick={() => handleUploadAudioToEnrollment(enr.id)}
+                                          >
+                                            {uploadingLecturaAudio ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
+                                            Subir audio
+                                          </Button>
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
                                 </div>
                               ))}
                             </div>
@@ -2895,7 +3051,7 @@ export default function AdminPage() {
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                               <label className="text-mystic-500 text-xs font-sans">Tipo</label>
-                              <Select value={enrollmentForm.type} onValueChange={(v) => setEnrollmentForm({ ...enrollmentForm, type: v })}>
+                              <Select value={enrollmentForm.type} onValueChange={(v) => { setEnrollmentForm({ ...enrollmentForm, type: v }); if (v !== "lectura") setLecturaAudioFile(null); }}>
                                 <SelectTrigger className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm">
                                   <SelectValue />
                                 </SelectTrigger>
@@ -2909,7 +3065,7 @@ export default function AdminPage() {
                             <div>
                               <label className="text-mystic-500 text-xs font-sans">Título</label>
                               <Input
-                                placeholder="Ej: 1er Nivel con Práctica"
+                                placeholder="Ej: Lectura Akáshica Individual"
                                 value={enrollmentForm.title}
                                 onChange={(e) => setEnrollmentForm({ ...enrollmentForm, title: e.target.value })}
                                 className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm"
@@ -2934,12 +3090,40 @@ export default function AdminPage() {
                               />
                             </div>
                           </div>
+                          {/* Audio upload for lecturas */}
+                          {enrollmentForm.type === "lectura" && (
+                            <div className="bg-violet-500/5 border border-violet-500/20 rounded-lg p-3 space-y-2">
+                              <label className="text-violet-300 text-xs font-josefin uppercase tracking-wider flex items-center gap-1">
+                                <Headphones className="w-3.5 h-3.5" />
+                                Audio de la lectura
+                              </label>
+                              <Input
+                                type="file"
+                                accept="audio/*,.mp3,.wav,.ogg,.m4a,.flac,.aac"
+                                onChange={(e) => setLecturaAudioFile(e.target.files?.[0] || null)}
+                                className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm"
+                              />
+                              {lecturaAudioFile && (
+                                <p className="text-mystic-400 text-xs font-sans">
+                                  {(lecturaAudioFile.size / (1024 * 1024)).toFixed(1)} MB — El alumno podrá escucharlo desde su Aula Virtual
+                                </p>
+                              )}
+                              <p className="text-mystic-500 text-xs font-sans">
+                                Subí el audio que antes enviabas por email. El alumno lo escuchará directamente en su aula, sin poder descargarlo.
+                              </p>
+                            </div>
+                          )}
                           <Button
                             size="sm"
                             onClick={handleAssignEnrollment}
+                            disabled={uploadingLecturaAudio}
                             className="bg-violet-500 hover:bg-violet-400 text-white font-josefin"
                           >
-                            Asignar
+                            {uploadingLecturaAudio ? (
+                              <><Loader2 className="w-4 h-4 animate-spin mr-1" /> Subiendo...</>
+                            ) : (
+                              "Asignar"
+                            )}
                           </Button>
                         </CardContent>
                       </Card>

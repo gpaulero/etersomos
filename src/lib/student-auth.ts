@@ -121,6 +121,8 @@ export async function createEnrollment(data: {
   status?: string
   assignedBy?: string
   notes?: string
+  r2Key?: string
+  fileName?: string
 }) {
   await ensureSchema()
   const id = `enr_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
@@ -134,6 +136,8 @@ export async function createEnrollment(data: {
       status: data.status || 'activa',
       assignedBy: data.assignedBy || null,
       notes: data.notes || null,
+      r2Key: data.r2Key || '',
+      fileName: data.fileName || '',
     }
   })
 }

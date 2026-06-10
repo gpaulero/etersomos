@@ -156,3 +156,17 @@ export async function listCourseResources(courseId?: string) {
       lastModified: obj.LastModified!.toISOString(),
     }));
 }
+
+/* ── Lectura audio upload helpers (lecturas/ prefix) ── */
+
+export async function getPresignedLecturaUploadUrl(fileName: string, contentType: string) {
+  const timestamp = Date.now();
+  const key = `lecturas/${timestamp}-${fileName}`;
+  const command = new PutObjectCommand({
+    Bucket: BUCKET_NAME,
+    Key: key,
+    ContentType: contentType,
+  });
+  const url = await getSignedUrl(r2Client, command, { expiresIn: 600 });
+  return { url, key };
+}

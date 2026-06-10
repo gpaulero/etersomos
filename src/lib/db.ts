@@ -575,6 +575,8 @@ export async function ensureSchema() {
         status       TEXT NOT NULL DEFAULT 'activa',
         assignedBy   TEXT,
         notes        TEXT,
+        r2Key        TEXT NOT NULL DEFAULT '',
+        fileName     TEXT NOT NULL DEFAULT '',
         createdAt    TEXT NOT NULL DEFAULT (datetime('now')),
         updatedAt    TEXT NOT NULL DEFAULT (datetime('now'))
       )
@@ -612,6 +614,25 @@ export async function ensureSchema() {
       try {
         await client.execute(`CREATE INDEX IF NOT EXISTS idx_coursecontent_course ON CourseContent(courseId)`)
       } catch {}
+      // Add r2Key and fileName columns to StudentEnrollment if missing (existing DBs)
+      try {
+        await client.execute(`ALTER TABLE StudentEnrollment ADD COLUMN r2Key TEXT NOT NULL DEFAULT ''`)
+        console.log("[DB] Added r2Key column to StudentEnrollment")
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : String(e)
+        if (!msg.includes('duplicate column') && !msg.includes('already exists')) {
+          console.warn("[DB] Could not add r2Key column:", msg)
+        }
+      }
+      try {
+        await client.execute(`ALTER TABLE StudentEnrollment ADD COLUMN fileName TEXT NOT NULL DEFAULT ''`)
+        console.log("[DB] Added fileName column to StudentEnrollment")
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : String(e)
+        if (!msg.includes('duplicate column') && !msg.includes('already exists')) {
+          console.warn("[DB] Could not add fileName column:", msg)
+        }
+      }
     } else {
       await prisma.$executeRawUnsafe(siteContentSql)
       await prisma.$executeRawUnsafe(studentSql)
