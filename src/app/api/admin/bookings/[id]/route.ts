@@ -22,88 +22,39 @@ export async function PUT(
       );
     }
 
-    // Build dynamic SET clause
-    const sets: string[] = [];
-    const values: unknown[] = [];
+    // Build update data using the shared db proxy (handles Turso correctly)
+    const updateData: Record<string, unknown> = {};
+    if (status !== undefined) updateData.status = status;
+    if (deliveryDate !== undefined) updateData.deliveryDate = deliveryDate || null;
+    updateData.updatedAt = new Date();
 
-    if (status !== undefined) {
-      sets.push("status = ?");
-      values.push(status);
-    }
-    if (deliveryDate !== undefined) {
-      sets.push("deliveryDate = ?");
-      values.push(deliveryDate || null);
-    }
-    if (sets.length > 0) {
-      sets.push("updatedAt = ?");
-      values.push(new Date().toISOString());
-    }
-
-    if (sets.length === 0) {
+    if (Object.keys(updateData).length <= 1 && updateData.updatedAt) {
+      // Only updatedAt was set, no actual fields to update
       return NextResponse.json(
         { error: "No se especificaron campos para actualizar" },
         { status: 400 }
       );
     }
 
-    // Use direct SQL for Turso compatibility
-    const isTurso = (process.env.DATABASE_URL || "").startsWith("libsql://");
-
-    if (isTurso) {
-      const { createClient } = await import("@libsql/client");
-      const url = process.env.DATABASE_URL!;
-      let authToken = process.env.DATABASE_AUTH_TOKEN;
-
-      try {
-        const u = new URL(url);
-        if (u.searchParams.has("authToken")) {
-          if (!authToken) authToken = u.searchParams.get("authToken") || undefined;
-          u.searchParams.delete("authToken");
-        }
-      } catch {}
-
-      const client = createClient({ url: url.startsWith("libsql") && !url.includes("://") ? `libsql://${url}` : url, authToken });
-
-      const sql = `UPDATE ReadingBooking SET ${sets.join(", ")} WHERE id = ?`;
-      const result = await client.execute({ sql, args: [...values, id] });
-
-      if (result.rowsAffected === 0) {
-        return NextResponse.json(
-          { error: "Lectura no encontrada" },
-          { status: 404 }
-        );
-      }
-
-      // Fetch updated record
-      const fetchResult = await client.execute({
-        sql: "SELECT * FROM ReadingBooking WHERE id = ?",
-        args: [id],
-      });
-
-      const row = fetchResult.rows[0];
-
-      // Revalidate pages that display booking data
-      revalidatePath('/', 'layout');
-      revalidatePath('/lecturas');
-
-      return NextResponse.json({ success: true, booking: row });
-    } else {
-      // Fallback for local Prisma
-      const updateData: Record<string, unknown> = {};
-      if (status !== undefined) updateData.status = status;
-      if (deliveryDate !== undefined) updateData.deliveryDate = deliveryDate;
-
-      const updated = await db.readingBooking.update({
-        where: { id },
-        data: updateData,
-      });
-
-      // Revalidate pages that display booking data
-      revalidatePath('/', 'layout');
-      revalidatePath('/lecturas');
-
-      return NextResponse.json({ success: true, booking: updated });
+    // Check booking exists first
+    const existing = await db.readingBooking.findUnique({ where: { id } });
+    if (!existing) {
+      return NextResponse.json(
+        { error: "Lectura no encontrada" },
+        { status: 404 }
+      );
     }
+
+    const updated = await db.readingBooking.update({
+      where: { id },
+      data: updateData,
+    });
+
+    // Revalidate pages that display booking data
+    revalidatePath('/', 'layout');
+    revalidatePath('/lecturas');
+
+    return NextResponse.json({ success: true, booking: updated });
   } catch (error) {
     console.error("[Admin Bookings] Error updating booking:", error);
     return NextResponse.json(
@@ -121,51 +72,17 @@ export async function DELETE(
     await ensureSchema();
 
     const { id } = await params;
-    const isTurso = (process.env.DATABASE_URL || "").startsWith("libsql://");
 
-    if (isTurso) {
-      const { createClient } = await import("@libsql/client");
-      const url = process.env.DATABASE_URL!;
-      let authToken = process.env.DATABASE_AUTH_TOKEN;
-
-      try {
-        const u = new URL(url);
-        if (u.searchParams.has("authToken")) {
-          if (!authToken) authToken = u.searchParams.get("authToken") || undefined;
-          u.searchParams.delete("authToken");
-        }
-      } catch {}
-
-      const client = createClient({ url: url.startsWith("libsql") && !url.includes("://") ? `libsql://${url}` : url, authToken });
-
-      // Check if exists
-      const check = await client.execute({
-        sql: "SELECT id FROM ReadingBooking WHERE id = ?",
-        args: [id],
-      });
-      if (check.rows.length === 0) {
-        return NextResponse.json({ error: "Lectura no encontrada" }, { status: 404 });
-      }
-
-      await client.execute({
-        sql: "DELETE FROM ReadingBooking WHERE id = ?",
-        args: [id],
-      });
-
-      // Revalidate after delete
-      revalidatePath('/', 'layout');
-      revalidatePath('/lecturas');
-    } else {
-      const existing = await db.readingBooking.findUnique({ where: { id } });
-      if (!existing) {
-        return NextResponse.json({ error: "Lectura no encontrada" }, { status: 404 });
-      }
-      await db.readingBooking.delete({ where: { id } });
-
-      // Revalidate after delete
-      revalidatePath('/', 'layout');
-      revalidatePath('/lecturas');
+    const existing = await db.readingBooking.findUnique({ where: { id } });
+    if (!existing) {
+      return NextResponse.json({ error: "Lectura no encontrada" }, { status: 404 });
     }
+
+    await db.readingBooking.delete({ where: { id } });
+
+    // Revalidate after delete
+    revalidatePath('/', 'layout');
+    revalidatePath('/lecturas');
 
     return NextResponse.json({ success: true, message: "Lectura eliminada correctamente" });
   } catch (error) {

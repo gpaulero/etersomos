@@ -74,7 +74,22 @@ export async function POST(request: NextRequest) {
     } catch {}
     const total = (method === "paypal" || method === "western_union") ? priceUsd : priceArs;
 
-    // ── Send all emails + auto-enroll in parallel (much faster) ──
+    // ── Auto-enroll + send Aula Virtual credentials FIRST (critical, must succeed) ──
+    // This is awaited so errors are properly logged and the user gets their credentials
+    const enrollResult = await ensureStudentWithEnrollment({
+      name: booking.name,
+      email: booking.email,
+      phone: booking.phone,
+      enrollmentType: 'lectura',
+      enrollmentTitle: 'Lectura Akáshica Individual',
+      notes: `Pago: ${method}`,
+      assignedBy: 'auto-booking',
+    }).catch(err => {
+      console.error("[AutoEnroll] Failed for booking:", err);
+      return { generatedPassword: null } as any;
+    });
+
+    // ── Send all emails in parallel (non-blocking for response) ──
     Promise.all([
       // 1. Admin notification
       sendAdminNotification({
@@ -99,31 +114,16 @@ export async function POST(request: NextRequest) {
         paymentMethod: method,
       }).catch(err => console.error("[Email] Customer confirmation failed:", err)),
 
-      // 3. Auto-enroll + send Aula Virtual credentials
-      (async () => {
-        try {
-          const enrollResult = await ensureStudentWithEnrollment({
-            name: booking.name,
-            email: booking.email,
-            phone: booking.phone,
+      // 3. Aula Virtual credentials email (only if enrollment succeeded)
+      enrollResult.generatedPassword
+        ? sendAulaWelcomeEmail({
+            customerName: booking.name,
+            customerEmail: booking.email,
+            password: enrollResult.generatedPassword,
             enrollmentType: 'lectura',
             enrollmentTitle: 'Lectura Akáshica Individual',
-            notes: `Pago: ${method}`,
-            assignedBy: 'auto-booking',
-          });
-          if (enrollResult.generatedPassword) {
-            await sendAulaWelcomeEmail({
-              customerName: booking.name,
-              customerEmail: booking.email,
-              password: enrollResult.generatedPassword,
-              enrollmentType: 'lectura',
-              enrollmentTitle: 'Lectura Akáshica Individual',
-            });
-          }
-        } catch (err) {
-          console.error("[AutoEnroll] Failed for booking:", err);
-        }
-      })(),
+          }).catch(err => console.error("[Email] Aula welcome email failed:", err))
+        : Promise.resolve(),
     ]).catch(() => {}); // swallow top-level errors, already handled per-promise
 
     return NextResponse.json(

@@ -30,59 +30,21 @@ export async function PUT(
       );
     }
 
-    const isTurso = (process.env.DATABASE_URL || "").startsWith("libsql://");
-
-    if (isTurso) {
-      const { createClient } = await import("@libsql/client");
-      const url = process.env.DATABASE_URL!;
-      let authToken = process.env.DATABASE_AUTH_TOKEN;
-
-      try {
-        const u = new URL(url);
-        if (u.searchParams.has("authToken")) {
-          if (!authToken) authToken = u.searchParams.get("authToken") || undefined;
-          u.searchParams.delete("authToken");
-        }
-      } catch {}
-
-      const client = createClient({ url: url.startsWith("libsql") && !url.includes("://") ? `libsql://${url}` : url, authToken });
-
-      const result = await client.execute({
-        sql: "UPDATE CrystalOrder SET status = ?, updatedAt = ? WHERE id = ?",
-        args: [status, new Date().toISOString(), id],
-      });
-
-      if (result.rowsAffected === 0) {
-        return NextResponse.json({ error: "Pedido no encontrado" }, { status: 404 });
-      }
-
-      const fetchResult = await client.execute({
-        sql: "SELECT * FROM CrystalOrder WHERE id = ?",
-        args: [id],
-      });
-
-      // Revalidate pages that display order data
-      revalidatePath('/', 'layout');
-      revalidatePath('/tienda');
-
-      return NextResponse.json({ success: true, order: fetchResult.rows[0] });
-    } else {
-      const existing = await db.crystalOrder.findUnique({ where: { id } });
-      if (!existing) {
-        return NextResponse.json({ error: "Pedido no encontrado" }, { status: 404 });
-      }
-
-      const updated = await db.crystalOrder.update({
-        where: { id },
-        data: { status },
-      });
-
-      // Revalidate pages that display order data
-      revalidatePath('/', 'layout');
-      revalidatePath('/tienda');
-
-      return NextResponse.json({ success: true, order: updated });
+    const existing = await db.crystalOrder.findUnique({ where: { id } });
+    if (!existing) {
+      return NextResponse.json({ error: "Pedido no encontrado" }, { status: 404 });
     }
+
+    const updated = await db.crystalOrder.update({
+      where: { id },
+      data: { status, updatedAt: new Date() },
+    });
+
+    // Revalidate pages that display order data
+    revalidatePath('/', 'layout');
+    revalidatePath('/tienda');
+
+    return NextResponse.json({ success: true, order: updated });
   } catch (error) {
     console.error("[Admin Orders] Error updating order:", error);
     return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
@@ -97,50 +59,17 @@ export async function DELETE(
     await ensureSchema();
 
     const { id } = await params;
-    const isTurso = (process.env.DATABASE_URL || "").startsWith("libsql://");
 
-    if (isTurso) {
-      const { createClient } = await import("@libsql/client");
-      const url = process.env.DATABASE_URL!;
-      let authToken = process.env.DATABASE_AUTH_TOKEN;
-
-      try {
-        const u = new URL(url);
-        if (u.searchParams.has("authToken")) {
-          if (!authToken) authToken = u.searchParams.get("authToken") || undefined;
-          u.searchParams.delete("authToken");
-        }
-      } catch {}
-
-      const client = createClient({ url: url.startsWith("libsql") && !url.includes("://") ? `libsql://${url}` : url, authToken });
-
-      const check = await client.execute({
-        sql: "SELECT id FROM CrystalOrder WHERE id = ?",
-        args: [id],
-      });
-      if (check.rows.length === 0) {
-        return NextResponse.json({ error: "Pedido no encontrado" }, { status: 404 });
-      }
-
-      await client.execute({
-        sql: "DELETE FROM CrystalOrder WHERE id = ?",
-        args: [id],
-      });
-
-      // Revalidate after delete
-      revalidatePath('/', 'layout');
-      revalidatePath('/tienda');
-    } else {
-      const existing = await db.crystalOrder.findUnique({ where: { id } });
-      if (!existing) {
-        return NextResponse.json({ error: "Pedido no encontrado" }, { status: 404 });
-      }
-      await db.crystalOrder.delete({ where: { id } });
-
-      // Revalidate after delete
-      revalidatePath('/', 'layout');
-      revalidatePath('/tienda');
+    const existing = await db.crystalOrder.findUnique({ where: { id } });
+    if (!existing) {
+      return NextResponse.json({ error: "Pedido no encontrado" }, { status: 404 });
     }
+
+    await db.crystalOrder.delete({ where: { id } });
+
+    // Revalidate after delete
+    revalidatePath('/', 'layout');
+    revalidatePath('/tienda');
 
     return NextResponse.json({ success: true, message: "Pedido eliminado correctamente" });
   } catch (error) {

@@ -569,7 +569,7 @@ function KanbanColumn({
   exportLabel,
   fetchFn,
 }: {
-  column: { key: string; label: string; icon: React.ElementType; color: string; border: string };
+  column: { key: string; label: string; icon: React.ElementType; color: string; border: string; iconColor: string; badgeBg: string; badgeText: string };
   items: Array<{ id: string }>;
   dragOverColumn: string | null;
   setDragOverColumn: (v: string | null) => void;
@@ -614,7 +614,7 @@ function KanbanColumn({
       {/* Column Header */}
       <div className="px-4 py-3 border-b border-mystic-800/40 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <column.icon className={`w-4 h-4 text-${column.color}-400`} />
+          <column.icon className={`w-4 h-4 ${column.iconColor}`} />
           <span className="font-josefin text-sm text-cream-200 font-medium">
             {column.label}
           </span>
@@ -622,7 +622,7 @@ function KanbanColumn({
         <div className="flex items-center gap-2">
           <Badge
             variant="secondary"
-            className={`bg-${column.color}-500/20 text-${column.color}-300 text-xs`}
+            className={`${column.badgeBg} ${column.badgeText} text-xs`}
           >
             {items.length}
           </Badge>
@@ -793,7 +793,7 @@ export default function AdminPage() {
       const [statsRes, bookingsRes, ordersRes, membershipsRes, subscribersRes] =
         await Promise.all([
           authFetch("/api/admin/stats"),
-          authFetch("/api/bookings"),
+          authFetch("/api/admin/bookings-list"),
           authFetch("/api/admin/orders"),
           authFetch("/api/admin/memberships"),
           authFetch("/api/admin/subscribers"),
@@ -807,6 +807,10 @@ export default function AdminPage() {
           // Normalize status for bookings that don't have one
           status: b.status || "pendiente",
         })));
+      } else {
+        // If admin bookings-list fails, log the error for debugging
+        const errText = await bookingsRes.text().catch(() => "unknown");
+        console.error("[Admin] Failed to fetch bookings:", bookingsRes.status, errText);
       }
       if (ordersRes.ok) {
         const data = await ordersRes.json();
@@ -2020,9 +2024,9 @@ export default function AdminPage() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                   {([
-                    { key: "pendiente", label: "Pendientes", icon: Clock, color: "amber", border: "border-t-amber-500/60" },
-                    { key: "en_progreso", label: "En Proceso", icon: Timer, color: "purple", border: "border-t-purple-500/60" },
-                    { key: "entregada", label: "Entregadas", icon: CheckCircle2, color: "cyan", border: "border-t-cyan-500/60" },
+                    { key: "pendiente", label: "Pendientes", icon: Clock, color: "amber", border: "border-t-amber-500/60", iconColor: "text-amber-400", badgeBg: "bg-amber-500/20", badgeText: "text-amber-300" },
+                    { key: "en_progreso", label: "En Proceso", icon: Timer, color: "purple", border: "border-t-purple-500/60", iconColor: "text-purple-400", badgeBg: "bg-purple-500/20", badgeText: "text-purple-300" },
+                    { key: "entregada", label: "Entregadas", icon: CheckCircle2, color: "cyan", border: "border-t-cyan-500/60", iconColor: "text-cyan-400", badgeBg: "bg-cyan-500/20", badgeText: "text-cyan-300" },
                   ] as const).map((column) => (
                     <KanbanColumn
                       key={column.key}
@@ -2178,9 +2182,9 @@ export default function AdminPage() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                   {([
-                    { key: "pendiente", label: "Pendientes de Envio", icon: Clock, color: "amber", border: "border-t-amber-500/60" },
-                    { key: "preparando", label: "Preparando", icon: PackageCheck, color: "purple", border: "border-t-purple-500/60" },
-                    { key: "entregado", label: "Entregados", icon: CheckCircle2, color: "cyan", border: "border-t-cyan-500/60" },
+                    { key: "pendiente", label: "Pendientes de Envio", icon: Clock, color: "amber", border: "border-t-amber-500/60", iconColor: "text-amber-400", badgeBg: "bg-amber-500/20", badgeText: "text-amber-300" },
+                    { key: "preparando", label: "Preparando", icon: PackageCheck, color: "purple", border: "border-t-purple-500/60", iconColor: "text-purple-400", badgeBg: "bg-purple-500/20", badgeText: "text-purple-300" },
+                    { key: "entregado", label: "Entregados", icon: CheckCircle2, color: "cyan", border: "border-t-cyan-500/60", iconColor: "text-cyan-400", badgeBg: "bg-cyan-500/20", badgeText: "text-cyan-300" },
                   ] as const).map((column) => (
                     <KanbanColumn
                       key={column.key}
@@ -2308,9 +2312,9 @@ export default function AdminPage() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                   {([
-                    { key: "inscrito", label: "Inscritos", icon: UserCheck, color: "amber", border: "border-t-amber-500/60" },
-                    { key: "en_curso", label: "En Curso", icon: GraduationCap, color: "purple", border: "border-t-purple-500/60" },
-                    { key: "completado", label: "Completados", icon: CheckCircle2, color: "cyan", border: "border-t-cyan-500/60" },
+                    { key: "inscrito", label: "Inscritos", icon: UserCheck, color: "amber", border: "border-t-amber-500/60", iconColor: "text-amber-400", badgeBg: "bg-amber-500/20", badgeText: "text-amber-300" },
+                    { key: "en_curso", label: "En Curso", icon: GraduationCap, color: "purple", border: "border-t-purple-500/60", iconColor: "text-purple-400", badgeBg: "bg-purple-500/20", badgeText: "text-purple-300" },
+                    { key: "completado", label: "Completados", icon: CheckCircle2, color: "cyan", border: "border-t-cyan-500/60", iconColor: "text-cyan-400", badgeBg: "bg-cyan-500/20", badgeText: "text-cyan-300" },
                   ] as const).map((column) => (
                     <KanbanColumn
                       key={column.key}
@@ -2425,9 +2429,9 @@ export default function AdminPage() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                   {([
-                    { key: "activa", label: "Activas", icon: Crown, color: "emerald", border: "border-t-emerald-500/60" },
-                    { key: "pendiente", label: "Pendientes", icon: Clock, color: "amber", border: "border-t-amber-500/60" },
-                    { key: "vencida", label: "Vencidas / Canceladas", icon: CircleX, color: "red", border: "border-t-red-500/60" },
+                    { key: "activa", label: "Activas", icon: Crown, color: "emerald", border: "border-t-emerald-500/60", iconColor: "text-emerald-400", badgeBg: "bg-emerald-500/20", badgeText: "text-emerald-300" },
+                    { key: "pendiente", label: "Pendientes", icon: Clock, color: "amber", border: "border-t-amber-500/60", iconColor: "text-amber-400", badgeBg: "bg-amber-500/20", badgeText: "text-amber-300" },
+                    { key: "vencida", label: "Vencidas / Canceladas", icon: CircleX, color: "red", border: "border-t-red-500/60", iconColor: "text-red-400", badgeBg: "bg-red-500/20", badgeText: "text-red-300" },
                   ] as const).map((column) => (
                     <KanbanColumn
                       key={column.key}
