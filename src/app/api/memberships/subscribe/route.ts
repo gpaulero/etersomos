@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 import { db, ensureSchema } from "@/lib/db";
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "etersomos@gmail.com";
-const SENDER = "Eter Somos <onboarding@resend.dev>";
+const SMTP_USER = process.env.SMTP_USER || "etersomos@gmail.com";
 
 function escapeHtml(text: string): string {
   return text
@@ -12,6 +12,20 @@ function escapeHtml(text: string): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+}
+
+function createTransporter() {
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_APP_PASSWORD;
+
+  if (!user || !pass) {
+    throw new Error("SMTP_USER and SMTP_APP_PASSWORD must be configured");
+  }
+
+  return nodemailer.createTransport({
+    service: "gmail",
+    auth: { user, pass },
+  });
 }
 
 export async function POST(req: NextRequest) {
@@ -36,9 +50,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const resendKey = process.env.RESEND_API_KEY;
-    if (!resendKey) {
-      console.error("[Membership] RESEND_API_KEY not configured");
+    const smtpUser = process.env.SMTP_USER;
+    const smtpPass = process.env.SMTP_APP_PASSWORD;
+    if (!smtpUser || !smtpPass) {
+      console.error("[Membership] SMTP_USER or SMTP_APP_PASSWORD not configured");
       return NextResponse.json(
         { error: "Servicio de email no configurado" },
         { status: 500 }
@@ -59,11 +74,11 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const resend = new Resend(resendKey);
+    const transporter = createTransporter();
 
     // Send admin notification
-    await resend.emails.send({
-      from: SENDER,
+    await transporter.sendMail({
+      from: `"Eter Somos" <${SMTP_USER}>`,
       to: [ADMIN_EMAIL],
       subject: `Nueva suscripcion registrada — ${membershipName} — ${name}`,
       html: `

@@ -582,8 +582,7 @@ function autoEnrollStudent(params: {
             enrollmentTitle: params.enrollmentTitle,
           });
         } catch (emailErr) {
-          // Resend sandbox may fail for non-verified emails — that's OK
-          console.error('[AutoEnroll] Welcome email failed (sandbox?):', (emailErr as Error).message);
+          console.error('[AutoEnroll] Welcome email failed:', (emailErr as Error).message);
         }
       }
     } catch (err) {
@@ -641,8 +640,7 @@ function sendEmails(payload: EmailPayload): void {
       });
     } catch (err) {
       console.error(`[Email] Failed to send customer confirmation for ${payload.type}:`, err);
-      // In Resend sandbox, customer emails will fail unless the customer's email is verified
-      // This is expected and will work once a custom domain is configured
+      // Customer email may fail if SMTP is not configured correctly
     }
   })();
 }

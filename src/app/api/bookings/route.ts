@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
               enrollmentTitle: 'Lectura Akáshica Individual',
             });
           } catch (emailErr) {
-            console.error("[AutoEnroll] Welcome email failed (sandbox?):", (emailErr as Error).message);
+            console.error("[AutoEnroll] Welcome email failed:", (emailErr as Error).message);
           }
         }
       } catch (err) {
