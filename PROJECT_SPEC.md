@@ -1,6 +1,6 @@
 # ETÉR SOMOS - Especificación Completa del Proyecto
 ## (Archivo de referencia CRÍTICO - NO BORRAR)
-## Última actualización: 2026-06-10
+## Última actualización: 2026-06-10 (sesión 27)
 
 Este documento describe TODO el estado actual, credenciales, estructura y requisitos del sitio web.
 **Siempre consultar antes de hacer cambios.**
@@ -300,7 +300,7 @@ curl -s -X POST "https://etersomos-iota.vercel.app/api/memberships/subscribe" \
 ### Base de datos:
 - **Motor:** Turso (libSQL) — configurado via DATABASE_URL en .env
 - **Proxy:** src/lib/db.ts tiene un proxy Prisma→Turso que traduce llamadas Prisma a SQL directo
-- **Tablas:** ReadingBooking, Membership, CrystalOrder, NewsletterSubscriber, Settings, SiteContent, Resource, CourseInterest
+- **Tablas:** ReadingBooking, Membership, CrystalOrder, NewsletterSubscriber, Settings, SiteContent, Resource, CourseInterest, Student, StudentEnrollment, CourseContent
 - **Settings proxy especial:** createSettingsProxy() maneja key/value (form_toggles, pause_message)
 - **ensureSchema():** Crea tablas automáticamente si no existen (CREATE TABLE IF NOT EXISTS)
 - **Auto-migración:** Columnas nuevas se agregan con ALTER TABLE (ej: deliveryDate en ReadingBooking)
@@ -669,7 +669,11 @@ TODOS los pagos pasan por la pasarela del sitio web (MercadoPago o PayPal).
 - src/app/recursos/layout.tsx - Layout de recursos (metadata)
 - src/app/mentorias/page.tsx - Página Mentorías para Lectores de Registros Akáshicos (formulario)
 - src/app/mentorias/layout.tsx - Layout de mentorías (metadata)
-- src/app/admin/page.tsx - Panel admin completo (~2700 líneas): stats, kanban, form toggles, recursos
+- src/app/admin/page.tsx - Panel admin completo (~3400 líneas): stats, kanban, form toggles, recursos, alumnos, aula virtual
+- src/app/aula/page.tsx - Aula Virtual dashboard (~1164 líneas): sidebar nav, hero, cursos, lecturas, mentorías, perfil
+- src/app/aula/curso/[courseId]/page.tsx - Reproductor de curso (~604 líneas): video/audio/PDF, playlist, navegación
+- src/app/aula/login/page.tsx - Login aula virtual (~264 líneas): orbes animados, toggle password
+- src/app/aula/registro/page.tsx - Registro de alumnos
 - src/app/membresias/page.tsx - Página dedicada de membresías con formulario
 - src/app/membresias/layout.tsx - Layout de membresías (header volver + footer)
 - src/app/payment/success/page.tsx - Página post-pago
@@ -713,10 +717,29 @@ TODOS los pagos pasan por la pasarela del sitio web (MercadoPago o PayPal).
 - src/app/api/admin/subscribers/route.ts - GET listar suscriptores newsletter + DELETE
 - src/app/api/admin/subscribers/[id]/route.ts - DELETE eliminar suscriptor
 - src/app/api/admin/contacts/route.ts - GET exportar contactos (CSV, por sección o todos)
+- src/app/api/admin/students/route.ts - GET/POST alumnos (listar, crear)
+- src/app/api/admin/students/[id]/route.ts - GET/DELETE alumno
+- src/app/api/admin/students/[id]/enrollments/route.ts - POST asignar inscripción
+- src/app/api/admin/lectura-upload/route.ts - POST subir audio de lectura (direct S3 upload)
+- src/app/api/admin/enrollments/[id]/upload-audio/route.ts - POST/PUT/DELETE audio de inscripción
+- src/app/api/admin/cleanup-lecturas/route.ts - POST limpiar lecturas expiradas
+- src/app/api/admin/course-content/route.ts - GET/POST/PUT/DELETE contenido de cursos
+- src/app/api/admin/course-content/presign/route.ts - POST presigned URL para upload curso
+
+### APIs - Aula Virtual (Student)
+- src/app/api/student/auth/login/route.ts - POST login alumno (JWT + httpOnly cookie)
+- src/app/api/student/auth/register/route.ts - POST registro alumno
+- src/app/api/student/auth/me/route.ts - GET perfil alumno
+- src/app/api/student/auth/logout/route.ts - POST logout alumno
+- src/app/api/student/enrollments/route.ts - GET inscripciones del alumno
+- src/app/api/student/course-content/route.ts - GET contenido de curso (verifica inscripción)
+- src/app/api/student/stream/route.ts - GET streaming protegido (cursos/ y lecturas/)
+- src/app/api/student/download-lectura/route.ts - GET descarga de lectura (verifica expiración)
 
 ### Librerías
 - src/lib/db.ts - Proxy Prisma→Turso, createSettingsProxy, ensureSchema
-- src/lib/r2.ts - Cloudflare R2: upload, download, delete, presigned URLs
+- src/lib/r2.ts - Cloudflare R2: upload, download, delete, presigned URLs (recursos/, cursos/, lecturas/ prefixes)
+- src/lib/student-auth.ts - Auth de alumnos: JWT, httpOnly cookies, enrollment management
 - src/lib/pricing.ts - Precios centralizados
 - src/lib/email.ts - Sistema de emails (admin + cliente) para cristales/cursos/lecturas
 - src/lib/course-payment.ts - Función de pago para cursos/lecturas (usa PayPal.me)
@@ -1369,3 +1392,24 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 8. **Dependencias nuevas**: bcryptjs, jose (ya estaban instaladas en node_modules)
 
 9. **Commit**: `589fd98` — feat: aula virtual - student auth, dashboard, admin alumnos tab, course content API
+
+### SESIÓN 27 (10/06/2026 — Lectura upload fix + Course dropdown + Aula Virtual Redesign)
+
+1. **Fix lectura audio upload**: El endpoint `/api/admin/lectura-upload` existía pero usaba presigned URL + fetch desde el servidor que fallaba silenciosamente. Reescrito con `uploadLecturaResource()` (subida directa S3 client). Agregada validación de tipo de archivo (solo audio) y tamaño (200MB max).
+
+2. **Nueva función en r2.ts**: `uploadLecturaResource(file)` — sube archivo directamente a R2 bajo `lecturas/` prefix sin pasar por presigned URL.
+
+3. **Mensajes de progreso en admin**: Nuevo estado `lecturaUploadStep` que muestra paso a paso: "Subiendo audio...", "Audio subido. Guardando inscripción...", "Procesando...". Badge verde con nombre de archivo al seleccionar. Inputs deshabilitados durante upload.
+
+4. **Desplegable de cursos en admin**: Al asignar inscripción tipo "curso", el campo "ID referencia" se reemplaza por un `<Select>` con opciones predefinidas: RA N1 Teórico (`n1-teorico`), RA N1 con Práctica (`n1-practica`), RA N2 Completo (`n2`), Ambos Niveles (`ambos`). Al seleccionar, el título se autocompleta.
+
+5. **Botones de contenido de cursos actualizados**: Los botones rápidos en "Contenido de Cursos" ahora muestran las etiquetas de Registros Akáshicos (RA N1 Teórico, etc.) en vez de los IDs crudos.
+
+6. **Rediseño completo del Aula Virtual** (inspirado en Moodle/Canvas/LMS modernos):
+   - **Dashboard** (`/aula/page.tsx`, ~1164 líneas): Hero de bienvenida con saludo personalizado + hora del día + frase espiritual rotativa. Sidebar fija en desktop (240px) con Sheet drawer en mobile. Nav: Inicio, Mis Cursos, Mis Lecturas, Mentorías, Mi Perfil. Stats visuales con barras de progreso animadas. Cards de cursos con gradiente, icono de tipo, badge de estado, botón "Continuar". Lecturas con estilo album-art, badge "Nueva", reproductor waveform, countdown de expiración colorizado. Animaciones Framer Motion (AnimatePresence, staggered entrance, hover lift). Perfil con avatar inicial.
+   - **Reproductor de curso** (`/aula/curso/[courseId]/page.tsx`, ~604 líneas): Breadcrumb (Aula > Curso > Clase). Barra de progreso. Título + descripción arriba del player. Botones Anterior/Siguiente. Checkmarks de completación en playlist. Transiciones fade con Framer Motion.
+   - **Login** (`/aula/login/page.tsx`, ~264 líneas): Orbes místicos flotantes animados. Estrellas titilantes. Toggle mostrar/ocultar contraseña. Frase espiritual. Logo animado con hover.
+
+7. **Fix JSX syntax**: Corregido `}))}` → `))}` en dropdown de cursos del admin (error de TypeScript).
+
+8. **Git tag backup**: `v2026-06-10-session27`
