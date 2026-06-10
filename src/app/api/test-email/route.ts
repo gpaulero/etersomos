@@ -5,9 +5,18 @@ export async function GET() {
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_APP_PASSWORD;
 
+  // Debug: show what we're receiving
+  const debug = {
+    smtpUser: user || "MISSING",
+    smtpPassLength: pass ? pass.length : 0,
+    smtpPassFirst2: pass ? pass.substring(0, 2) : "N/A",
+    smtpPassLast2: pass ? pass.substring(pass.length - 2) : "N/A",
+    smtpPassHasSpaces: pass ? pass.includes(" ") : false,
+  };
+
   if (!user || !pass) {
     return NextResponse.json(
-      { error: "SMTP_USER or SMTP_APP_PASSWORD not configured", user: user || "MISSING", pass: pass ? "***configured***" : "MISSING" },
+      { error: "SMTP_USER or SMTP_APP_PASSWORD not configured", debug },
       { status: 500 }
     );
   }
@@ -43,7 +52,7 @@ export async function GET() {
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: "Failed to send email", details: msg },
+      { error: "Failed to send email", details: msg, debug },
       { status: 500 }
     );
   }
