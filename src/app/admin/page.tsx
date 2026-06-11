@@ -3368,65 +3368,91 @@ export default function AdminPage() {
                               Sin inscripciones. Asignale un curso o lectura.
                             </p>
                           ) : (
-                            <div className="space-y-2">
-                              {studentEnrollments.map((enr: any) => (
-                                <div key={enr.id} className="bg-mystic-800/40 rounded-lg px-3 py-2">
-                                  <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                      {enr.type === "curso" && <GraduationCap className="w-4 h-4 text-blue-400" />}
-                                      {enr.type === "lectura" && <BookOpen className="w-4 h-4 text-violet-400" />}
-                                      {enr.type === "mentoria" && <Star className="w-4 h-4 text-gold-400" />}
+                            <div className="space-y-5">
+                              {studentEnrollments.map((enr: any, enrIndex: number) => (
+                                <div
+                                  key={enr.id}
+                                  className={`rounded-xl border overflow-hidden ${
+                                    enr.type === "lectura" ? "border-violet-500/20 bg-violet-500/[0.03]" :
+                                    enr.type === "curso" ? "border-blue-500/20 bg-blue-500/[0.03]" :
+                                    "border-gold-500/20 bg-gold-500/[0.03]"
+                                  }`}
+                                >
+                                  {/* ── Enrollment header bar ── */}
+                                  <div className={`px-4 py-3 flex items-center justify-between border-b ${
+                                    enr.type === "lectura" ? "border-violet-500/10 bg-violet-500/[0.06]" :
+                                    enr.type === "curso" ? "border-blue-500/10 bg-blue-500/[0.06]" :
+                                    "border-gold-500/10 bg-gold-500/[0.06]"
+                                  }`}>
+                                    <div className="flex items-center gap-3">
+                                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                                        enr.type === "lectura" ? "bg-violet-500/15" :
+                                        enr.type === "curso" ? "bg-blue-500/15" :
+                                        "bg-gold-500/15"
+                                      }`}>
+                                        {enr.type === "curso" && <GraduationCap className="w-4 h-4 text-blue-400" />}
+                                        {enr.type === "lectura" && <BookOpen className="w-4 h-4 text-violet-400" />}
+                                        {enr.type === "mentoria" && <Star className="w-4 h-4 text-gold-400" />}
+                                      </div>
                                       <div>
-                                        <p className="text-foreground text-sm font-sans">{enr.title}</p>
-                                        <div className="flex items-center gap-2">
-                                          <p className="text-mystic-500 text-xs font-sans">
-                                            {enr.type} · {enr.status}
-                                            {enr.assignedBy && ` · por ${enr.assignedBy}`}
-                                          </p>
-                                          {enr.type === "lectura" && enr.r2Key && (
-                                            <Badge variant="outline" className="text-xs border-violet-400/30 text-violet-300 gap-1">
-                                              <Headphones className="w-3 h-3" />
-                                              Audio
-                                            </Badge>
-                                          )}
-                                          {enr.type === "lectura" && enr.expiresAt && (
-                                            <Badge variant="outline" className={`text-xs gap-1 ${
-                                              new Date(enr.expiresAt).getTime() < Date.now()
-                                                ? "border-red-500/30 text-red-300"
-                                                : "border-amber-500/30 text-amber-300"
-                                            }`}>
-                                              <Clock className="w-3 h-3" />
-                                              {new Date(enr.expiresAt).getTime() < Date.now()
-                                                ? "Expirada"
-                                                : `Expira: ${new Date(enr.expiresAt).toLocaleDateString("es-AR", { month: "short", day: "numeric" })}`}
-                                            </Badge>
-                                          )}
-                                        </div>
+                                        <p className="text-cream-100 text-sm font-sans font-medium">{enr.title}</p>
+                                        <p className="text-mystic-500 text-xs font-sans mt-0.5">
+                                          {enr.type}{enr.assignedBy && ` · asignado por ${enr.assignedBy}`}
+                                        </p>
                                       </div>
                                     </div>
-                                    <Badge variant="outline" className={`text-xs ${
-                                      enr.status === "activa" ? "border-emerald-500/30 text-emerald-300" :
-                                      enr.status === "completada" ? "border-violet-500/30 text-violet-300" :
-                                      "border-mystic-600/30 text-mystic-400"
-                                    }`}>
-                                      {enr.status}
-                                    </Badge>
+                                    <div className="flex items-center gap-2">
+                                      {enr.type === "lectura" && enr.r2Key && (
+                                        <Badge variant="outline" className="text-xs border-violet-400/30 text-violet-300 gap-1">
+                                          <Headphones className="w-3 h-3" />
+                                          Audio
+                                        </Badge>
+                                      )}
+                                      {enr.type === "lectura" && enrollmentAttachments[enr.id] && enrollmentAttachments[enr.id].length > 0 && (
+                                        <Badge variant="outline" className="text-xs border-emerald-400/30 text-emerald-300 gap-1">
+                                          <Paperclip className="w-3 h-3" />
+                                          {enrollmentAttachments[enr.id].length}
+                                        </Badge>
+                                      )}
+                                      {enr.type === "lectura" && enr.expiresAt && (
+                                        <Badge variant="outline" className={`text-xs gap-1 ${
+                                          new Date(enr.expiresAt).getTime() < Date.now()
+                                            ? "border-red-500/30 text-red-300"
+                                            : "border-amber-500/30 text-amber-300"
+                                        }`}>
+                                          <Clock className="w-3 h-3" />
+                                          {new Date(enr.expiresAt).getTime() < Date.now()
+                                            ? "Expirada"
+                                            : `Expira: ${new Date(enr.expiresAt).toLocaleDateString("es-AR", { month: "short", day: "numeric" })}`}
+                                        </Badge>
+                                      )}
+                                      <Badge variant="outline" className={`text-xs ${
+                                        enr.status === "activa" ? "border-emerald-500/30 text-emerald-300" :
+                                        enr.status === "completada" ? "border-violet-500/30 text-violet-300" :
+                                        "border-mystic-600/30 text-mystic-400"
+                                      }`}>
+                                        {enr.status}
+                                      </Badge>
+                                    </div>
                                   </div>
-                                  {/* Lectura details - well separated sections */}
+
+                                  {/* ── Enrollment body (lectura details) ── */}
                                   {enr.type === "lectura" && (
-                                    <div className="mt-3 space-y-3">
+                                    <div className="px-4 py-4 space-y-4">
                                       {/* ── AUDIO SECTION ── */}
-                                      <div className="bg-violet-500/5 border border-violet-500/15 rounded-lg p-3">
-                                        <div className="flex items-center gap-1.5 mb-2.5">
-                                          <Headphones className="w-3.5 h-3.5 text-violet-400" />
-                                          <span className="text-violet-300 text-xs font-josefin uppercase tracking-wider">
+                                      <div className="bg-violet-500/[0.04] border border-violet-500/10 rounded-lg p-4">
+                                        <div className="flex items-center gap-2 mb-3">
+                                          <div className="w-6 h-6 rounded-md bg-violet-500/15 flex items-center justify-center">
+                                            <Headphones className="w-3.5 h-3.5 text-violet-400" />
+                                          </div>
+                                          <span className="text-violet-300 text-xs font-josefin uppercase tracking-wider font-medium">
                                             Audio de la lectura
                                           </span>
                                         </div>
                                         {enr.r2Key ? (
-                                          <div className="space-y-2">
-                                            <div className="flex items-center gap-2 bg-mystic-800/40 rounded-md px-3 py-2 border border-mystic-700/30">
-                                              <Headphones className="w-3.5 h-3.5 text-violet-400 shrink-0" />
+                                          <div className="space-y-3">
+                                            <div className="flex items-center gap-2 bg-mystic-900/40 rounded-md px-3 py-2.5 border border-mystic-700/30">
+                                              <Headphones className="w-4 h-4 text-violet-400 shrink-0" />
                                               <span className="text-mystic-200 text-xs font-sans truncate flex-1">{enr.fileName}</span>
                                               <Button
                                                 variant="ghost"
@@ -3439,11 +3465,11 @@ export default function AdminPage() {
                                             </div>
                                             {/* Expiration date editor */}
                                             <div className="flex items-center gap-2">
-                                              <Clock className="w-3 h-3 text-mystic-500" />
+                                              <Clock className="w-3.5 h-3.5 text-mystic-500" />
                                               <Input
                                                 type="date"
                                                 defaultValue={enr.expiresAt ? new Date(enr.expiresAt).toISOString().split('T')[0] : ""}
-                                                className="bg-mystic-800/40 border-mystic-700/40 text-cream-100 text-xs h-6 w-36"
+                                                className="bg-mystic-900/40 border-mystic-700/40 text-cream-100 text-xs h-7 w-36"
                                                 min={new Date().toISOString().split('T')[0]}
                                                 onChange={(e) => {
                                                   if (e.target.value) {
@@ -3466,33 +3492,33 @@ export default function AdminPage() {
                                             </div>
                                           </div>
                                         ) : (
-                                          <div className="space-y-2">
+                                          <div className="space-y-3">
                                             <div className="flex items-center gap-2">
                                               <Input
                                                 type="file"
                                                 accept="audio/*,.mp3,.wav,.ogg,.m4a"
                                                 onChange={(e) => setLecturaAudioFile(e.target.files?.[0] || null)}
-                                                className="bg-mystic-800/40 border-mystic-700/40 text-cream-100 text-xs h-7 flex-1"
+                                                className="bg-mystic-900/40 border-mystic-700/40 text-cream-100 text-xs h-8 flex-1"
                                                 disabled={uploadingLecturaAudio}
                                               />
                                               <Button
                                                 variant="outline"
                                                 size="sm"
-                                                className="border-violet-400/30 text-violet-300 hover:bg-violet-400/10 h-7 text-xs gap-1 shrink-0"
+                                                className="border-violet-400/30 text-violet-300 hover:bg-violet-400/10 h-8 text-xs gap-1.5 shrink-0 px-3"
                                                 disabled={uploadingLecturaAudio || !lecturaAudioFile}
                                                 onClick={() => handleUploadAudioToEnrollment(enr.id)}
                                               >
-                                                {uploadingLecturaAudio ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
+                                                {uploadingLecturaAudio ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
                                                 {uploadingLecturaAudio ? "Subiendo..." : "Subir audio"}
                                               </Button>
                                             </div>
                                             {uploadingLecturaAudio && lecturaUploadStep && (
-                                              <p className="text-violet-300 text-xs flex items-center gap-1">
+                                              <p className="text-violet-300 text-xs flex items-center gap-1.5">
                                                 <Loader2 className="w-3 h-3 animate-spin" />
                                                 {lecturaUploadStep}
                                               </p>
                                             )}
-                                            <p className="text-mystic-600 text-[10px] font-sans">
+                                            <p className="text-mystic-600 text-[11px] font-sans">
                                               MP3, WAV, OGG, M4A — máx 200 MB
                                             </p>
                                           </div>
@@ -3500,10 +3526,12 @@ export default function AdminPage() {
                                       </div>
 
                                       {/* ── ATTACHMENTS SECTION ── */}
-                                      <div className="bg-emerald-500/5 border border-emerald-500/15 rounded-lg p-3">
-                                        <div className="flex items-center gap-1.5 mb-2.5">
-                                          <Paperclip className="w-3.5 h-3.5 text-emerald-400" />
-                                          <span className="text-emerald-300 text-xs font-josefin uppercase tracking-wider">
+                                      <div className="bg-emerald-500/[0.04] border border-emerald-500/10 rounded-lg p-4">
+                                        <div className="flex items-center gap-2 mb-3">
+                                          <div className="w-6 h-6 rounded-md bg-emerald-500/15 flex items-center justify-center">
+                                            <Paperclip className="w-3.5 h-3.5 text-emerald-400" />
+                                          </div>
+                                          <span className="text-emerald-300 text-xs font-josefin uppercase tracking-wider font-medium">
                                             Archivos adjuntos
                                           </span>
                                           {enrollmentAttachments[enr.id] && enrollmentAttachments[enr.id].length > 0 && (
@@ -3514,18 +3542,18 @@ export default function AdminPage() {
                                         </div>
                                         {/* Existing attachments list */}
                                         {enrollmentAttachments[enr.id] && enrollmentAttachments[enr.id].length > 0 && (
-                                          <div className="space-y-1.5 mb-3">
+                                          <div className="space-y-2 mb-4">
                                             {enrollmentAttachments[enr.id].map((att: any) => (
-                                              <div key={att.id} className="flex items-center gap-2 bg-mystic-800/40 rounded-md px-3 py-2 border border-mystic-700/25">
+                                              <div key={att.id} className="flex items-center gap-2.5 bg-mystic-900/40 rounded-md px-3 py-2.5 border border-mystic-700/25">
                                                 {att.fileType === 'imagen' ? (
-                                                  <ImageIcon className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                                                  <ImageIcon className="w-4 h-4 text-emerald-400 shrink-0" />
                                                 ) : att.fileType === 'pdf' ? (
-                                                  <FileText className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                                                  <FileText className="w-4 h-4 text-red-400 shrink-0" />
                                                 ) : (
-                                                  <FileText className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                                                  <FileText className="w-4 h-4 text-blue-400 shrink-0" />
                                                 )}
                                                 <span className="text-mystic-200 text-xs font-sans truncate flex-1">{att.fileName}</span>
-                                                <span className="text-mystic-600 text-[10px] font-sans shrink-0">
+                                                <span className="text-mystic-600 text-[11px] font-sans shrink-0">
                                                   {att.fileSize < 1024 * 1024
                                                     ? `${(att.fileSize / 1024).toFixed(0)} KB`
                                                     : `${(att.fileSize / (1024 * 1024)).toFixed(1)} MB`}
@@ -3533,7 +3561,7 @@ export default function AdminPage() {
                                                 <Button
                                                   variant="ghost"
                                                   size="sm"
-                                                  className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-5 w-5 p-0 shrink-0"
+                                                  className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-6 w-6 p-0 shrink-0"
                                                   onClick={() => handleDeleteAttachment(enr.id, att.id)}
                                                 >
                                                   <Trash2 className="w-3 h-3" />
@@ -3543,32 +3571,32 @@ export default function AdminPage() {
                                           </div>
                                         )}
                                         {/* Upload new attachment */}
-                                        <div className="space-y-2">
+                                        <div className="space-y-3">
                                           <div className="flex items-center gap-2">
                                             <Input
                                               type="file"
                                               accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.svg,.doc,.docx,.txt,image/*,application/pdf"
                                               onChange={(e) => setAttachmentFile(e.target.files?.[0] || null)}
-                                              className="bg-mystic-800/40 border-mystic-700/40 text-cream-100 text-xs h-7 flex-1"
+                                              className="bg-mystic-900/40 border-mystic-700/40 text-cream-100 text-xs h-8 flex-1"
                                               disabled={uploadingAttachment}
                                             />
                                             <Button
                                               variant="outline"
                                               size="sm"
-                                              className="border-emerald-400/30 text-emerald-300 hover:bg-emerald-400/10 h-7 text-xs gap-1 shrink-0"
+                                              className="border-emerald-400/30 text-emerald-300 hover:bg-emerald-400/10 h-8 text-xs gap-1.5 shrink-0 px-3"
                                               disabled={uploadingAttachment || !attachmentFile}
                                               onClick={() => handleUploadAttachment(enr.id)}
                                             >
-                                              {uploadingAttachment ? <Loader2 className="w-3 h-3 animate-spin" /> : <Plus className="w-3 h-3" />}
+                                              {uploadingAttachment ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
                                               {uploadingAttachment ? "Subiendo..." : "Adjuntar"}
                                             </Button>
                                           </div>
                                           {attachmentFile && (
-                                            <p className="text-emerald-300/70 text-[10px] font-sans">
+                                            <p className="text-emerald-300/70 text-[11px] font-sans">
                                               {attachmentFile.name} — {(attachmentFile.size / (1024 * 1024)).toFixed(1)} MB
                                             </p>
                                           )}
-                                          <p className="text-mystic-600 text-[10px] font-sans">
+                                          <p className="text-mystic-600 text-[11px] font-sans">
                                             PDF, imágenes (JPG, PNG, GIF, WebP), Word, TXT — máx 50 MB
                                           </p>
                                         </div>
