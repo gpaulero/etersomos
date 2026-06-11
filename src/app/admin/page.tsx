@@ -762,6 +762,8 @@ export default function AdminPage() {
   const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
   const [uploadingAttachment, setUploadingAttachment] = useState(false);
   const [enrollmentAttachments, setEnrollmentAttachments] = useState<Record<string, any[]>>({});
+  // Enrollment filter tab: "pendientes" | "entregadas" | "todas"
+  const [enrollmentTab, setEnrollmentTab] = useState<string>("pendientes");
 
   // R2 Storage state
   const [r2Stats, setR2Stats] = useState<{ totalSize: number; totalObjects: number; prefixes: { recursos: { size: number; count: number }; cursos: { size: number; count: number }; lecturas: { size: number; count: number } } } | null>(null);
@@ -1147,6 +1149,7 @@ export default function AdminPage() {
     setSelectedStudent(student);
     setStudentEnrollments([]);
     setEnrollmentAttachments({});
+    setEnrollmentTab("pendientes");
     try {
       const res = await authFetch(`/api/admin/students/${student.id}`);
       if (res.ok) {
@@ -3360,16 +3363,94 @@ export default function AdminPage() {
                       {/* Current enrollments */}
                       <Card className="bg-mystic-900/40 border-mystic-700/40">
                         <CardContent className="p-4">
-                          <h5 className="text-mystic-400 text-xs font-josefin uppercase tracking-wider mb-3">
-                            Inscripciones ({studentEnrollments.length})
-                          </h5>
                           {studentEnrollments.length === 0 ? (
-                            <p className="text-mystic-500 text-sm font-sans text-center py-4">
-                              Sin inscripciones. Asignale un curso o lectura.
-                            </p>
+                            <>
+                              <h5 className="text-mystic-400 text-xs font-josefin uppercase tracking-wider mb-3">
+                                Inscripciones
+                              </h5>
+                              <p className="text-mystic-500 text-sm font-sans text-center py-4">
+                                Sin inscripciones. Asignale un curso o lectura.
+                              </p>
+                            </>
                           ) : (
-                            <div className="space-y-5">
-                              {studentEnrollments.map((enr: any, enrIndex: number) => (
+                            <>
+                              {/* ── Tab filter bar ── */}
+                              {(() => {
+                                const pendientes = studentEnrollments.filter((e: any) => e.type === "lectura" && !e.r2Key);
+                                const entregadas = studentEnrollments.filter((e: any) => e.type === "lectura" && e.r2Key);
+                                const otras = studentEnrollments.filter((e: any) => e.type !== "lectura");
+                                const tabs = [
+                                  { key: "pendientes", label: "Pendientes", count: pendientes.length, icon: Clock, color: "amber" },
+                                  { key: "entregadas", label: "Entregadas", count: entregadas.length, icon: CheckCircle2, color: "emerald" },
+                                  { key: "cursos", label: "Cursos / Otras", count: otras.length, icon: GraduationCap, color: "blue" },
+                                  { key: "todas", label: "Todas", count: studentEnrollments.length, icon: BookOpen, color: "mystic" },
+                                ];
+                                return (
+                                  <div className="flex items-center gap-1 mb-4 border-b border-mystic-700/40 pb-3 overflow-x-auto">
+                                    <h5 className="text-mystic-400 text-xs font-josefin uppercase tracking-wider mr-3 shrink-0">
+                                      Inscripciones
+                                    </h5>
+                                    {tabs.map((tab) => {
+                                      const TabIcon = tab.icon;
+                                      const isActive = enrollmentTab === tab.key;
+                                      if (tab.count === 0 && tab.key !== "todas") return null;
+                                      return (
+                                        <button
+                                          key={tab.key}
+                                          onClick={() => setEnrollmentTab(tab.key)}
+                                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-josefin transition-all whitespace-nowrap ${
+                                            isActive
+                                              ? tab.color === "amber" ? "bg-amber-500/15 text-amber-300 border border-amber-500/25"
+                                                : tab.color === "emerald" ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/25"
+                                                : tab.color === "blue" ? "bg-blue-500/15 text-blue-300 border border-blue-500/25"
+                                                : "bg-mystic-700/30 text-mystic-200 border border-mystic-600/30"
+                                              : "text-mystic-500 hover:text-mystic-300 hover:bg-mystic-800/40 border border-transparent"
+                                          }`}
+                                        >
+                                          <TabIcon className="w-3 h-3" />
+                                          {tab.label}
+                                          <span className={`ml-0.5 text-[10px] px-1 py-0.5 rounded-full ${
+                                            isActive
+                                              ? tab.color === "amber" ? "bg-amber-500/20"
+                                                : tab.color === "emerald" ? "bg-emerald-500/20"
+                                                : tab.color === "blue" ? "bg-blue-500/20"
+                                                : "bg-mystic-600/30"
+                                              : "bg-mystic-800/40"
+                                          }`}>
+                                            {tab.count}
+                                          </span>
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                );
+                              })()}
+
+                              {/* ── Filtered enrollments list ── */}
+                              {(() => {
+                                let filtered: any[];
+                                if (enrollmentTab === "pendientes") {
+                                  filtered = studentEnrollments.filter((e: any) => e.type === "lectura" && !e.r2Key);
+                                } else if (enrollmentTab === "entregadas") {
+                                  filtered = studentEnrollments.filter((e: any) => e.type === "lectura" && e.r2Key);
+                                } else if (enrollmentTab === "cursos") {
+                                  filtered = studentEnrollments.filter((e: any) => e.type !== "lectura");
+                                } else {
+                                  filtered = studentEnrollments;
+                                }
+                                if (filtered.length === 0) {
+                                  return (
+                                    <p className="text-mystic-600 text-sm font-sans text-center py-6">
+                                      {enrollmentTab === "pendientes" ? "No hay lecturas pendientes 🎉" :
+                                       enrollmentTab === "entregadas" ? "No hay lecturas entregadas aún" :
+                                       enrollmentTab === "cursos" ? "No hay cursos u otras inscripciones" :
+                                       "Sin inscripciones"}
+                                    </p>
+                                  );
+                                }
+                                return (
+                                  <div className="space-y-5">
+                              {filtered.map((enr: any, enrIndex: number) => (
                                 <div
                                   key={enr.id}
                                   className={`rounded-xl border overflow-hidden ${
@@ -3606,6 +3687,9 @@ export default function AdminPage() {
                                 </div>
                               ))}
                             </div>
+                                );
+                              })()}
+                            </>
                           )}
                         </CardContent>
                       </Card>
