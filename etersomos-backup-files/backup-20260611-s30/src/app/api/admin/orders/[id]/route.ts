@@ -1,0 +1,79 @@
+import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
+import { db, ensureSchema } from "@/lib/db";
+
+// Valid statuses for crystal orders
+const VALID_CRYSTAL_STATUSES = ["pendiente", "preparando", "enviado", "entregado", "cancelado"];
+// Valid statuses for course enrollments
+const VALID_COURSE_STATUSES = ["inscrito", "en_curso", "completado", "cancelado"];
+
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    await ensureSchema();
+
+    const { id } = await params;
+    const body = await req.json();
+    const { status } = body;
+
+    if (!status) {
+      return NextResponse.json({ error: "Estado requerido" }, { status: 400 });
+    }
+
+    const allValid = [...VALID_CRYSTAL_STATUSES, ...VALID_COURSE_STATUSES];
+    if (!allValid.includes(status)) {
+      return NextResponse.json(
+        { error: `Estado invalido. Valores permitidos: ${allValid.join(", ")}` },
+        { status: 400 }
+      );
+    }
+
+    const existing = await db.crystalOrder.findUnique({ where: { id } });
+    if (!existing) {
+      return NextResponse.json({ error: "Pedido no encontrado" }, { status: 404 });
+    }
+
+    const updated = await db.crystalOrder.update({
+      where: { id },
+      data: { status, updatedAt: new Date() },
+    });
+
+    // Revalidate pages that display order data
+    revalidatePath('/', 'layout');
+    revalidatePath('/tienda');
+
+    return NextResponse.json({ success: true, order: updated });
+  } catch (error) {
+    console.error("[Admin Orders] Error updating order:", error);
+    return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
+  }
+}
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    await ensureSchema();
+
+    const { id } = await params;
+
+    const existing = await db.crystalOrder.findUnique({ where: { id } });
+    if (!existing) {
+      return NextResponse.json({ error: "Pedido no encontrado" }, { status: 404 });
+    }
+
+    await db.crystalOrder.delete({ where: { id } });
+
+    // Revalidate after delete
+    revalidatePath('/', 'layout');
+    revalidatePath('/tienda');
+
+    return NextResponse.json({ success: true, message: "Pedido eliminado correctamente" });
+  } catch (error) {
+    console.error("[Admin Orders] Error deleting order:", error);
+    return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
+  }
+}

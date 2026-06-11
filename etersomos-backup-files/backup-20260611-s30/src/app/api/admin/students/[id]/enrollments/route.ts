@@ -1,0 +1,65 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { createEnrollment } from '@/lib/student-auth'
+import { db, ensureSchema } from '@/lib/db'
+
+export const dynamic = 'force-dynamic'
+
+// POST /api/admin/students/[id]/enrollments — assign course/reading to student
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id: studentId } = await params
+    const { type, referenceId, title, status, notes, r2Key, fileName, expiresAt } = await request.json()
+
+    if (!type || !title) {
+      return NextResponse.json({ error: 'Tipo y título son requeridos' }, { status: 400 })
+    }
+
+    const validTypes = ['curso', 'lectura', 'mentoria']
+    if (!validTypes.includes(type)) {
+      return NextResponse.json({ error: 'Tipo inválido. Usar: curso, lectura, mentoria' }, { status: 400 })
+    }
+
+    const enrollment = await createEnrollment({
+      studentId,
+      type,
+      referenceId: referenceId || '',
+      title,
+      status: status || 'activa',
+      assignedBy: 'admin',
+      notes: notes || '',
+      r2Key: r2Key || '',
+      fileName: fileName || '',
+      expiresAt: expiresAt || null,
+    })
+
+    // If it's a lectura with audio uploaded, send "lectura ready" email to the student
+    if (type === 'lectura' && r2Key) {
+      (async () => {
+        try {
+          await ensureSchema()
+          const student = await (db as any).student.findUnique({
+            where: { id: studentId },
+          })
+          if (student?.email) {
+            const { sendLecturaReadyEmail } = await import('@/lib/email')
+            await sendLecturaReadyEmail({
+              customerName: student.nombre || student.email,
+              customerEmail: student.email,
+              enrollmentTitle: title || 'Lectura Akashica',
+            })
+          }
+        } catch (emailErr) {
+          console.error('[Admin Enrollment POST] Failed to send lectura ready email:', emailErr)
+        }
+      })()
+    }
+
+    return NextResponse.json({ success: true, enrollment })
+  } catch (error) {
+    console.error('[Admin Enrollment POST Error]', error)
+    return NextResponse.json({ error: 'Error interno' }, { status: 500 })
+  }
+}

@@ -1,6 +1,6 @@
 # ETÉR SOMOS - Especificación Completa del Proyecto
 ## (Archivo de referencia CRÍTICO - NO BORRAR)
-## Última actualización: 2026-06-11 (sesión 30)
+## Última actualización: 2026-06-11 (sesión 29)
 
 Este documento describe TODO el estado actual, credenciales, estructura y requisitos del sitio web.
 **Siempre consultar antes de hacer cambios.**
@@ -311,7 +311,7 @@ curl -s -X POST "https://etersomos-iota.vercel.app/api/memberships/subscribe" \
 ### Base de datos:
 - **Motor:** Turso (libSQL) — configurado via DATABASE_URL en .env
 - **Proxy:** src/lib/db.ts tiene un proxy Prisma→Turso que traduce llamadas Prisma a SQL directo
-- **Tablas:** ReadingBooking, Membership, CrystalOrder, NewsletterSubscriber, Settings, SiteContent, Resource, CourseInterest, Student, StudentEnrollment, EnrollmentAttachment, CourseContent
+- **Tablas:** ReadingBooking, Membership, CrystalOrder, NewsletterSubscriber, Settings, SiteContent, Resource, CourseInterest, Student, StudentEnrollment, CourseContent
 - **Settings proxy especial:** createSettingsProxy() maneja key/value (form_toggles, pause_message)
 - **ensureSchema():** Crea tablas automáticamente si no existen (CREATE TABLE IF NOT EXISTS)
 - **Auto-migración:** Columnas nuevas se agregan con ALTER TABLE (ej: deliveryDate en ReadingBooking)
@@ -383,7 +383,7 @@ El admin panel está **en el mismo proyecto** que el sitio público bajo `/admin
 7. **Suscriptores** — Listado de suscriptores a recursos gratuitos, eliminar, exportar CSV
 8. **Contenido** — CMS: editor de textos, precios, productos, testimonios, FAQ (34 campos, 7 secciones)
 9. **Recursos** — Upload/download de archivos a Cloudflare R2, gestionar metadata, activar/desactivar
-10. **Alumnos** — Gestión de alumnos del Aula Virtual (lista, detalle, inscripciones con tabs de filtro: Pendientes/Entregadas/Cursos/Todas, crear, eliminar)
+10. **Alumnos** — Gestión de alumnos del Aula Virtual (lista, detalle, inscripciones, crear, eliminar)
 11. **Contenido Cursos** — Gestión de contenido de cursos (upload video/audio/PDF, playlist)
 
 ### Features del Admin:
@@ -740,7 +740,7 @@ Todos los emails usan el sistema de design tokens `BRAND` que replica la estéti
 - src/app/recursos/layout.tsx - Layout de recursos (metadata)
 - src/app/mentorias/page.tsx - Página Mentorías para Lectores de Registros Akáshicos (formulario)
 - src/app/mentorias/layout.tsx - Layout de mentorías (metadata)
-- src/app/admin/page.tsx - Panel admin completo (~3800 líneas): sidebar nav, dashboard, kanban, form toggles, recursos, alumnos, aula virtual, tabs de filtro inscripciones
+- src/app/admin/page.tsx - Panel admin completo (~3741 líneas): sidebar nav, dashboard, kanban, form toggles, recursos, alumnos, aula virtual
 - src/app/aula/page.tsx - Aula Virtual dashboard (~1164 líneas): sidebar nav, hero, cursos, lecturas, mentorías, perfil
 - src/app/aula/curso/[courseId]/page.tsx - Reproductor de curso (~604 líneas): video/audio/PDF, playlist, navegación
 - src/app/aula/login/page.tsx - Login aula virtual (~264 líneas): orbes animados, toggle password
@@ -793,7 +793,6 @@ Todos los emails usan el sistema de design tokens `BRAND` que replica la estéti
 - src/app/api/admin/students/[id]/enrollments/route.ts - POST asignar inscripción
 - src/app/api/admin/lectura-upload/route.ts - POST subir audio de lectura (direct S3 upload)
 - src/app/api/admin/enrollments/[id]/upload-audio/route.ts - POST/PUT/DELETE audio de inscripción
-- src/app/api/admin/enrollments/[id]/attachments/route.ts - GET/POST/DELETE archivos adjuntos de inscripción (PDF, imágenes, Word, TXT)
 - src/app/api/admin/cleanup-lecturas/route.ts - POST limpiar lecturas expiradas
 - src/app/api/admin/course-content/route.ts - GET/POST/PUT/DELETE contenido de cursos
 - src/app/api/admin/course-content/presign/route.ts - POST presigned URL para upload curso
@@ -1515,35 +1514,6 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
    - Sección activa con Framer Motion AnimatePresence para transiciones suaves
    - Header con breadcrumb dinámico (muestra grupo + sección activa)
    - Botón logout en sidebar
-
-### SESIÓN 30 (11/06/2026 — Adjuntos múltiples + Admin UI rediseño + Tabs filtro inscripciones)
-
-1. **Multi-file attachments para lectura enrollments** (commit cc4fed8):
-   - Nueva tabla `EnrollmentAttachment` en DB con campos: id, enrollmentId, r2Key, fileName, fileType, fileSize, mimeType, sortOrder, createdAt
-   - Nuevo endpoint `GET/POST/DELETE /api/admin/enrollments/[id]/attachments` para gestionar adjuntos
-   - Función `uploadLecturaAttachment()` en r2.ts — sube a prefijo `lecturas/adjuntos/`
-   - `getStudentEnrollments()` en student-auth.ts ahora devuelve attachments por enrollment
-   - `/api/student/stream` y `/api/student/download-lectura` verifican acceso tanto en audio principal como en attachments
-   - `/api/admin/cleanup-lecturas` ahora también elimina archivos adjuntos de R2 y DB
-   - Aula Virtual (aula/page.tsx): componente `AttachmentsSection` con previews de imágenes, links de descarga, íconos por tipo
-   - Admin: sección de adjuntos por enrollment con upload, lista, delete
-
-2. **Rediseño cards de lecturas en admin** (commit 761a017):
-   - Espaciado entre inscripciones: `space-y-2` → `space-y-5`
-   - Cada inscripción ahora es una card con borde colorado (violeta=lectura, azul=curso, dorado=mentoría)
-   - Header bar separado con ícono en cuadradito, título, badges agrupados a la derecha
-   - Body con más padding (`px-4 py-4`, `space-y-4` entre secciones)
-   - Sub-íconos en cuadraditos para "Audio de la lectura" y "Archivos adjuntos"
-   - Badge de adjuntos en el header de la inscripción
-
-3. **Tabs de filtro para inscripciones** (commit 75b5caa):
-   - Pestañas: Pendientes (amber), Entregadas (emerald), Cursos/Otras (blue), Todas (mystic)
-   - Filtrado: Pendientes = lectura sin r2Key, Entregadas = lectura con r2Key, Cursos = type !== lectura
-   - Pestañas con 0 elementos se ocultan automáticamente (excepto Todas)
-   - Al seleccionar alumno nuevo, resetea a "Pendientes"
-   - Cada tab muestra count con badge
-
-4. **Fix Vercel deploy** — git user corregido a `Gonzalo Paulero <etersomos@gmail.com>` para evitar bloqueo COMMIT_AUTHOR_REQUIRED. Deploy vía API con `target: production`
 
 ### SESIÓN 29 (11/06/2026 — Bug fixes + Email branding + PROJECT_SPEC update)
 1. **Fix: Alumnos existentes recibian credenciales de nuevo** — `ensureStudentWithEnrollment()` ya NO regenera password para alumnos existentes. `generatedPassword = null` para alumnos existentes. Solo se envía `sendAulaWelcomeEmail` cuando `generatedPassword && isNewStudent`.
