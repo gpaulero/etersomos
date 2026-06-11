@@ -54,6 +54,7 @@ import {
   Menu,
   LayoutDashboard,
   LogOut,
+  HardDrive,
 } from "lucide-react";
 import {
   Sheet,
@@ -756,6 +757,9 @@ export default function AdminPage() {
   const [uploadingLecturaAudio, setUploadingLecturaAudio] = useState(false);
   const [lecturaUploadStep, setLecturaUploadStep] = useState<string>(""); // progress message
 
+  // R2 Storage state
+  const [r2Stats, setR2Stats] = useState<{ totalSize: number; totalObjects: number; prefixes: { recursos: { size: number; count: number }; cursos: { size: number; count: number }; lecturas: { size: number; count: number } } } | null>(null);
+
   // Course Content state (aula virtual)
   const [courseContents, setCourseContents] = useState<any[]>([]);
   const [selectedCourseId, setSelectedCourseId] = useState<string>("");
@@ -855,6 +859,19 @@ export default function AdminPage() {
     }
   }, [authFetch]);
 
+  // ── R2 Storage ──
+  const fetchR2Stats = async () => {
+    try {
+      const res = await authFetch("/api/admin/r2-stats");
+      if (res.ok) {
+        const data = await res.json();
+        setR2Stats(data);
+      }
+    } catch {
+      console.error("[Admin] Failed to fetch R2 stats");
+    }
+  };
+
   useEffect(() => {
     if (authenticated) {
       fetchData();
@@ -862,6 +879,7 @@ export default function AdminPage() {
       fetchCmsContent();
       fetchResources();
       fetchStudents();
+      fetchR2Stats();
     }
   }, [authenticated, fetchData]);
 
@@ -1072,6 +1090,7 @@ export default function AdminPage() {
     setRefreshing(true);
     fetchData();
     fetchResources();
+    fetchR2Stats();
   };
 
   // ── Resources ──
@@ -1995,6 +2014,59 @@ export default function AdminPage() {
                   );
                 })}
               </div>
+
+              {/* R2 Storage indicator */}
+              <Card className="bg-mystic-900/40 border-mystic-700/40">
+                <CardHeader className="pb-2 pt-4 px-4">
+                  <CardTitle className="text-sm font-josefin text-gold-400/70 uppercase tracking-wider flex items-center gap-2">
+                    <HardDrive className="w-4 h-4" />
+                    Almacenamiento R2
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="px-4 pb-4">
+                  {r2Stats ? (() => {
+                    const R2_FREE_GB = 10; // Cloudflare R2 free tier
+                    const usedGB = r2Stats.totalSize / (1024 * 1024 * 1024);
+                    const pct = Math.min((usedGB / R2_FREE_GB) * 100, 100);
+                    const fmtSize = (bytes: number) => {
+                      if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+                      if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+                      return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+                    };
+                    const barColor = pct > 80 ? 'bg-red-500' : pct > 50 ? 'bg-amber-500' : 'bg-emerald-500';
+                    const textColor = pct > 80 ? 'text-red-400' : pct > 50 ? 'text-amber-400' : 'text-emerald-400';
+                    return (
+                      <div className="space-y-3">
+                        <div className="flex items-baseline justify-between">
+                          <span className={`font-playfair text-xl font-bold ${textColor}`}>{fmtSize(r2Stats.totalSize)}</span>
+                          <span className="text-mystic-500 text-xs font-josefin">de {R2_FREE_GB} GB</span>
+                        </div>
+                        <div className="w-full h-2 bg-mystic-800 rounded-full overflow-hidden">
+                          <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${pct}%` }} />
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 text-xs">
+                          {([
+                            ['Lecturas', r2Stats.prefixes.lecturas],
+                            ['Cursos', r2Stats.prefixes.cursos],
+                            ['Recursos', r2Stats.prefixes.recursos],
+                          ] as const).map(([label, { size, count }]) => (
+                            <div key={label} className="bg-mystic-800/60 rounded-lg p-2 text-center">
+                              <p className="text-cream-200 font-josefin font-medium">{label}</p>
+                              <p className="text-gold-400 font-playfair font-semibold mt-0.5">{fmtSize(size)}</p>
+                              <p className="text-mystic-500 mt-0.5">{count} archivo{count !== 1 ? 's' : ''}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })() : (
+                    <div className="flex items-center gap-2 text-mystic-500 text-xs font-josefin">
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      Cargando...
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
           )}
 

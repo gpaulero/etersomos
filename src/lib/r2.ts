@@ -171,6 +171,71 @@ export async function getPresignedLecturaUploadUrl(fileName: string, contentType
   return { url, key };
 }
 
+/* ── Storage statistics ── */
+
+export interface R2StorageStats {
+  totalSize: number;        // total bytes across all prefixes
+  totalObjects: number;
+  prefixes: {
+    recursos: { size: number; count: number };
+    cursos:   { size: number; count: number };
+    lecturas: { size: number; count: number };
+  };
+}
+
+/**
+ * Calculate storage usage across all prefixes in the R2 bucket.
+ * Lists all objects, sums their sizes, and groups by prefix.
+ * Handles pagination (up to 5000 objects per prefix).
+ */
+export async function getR2StorageStats(): Promise<R2StorageStats> {
+  const prefixes = ['recursos/', 'cursos/', 'lecturas/'] as const;
+  const result: R2StorageStats = {
+    totalSize: 0,
+    totalObjects: 0,
+    prefixes: {
+      recursos: { size: 0, count: 0 },
+      cursos:   { size: 0, count: 0 },
+      lecturas: { size: 0, count: 0 },
+    },
+  };
+
+  for (const prefix of prefixes) {
+    let continuationToken: string | undefined;
+    let size = 0;
+    let count = 0;
+
+    do {
+      const response = await r2Client.send(
+        new ListObjectsV2Command({
+          Bucket: BUCKET_NAME,
+          Prefix: prefix,
+          ContinuationToken: continuationToken,
+          MaxKeys: 1000,
+        })
+      );
+
+      for (const obj of response.Contents || []) {
+        if (obj.Key && obj.Key !== prefix && (obj.Size ?? 0) > 0) {
+          size += obj.Size!;
+          count++;
+        }
+      }
+
+      continuationToken = response.IsTruncated
+        ? response.NextContinuationToken
+        : undefined;
+    } while (continuationToken);
+
+    const key = prefix.replace('/', '') as 'recursos' | 'cursos' | 'lecturas';
+    result.prefixes[key] = { size, count };
+    result.totalSize += size;
+    result.totalObjects += count;
+  }
+
+  return result;
+}
+
 export async function uploadLecturaResource(file: File) {
   const timestamp = Date.now();
   const fileName = `${timestamp}-${file.name}`;

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { sendAdminNotification, sendCustomerConfirmation, sendAulaWelcomeEmail, sendAulaExistingStudentEmail } from "@/lib/email";
+import { sendAdminNotification, sendCustomerConfirmationWithCredentials, sendCustomerConfirmationExistingStudent } from "@/lib/email";
 import { ensureStudentWithEnrollment } from "@/lib/student-auth";
 
 type OrderType = "crystal_order" | "course_enrollment" | "mentoria_enrollment" | "reading" | "resource_purchase";
@@ -152,7 +152,8 @@ async function handleCrystalOrder(body: Record<string, unknown>) {
   });
 
   // Send emails (fire and forget, don't block response)
-  sendEmails({
+  // Crystal orders don't auto-enroll — no enrollmentType
+  sendEmailsAndEnroll({
     type: "crystal",
     customerName: order.customerName,
     customerEmail: order.customerEmail,
@@ -227,8 +228,8 @@ async function handleCourseEnrollment(body: Record<string, unknown>) {
     },
   });
 
-  // Send emails
-  sendEmails({
+  // Send admin email + auto-enroll + ONE combined customer email
+  sendEmailsAndEnroll({
     type: "course",
     customerName: order.customerName,
     customerEmail: order.customerEmail,
@@ -239,13 +240,6 @@ async function handleCourseEnrollment(body: Record<string, unknown>) {
     paymentId: order.paymentId,
     orderId: order.id,
     extraData: extraData || {},
-  });
-
-  // Auto-create student + enrollment in Aula Virtual
-  autoEnrollStudent({
-    name: customerName,
-    email: customerEmail,
-    phone: customerPhone,
     enrollmentType: 'curso',
     enrollmentTitle: items[0]?.name || 'Curso',
     referenceId: (extraData?.courseId as string) || items[0]?.id?.toString() || '',
@@ -306,8 +300,8 @@ async function handleMentoriaEnrollment(body: Record<string, unknown>) {
     },
   });
 
-  // Send emails
-  sendEmails({
+  // Send admin email + auto-enroll + ONE combined customer email
+  sendEmailsAndEnroll({
     type: "mentoria",
     customerName: order.customerName,
     customerEmail: order.customerEmail,
@@ -318,13 +312,6 @@ async function handleMentoriaEnrollment(body: Record<string, unknown>) {
     paymentId: order.paymentId,
     orderId: order.id,
     extraData: extraData || {},
-  });
-
-  // Auto-create student + enrollment in Aula Virtual
-  autoEnrollStudent({
-    name: customerName,
-    email: customerEmail,
-    phone: customerPhone,
     enrollmentType: 'mentoria',
     enrollmentTitle: items[0]?.name || 'Mentoría Akáshica',
   });
@@ -387,8 +374,8 @@ async function handleReadingOrder(body: Record<string, unknown>) {
     },
   });
 
-  // Send emails
-  sendEmails({
+  // Send admin email + auto-enroll + ONE combined customer email
+  sendEmailsAndEnroll({
     type: "reading",
     customerName: booking.name,
     customerEmail: booking.email,
@@ -399,13 +386,6 @@ async function handleReadingOrder(body: Record<string, unknown>) {
     paymentId: paymentId || null,
     orderId: booking.id,
     extraData: extraData || {},
-  });
-
-  // Auto-create student + enrollment in Aula Virtual
-  autoEnrollStudent({
-    name: customerName,
-    email: customerEmail,
-    phone: customerPhone,
     enrollmentType: 'lectura',
     enrollmentTitle: 'Lectura Akáshica Individual',
     referenceId: booking.id, // Each booking = unique enrollment
@@ -502,8 +482,8 @@ async function handleResourcePurchase(body: Record<string, unknown>) {
     ]
   );
 
-  // Send admin notification email (fire and forget)
-  sendEmails({
+  // Send admin email + customer confirmation (no enrollment for resources)
+  sendEmailsAndEnroll({
     type: "resource",
     customerName: customerName.trim(),
     customerEmail: customerEmail.trim().toLowerCase(),
@@ -538,81 +518,15 @@ async function handleResourcePurchase(body: Record<string, unknown>) {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   AUTO-ENROLL STUDENT HELPER (fire and forget)
+   COMBINED: Send admin email + auto-enroll + send ONE customer email
    When someone pays for a course, reading, or mentoría, automatically:
    1. Create a Student record (if not exists)
    2. Create a StudentEnrollment
-   3. Send welcome email with credentials (new students) or existing student notification (returning students)
+   3. Send admin notification email
+   4. Send ONE customer email (combined confirmation + credentials or existing student notice)
    ═══════════════════════════════════════════════════════════════════════ */
 
-function autoEnrollStudent(params: {
-  name: string;
-  email: string;
-  phone?: string;
-  enrollmentType: 'curso' | 'lectura' | 'mentoria';
-  enrollmentTitle: string;
-  referenceId?: string;
-  notes?: string;
-}): void {
-  // Fire and forget — never block the response
-  (async () => {
-    try {
-      const result = await ensureStudentWithEnrollment({
-        name: params.name,
-        email: params.email,
-        phone: params.phone,
-        enrollmentType: params.enrollmentType,
-        enrollmentTitle: params.enrollmentTitle,
-        referenceId: params.referenceId,
-        notes: params.notes,
-        assignedBy: 'auto-purchase',
-      });
-
-      console.log(
-        `[AutoEnroll] ${result.isNewStudent ? 'NEW' : 'EXISTING'} student ${result.studentId}, enrollment ${result.enrollmentId}, newEnrollment=${result.isNewEnrollment}, hasPassword=${!!result.generatedPassword}`
-      );
-
-      // Send welcome email with credentials ONLY for new students
-      if (result.generatedPassword && result.isNewStudent) {
-        try {
-          await sendAulaWelcomeEmail({
-            customerName: params.name,
-            customerEmail: params.email.trim().toLowerCase(),
-            password: result.generatedPassword,
-            enrollmentType: params.enrollmentType,
-            enrollmentTitle: params.enrollmentTitle,
-          });
-          console.log(`[AutoEnroll] Welcome email with credentials sent to ${params.email}`);
-        } catch (emailErr) {
-          console.error('[AutoEnroll] Welcome email failed:', (emailErr as Error).message);
-        }
-      }
-      // For existing students with a new enrollment, send a different email
-      else if (!result.isNewStudent && result.isNewEnrollment) {
-        try {
-          await sendAulaExistingStudentEmail({
-            customerName: params.name,
-            customerEmail: params.email.trim().toLowerCase(),
-            enrollmentType: params.enrollmentType,
-            enrollmentTitle: params.enrollmentTitle,
-          });
-          console.log(`[AutoEnroll] Existing student notification sent to ${params.email}`);
-        } catch (emailErr) {
-          console.error('[AutoEnroll] Existing student email failed:', (emailErr as Error).message);
-        }
-      }
-    } catch (err) {
-      // Log error but never fail the main order flow
-      console.error('[AutoEnroll] Failed:', err);
-    }
-  })();
-}
-
-/* ═══════════════════════════════════════════════════════════════════════
-   EMAIL SENDING HELPER
-   ═══════════════════════════════════════════════════════════════════════ */
-
-interface EmailPayload {
+interface EmailAndEnrollPayload {
   type: "crystal" | "course" | "mentoria" | "reading" | "resource";
   customerName: string;
   customerEmail: string;
@@ -623,11 +537,17 @@ interface EmailPayload {
   paymentId: string | null;
   orderId: string;
   extraData?: Record<string, unknown>;
+  // Enrollment params (optional — crystal/resource don't auto-enroll)
+  enrollmentType?: 'curso' | 'lectura' | 'mentoria';
+  enrollmentTitle?: string;
+  referenceId?: string;
+  notes?: string;
 }
 
-function sendEmails(payload: EmailPayload): void {
+function sendEmailsAndEnroll(payload: EmailAndEnrollPayload): void {
   // Fire and forget — never block the response
   (async () => {
+    // 1. Always send admin notification
     try {
       await sendAdminNotification({
         type: payload.type,
@@ -645,18 +565,83 @@ function sendEmails(payload: EmailPayload): void {
       console.error(`[Email] Failed to send admin notification for ${payload.type}:`, err);
     }
 
-    try {
-      await sendCustomerConfirmation({
-        customerName: payload.customerName,
-        customerEmail: payload.customerEmail,
-        type: payload.type,
-        items: payload.items,
-        total: payload.total,
-        paymentMethod: payload.paymentMethod,
-      });
-    } catch (err) {
-      console.error(`[Email] Failed to send customer confirmation for ${payload.type}:`, err);
-      // Customer email may fail if SMTP is not configured correctly
+    // 2. Auto-enroll + send combined customer email (for course/mentoria/reading)
+    if (payload.enrollmentType && payload.enrollmentTitle) {
+      try {
+        const result = await ensureStudentWithEnrollment({
+          name: payload.customerName,
+          email: payload.customerEmail,
+          phone: payload.customerPhone,
+          enrollmentType: payload.enrollmentType,
+          enrollmentTitle: payload.enrollmentTitle,
+          referenceId: payload.referenceId,
+          notes: payload.notes,
+          assignedBy: 'auto-purchase',
+        });
+
+        console.log(
+          `[AutoEnroll] ${result.isNewStudent ? 'NEW' : 'EXISTING'} student ${result.studentId}, enrollment ${result.enrollmentId}, newEnrollment=${result.isNewEnrollment}, hasPassword=${!!result.generatedPassword}`
+        );
+
+        // Send ONE combined email based on whether student is new or existing
+        if (result.generatedPassword && result.isNewStudent) {
+          await sendCustomerConfirmationWithCredentials({
+            customerName: payload.customerName,
+            customerEmail: payload.customerEmail.trim().toLowerCase(),
+            type: payload.type,
+            items: payload.items,
+            total: payload.total,
+            paymentMethod: payload.paymentMethod,
+            password: result.generatedPassword,
+            enrollmentType: payload.enrollmentType,
+            enrollmentTitle: payload.enrollmentTitle,
+          });
+          console.log(`[AutoEnroll] Combined confirmation+credentials sent to ${payload.customerEmail}`);
+        } else if (result.isNewEnrollment) {
+          await sendCustomerConfirmationExistingStudent({
+            customerName: payload.customerName,
+            customerEmail: payload.customerEmail.trim().toLowerCase(),
+            type: payload.type,
+            items: payload.items,
+            total: payload.total,
+            paymentMethod: payload.paymentMethod,
+            enrollmentType: payload.enrollmentType,
+            enrollmentTitle: payload.enrollmentTitle,
+          });
+          console.log(`[AutoEnroll] Combined confirmation+existing-student sent to ${payload.customerEmail}`);
+        } else {
+          // Duplicate enrollment — still send a confirmation
+          await sendCustomerConfirmationExistingStudent({
+            customerName: payload.customerName,
+            customerEmail: payload.customerEmail.trim().toLowerCase(),
+            type: payload.type,
+            items: payload.items,
+            total: payload.total,
+            paymentMethod: payload.paymentMethod,
+            enrollmentType: payload.enrollmentType,
+            enrollmentTitle: payload.enrollmentTitle,
+          });
+          console.log(`[AutoEnroll] Confirmation sent to ${payload.customerEmail} (duplicate enrollment)`);
+        }
+      } catch (err) {
+        console.error('[AutoEnroll] Failed:', err);
+      }
+    } else {
+      // 3. Crystal/resource — no enrollment, send simple confirmation
+      try {
+        await sendCustomerConfirmationExistingStudent({
+          customerName: payload.customerName,
+          customerEmail: payload.customerEmail.trim().toLowerCase(),
+          type: payload.type,
+          items: payload.items,
+          total: payload.total,
+          paymentMethod: payload.paymentMethod,
+          enrollmentType: payload.type === 'crystal' ? 'curso' : 'lectura', // doesn't matter, no credentials shown
+          enrollmentTitle: payload.items[0]?.name || 'Pedido',
+        });
+      } catch (err) {
+        console.error(`[Email] Failed to send customer confirmation for ${payload.type}:`, err);
+      }
     }
   })();
 }

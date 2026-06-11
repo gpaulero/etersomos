@@ -6,7 +6,7 @@ import {
   generateGoogleCalendarLink,
   calculateDeadline,
 } from "@/lib/notifications";
-import { sendAdminNotification, sendCustomerConfirmation, sendAulaWelcomeEmail, sendAulaExistingStudentEmail } from "@/lib/email";
+import { sendAdminNotification, sendCustomerConfirmationWithCredentials, sendCustomerConfirmationExistingStudent } from "@/lib/email";
 import { ensureStudentWithEnrollment } from "@/lib/student-auth";
 
 /* ── POST: Create a new booking + send notifications ──────────────────── */
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
       return { generatedPassword: null, isNewStudent: false, isNewEnrollment: false } as any;
     });
 
-    // ── Send all emails in parallel (non-blocking for response) ──
+    // ── Send emails in parallel (non-blocking for response) ──
     Promise.all([
       // 1. Admin notification
       sendAdminNotification({
@@ -106,36 +106,41 @@ export async function POST(request: NextRequest) {
         extraData: { formData: formDataSafe },
       }).catch(err => console.error("[Email] Admin notification failed:", err)),
 
-      // 2. Customer confirmation
-      sendCustomerConfirmation({
-        customerName: booking.name,
-        customerEmail: booking.email,
-        type: "reading",
-        items: [{ name: "Lectura del Campo Akáshico", quantity: 1, price: total }],
-        total,
-        paymentMethod: method,
-      }).catch(err => console.error("[Email] Customer confirmation failed:", err)),
-
-      // 3. Aula Virtual credentials email (only for NEW students)
+      // 2. Combined customer email: confirmation + credentials OR confirmation + existing student notice
       enrollResult.generatedPassword && enrollResult.isNewStudent
-        ? sendAulaWelcomeEmail({
+        ? sendCustomerConfirmationWithCredentials({
             customerName: booking.name,
             customerEmail: booking.email,
+            type: "reading",
+            items: [{ name: "Lectura del Campo Akáshico", quantity: 1, price: total }],
+            total,
+            paymentMethod: method,
             password: enrollResult.generatedPassword,
             enrollmentType: 'lectura',
             enrollmentTitle: 'Lectura Akáshica Individual',
-          }).catch(err => console.error("[Email] Aula welcome email failed:", err))
-        : Promise.resolve(),
-
-      // 4. Aula Virtual existing student email (for returning students with new enrollment)
-      enrollResult.generatedPassword === null && !enrollResult.isNewStudent && enrollResult.isNewEnrollment
-        ? sendAulaExistingStudentEmail({
-            customerName: booking.name,
-            customerEmail: booking.email,
-            enrollmentType: 'lectura',
-            enrollmentTitle: 'Lectura Akáshica Individual',
-          }).catch(err => console.error("[Email] Aula existing student email failed:", err))
-        : Promise.resolve(),
+          }).catch(err => console.error("[Email] Combined confirmation+credentials failed:", err))
+        : enrollResult.generatedPassword === null && !enrollResult.isNewStudent && enrollResult.isNewEnrollment
+          ? sendCustomerConfirmationExistingStudent({
+              customerName: booking.name,
+              customerEmail: booking.email,
+              type: "reading",
+              items: [{ name: "Lectura del Campo Akáshico", quantity: 1, price: total }],
+              total,
+              paymentMethod: method,
+              enrollmentType: 'lectura',
+              enrollmentTitle: 'Lectura Akáshica Individual',
+            }).catch(err => console.error("[Email] Combined confirmation+existing-student failed:", err))
+          // Fallback: for crystal orders or cases without enrollment, send simple confirmation
+          : sendCustomerConfirmationExistingStudent({
+              customerName: booking.name,
+              customerEmail: booking.email,
+              type: "reading",
+              items: [{ name: "Lectura del Campo Akáshico", quantity: 1, price: total }],
+              total,
+              paymentMethod: method,
+              enrollmentType: 'lectura',
+              enrollmentTitle: 'Lectura Akáshica Individual',
+            }).catch(err => console.error("[Email] Confirmation failed:", err)),
     ]).catch(() => {}); // swallow top-level errors, already handled per-promise
 
     return NextResponse.json(

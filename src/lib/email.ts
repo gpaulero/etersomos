@@ -758,6 +758,195 @@ export async function sendAulaExistingStudentEmail(params: {
   console.log(`[Email] Aula existing student email sent to ${params.customerEmail}`);
 }
 
+/* ═══════════════════════════════════════════════════════════════════════
+   COMBINED EMAILS: Confirmation + Aula Virtual credentials in ONE email
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/**
+ * Combined email for NEW students: order confirmation + Aula Virtual credentials.
+ * Replaces the old flow of sending sendCustomerConfirmation + sendAulaWelcomeEmail separately.
+ */
+export async function sendCustomerConfirmationWithCredentials(params: {
+  customerName: string
+  customerEmail: string
+  type: OrderType
+  items: EmailItem[]
+  total: number
+  paymentMethod: string
+  password: string
+  enrollmentType: 'curso' | 'lectura' | 'mentoria'
+  enrollmentTitle: string
+}): Promise<void> {
+  const transporter = createTransporter();
+
+  const typeLabels: Record<OrderType, string> = {
+    crystal: "pedido",
+    course: "inscripcion",
+    mentoria: "inscripcion a mentoria",
+    reading: "solicitud de lectura",
+    resource: "contribucion",
+  };
+
+  const enrollLabel = {
+    curso: 'curso',
+    lectura: 'lectura',
+    mentoria: 'mentoria',
+  };
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://etersomos-iota.vercel.app';
+  const aulaUrl = `${baseUrl}/aula`;
+
+  // Build description based on type
+  const descriptions: Record<string, string> = {
+    course: `Tu inscripcion ha sido registrada exitosamente. Bienvenido/a a tu camino de aprendizaje. Te hemos creado una cuenta en el Aula Virtual para que accedas a tu contenido.`,
+    mentoria: `Tu inscripcion a las mentorias ha sido registrada exitosamente. Te acompanaremos en tu camino de profundizacion. Te hemos creado una cuenta en el Aula Virtual para que accedas a tu contenido.`,
+    reading: `Tu solicitud de lectura akashica ha sido registrada exitosamente. Te hemos creado una cuenta en el Aula Virtual, donde podras escuchar tu lectura cuando este lista.`,
+    crystal: `Tu pedido ha sido registrado exitosamente. Te contactaremos cuando tu pedido este listo para envio.`,
+    resource: `Gracias por tu contribucion voluntaria. Tu apoyo nos permite seguir creando y compartiendo contenido.`,
+  };
+
+  const itemsList = params.items
+    .map((item) => `<li style="padding: 4px 0; color: ${BRAND.text}; font-size: 14px;">${escapeHtml(item.name)} - <span style="color: ${BRAND.violet};">$${item.price.toLocaleString("es-AR")} ARS</span></li>`)
+    .join("");
+
+  const html = emailShell(`
+    ${headerBlock("CONFIRMACION Y ACCESO AL AULA VIRTUAL", "Eter Somos | Registros Akashicos")}
+    <div style="padding: 24px;">
+      <p style="margin: 0 0 16px; color: ${BRAND.text}; font-size: 15px; line-height: 1.6;">
+        Hola, <strong style="color: ${BRAND.violet};">${escapeHtml(params.customerName)}</strong>! ${descriptions[params.type]}
+      </p>
+      ${itemsList ? `
+      <div style="background: ${BRAND.cardInner}; border: 1px solid ${BRAND.borderLight}; border-radius: ${BRAND.radius}; padding: 16px; margin-bottom: 20px;">
+        ${sectionLabel("Detalle de tu " + typeLabels[params.type])}
+        <ul style="margin: 0; padding-left: 16px;">${itemsList}</ul>
+        <p style="margin: 12px 0 0; color: ${BRAND.violet}; font-weight: 700; font-size: 16px; text-align: right;">Total: $${params.total.toLocaleString("es-AR")} ARS</p>
+        <p style="margin: 4px 0 0; color: ${BRAND.muted}; font-size: 12px; text-align: right;">Pago: ${paymentLabel(params.paymentMethod)}</p>
+      </div>
+      ` : ""}
+    </div>
+    <div style="padding: 0 24px 24px;">
+      <h2 style="margin: 0 0 16px; font-family: ${BRAND.fontSerif}; color: ${BRAND.violet}; font-size: 18px; border-bottom: 1px solid ${BRAND.borderLight}; padding-bottom: 8px;">Tus datos de acceso al Aula Virtual</h2>
+      <div style="background: ${BRAND.cardInner}; border: 1px solid ${BRAND.borderAccent}; border-radius: ${BRAND.radius}; padding: 16px;">
+        <table style="width: 100%; font-size: 14px;">
+          <tr>
+            <td style="padding: 6px 0; color: ${BRAND.muted}; width: 30%;">Email:</td>
+            <td style="padding: 6px 0; color: ${BRAND.text}; font-weight: 600;">${escapeHtml(params.customerEmail)}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; color: ${BRAND.muted};">Contrasena:</td>
+            <td style="padding: 6px 0; color: ${BRAND.violet}; font-family: monospace; font-size: 16px; font-weight: 700; letter-spacing: 0.1em;">${escapeHtml(params.password)}</td>
+          </tr>
+        </table>
+        <p style="margin: 12px 0 0; color: ${BRAND.muted}; font-size: 12px;">Podes cambiar tu contrasena desde tu perfil en el Aula Virtual.</p>
+      </div>
+    </div>
+    ${ctaButton(aulaUrl, "Ingresar al Aula Virtual")}
+    <div style="padding: 0 24px 24px;">
+      <h2 style="margin: 0 0 12px; font-family: ${BRAND.fontSerif}; color: ${BRAND.violet}; font-size: 16px;">Que encontras en el Aula?</h2>
+      <ul style="margin: 0; padding-left: 20px;">
+        <li style="padding: 4px 0; color: ${BRAND.text}; font-size: 14px;">Acceso a tus cursos, lecturas y mentorias</li>
+        <li style="padding: 4px 0; color: ${BRAND.text}; font-size: 14px;">Material de estudio y contenido exclusivo</li>
+        <li style="padding: 4px 0; color: ${BRAND.text}; font-size: 14px;">Seguimiento de tu progreso</li>
+        <li style="padding: 4px 0; color: ${BRAND.text}; font-size: 14px;">Descarga de audios y documentos</li>
+      </ul>
+    </div>
+    ${footerBlock()}
+  `);
+
+  await transporter.sendMail({
+    from: `"Eter Somos" <${SMTP_USER}>`,
+    to: [params.customerEmail],
+    subject: `Eter Somos - Confirmacion de tu ${typeLabels[params.type]} + Acceso al Aula Virtual`,
+    html,
+  });
+
+  console.log(`[Email] Combined confirmation+credentials sent to ${params.customerEmail}`);
+}
+
+/**
+ * Combined email for EXISTING students: order confirmation + reminder about existing Aula Virtual account.
+ * Replaces the old flow of sending sendCustomerConfirmation + sendAulaExistingStudentEmail separately.
+ */
+export async function sendCustomerConfirmationExistingStudent(params: {
+  customerName: string
+  customerEmail: string
+  type: OrderType
+  items: EmailItem[]
+  total: number
+  paymentMethod: string
+  enrollmentType: 'curso' | 'lectura' | 'mentoria'
+  enrollmentTitle: string
+}): Promise<void> {
+  const transporter = createTransporter();
+
+  const typeLabels: Record<OrderType, string> = {
+    crystal: "pedido",
+    course: "inscripcion",
+    mentoria: "inscripcion a mentoria",
+    reading: "solicitud de lectura",
+    resource: "contribucion",
+  };
+
+  const enrollLabel = {
+    curso: 'curso',
+    lectura: 'lectura',
+    mentoria: 'mentoria',
+  };
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://etersomos-iota.vercel.app';
+  const aulaUrl = `${baseUrl}/aula`;
+
+  const descriptions: Record<string, string> = {
+    course: `Tu inscripcion ha sido registrada exitosamente. La nueva inscripcion ya esta disponible en tu cuenta del Aula Virtual.`,
+    mentoria: `Tu inscripcion a las mentorias ha sido registrada exitosamente. La nueva inscripcion ya esta disponible en tu cuenta del Aula Virtual.`,
+    reading: `Tu solicitud de lectura akashica ha sido registrada exitosamente. Cuando tu lectura este lista, vas a poder escucharla desde tu cuenta del Aula Virtual.`,
+    crystal: `Tu pedido ha sido registrado exitosamente. Te contactaremos cuando tu pedido este listo para envio.`,
+    resource: `Gracias por tu contribucion voluntaria. Tu apoyo nos permite seguir creando y compartiendo contenido.`,
+  };
+
+  const itemsList = params.items
+    .map((item) => `<li style="padding: 4px 0; color: ${BRAND.text}; font-size: 14px;">${escapeHtml(item.name)} - <span style="color: ${BRAND.violet};">$${item.price.toLocaleString("es-AR")} ARS</span></li>`)
+    .join("");
+
+  const html = emailShell(`
+    ${headerBlock("CONFIRMACION DE TU " + typeLabels[params.type].toUpperCase(), "Eter Somos | Registros Akashicos")}
+    <div style="padding: 24px;">
+      <p style="margin: 0 0 16px; color: ${BRAND.text}; font-size: 15px; line-height: 1.6;">
+        Hola, <strong style="color: ${BRAND.violet};">${escapeHtml(params.customerName)}</strong>! ${descriptions[params.type]}
+      </p>
+      ${itemsList ? `
+      <div style="background: ${BRAND.cardInner}; border: 1px solid ${BRAND.borderLight}; border-radius: ${BRAND.radius}; padding: 16px; margin-bottom: 20px;">
+        ${sectionLabel("Detalle de tu " + typeLabels[params.type])}
+        <ul style="margin: 0; padding-left: 16px;">${itemsList}</ul>
+        <p style="margin: 12px 0 0; color: ${BRAND.violet}; font-weight: 700; font-size: 16px; text-align: right;">Total: $${params.total.toLocaleString("es-AR")} ARS</p>
+        <p style="margin: 4px 0 0; color: ${BRAND.muted}; font-size: 12px; text-align: right;">Pago: ${paymentLabel(params.paymentMethod)}</p>
+      </div>
+      ` : ""}
+    </div>
+    <div style="padding: 0 24px 24px;">
+      <h2 style="margin: 0 0 16px; font-family: ${BRAND.fontSerif}; color: ${BRAND.violet}; font-size: 18px; border-bottom: 1px solid ${BRAND.borderLight}; padding-bottom: 8px;">Tu Aula Virtual</h2>
+      <div style="background: ${BRAND.cardInner}; border: 1px solid ${BRAND.borderAccent}; border-radius: ${BRAND.radius}; padding: 16px;">
+        ${sectionLabel("Nueva inscripcion")}
+        <p style="margin: 0 0 12px; color: ${BRAND.text}; font-size: 16px; font-weight: 600;">${escapeHtml(params.enrollmentTitle)}</p>
+        <p style="margin: 0; color: ${BRAND.muted}; font-size: 13px; line-height: 1.5;">
+          Ingresa al Aula Virtual con tu email y contrasena habitual para acceder a tu contenido. Si no recordas tu contrasena, podes restablecerla desde la pagina de login.
+        </p>
+      </div>
+    </div>
+    ${ctaButton(aulaUrl, "Ingresar al Aula Virtual")}
+    ${footerBlock()}
+  `);
+
+  await transporter.sendMail({
+    from: `"Eter Somos" <${SMTP_USER}>`,
+    to: [params.customerEmail],
+    subject: `Eter Somos - Confirmacion de tu ${typeLabels[params.type]}`,
+    html,
+  });
+
+  console.log(`[Email] Combined confirmation+existing-student sent to ${params.customerEmail}`);
+}
+
 /* ── HTML escape utility ──────────────────────────────────────────────── */
 
 function escapeHtml(text: string): string {
