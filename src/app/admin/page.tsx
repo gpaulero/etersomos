@@ -3412,145 +3412,167 @@ export default function AdminPage() {
                                       {enr.status}
                                     </Badge>
                                   </div>
-                                  {/* Lectura audio actions */}
+                                  {/* Lectura details - well separated sections */}
                                   {enr.type === "lectura" && (
-                                    <div className="mt-2 pt-2 border-t border-mystic-700/30 space-y-2">
-                                      {enr.r2Key ? (
-                                        <>
-                                          <div className="flex items-center gap-2 flex-wrap">
-                                            <span className="text-mystic-400 text-xs font-sans">Audio: {enr.fileName}</span>
-                                            {enr.expiresAt && (
-                                              <span className={`text-xs font-sans ${
-                                                new Date(enr.expiresAt).getTime() < Date.now()
-                                                  ? "text-red-400"
-                                                  : "text-amber-400"
-                                              }`}>
-                                                {new Date(enr.expiresAt).getTime() < Date.now()
-                                                  ? "Expirada"
-                                                  : `Expira: ${new Date(enr.expiresAt).toLocaleDateString("es-AR")}`}
-                                              </span>
+                                    <div className="mt-3 space-y-3">
+                                      {/* ── AUDIO SECTION ── */}
+                                      <div className="bg-violet-500/5 border border-violet-500/15 rounded-lg p-3">
+                                        <div className="flex items-center gap-1.5 mb-2.5">
+                                          <Headphones className="w-3.5 h-3.5 text-violet-400" />
+                                          <span className="text-violet-300 text-xs font-josefin uppercase tracking-wider">
+                                            Audio de la lectura
+                                          </span>
+                                        </div>
+                                        {enr.r2Key ? (
+                                          <div className="space-y-2">
+                                            <div className="flex items-center gap-2 bg-mystic-800/40 rounded-md px-3 py-2 border border-mystic-700/30">
+                                              <Headphones className="w-3.5 h-3.5 text-violet-400 shrink-0" />
+                                              <span className="text-mystic-200 text-xs font-sans truncate flex-1">{enr.fileName}</span>
+                                              <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-6 text-xs gap-1 shrink-0"
+                                                onClick={() => handleRemoveEnrollmentAudio(enr.id)}
+                                              >
+                                                <Trash2 className="w-3 h-3" /> Quitar
+                                              </Button>
+                                            </div>
+                                            {/* Expiration date editor */}
+                                            <div className="flex items-center gap-2">
+                                              <Clock className="w-3 h-3 text-mystic-500" />
+                                              <Input
+                                                type="date"
+                                                defaultValue={enr.expiresAt ? new Date(enr.expiresAt).toISOString().split('T')[0] : ""}
+                                                className="bg-mystic-800/40 border-mystic-700/40 text-cream-100 text-xs h-6 w-36"
+                                                min={new Date().toISOString().split('T')[0]}
+                                                onChange={(e) => {
+                                                  if (e.target.value) {
+                                                    handleUpdateEnrollmentExpiration(enr.id, e.target.value);
+                                                  }
+                                                }}
+                                              />
+                                              <span className="text-mystic-500 text-xs font-sans">Expiración</span>
+                                              {enr.expiresAt && (
+                                                <span className={`text-xs font-sans ${
+                                                  new Date(enr.expiresAt).getTime() < Date.now()
+                                                    ? "text-red-400"
+                                                    : "text-amber-400"
+                                                }`}>
+                                                  {new Date(enr.expiresAt).getTime() < Date.now()
+                                                    ? "(Expirada)"
+                                                    : `(${new Date(enr.expiresAt).toLocaleDateString("es-AR")})`}
+                                                </span>
+                                              )}
+                                            </div>
+                                          </div>
+                                        ) : (
+                                          <div className="space-y-2">
+                                            <div className="flex items-center gap-2">
+                                              <Input
+                                                type="file"
+                                                accept="audio/*,.mp3,.wav,.ogg,.m4a"
+                                                onChange={(e) => setLecturaAudioFile(e.target.files?.[0] || null)}
+                                                className="bg-mystic-800/40 border-mystic-700/40 text-cream-100 text-xs h-7 flex-1"
+                                                disabled={uploadingLecturaAudio}
+                                              />
+                                              <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="border-violet-400/30 text-violet-300 hover:bg-violet-400/10 h-7 text-xs gap-1 shrink-0"
+                                                disabled={uploadingLecturaAudio || !lecturaAudioFile}
+                                                onClick={() => handleUploadAudioToEnrollment(enr.id)}
+                                              >
+                                                {uploadingLecturaAudio ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
+                                                {uploadingLecturaAudio ? "Subiendo..." : "Subir audio"}
+                                              </Button>
+                                            </div>
+                                            {uploadingLecturaAudio && lecturaUploadStep && (
+                                              <p className="text-violet-300 text-xs flex items-center gap-1">
+                                                <Loader2 className="w-3 h-3 animate-spin" />
+                                                {lecturaUploadStep}
+                                              </p>
                                             )}
-                                            <Button
-                                              variant="ghost"
-                                              size="sm"
-                                              className="text-red-400 hover:text-red-300 h-6 text-xs"
-                                              onClick={() => handleRemoveEnrollmentAudio(enr.id)}
-                                            >
-                                              <Trash2 className="w-3 h-3 mr-1" /> Quitar audio
-                                            </Button>
+                                            <p className="text-mystic-600 text-[10px] font-sans">
+                                              MP3, WAV, OGG, M4A — máx 200 MB
+                                            </p>
                                           </div>
-                                          {/* Expiration date editor */}
+                                        )}
+                                      </div>
+
+                                      {/* ── ATTACHMENTS SECTION ── */}
+                                      <div className="bg-emerald-500/5 border border-emerald-500/15 rounded-lg p-3">
+                                        <div className="flex items-center gap-1.5 mb-2.5">
+                                          <Paperclip className="w-3.5 h-3.5 text-emerald-400" />
+                                          <span className="text-emerald-300 text-xs font-josefin uppercase tracking-wider">
+                                            Archivos adjuntos
+                                          </span>
+                                          {enrollmentAttachments[enr.id] && enrollmentAttachments[enr.id].length > 0 && (
+                                            <Badge variant="outline" className="text-[10px] h-4 px-1.5 border-emerald-500/30 text-emerald-300 ml-1">
+                                              {enrollmentAttachments[enr.id].length}
+                                            </Badge>
+                                          )}
+                                        </div>
+                                        {/* Existing attachments list */}
+                                        {enrollmentAttachments[enr.id] && enrollmentAttachments[enr.id].length > 0 && (
+                                          <div className="space-y-1.5 mb-3">
+                                            {enrollmentAttachments[enr.id].map((att: any) => (
+                                              <div key={att.id} className="flex items-center gap-2 bg-mystic-800/40 rounded-md px-3 py-2 border border-mystic-700/25">
+                                                {att.fileType === 'imagen' ? (
+                                                  <ImageIcon className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                                                ) : att.fileType === 'pdf' ? (
+                                                  <FileText className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                                                ) : (
+                                                  <FileText className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                                                )}
+                                                <span className="text-mystic-200 text-xs font-sans truncate flex-1">{att.fileName}</span>
+                                                <span className="text-mystic-600 text-[10px] font-sans shrink-0">
+                                                  {att.fileSize < 1024 * 1024
+                                                    ? `${(att.fileSize / 1024).toFixed(0)} KB`
+                                                    : `${(att.fileSize / (1024 * 1024)).toFixed(1)} MB`}
+                                                </span>
+                                                <Button
+                                                  variant="ghost"
+                                                  size="sm"
+                                                  className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-5 w-5 p-0 shrink-0"
+                                                  onClick={() => handleDeleteAttachment(enr.id, att.id)}
+                                                >
+                                                  <Trash2 className="w-3 h-3" />
+                                                </Button>
+                                              </div>
+                                            ))}
+                                          </div>
+                                        )}
+                                        {/* Upload new attachment */}
+                                        <div className="space-y-2">
                                           <div className="flex items-center gap-2">
-                                            <Clock className="w-3 h-3 text-mystic-500" />
-                                            <Input
-                                              type="date"
-                                              defaultValue={enr.expiresAt ? new Date(enr.expiresAt).toISOString().split('T')[0] : ""}
-                                              className="bg-mystic-800/40 border-mystic-700/40 text-cream-100 text-xs h-6 w-36"
-                                              min={new Date().toISOString().split('T')[0]}
-                                              onChange={(e) => {
-                                                if (e.target.value) {
-                                                  handleUpdateEnrollmentExpiration(enr.id, e.target.value);
-                                                }
-                                              }}
-                                            />
-                                            <span className="text-mystic-500 text-xs font-sans">Expiración</span>
-                                          </div>
-                                        </>
-                                      ) : (
-                                        <div className="space-y-2 w-full">
-                                          <div className="flex items-center gap-2 w-full">
                                             <Input
                                               type="file"
-                                              accept="audio/*,.mp3,.wav,.ogg,.m4a"
-                                              onChange={(e) => setLecturaAudioFile(e.target.files?.[0] || null)}
+                                              accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.svg,.doc,.docx,.txt,image/*,application/pdf"
+                                              onChange={(e) => setAttachmentFile(e.target.files?.[0] || null)}
                                               className="bg-mystic-800/40 border-mystic-700/40 text-cream-100 text-xs h-7 flex-1"
-                                              disabled={uploadingLecturaAudio}
+                                              disabled={uploadingAttachment}
                                             />
                                             <Button
                                               variant="outline"
                                               size="sm"
-                                              className="border-violet-400/30 text-violet-300 hover:bg-violet-400/10 h-7 text-xs gap-1"
-                                              disabled={uploadingLecturaAudio || !lecturaAudioFile}
-                                              onClick={() => handleUploadAudioToEnrollment(enr.id)}
+                                              className="border-emerald-400/30 text-emerald-300 hover:bg-emerald-400/10 h-7 text-xs gap-1 shrink-0"
+                                              disabled={uploadingAttachment || !attachmentFile}
+                                              onClick={() => handleUploadAttachment(enr.id)}
                                             >
-                                              {uploadingLecturaAudio ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
-                                              {uploadingLecturaAudio ? "Subiendo..." : "Subir audio"}
+                                              {uploadingAttachment ? <Loader2 className="w-3 h-3 animate-spin" /> : <Plus className="w-3 h-3" />}
+                                              {uploadingAttachment ? "Subiendo..." : "Adjuntar"}
                                             </Button>
                                           </div>
-                                          {uploadingLecturaAudio && lecturaUploadStep && (
-                                            <p className="text-violet-300 text-xs flex items-center gap-1">
-                                              <Loader2 className="w-3 h-3 animate-spin" />
-                                              {lecturaUploadStep}
+                                          {attachmentFile && (
+                                            <p className="text-emerald-300/70 text-[10px] font-sans">
+                                              {attachmentFile.name} — {(attachmentFile.size / (1024 * 1024)).toFixed(1)} MB
                                             </p>
                                           )}
+                                          <p className="text-mystic-600 text-[10px] font-sans">
+                                            PDF, imágenes (JPG, PNG, GIF, WebP), Word, TXT — máx 50 MB
+                                          </p>
                                         </div>
-                                      )}
-                                    </div>
-                                  )}
-                                  {/* Attachments section for lecturas */}
-                                  {enr.type === "lectura" && (
-                                    <div className="mt-2 pt-2 border-t border-mystic-700/30">
-                                      <div className="flex items-center gap-1.5 mb-2">
-                                        <Paperclip className="w-3.5 h-3.5 text-emerald-400" />
-                                        <span className="text-emerald-300 text-xs font-josefin uppercase tracking-wider">
-                                          Archivos adjuntos
-                                        </span>
                                       </div>
-                                      {/* Existing attachments list */}
-                                      {enrollmentAttachments[enr.id] && enrollmentAttachments[enr.id].length > 0 && (
-                                        <div className="space-y-1.5 mb-2">
-                                          {enrollmentAttachments[enr.id].map((att: any) => (
-                                            <div key={att.id} className="flex items-center gap-2 bg-mystic-800/30 rounded-md px-2.5 py-1.5 border border-mystic-700/20">
-                                              {att.fileType === 'imagen' ? (
-                                                <ImageIcon className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                                              ) : att.fileType === 'pdf' ? (
-                                                <FileText className="w-3.5 h-3.5 text-red-400 shrink-0" />
-                                              ) : (
-                                                <FileText className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                                              )}
-                                              <span className="text-mystic-300 text-xs font-sans truncate flex-1">{att.fileName}</span>
-                                              <span className="text-mystic-600 text-[10px] font-sans shrink-0">
-                                                {att.fileSize < 1024 * 1024
-                                                  ? `${(att.fileSize / 1024).toFixed(0)} KB`
-                                                  : `${(att.fileSize / (1024 * 1024)).toFixed(1)} MB`}
-                                              </span>
-                                              <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                className="text-red-400 hover:text-red-300 h-5 w-5 p-0 shrink-0"
-                                                onClick={() => handleDeleteAttachment(enr.id, att.id)}
-                                              >
-                                                <Trash2 className="w-3 h-3" />
-                                              </Button>
-                                            </div>
-                                          ))}
-                                        </div>
-                                      )}
-                                      {/* Upload new attachment */}
-                                      <div className="flex items-center gap-2">
-                                        <Input
-                                          type="file"
-                                          accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.svg,.doc,.docx,.txt,image/*,application/pdf"
-                                          onChange={(e) => setAttachmentFile(e.target.files?.[0] || null)}
-                                          className="bg-mystic-800/40 border-mystic-700/40 text-cream-100 text-xs h-7 flex-1"
-                                          disabled={uploadingAttachment}
-                                        />
-                                        <Button
-                                          variant="outline"
-                                          size="sm"
-                                          className="border-emerald-400/30 text-emerald-300 hover:bg-emerald-400/10 h-7 text-xs gap-1"
-                                          disabled={uploadingAttachment || !attachmentFile}
-                                          onClick={() => handleUploadAttachment(enr.id)}
-                                        >
-                                          {uploadingAttachment ? <Loader2 className="w-3 h-3 animate-spin" /> : <Plus className="w-3 h-3" />}
-                                          {uploadingAttachment ? "Subiendo..." : "Adjuntar"}
-                                        </Button>
-                                      </div>
-                                      {attachmentFile && (
-                                        <p className="text-emerald-300/70 text-[10px] font-sans mt-1">
-                                          {attachmentFile.name} — {(attachmentFile.size / (1024 * 1024)).toFixed(1)} MB
-                                        </p>
-                                      )}
                                     </div>
                                   )}
                                 </div>
