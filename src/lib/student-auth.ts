@@ -110,10 +110,28 @@ export async function createStudent(data: { email: string; password: string; nom
 
 export async function getStudentEnrollments(studentId: string) {
   await ensureSchema()
-  return (db as any).studentEnrollment.findMany({
+  const enrollments = await (db as any).studentEnrollment.findMany({
     where: { studentId },
     orderBy: { createdAt: 'desc' }
   })
+
+  // Fetch attachments for all enrollments
+  const enrollmentsWithAttachments = await Promise.all(
+    enrollments.map(async (enrollment: any) => {
+      try {
+        const attachments = await (db as any).enrollmentAttachment.findMany({
+          where: { enrollmentId: enrollment.id },
+          orderBy: { sortOrder: 'asc' },
+        })
+        return { ...enrollment, attachments }
+      } catch {
+        // Table might not exist yet during migration
+        return { ...enrollment, attachments: [] }
+      }
+    })
+  )
+
+  return enrollmentsWithAttachments
 }
 
 export async function createEnrollment(data: {

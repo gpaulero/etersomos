@@ -34,8 +34,30 @@ export async function POST(request: NextRequest) {
 
     for (const enrollment of expired) {
       try {
-        // Delete from R2
+        // Delete main audio from R2
         await deleteResource(enrollment.r2Key)
+
+        // Also delete all attachments from R2
+        try {
+          const attachments = await (db as any).enrollmentAttachment.findMany({
+            where: { enrollmentId: enrollment.id },
+          })
+          for (const attachment of attachments) {
+            try {
+              await deleteResource(attachment.r2Key)
+            } catch (e) {
+              console.warn(`[Cleanup] Failed to delete attachment R2 key ${attachment.r2Key}:`, e)
+            }
+            // Delete attachment record from DB
+            try {
+              await (db as any).enrollmentAttachment.delete({
+                where: { id: attachment.id },
+              })
+            } catch {}
+          }
+        } catch (e) {
+          console.warn(`[Cleanup] Failed to clean attachments for enrollment ${enrollment.id}:`, e)
+        }
 
         // Update enrollment: clear r2Key, mark as expirada
         await (db as any).studentEnrollment.update({

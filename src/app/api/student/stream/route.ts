@@ -41,11 +41,23 @@ export async function GET(request: NextRequest) {
     await ensureSchema()
 
     if (key.startsWith('lecturas/')) {
-      // For lecturas: verify the student has an enrollment with this r2Key
+      // For lecturas: verify the student has an enrollment with this r2Key OR an attachment with this r2Key
       const allEnrollments = await (db as any).studentEnrollment.findMany({
         where: { studentId: payload.id, type: 'lectura' }
       })
-      const enrollment = allEnrollments.find((e: any) => e.r2Key === key)
+
+      // Check main audio r2Key
+      let enrollment = allEnrollments.find((e: any) => e.r2Key === key)
+
+      // If not found in main audio, check attachments
+      if (!enrollment) {
+        const allAttachments = await (db as any).enrollmentAttachment.findMany({})
+        const attachment = allAttachments.find((a: any) => a.r2Key === key)
+        if (attachment) {
+          enrollment = allEnrollments.find((e: any) => e.id === attachment.enrollmentId)
+        }
+      }
+
       if (!enrollment) {
         return NextResponse.json({ error: 'No tenés acceso a esta lectura' }, { status: 403 })
       }

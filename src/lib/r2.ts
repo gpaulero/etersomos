@@ -260,3 +260,30 @@ export async function uploadLecturaResource(file: File) {
     lastModified: new Date().toISOString(),
   };
 }
+
+/* ── Lectura attachment upload helpers (lecturas/adjuntos/ prefix) ── */
+
+export async function uploadLecturaAttachment(file: File) {
+  const timestamp = Date.now();
+  const fileName = `${timestamp}-${file.name}`;
+  const key = `lecturas/adjuntos/${fileName}`;
+
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+
+  await r2Client.send(
+    new PutObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+      Body: buffer,
+      ContentType: file.type || 'application/octet-stream',
+    })
+  );
+
+  return {
+    key,
+    name: fileName,
+    size: buffer.length,
+    lastModified: new Date().toISOString(),
+  };
+}

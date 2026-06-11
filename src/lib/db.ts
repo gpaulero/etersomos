@@ -97,6 +97,7 @@ function createTursoDbProxy() {
       if (prop === 'student') return createModelProxy(client, 'Student')
       if (prop === 'studentEnrollment') return createModelProxy(client, 'StudentEnrollment')
       if (prop === 'courseContent') return createModelProxy(client, 'CourseContent')
+      if (prop === 'enrollmentAttachment') return createModelProxy(client, 'EnrollmentAttachment')
 
       // $transaction support
       if (prop === '$transaction') {
@@ -612,11 +613,27 @@ export async function ensureSchema() {
         createdAt    TEXT NOT NULL DEFAULT (datetime('now'))
       )
     `
+    // EnrollmentAttachment table (multiple files per enrollment: PDFs, images, etc.)
+    const enrollmentAttachmentSql = `
+      CREATE TABLE IF NOT EXISTS EnrollmentAttachment (
+        id           TEXT PRIMARY KEY,
+        enrollmentId TEXT NOT NULL,
+        r2Key        TEXT NOT NULL,
+        fileName     TEXT NOT NULL,
+        fileType     TEXT NOT NULL DEFAULT 'documento',
+        fileSize     INTEGER NOT NULL DEFAULT 0,
+        mimeType     TEXT NOT NULL DEFAULT '',
+        sortOrder    INTEGER NOT NULL DEFAULT 0,
+        createdAt    TEXT NOT NULL DEFAULT (datetime('now'))
+      )
+    `
+
     if (client) {
       await client.execute(siteContentSql)
       await client.execute(studentSql)
       await client.execute(studentEnrollmentSql)
       await client.execute(courseContentSql)
+      await client.execute(enrollmentAttachmentSql)
       try {
         await client.execute(`CREATE UNIQUE INDEX IF NOT EXISTS idx_sitecontent_key ON SiteContent(key)`)
       } catch {}
@@ -628,6 +645,9 @@ export async function ensureSchema() {
       } catch {}
       try {
         await client.execute(`CREATE INDEX IF NOT EXISTS idx_coursecontent_course ON CourseContent(courseId)`)
+      } catch {}
+      try {
+        await client.execute(`CREATE INDEX IF NOT EXISTS idx_attachment_enrollment ON EnrollmentAttachment(enrollmentId)`)
       } catch {}
       // Add r2Key and fileName columns to StudentEnrollment if missing (existing DBs)
       try {
@@ -663,6 +683,7 @@ export async function ensureSchema() {
       await prisma.$executeRawUnsafe(studentSql)
       await prisma.$executeRawUnsafe(studentEnrollmentSql)
       await prisma.$executeRawUnsafe(courseContentSql)
+      await prisma.$executeRawUnsafe(enrollmentAttachmentSql)
       // Add r2Key, fileName, expiresAt columns to StudentEnrollment if missing (existing local DBs)
       for (const col of [
         { name: 'r2Key', sql: `ALTER TABLE StudentEnrollment ADD COLUMN r2Key TEXT NOT NULL DEFAULT ''` },

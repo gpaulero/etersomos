@@ -33,6 +33,10 @@ import {
   X,
   ArrowRight,
   Moon,
+  FileText,
+  Image,
+  Paperclip,
+  ExternalLink,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -57,6 +61,18 @@ interface Student {
   phone?: string;
 }
 
+interface Attachment {
+  id: string;
+  enrollmentId: string;
+  r2Key: string;
+  fileName: string;
+  fileType: string; // 'pdf' | 'imagen' | 'documento'
+  fileSize: number;
+  mimeType: string;
+  sortOrder: number;
+  createdAt: string;
+}
+
 interface Enrollment {
   id: string;
   type: string;
@@ -69,6 +85,7 @@ interface Enrollment {
   fileName?: string;
   expiresAt?: string | null;
   createdAt: string;
+  attachments?: Attachment[];
 }
 
 /* ── Status & Type Config ── */
@@ -821,6 +838,111 @@ export default function AulaDashboard() {
   );
 }
 
+/* ── Attachment display helper ── */
+function getAttachmentIcon(fileType: string, mimeType: string) {
+  if (fileType === 'imagen' || mimeType.startsWith('image/')) return <Image className="w-4 h-4 text-emerald-400" />;
+  if (fileType === 'pdf' || mimeType === 'application/pdf') return <FileText className="w-4 h-4 text-red-400" />;
+  return <FileText className="w-4 h-4 text-blue-400" />;
+}
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+/* ── Attachments Section Component ── */
+function AttachmentsSection({
+  attachments,
+  isExpired,
+}: {
+  attachments: Attachment[];
+  isExpired: boolean;
+}) {
+  if (!attachments || attachments.length === 0) return null;
+
+  return (
+    <div className="mt-3">
+      <div className="flex items-center gap-1.5 mb-2">
+        <Paperclip className="w-3.5 h-3.5 text-violet-400" />
+        <span className="text-violet-300 text-xs font-sans uppercase tracking-wider">
+          Archivos adjuntos ({attachments.length})
+        </span>
+      </div>
+      <div className="space-y-2">
+        {attachments.map((att) => {
+          const streamUrl = `/api/student/stream?key=${encodeURIComponent(att.r2Key)}`;
+          const downloadUrl = `/api/student/download-lectura?key=${encodeURIComponent(att.r2Key)}`;
+          const isImage = att.fileType === 'imagen' || att.mimeType.startsWith('image/');
+
+          return (
+            <div
+              key={att.id}
+              className="bg-mystic-900/50 border border-mystic-700/30 rounded-lg p-3 flex items-start gap-3 group/att hover:border-violet-500/20 transition-colors"
+            >
+              {/* Icon / Preview */}
+              <div className="shrink-0">
+                {isImage && !isExpired ? (
+                  <div className="w-12 h-12 rounded-md overflow-hidden border border-mystic-700/40 bg-mystic-800/60">
+                    <img
+                      src={streamUrl}
+                      alt={att.fileName}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-12 h-12 rounded-md border border-mystic-700/40 bg-mystic-800/60 flex items-center justify-center">
+                    {getAttachmentIcon(att.fileType, att.mimeType)}
+                  </div>
+                )}
+              </div>
+
+              {/* File info */}
+              <div className="flex-1 min-w-0">
+                <p className="text-mystic-200 text-sm font-sans truncate">{att.fileName}</p>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className="text-mystic-500 text-xs font-sans">{formatFileSize(att.fileSize)}</span>
+                  <Badge variant="outline" className="text-[10px] h-4 px-1.5 border-mystic-700/40 text-mystic-400">
+                    {att.fileType === 'pdf' ? 'PDF' : att.fileType === 'imagen' ? 'Imagen' : 'Documento'}
+                  </Badge>
+                </div>
+              </div>
+
+              {/* Actions */}
+              {!isExpired ? (
+                <div className="flex items-center gap-1 shrink-0">
+                  {isImage && (
+                    <a
+                      href={streamUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-mystic-400 hover:text-violet-300 transition-colors p-1"
+                      title="Ver imagen"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  )}
+                  <a
+                    href={downloadUrl}
+                    download={att.fileName}
+                    className="text-mystic-400 hover:text-violet-300 transition-colors p-1"
+                    title="Descargar"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              ) : (
+                <span className="text-red-400/60 text-xs font-sans shrink-0">Expirado</span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 /* ── Lectura Card Component (Enhanced) ── */
 function LecturaCard({
   enrollment,
@@ -836,6 +958,7 @@ function LecturaCard({
   const isExpired = enrollment.expiresAt ? new Date(enrollment.expiresAt).getTime() < Date.now() : false;
   const timeInfo = enrollment.expiresAt ? getTimeRemaining(enrollment.expiresAt) : null;
   const isRecent = (Date.now() - new Date(enrollment.createdAt).getTime()) < 7 * 24 * 60 * 60 * 1000;
+  const hasAttachments = !!(enrollment.attachments && enrollment.attachments.length > 0);
 
   return (
     <Card className={`bg-mystic-900/60 backdrop-blur hover:border-violet-500/30 transition-all group ${
@@ -879,6 +1002,12 @@ function LecturaCard({
                   <Badge variant="outline" className="text-xs border-violet-400/30 text-violet-300 gap-1">
                     <Headphones className="w-3 h-3" />
                     Audio
+                  </Badge>
+                )}
+                {hasAttachments && !isExpired && (
+                  <Badge variant="outline" className="text-xs border-emerald-400/30 text-emerald-300 gap-1">
+                    <Paperclip className="w-3 h-3" />
+                    {enrollment.attachments!.length} {enrollment.attachments!.length === 1 ? 'adjunto' : 'adjuntos'}
                   </Badge>
                 )}
                 {timeInfo && !timeInfo.expired && (
@@ -941,6 +1070,11 @@ function LecturaCard({
                     <p className="text-mystic-500 text-xs font-sans">El audio de tu lectura estará disponible pronto</p>
                   </div>
                 )}
+                {/* Attachments section */}
+                <AttachmentsSection
+                  attachments={enrollment.attachments || []}
+                  isExpired={isExpired}
+                />
               </div>
             </motion.div>
           )}

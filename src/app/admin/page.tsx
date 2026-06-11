@@ -55,6 +55,8 @@ import {
   LayoutDashboard,
   LogOut,
   HardDrive,
+  Paperclip,
+  Image as ImageIcon,
 } from "lucide-react";
 import {
   Sheet,
@@ -756,6 +758,10 @@ export default function AdminPage() {
   const [lecturaAudioFile, setLecturaAudioFile] = useState<File | null>(null);
   const [uploadingLecturaAudio, setUploadingLecturaAudio] = useState(false);
   const [lecturaUploadStep, setLecturaUploadStep] = useState<string>(""); // progress message
+  // Attachment upload state
+  const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
+  const [uploadingAttachment, setUploadingAttachment] = useState(false);
+  const [enrollmentAttachments, setEnrollmentAttachments] = useState<Record<string, any[]>>({});
 
   // R2 Storage state
   const [r2Stats, setR2Stats] = useState<{ totalSize: number; totalObjects: number; prefixes: { recursos: { size: number; count: number }; cursos: { size: number; count: number }; lecturas: { size: number; count: number } } } | null>(null);
@@ -1140,11 +1146,36 @@ export default function AdminPage() {
   const handleSelectStudent = async (student: any) => {
     setSelectedStudent(student);
     setStudentEnrollments([]);
+    setEnrollmentAttachments({});
     try {
       const res = await authFetch(`/api/admin/students/${student.id}`);
       if (res.ok) {
         const data = await res.json();
-        setStudentEnrollments(data.enrollments || []);
+        const enrollments = data.enrollments || [];
+        setStudentEnrollments(enrollments);
+        // Load attachments for all lectura enrollments
+        const lecturaEnrollments = enrollments.filter((e: any) => e.type === "lectura");
+        const attachResults = await Promise.allSettled(
+          lecturaEnrollments.map(async (enr: any) => {
+            try {
+              const attRes = await authFetch(`/api/admin/enrollments/${enr.id}/attachments`);
+              if (attRes.ok) {
+                const attData = await attRes.json();
+                return { enrollmentId: enr.id, attachments: attData.attachments || [] };
+              }
+              return { enrollmentId: enr.id, attachments: [] };
+            } catch {
+              return { enrollmentId: enr.id, attachments: [] };
+            }
+          })
+        );
+        const attachMap: Record<string, any[]> = {};
+        attachResults.forEach((result) => {
+          if (result.status === 'fulfilled') {
+            attachMap[result.value.enrollmentId] = result.value.attachments;
+          }
+        });
+        setEnrollmentAttachments(attachMap);
       }
     } catch {
       toast.error("Error al cargar inscripciones");
@@ -1278,6 +1309,73 @@ export default function AdminPage() {
       }
     } catch {
       toast.error("Error al eliminar audio");
+    }
+  };
+
+  // Upload attachment to an enrollment
+  const handleUploadAttachment = async (enrollmentId: string) => {
+    if (!attachmentFile) {
+      toast.error("Seleccioná un archivo para adjuntar");
+      return;
+    }
+    setUploadingAttachment(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", attachmentFile);
+
+      const res = await authFetch(`/api/admin/enrollments/${enrollmentId}/attachments`, {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || "Error al subir adjunto");
+        return;
+      }
+
+      toast.success(`"${attachmentFile.name}" adjuntado correctamente`);
+      setAttachmentFile(null);
+      // Refresh attachments for this enrollment
+      await loadEnrollmentAttachments(enrollmentId);
+    } catch (err) {
+      console.error("[Admin] Error al subir adjunto:", err);
+      toast.error("Error al subir adjunto");
+    } finally {
+      setUploadingAttachment(false);
+    }
+  };
+
+  // Delete attachment from an enrollment
+  const handleDeleteAttachment = async (enrollmentId: string, attachmentId: string) => {
+    if (!confirm("¿Eliminar este archivo adjunto?")) return;
+    try {
+      const res = await authFetch(`/api/admin/enrollments/${enrollmentId}/attachments`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ attachmentId }),
+      });
+      if (res.ok) {
+        toast.success("Adjunto eliminado");
+        await loadEnrollmentAttachments(enrollmentId);
+      } else {
+        const data = await res.json();
+        toast.error(data.error || "Error al eliminar adjunto");
+      }
+    } catch {
+      toast.error("Error al eliminar adjunto");
+    }
+  };
+
+  // Load attachments for a specific enrollment
+  const loadEnrollmentAttachments = async (enrollmentId: string) => {
+    try {
+      const res = await authFetch(`/api/admin/enrollments/${enrollmentId}/attachments`);
+      if (res.ok) {
+        const data = await res.json();
+        setEnrollmentAttachments(prev => ({ ...prev, [enrollmentId]: data.attachments || [] }));
+      }
+    } catch {
+      // Silently fail - attachments will show as empty
     }
   };
 
@@ -3386,6 +3484,72 @@ export default function AdminPage() {
                                             </p>
                                           )}
                                         </div>
+                                      )}
+                                    </div>
+                                  )}
+                                  {/* Attachments section for lecturas */}
+                                  {enr.type === "lectura" && (
+                                    <div className="mt-2 pt-2 border-t border-mystic-700/30">
+                                      <div className="flex items-center gap-1.5 mb-2">
+                                        <Paperclip className="w-3.5 h-3.5 text-emerald-400" />
+                                        <span className="text-emerald-300 text-xs font-josefin uppercase tracking-wider">
+                                          Archivos adjuntos
+                                        </span>
+                                      </div>
+                                      {/* Existing attachments list */}
+                                      {enrollmentAttachments[enr.id] && enrollmentAttachments[enr.id].length > 0 && (
+                                        <div className="space-y-1.5 mb-2">
+                                          {enrollmentAttachments[enr.id].map((att: any) => (
+                                            <div key={att.id} className="flex items-center gap-2 bg-mystic-800/30 rounded-md px-2.5 py-1.5 border border-mystic-700/20">
+                                              {att.fileType === 'imagen' ? (
+                                                <ImageIcon className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                                              ) : att.fileType === 'pdf' ? (
+                                                <FileText className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                                              ) : (
+                                                <FileText className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                                              )}
+                                              <span className="text-mystic-300 text-xs font-sans truncate flex-1">{att.fileName}</span>
+                                              <span className="text-mystic-600 text-[10px] font-sans shrink-0">
+                                                {att.fileSize < 1024 * 1024
+                                                  ? `${(att.fileSize / 1024).toFixed(0)} KB`
+                                                  : `${(att.fileSize / (1024 * 1024)).toFixed(1)} MB`}
+                                              </span>
+                                              <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="text-red-400 hover:text-red-300 h-5 w-5 p-0 shrink-0"
+                                                onClick={() => handleDeleteAttachment(enr.id, att.id)}
+                                              >
+                                                <Trash2 className="w-3 h-3" />
+                                              </Button>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      )}
+                                      {/* Upload new attachment */}
+                                      <div className="flex items-center gap-2">
+                                        <Input
+                                          type="file"
+                                          accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.svg,.doc,.docx,.txt,image/*,application/pdf"
+                                          onChange={(e) => setAttachmentFile(e.target.files?.[0] || null)}
+                                          className="bg-mystic-800/40 border-mystic-700/40 text-cream-100 text-xs h-7 flex-1"
+                                          disabled={uploadingAttachment}
+                                        />
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          className="border-emerald-400/30 text-emerald-300 hover:bg-emerald-400/10 h-7 text-xs gap-1"
+                                          disabled={uploadingAttachment || !attachmentFile}
+                                          onClick={() => handleUploadAttachment(enr.id)}
+                                        >
+                                          {uploadingAttachment ? <Loader2 className="w-3 h-3 animate-spin" /> : <Plus className="w-3 h-3" />}
+                                          {uploadingAttachment ? "Subiendo..." : "Adjuntar"}
+                                        </Button>
+                                      </div>
+                                      {attachmentFile && (
+                                        <p className="text-emerald-300/70 text-[10px] font-sans mt-1">
+                                          {attachmentFile.name} — {(attachmentFile.size / (1024 * 1024)).toFixed(1)} MB
+                                        </p>
                                       )}
                                     </div>
                                   )}

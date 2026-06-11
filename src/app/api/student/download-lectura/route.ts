@@ -38,14 +38,27 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Ruta no permitida' }, { status: 400 })
     }
 
-    // 3. Find the enrollment with this r2Key and verify ownership
+    // 3. Find the enrollment with this r2Key (main audio or attachment) and verify ownership
     const { db } = await import('@/lib/db')
     await ensureSchema()
 
     const allEnrollments = await (db as any).studentEnrollment.findMany({
       where: { studentId: payload.id, type: 'lectura' }
     })
-    const enrollment = allEnrollments.find((e: any) => e.r2Key === key)
+
+    // Check main audio r2Key
+    let enrollment = allEnrollments.find((e: any) => e.r2Key === key)
+    let downloadFileName = ''
+
+    // If not found in main audio, check attachments
+    if (!enrollment) {
+      const allAttachments = await (db as any).enrollmentAttachment.findMany({})
+      const attachment = allAttachments.find((a: any) => a.r2Key === key)
+      if (attachment) {
+        enrollment = allEnrollments.find((e: any) => e.id === attachment.enrollmentId)
+        downloadFileName = attachment.fileName
+      }
+    }
 
     if (!enrollment) {
       return NextResponse.json({ error: 'No tenés acceso a esta lectura' }, { status: 403 })
@@ -66,7 +79,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Archivo no encontrado' }, { status: 404 })
     }
 
-    const fileName = enrollment.fileName || key.split('/').pop() || 'lectura.mp3'
+    const fileName = downloadFileName || enrollment.fileName || key.split('/').pop() || 'lectura.mp3'
     const contentType = result.ContentType || 'audio/mpeg'
 
     const responseHeaders: Record<string, string> = {
