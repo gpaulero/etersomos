@@ -606,7 +606,7 @@ export async function sendAulaWelcomeEmail(params: {
     mentoria: 'mentoria',
   };
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://etersomos-iota.vercel.app';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.etersomos.com';
   const aulaUrl = `${baseUrl}/aula`;
 
   const html = emailShell(`
@@ -672,7 +672,7 @@ export async function sendLecturaReadyEmail(params: {
 }): Promise<void> {
   const transporter = createTransporter();
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://etersomos-iota.vercel.app';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.etersomos.com';
   const aulaUrl = `${baseUrl}/aula`;
 
   const html = emailShell(`
@@ -725,7 +725,7 @@ export async function sendAulaExistingStudentEmail(params: {
     mentoria: 'mentoria',
   };
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://etersomos-iota.vercel.app';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.etersomos.com';
   const aulaUrl = `${baseUrl}/aula`;
 
   const html = emailShell(`
@@ -793,7 +793,7 @@ export async function sendCustomerConfirmationWithCredentials(params: {
     mentoria: 'mentoria',
   };
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://etersomos-iota.vercel.app';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.etersomos.com';
   const aulaUrl = `${baseUrl}/aula`;
 
   // Build description based on type
@@ -893,7 +893,7 @@ export async function sendCustomerConfirmationExistingStudent(params: {
     mentoria: 'mentoria',
   };
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://etersomos-iota.vercel.app';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.etersomos.com';
   const aulaUrl = `${baseUrl}/aula`;
 
   const descriptions: Record<string, string> = {

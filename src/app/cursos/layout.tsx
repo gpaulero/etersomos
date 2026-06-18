@@ -1,7 +1,32 @@
-"use client";
-
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { CoursesJsonLd, BreadcrumbJsonLd } from "@/components/json-ld";
+
+const SITE_URL = "https://www.etersomos.com";
+
+export const metadata: Metadata = {
+  title: "Cursos de Registros Akáshicos",
+  description:
+    "Formación completa en Registros Akáshicos: Nivel 1 Teórico (contribución voluntaria), Nivel 1 con Práctica ($35.000 ARS), Nivel 2 ($45.000 ARS) y pack de ambos cursos ($70.000 ARS). Con Fer Cardozo.",
+  alternates: {
+    canonical: `${SITE_URL}/cursos`,
+  },
+  openGraph: {
+    title: "Cursos de Registros Akáshicos | Eter Somos",
+    description:
+      "Formación en Registros Akáshicos: desde Nivel 1 hasta Nivel 2 con práctica incluida.",
+    url: `${SITE_URL}/cursos`,
+    type: "website",
+    locale: "es_AR",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Cursos de Registros Akáshicos | Eter Somos",
+    description:
+      "Formación completa en Registros Akáshicos con Fer Cardozo.",
+  },
+};
 
 export default function CursosLayout({
   children,
@@ -10,6 +35,13 @@ export default function CursosLayout({
 }) {
   return (
     <div className="min-h-screen bg-mystic-950">
+      <CoursesJsonLd />
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Inicio", url: SITE_URL },
+          { name: "Cursos", url: `${SITE_URL}/cursos` },
+        ]}
+      />
       {/* Top nav bar */}
       <header className="sticky top-0 z-50 backdrop-blur-xl bg-mystic-950/80 border-b border-mystic-700/30">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 flex items-center">

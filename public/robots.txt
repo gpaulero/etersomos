@@ -1,8 +1,17 @@
+# Eter Somos - robots.txt
+# https://www.etersomos.com
+
 User-agent: Googlebot
 Allow: /
+Disallow: /admin
+Disallow: /aula
+Disallow: /api/
 
 User-agent: Bingbot
 Allow: /
+Disallow: /admin
+Disallow: /aula
+Disallow: /api/
 
 User-agent: Twitterbot
 Allow: /
@@ -12,3 +21,8 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /aula
+Disallow: /api/
+
+Sitemap: https://www.etersomos.com/sitemap.xml

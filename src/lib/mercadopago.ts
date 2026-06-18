@@ -6,7 +6,7 @@
 
 const MERCADOPAGO_ACCESS_TOKEN =
   process.env.MERCADOPAGO_ACCESS_TOKEN || "";
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://etersomos-iota.vercel.app";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://www.etersomos.com";
 
 interface CartItemForPayment {
   id: number;

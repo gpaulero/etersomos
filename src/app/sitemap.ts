@@ -1,50 +1,76 @@
 import type { MetadataRoute } from "next";
 
-const BASE_URL = "https://etersomos-iota.vercel.app";
+const BASE_URL = "https://www.etersomos.com";
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  const now = new Date();
+
   return [
     {
       url: BASE_URL,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: "weekly",
-      priority: 1,
+      priority: 1.0,
     },
     {
-      url: `${BASE_URL}/membresias`,
-      lastModified: new Date(),
+      url: `${BASE_URL}/lecturas`,
+      lastModified: now,
       changeFrequency: "weekly",
       priority: 0.95,
     },
     {
-      url: `${BASE_URL}/lecturas`,
-      lastModified: new Date(),
+      url: `${BASE_URL}/cursos`,
+      lastModified: now,
       changeFrequency: "monthly",
       priority: 0.9,
     },
     {
       url: `${BASE_URL}/cursos/n1-teorico`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: "monthly",
-      priority: 0.8,
+      priority: 0.85,
     },
     {
       url: `${BASE_URL}/cursos/n1-practica`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: "monthly",
-      priority: 0.8,
+      priority: 0.85,
     },
     {
       url: `${BASE_URL}/cursos/n2`,
-      lastModified: new Date(),
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.85,
+    },
+    {
+      url: `${BASE_URL}/cursos/ambos`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.85,
+    },
+    {
+      url: `${BASE_URL}/membresias`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.85,
+    },
+    {
+      url: `${BASE_URL}/mentorias`,
+      lastModified: now,
       changeFrequency: "monthly",
       priority: 0.8,
     },
     {
-      url: `${BASE_URL}/cursos/ambos`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
+      url: `${BASE_URL}/tienda`,
+      lastModified: now,
+      changeFrequency: "weekly",
       priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/recursos`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.75,
     },
   ];
 }
