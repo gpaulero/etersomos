@@ -1,6 +1,6 @@
 # ETÉR SOMOS - Especificación Completa del Proyecto
 ## (Archivo de referencia CRÍTICO - NO BORRAR)
-## Última actualización: 2026-06-11 (sesión 30)
+## Última actualización: 2026-06-19 (sesión 31)
 
 Este documento describe TODO el estado actual, credenciales, estructura y requisitos del sitio web.
 **Siempre consultar antes de hacer cambios.**
@@ -15,13 +15,15 @@ Esto asegura que nunca se pierda trabajo entre sesiones.
 ---
 
 ## URL Producción
-https://etersomos-iota.vercel.app
+https://www.etersomos.com
 
 ## Proyecto Vercel
 - ID: prj_oW3VNypSr0K7xkv8dm0wBRQbXZGY
 - Org ID: team_LvzyzJEg1ssYCZ0GgvvVmZMH
 - Nombre: etersomos
-- Dominio: etersomos-iota.vercel.app (verificado)
+- Dominio principal: www.etersomos.com (verificado, 06/2026)
+- Dominio redirect: etersomos.com → 308 → www.etersomos.com
+- Dominio legacy: etersomos-iota.vercel.app (verificado, sigue funcionando)
 - GitHub Repo ID: 1217270869 (necesario para deploy via API)
 - Dashboard: https://vercel.com/gpauleros-projects/etersomos
 
@@ -1133,17 +1135,17 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 ## PENDIENTES / FUTUROS
 1. Configurar dominio custom en Resend para emails a cualquier destinatario
 2. ~~PayPal Live~~: NO requerido — se usa PayPal.me personal (paypal.me/registrosakashicos9)
-3. Optimizar SEO (meta descriptions, alt text en imágenes, Google Search Console)
+3. ~~Optimizar SEO (meta descriptions, alt text en imágenes, Google Search Console)~~ — HECHO (sesión 31)
 4. Posible blog/contenidos adicionales (mayor impacto en SEO orgánico)
 5. Auth robusta para admin panel (actualmente solo sessionStorage + password hardcodeada)
-6. Dominio custom para el sitio (etersomos.com u otro)
+6. ~~Dominio custom para el sitio (etersomos.com u otro)~~ — HECHO (sesión 31: www.etersomos.com)
 7. Notificaciones WhatsApp mejoradas (CallMeBot/Meta API)
-8. Google Business Profile (gratuito, ayuda al SEO local)
+8. ~~Google Business Profile (gratuito, ayuda al SEO local)~~ — PENDIENTE REGISTRO (sesión 31: JSON-LD listo, falta crear cuenta)
 9. ~~Configurar Cloudflare R2 para storage de archivos~~ — HECHO (sesión 18)
 10. Página de política de privacidad y términos
 11. Testimonios reales (reemplazar placeholders actuales)
 12. Ajuste de precios a rango de mercado
-13. Google Analytics / Search Console
+13. Google Analytics / Search Console — PENDIENTE REGISTRO (sesión 31: meta tags listos, falta crear propiedad en Google)
 14. ~~Construir página /recursos~~ — HECHO (sesión 18)
 15. Obtener token de Vercel con acceso al proyecto original (etersomos-gpauleros-projects.vercel.app) si se necesita
 16. ~~Verificar que todos los cambios del CMS persisten correctamente en producción~~ — PARCIALMENTE RESUELTO (sesión 24-25)
@@ -1152,7 +1154,7 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 19. **Corregir handleOpenAdmin()** en page.tsx para usar validación server-side en vez de client-side
 20. **Agregar toggle "mentorias"** a formLabels en index y admin (soporte de form pause)
 21. **Limpiar archivos innecesarios del repo**: `etersomos-backup-files/`, `skills/`, `upload/PROJECT_SPEC.md`, `Caddyfile`, `worklog.md`
-22. **Agregar navbar propio** a /mentorias (como tienen /recursos y /tienda)
+22. ~~Agregar navbar propio a /mentorias~~ — HECHO (sesión 31: layout con navbar + BreadcrumbJsonLd + MentoriaJsonLd)
 
 ---
 
@@ -1555,3 +1557,32 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 7. **Nuevas env vars: SMTP_USER, SMTP_APP_PASSWORD** — Total: 18 variables (antes 16).
 8. **Backup completo** — Archivos respaldados en `/home/z/my-project/etersomos-backups/2026-06-11/`.
 9. **AutoEnrollResult actualizado** — Nuevo campo `isNewEnrollment: boolean` para distinguir entre inscripciones nuevas vs duplicadas.
+
+### SESIÓN 31 (19/06/2026 — SEO Completo + Dominio etersomos.com + GEO)
+
+1. **Dominio custom configurado**: etersomos.com y www.etersomos.com ya estaban verificados en Vercel. Redirección 308 de etersomos.com → www.etersomos.com funcionando correctamente.
+
+2. **NEXT_PUBLIC_BASE_URL actualizado**: En Vercel de `etersomos.vercel.app` → `https://www.etersomos.com`. Fallbacks en mercadopago.ts, paypal.ts, email.ts actualizados.
+
+3. **SEO técnico implementado** (commit 87eeff5):
+   - **Root layout** (`layout.tsx`): metadata completa con title template `%s | Eter Somos`, description rica, keywords (17 términos), Open Graph (locale es_AR, siteName, images), Twitter Cards (summary_large_image), canonical URL, robots con googleBot config, authors, creator, publisher, category, dns-prefetch, preconnect
+   - **Todas las páginas** con meta tags SEO individuales: /lecturas, /cursos, /membresias, /tienda, /recursos, /mentorias, /aula, + 4 sub-páginas de cursos
+   - **Canonical URLs** en todas las páginas públicas apuntando a www.etersomos.com
+   - **Aula Virtual** con `robots: { index: false, follow: false }` (no indexar contenido privado)
+
+4. **Structured Data (JSON-LD)** — Nuevo componente `src/components/json-ld.tsx`:
+   - `LocalBusinessJsonLd`: LocalBusiness con geo (Córdoba -31.4201, -64.1888), dirección, teléfono, email, horarios, founder (Fer Cardozo), offerCatalog con servicios y cursos, sameAs (Instagram)
+   - `FAQJsonLd`: 6 preguntas frecuentes con respuestas detalladas
+   - `CoursesJsonLd`: ItemList con 4 cursos (Course schema con provider, url, offers)
+   - `LecturaJsonLd`: Service schema para lectura akáshica
+   - `MentoriaJsonLd`: Service schema con 2 offers (individual + pack)
+   - `BreadcrumbJsonLd`: Breadcrumbs en todas las páginas (Inicio > Sección > Sub-sección)
+   - `ProductJsonLd`: Reutilizable para cristales y productos
+
+5. **Sitemap actualizado** (`sitemap.ts`): 11 URLs con prioridades y frecuencias, todas apuntando a www.etersomos.com. Agregadas: /mentorias, /tienda, /recursos (antes faltaban).
+
+6. **Robots.txt mejorado**: Disallow /admin, /aula, /api/ para todos los bots. Sitemap apuntando a www.etersomos.com/sitemap.xml.
+
+7. **Navbar propio en /mentorias**: Layout actualizado con navbar "Volver a Inicio" + MentoriaJsonLd + BreadcrumbJsonLd (resuelve pendiente #22).
+
+8. **next.config.ts simplificado**: Eliminado `experimental.turbo.root` que apuntaba a directorio incorrecto.
