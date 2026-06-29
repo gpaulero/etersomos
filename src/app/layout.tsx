@@ -65,10 +65,10 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/logo.svg", type: "image/svg+xml" },
-      { url: "/images/logo-etersomos.jpg", type: "image/jpeg" },
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/images/logo-etersomos.jpg", type: "image/jpeg", sizes: "1772x1772" },
     ],
-    apple: "/images/logo-etersomos.jpg",
+    apple: "/images/apple-touch-icon.png",
   },
   openGraph: {
     type: "website",
