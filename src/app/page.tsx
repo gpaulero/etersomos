@@ -389,9 +389,10 @@ export default function Home() {
   const { cmsMap } = useSiteContent();
 
   // CMS-driven values with hardcoded fallbacks
-  const heroTitle = cmsValue(cmsMap, 'site.hero_title', "");
-  const heroSubtitle = cmsValue(cmsMap, 'site.hero_subtitle', "");
-  const heroTagline = cmsValue(cmsMap, 'site.hero_tagline', "Un espacio para vivir tu espiritualidad de forma cercana, humana y sobre todo desde la consciencia");
+  // SEO-optimized hero copy: incluye "Registros Akáshicos" como H1 principal
+  const heroTitle = cmsValue(cmsMap, 'site.hero_title', "Registros Akáshicos en Argentina");
+  const heroSubtitle = cmsValue(cmsMap, 'site.hero_subtitle', "Lecturas, Cursos y Cristales con Fer Cardozo · Desde Córdoba al mundo");
+  const heroTagline = cmsValue(cmsMap, 'site.hero_tagline', "Un espacio para vivir tu espiritualidad de forma cercana, humana y sobre todo desde la consciencia. Lecturas de Registros Akáshicos personalizadas en audio, cursos de formación y mentorías para tu camino espiritual.");
   const contactEmail = cmsValue(cmsMap, 'site.contact_email', "etersomos@gmail.com");
   const contactWhatsapp = cmsValue(cmsMap, 'site.contact_whatsapp', "+54 9 3518 62-9325");
   const contactWhatsappNumber = cmsValue(cmsMap, 'site.contact_whatsapp_number', "5493518629325");
@@ -1349,6 +1350,23 @@ export default function Home() {
                 />
               </div>
             </motion.div>
+
+            {/* H1 SEO principal — Registros Akáshicos (keyword target) */}
+            <motion.h1
+              variants={fadeInUp}
+              transition={{ duration: 0.8, delay: 0.15 }}
+              className="text-4xl sm:text-5xl md:text-6xl font-serif font-semibold text-foreground mb-3 leading-tight"
+            >
+              {heroTitle}
+            </motion.h1>
+
+            <motion.p
+              variants={fadeInUp}
+              transition={{ duration: 0.8, delay: 0.25 }}
+              className="text-lg sm:text-xl text-gold-300/90 max-w-2xl mx-auto mb-6 leading-relaxed font-sans"
+            >
+              {heroSubtitle}
+            </motion.p>
 
             <motion.p
               variants={fadeInUp}

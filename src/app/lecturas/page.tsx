@@ -313,8 +313,14 @@ export default function LecturasPage() {
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-gold-400 leading-tight mb-4">
-              ACUERDO DE LECTURA DEL CAMPO AKÁSHICO
+              Lectura de Registros Akáshicos Personalizada
             </h1>
+            <p className="text-foreground/70 text-sm sm:text-base max-w-2xl mx-auto mb-5 leading-relaxed">
+              Solicitá tu <strong className="text-foreground/90">lectura akáshica personalizada</strong> con Fer Cardozo.
+              Una lectura de Registros Akáshicos te conecta con la sabiduría de tu alma para responder
+              las preguntas más profundas de tu camino espiritual. Recibirás tu lectura grabada en audio,
+              disponible en el Aula Virtual, desde Córdoba hacia todo el mundo.
+            </p>
             <div className="flex flex-wrap items-center justify-center gap-3">
               <Badge variant="outline" className="border-gold-400/30 text-gold-300 bg-gold-400/5">
                 Argentina: {`$${readingsPriceArs.toLocaleString("es-AR")} ARS`}
@@ -334,7 +340,7 @@ export default function LecturasPage() {
                     <button className="flex items-center justify-between w-full text-left group">
                       <CardTitle className="text-gold-300 font-serif text-lg flex items-center gap-2">
                         <AlertTriangle className="size-4 text-gold-400" />
-                        Marco y Condiciones
+                        Acuerdo de Lectura Akáshica — Marco y Condiciones
                       </CardTitle>
                       <ChevronDown
                         className={`size-4 text-foreground/60 transition-transform duration-200 ${

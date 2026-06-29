@@ -142,9 +142,16 @@ export default function CursosPage() {
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif font-semibold text-foreground mb-4">
           Cursos de Registros Akáshicos
         </h1>
-        <p className="text-foreground/60 max-w-2xl mx-auto font-sans text-base sm:text-lg leading-relaxed">
+        <p className="text-foreground/70 max-w-2xl mx-auto font-sans text-base sm:text-lg leading-relaxed">
+          Formación completa en <strong className="text-foreground/90">Registros Akáshicos</strong> con Fer Cardozo.
+          Aprendé a conectar con el Campo Akáshico, acceder a la sabiduría de tu alma y realizar
+          lecturas akáshicas para vos mismo y para otros. Cursos con práctica individual,
+          desde Córdoba hacia todo el mundo hispanohablante.
+        </p>
+        <p className="text-foreground/50 max-w-2xl mx-auto font-sans text-sm sm:text-base leading-relaxed mt-3">
           Elegí la opción que mejor se adapte a tu camino de aprendizaje.
-          Todas las opciones incluyen material de estudio.
+          Todas las opciones incluyen material de estudio audiovisual, meditaciones guiadas
+          y acompañamiento personalizado de Fer Cardozo.
         </p>
       </div>
 
