@@ -1,6 +1,6 @@
 # ETÉR SOMOS - Especificación Completa del Proyecto
 ## (Archivo de referencia CRÍTICO - NO BORRAR)
-## Última actualización: 2026-06-29 (sesión 32)
+## Última actualización: 2026-06-19 (sesión 31)
 
 Este documento describe TODO el estado actual, credenciales, estructura y requisitos del sitio web.
 **Siempre consultar antes de hacer cambios.**
@@ -1145,7 +1145,7 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 10. Página de política de privacidad y términos
 11. Testimonios reales (reemplazar placeholders actuales)
 12. Ajuste de precios a rango de mercado
-13. ~~Google Analytics / Search Console~~ — Search Console VERIFICADO (sesión 32: propiedad sin-www verificada, sitemap enviado, indexación solicitada para /, /lecturas, /cursos). GA4 PENDIENTE CREAR CUENTA.
+13. Google Analytics / Search Console — PENDIENTE REGISTRO (sesión 31: meta tags listos, falta crear propiedad en Google)
 14. ~~Construir página /recursos~~ — HECHO (sesión 18)
 15. Obtener token de Vercel con acceso al proyecto original (etersomos-gpauleros-projects.vercel.app) si se necesita
 16. ~~Verificar que todos los cambios del CMS persisten correctamente en producción~~ — PARCIALMENTE RESUELTO (sesión 24-25)
@@ -1586,60 +1586,3 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 7. **Navbar propio en /mentorias**: Layout actualizado con navbar "Volver a Inicio" + MentoriaJsonLd + BreadcrumbJsonLd (resuelve pendiente #22).
 
 8. **next.config.ts simplificado**: Eliminado `experimental.turbo.root` que apuntaba a directorio incorrecto.
-
-### SESIÓN 32 (29/06/2026 — SEO Quick Wins + Favicon fix + Search Console)
-
-1. **H1 SEO agregado a la home** (`src/app/page.tsx`):
-   - **PROBLEMA**: La home NO tenía ningún `<h1>` visible — solo H2/H3. Error SEO grave.
-   - **FIX**: Agregado `<motion.h1>` con keyword principal: "Registros Akáshicos en Argentina".
-   - Subtítulo nuevo (gold-300): "Lecturas, Cursos y Cristales con Fer Cardozo · Desde Córdoba al mundo".
-   - Tagline enriquecida con "Lecturas de Registros Akáshicos personalizadas en audio, cursos de formación y mentorías para tu camino espiritual."
-   - `heroTitle` y `heroSubtitle` CMS defaults actualizados con keywords.
-
-2. **H1 + intro SEO en `/lecturas`** (`src/app/lecturas/page.tsx`):
-   - H1 anterior era "ACUERDO DE LECTURA DEL CAMPO AKÁSHICO" (genérico, no keyword).
-   - H1 nuevo: "Lectura de Registros Akáshicos Personalizada" (incluye keyword principal).
-   - Agregado párrafo intro SEO con long-tail: "lectura akáshica personalizada", "Campo Akáshico", contexto geográfico (Córdoba → mundo), formato (audio en Aula Virtual).
-   - CardTitle del Collapsible actualizado: "Acuerdo de Lectura Akáshica — Marco y Condiciones" (mantiene el acuerdo pero con keyword).
-
-3. **Intro SEO en `/cursos`** (`src/app/cursos/page.tsx`):
-   - H1 mantenido: "Cursos de Registros Akáshicos" (ya era correcto).
-   - Intro enriquecido: ahora 2 párrafos con keyword + long-tail ("Campo Akáshico", "lecturas akáshicas", "práctica individual", "mundo hispanohablante", "meditaciones guiadas", "acompañamiento personalizado de Fer Cardozo").
-
-4. **Favicon fix — eliminado logo Z.ai default** (CRÍTICO):
-   - **PROBLEMA**: `public/logo.svg` era el favicon default de Z.ai (letra Z dibujada en SVG con animación CSS `z-breathe`). Era visible en la pestaña del browser y dañaba la marca. Nunca debió quedar en el repo.
-   - **ELIMINADO**: `public/logo.svg` (1065 bytes).
-   - **CREADO**: `public/favicon.ico` — multi-resolución (16/32/48/64px) generado desde `logo-etersomos.jpg` con Pillow. 19KB.
-   - **CREADO**: `public/images/apple-touch-icon.png` — 180x180 PNG optimizado para iOS. 68KB.
-   - `src/app/layout.tsx` actualizado: `icons.icon[0]` ahora apunta a `/favicon.ico` (sizes: any) + JPG como fallback con tamaño explícito. `icons.apple` ahora usa `/images/apple-touch-icon.png` (estándar Apple).
-   - Script generador persistido en `/home/z/my-project/scripts/make_favicon.py`.
-
-5. **Google Search Console — configurado por el usuario**:
-   - Propiedad verificada: `etersomos.com` (sin www) — **PENDIENTE**: agregar también `www.etersomos.com` como propiedad separada.
-   - Sitemap enviado hace días (correcta, 11 URLs descubiertas).
-   - Indexación solicitada para: `/`, `/lecturas`, `/cursos` (post-cambios SEO S32).
-
-6. **GA4 — PENDIENTE**:
-   - El usuario aún no tiene Google Analytics 4 configurado.
-   - Próximo paso: crear cuenta en analytics.google.com → pasar Measurement ID `G-XXXXXXXXXX` → integrar en `layout.tsx`.
-
-7. **Dominio legacy `etersomos.ga`** (información, no código):
-   - Era un dominio gratuito Freenom que dejó de existir en 2023 cuando Freenom perdió la licencia de `.ga`.
-   - DNS no resuelve, HTTP/HTTPS fallan. No es recuperable ni redirigible.
-   - Google puede seguir mostrándolo indexado por un tiempo.
-   - **ACCIÓN USUARIO**: buscar `site:etersomos.ga` en Google, anotar URLs, pedir eliminación temporal en Search Console → "Eliminaciones temporales". En 6 meses Google lo desindexará definitivamente.
-
-8. **Commits de la sesión**:
-   - `11ac493` — feat(seo): S32 - H1 en home + keyword density en /lecturas y /cursos
-   - `84aea6c` — fix(seo): S32 - favicon correcto (eliminado logo Z.ai default)
-
-9. **Backup de sesión**: `etersomos-backup-files/backup-20260629-s32/` con 8 archivos (page.tsx, lecturas/page.tsx, cursos/page.tsx, layout.tsx, json-ld.tsx, favicon.ico, apple-touch-icon.png, PROJECT_SPEC-pre-s32.md).
-
-10. **Worklog actualizado** en `/home/z/my-project/worklog.md` (fuera del repo, en workspace principal).
-
-### PENDIENTES POST-SESIÓN 32 (lo que sigue):
-- Crear cuenta GA4 y pasar Measurement ID → integrar al sitio
-- Verificar propiedad `www.etersomos.com` en Search Console (aparte de la sin-www)
-- Desindexar `etersomos.ga` (acciones del usuario, ver punto 7)
-- Arrancar con **Blog SEO** (Opción B) — próximo paso grande para rankear "registros akáshicos"
-- **PENDIENTE CRÍTICO**: Rotar el GitHub PAT que el usuario pasó por chat (quedó expuesto).
