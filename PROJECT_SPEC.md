@@ -1,6 +1,6 @@
 # ETÉR SOMOS - Especificación Completa del Proyecto
 ## (Archivo de referencia CRÍTICO - NO BORRAR)
-## Última actualización: 2026-06-29 (sesión 32)
+## Última actualización: 2026-07-24 (sesión 33)
 
 Este documento describe TODO el estado actual, credenciales, estructura y requisitos del sitio web.
 **Siempre consultar antes de hacer cambios.**
@@ -1637,9 +1637,73 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 
 10. **Worklog actualizado** en `/home/z/my-project/worklog.md` (fuera del repo, en workspace principal).
 
-### PENDIENTES POST-SESIÓN 32 (lo que sigue):
+### SESIÓN 33 (23/07/2026 — 38 correcciones pendientes: Home + Lecturas + CMS + JSON-LD)
+
+**2 push pendientes que se perdieron al resetear el entorno — re-implementados completamente.**
+
+Commit: `778f20d` — 4 archivos, 135 insertions, 161 deletions.
+
+#### GRUPO 1 — Home page (`src/app/page.tsx`) — 16 cambios:
+
+1. **Hero logo achicado en desktop**: `md:w-52 md:h-52` (208px) → `md:w-44 md:h-44` (176px)
+2. **Hero padding**: Agregado `pt-24 sm:pt-20` al contenedor hero para compensar navbar
+3. **H1 visible eliminado del Hero**: Removido `<motion.h1>` con "Registros Akáshicos en Argentina" visible
+4. **Subtítulo visible eliminado del Hero**: Removido subtítulo "Lecturas, Cursos y Cristales con Fer Cardozo"
+5. **"Eter Somos" restaurado como `<motion.h2>`**: Título principal del Hero vuelve a ser brand name
+6. **H1 sr-only SEO**: Agregado `<h1 className="sr-only">` con keywords: "Registros Akáshicos en Argentina · Lecturas, Cursos y Cristales · Fer Cardozo · Córdoba"
+7. **Tagline corta restaurada**: "Lecturas de Registros Akáshicos personalizadas en audio, cursos y mentorías" (reemplaza tagline enriquecida S32)
+8. **Espacios card 4**: "Cristales" → "Tienda", descripción actualizada
+9. **FAQ pregunta 10**: Rewording de la pregunta (envíos/cristales)
+10. **FAQ respuesta 10**: Rewording de la respuesta correspondiente
+11. **Footer descripción**: Texto actualizado con nueva descripción del sitio
+12. **Footer texto legal**: Actualizado
+13. **Footer link "Mentorías"**: Agregado link a `/mentorias` en footer
+14. **Footer link "Aula"**: Agregado link a `/aula` en footer
+15. **cms-defaults sync**: 6 defaults actualizados en `src/lib/cms-defaults.ts` para reflejar cambios del Hero, Espacios, Footer
+16. **Precio lectura en home**: `$20.000 ARS` → `$18.000 ARS` en cms-defaults (`espacios.card1_price`)
+
+#### GRUPO 2 — Lecturas page (`src/app/lecturas/page.tsx`) — 22 cambios:
+
+17. **Paleta gold → violet**: Todos los `text-gold-400` migrados a `text-foreground` / `text-violet-400` / `text-violet-500` / `text-violet-600`
+18. **H1 color**: `text-gold-400` → `text-foreground`
+19. **Badges color**: `text-gold-400` → `text-foreground` / violet
+20. **Asteriscos obligatorios**: `text-gold-400` → `text-violet-500`
+21. **Stepper active step**: `text-gold-400` → `text-violet-500`
+22. **Inputs focus ring**: `focus:border-gold-400` → `focus:border-violet-500` + `focus:ring-violet-500`
+23. **Radio buttons selected**: `text-gold-400` → `text-violet-500`
+24. **Checkbox check color**: `text-gold-400` → `text-violet-500`
+25. **Campo "Estado civil"**: ELIMINADO del formulario
+26. **Campo "¿Tomás medicación?" general**: ELIMINADO (se mantiene solo el campo específico de medicación psiquiátrica)
+27. **Label Preguntas N° 1**: Rewording
+28. **Label Preguntas N° 2**: Rewording
+29. **Label "¿Cómo nos conociste?"**: Rewording
+30. **Label "Método de Pago"**: Rewording
+31. **Label "Nombre de quien te recomendó"**: Rewording
+32. **Label "terapia psicológica"**: Rewording
+33. **Label "terapia psiquiátrica / medicación"**: Rewording
+34. **Label "enfermedad crónica"**: Rewording
+35. **Help text "Contexto adicional"**: Agregado texto largo del Google Form como ayuda contextual
+36. **Checkbox texto y color**: Texto actualizado, `text-foreground/90` → `text-foreground`
+37. **Precio lectura ARS en lecturas page + cms-defaults**: `$20.000` → `$18.000` (USD $20 sin cambios)
+38. **Precio lectura en JSON-LD**: Actualizado en `src/components/json-ld.tsx` (2 lugares: `LecturaJsonLd` + `LocalBusinessJsonLd.offerCatalog`)
+
+#### Extra — Botón "Volver arriba" (floating):
+- Botón flotante que aparece al scrollear >600px
+- Ícono ArrowUp, estilo violet (bg-violet-600 hover:bg-violet-500)
+- Position: fixed bottom-right, z-50
+- Smooth scroll al top
+
+#### Archivos modificados:
+| Archivo | Cambios |
+|---------|---------|
+| `src/app/page.tsx` | Hero, Espacios, FAQ, Footer (items 1-14) |
+| `src/app/lecturas/page.tsx` | Paleta, campos, labels, precio, volver arriba (items 17-37 + extra) |
+| `src/lib/cms-defaults.ts` | 6 defaults + 2 precios (items 15-16, 37) |
+| `src/components/json-ld.tsx` | 2 precios JSON-LD (item 38) |
+
+### PENDIENTES POST-SESIÓN 33 (lo que sigue):
 - Crear cuenta GA4 y pasar Measurement ID → integrar al sitio
 - Verificar propiedad `www.etersomos.com` en Search Console (aparte de la sin-www)
-- Desindexar `etersomos.ga` (acciones del usuario, ver punto 7)
+- Desindexar `etersomos.ga` (acciones del usuario, ver punto 7 de S32)
 - Arrancar con **Blog SEO** (Opción B) — próximo paso grande para rankear "registros akáshicos"
-- **PENDIENTE CRÍTICO**: Rotar el GitHub PAT que el usuario pasó por chat (quedó expuesto).
+- **PENDIENTE CRÍTICO**: Rotar el GitHub PAT que el usuario pasó por chat (quedó expuesto)
