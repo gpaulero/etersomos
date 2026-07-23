@@ -322,9 +322,9 @@ const faqItems = [
       "No. Podés cancelar tu membresía en cualquier momento desde MercadoPago o PayPal. Sin preguntas, sin penalidades.",
   },
   {
-    question: "¿Hacen envíos de cristales a todo el país?",
+    question: "¿Hacen envíos a todo el país?",
     answer:
-      "Sí, enviamos cristales a toda Argentina. Cada pieza es seleccionada y empaquetada con cuidado y protección energética.",
+      "Sí, desde nuestra tienda realizamos envíos a todo el país para que recibas tu pedido de forma segura y confiable.",
   },
 ];
 
@@ -390,9 +390,9 @@ export default function Home() {
 
   // CMS-driven values with hardcoded fallbacks
   // SEO-optimized hero copy: incluye "Registros Akáshicos" como H1 principal
-  const heroTitle = cmsValue(cmsMap, 'site.hero_title', "Registros Akáshicos en Argentina");
-  const heroSubtitle = cmsValue(cmsMap, 'site.hero_subtitle', "Lecturas, Cursos y Cristales con Fer Cardozo · Desde Córdoba al mundo");
-  const heroTagline = cmsValue(cmsMap, 'site.hero_tagline', "Un espacio para vivir tu espiritualidad de forma cercana, humana y sobre todo desde la consciencia. Lecturas de Registros Akáshicos personalizadas en audio, cursos de formación y mentorías para tu camino espiritual.");
+  const heroTitle = cmsValue(cmsMap, 'site.hero_title', "Eter Somos");
+  const heroSubtitle = cmsValue(cmsMap, 'site.hero_subtitle', ""); // Eliminado subtítulo visible (SEO en H1 oculto)
+  const heroTagline = cmsValue(cmsMap, 'site.hero_tagline', "Un espacio para vivir tu espiritualidad de forma cercana, humana y sobre todo desde la consciencia");
   const contactEmail = cmsValue(cmsMap, 'site.contact_email', "etersomos@gmail.com");
   const contactWhatsapp = cmsValue(cmsMap, 'site.contact_whatsapp', "+54 9 3518 62-9325");
   const contactWhatsappNumber = cmsValue(cmsMap, 'site.contact_whatsapp_number', "5493518629325");
@@ -432,8 +432,8 @@ export default function Home() {
   const espaciosCard3Title = cmsValue(cmsMap, 'espacios.card3_title', 'Membresías');
   const espaciosCard3Desc = cmsValue(cmsMap, 'espacios.card3_desc', 'Contenido exclusivo mensual para tu expansión espiritual. Meditaciones, canalizaciones y activaciones.');
   const espaciosCard3Price = cmsValue(cmsMap, 'espacios.card3_price', 'Desde $5.000 ARS · US$5/mes');
-  const espaciosCard4Title = cmsValue(cmsMap, 'espacios.card4_title', 'Cristales');
-  const espaciosCard4Desc = cmsValue(cmsMap, 'espacios.card4_desc', 'Guardianes personales de energía. Cristales seleccionados intuitivamente y consagrados para acompañarte como aliados energéticos en tu camino.');
+  const espaciosCard4Title = cmsValue(cmsMap, 'espacios.card4_title', 'Tienda');
+  const espaciosCard4Desc = cmsValue(cmsMap, 'espacios.card4_desc', 'Cada pieza ha sido elegida por su energía, su significado y el valor que puede aportar a tu camino espiritual.');
   const espaciosCard4Price = cmsValue(cmsMap, 'espacios.card4_price', 'Solo envío en Argentina');
 
   // Sobre Fer extra labels
@@ -459,11 +459,11 @@ export default function Home() {
   const faqSectionSubtitle = cmsValue(cmsMap, 'faq_section.subtitle', 'Preguntas Frecuentes');
 
   // Footer
-  const footerDescription = cmsValue(cmsMap, 'footer.description', 'Lecturas, cursos y cristales para tu camino espiritual. Conexión con la sabiduría del alma.');
+  const footerDescription = cmsValue(cmsMap, 'footer.description', 'Lecturas, cursos y piezas consagradas para tu camino espiritual.');
   const footerNavTitle = cmsValue(cmsMap, 'footer.nav_title', 'Navegación');
   const footerContactTitle = cmsValue(cmsMap, 'footer.contact_title', 'Contacto');
   const footerLegalTitle = cmsValue(cmsMap, 'footer.legal_title', 'Legal');
-  const footerLegalText = cmsValue(cmsMap, 'footer.legal_text', 'Las lecturas akáshicas son una herramienta de autoconocimiento y crecimiento espiritual. No reemplazan ningún tratamiento médico o psicológico profesional.');
+  const footerLegalText = cmsValue(cmsMap, 'footer.legal_text', 'Las lecturas de Registros Akáshicas son una herramienta de autoconocimiento y crecimiento espiritual. No reemplazan ningún tratamiento médico o psicológico profesional.');
   const footerCopyright = cmsValue(cmsMap, 'footer.copyright', '© 2026 Eter Somos. Todos los derechos reservados.');
 
   // Booking dialog
@@ -1300,7 +1300,7 @@ export default function Home() {
       {/* ============================================================ */}
       <section
         id="inicio"
-        className="relative min-h-screen flex items-center justify-center overflow-hidden"
+        className="relative min-h-screen flex items-center justify-center overflow-hidden pt-24 sm:pt-20"
       >
         {/* Background Image */}
         <div
@@ -1342,7 +1342,7 @@ export default function Home() {
               variants={fadeInUp}
               transition={{ duration: 0.8 }}
             >
-              <div className="mx-auto mb-8 w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 rounded-full overflow-hidden animate-float shadow-2xl shadow-violet-900/20 relative ring-1 ring-violet-400/20">
+              <div className="mx-auto mb-8 w-36 h-36 sm:w-44 sm:h-44 md:w-44 md:h-44 rounded-full overflow-hidden animate-float shadow-2xl shadow-violet-900/20 relative ring-1 ring-violet-400/20">
                 <img
                   src="/images/logo-etersomos.jpg"
                   alt="Eter Somos"
@@ -1351,22 +1351,17 @@ export default function Home() {
               </div>
             </motion.div>
 
-            {/* H1 SEO principal — Registros Akáshicos (keyword target) */}
-            <motion.h1
+            {/* H1 SEO oculto (sr-only) — keywords para Google sin mostrar en UI */}
+            <h1 className="sr-only">Registros Akáshicos en Argentina — Lecturas, Cursos y Cristales con Fer Cardozo · Desde Córdoba al mundo</h1>
+
+            {/* Título visible como H2 */}
+            <motion.h2
               variants={fadeInUp}
               transition={{ duration: 0.8, delay: 0.15 }}
               className="text-4xl sm:text-5xl md:text-6xl font-serif font-semibold text-foreground mb-3 leading-tight"
             >
               {heroTitle}
-            </motion.h1>
-
-            <motion.p
-              variants={fadeInUp}
-              transition={{ duration: 0.8, delay: 0.25 }}
-              className="text-lg sm:text-xl text-gold-300/90 max-w-2xl mx-auto mb-6 leading-relaxed font-sans"
-            >
-              {heroSubtitle}
-            </motion.p>
+            </motion.h2>
 
             <motion.p
               variants={fadeInUp}
@@ -1722,6 +1717,14 @@ export default function Home() {
                   </Link>
                 </li>
                 <li>
+                  <Link
+                    href="/mentorias"
+                    className="text-foreground/40 hover:text-violet-400 transition-colors duration-300 text-sm font-sans"
+                  >
+                    {navLinkMentorias}
+                  </Link>
+                </li>
+                <li>
                   <button
                     onClick={() => scrollTo("#membresias")}
                     className="text-foreground/40 hover:text-violet-400 transition-colors duration-300 text-sm font-sans"
@@ -1743,6 +1746,14 @@ export default function Home() {
                     className="text-foreground/40 hover:text-violet-400 transition-colors duration-300 text-sm font-sans"
                   >
                     {navLinkTienda}
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/aula"
+                    className="text-foreground/40 hover:text-violet-400 transition-colors duration-300 text-sm font-sans"
+                  >
+                    {navLinkAula}
                   </Link>
                 </li>
               </ul>

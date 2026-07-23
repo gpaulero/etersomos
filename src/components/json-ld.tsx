@@ -67,7 +67,7 @@ export function LocalBusinessJsonLd() {
                 description:
                   "Lectura personalizada del Campo Akáshico con respuestas grabadas en audio a 2 preguntas de tu alma.",
               },
-              price: "20000",
+              price: "18000",
               priceCurrency: "ARS",
             },
           ],
@@ -404,7 +404,7 @@ export function LecturaJsonLd() {
     },
     offers: {
       "@type": "Offer",
-      price: "20000",
+      price: "18000",
       priceCurrency: "ARS",
       availability: "https://schema.org/InStock",
     },

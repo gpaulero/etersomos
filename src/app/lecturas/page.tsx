@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { toast, Toaster } from "sonner";
 import Link from "next/link";
-import { ArrowLeft, ChevronDown, Check, Loader2, Sparkles, AlertTriangle, CreditCard, Landmark, DollarSign, User, Heart, MessageCircle } from "lucide-react";
+import { ArrowLeft, ChevronDown, Check, Loader2, Sparkles, AlertTriangle, CreditCard, Landmark, DollarSign, User, Heart, MessageCircle, ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -53,6 +53,7 @@ export default function LecturasPage() {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const { cmsMap } = useSiteContent();
 
   const [formData, setFormData] = useState({
@@ -63,9 +64,7 @@ export default function LecturasPage() {
     nacionalidad: "",
     ciudadNacimiento: "",
     ciudadResidencia: "",
-    estadoCivil: "",
     enfermedadCronica: "",
-    medicacion: "",
     terapiaPsicologica: "",
     terapiaPsicologicaDuracion: "",
     terapiaPsiquiatrica: "",
@@ -78,6 +77,12 @@ export default function LecturasPage() {
     nombreRecomendo: "",
     paymentMethod: "" as PaymentMethod | "",
   });
+
+  useEffect(() => {
+    const handleScroll = () => setShowScrollTop(window.scrollY > 600);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     fetch(`/api/settings?t=${Date.now()}`, { cache: 'no-store' })
@@ -110,8 +115,8 @@ export default function LecturasPage() {
 
   // Progress stepper calculation
   const currentStep = useMemo(() => {
-    const personalFilled = !!(formData.email && formData.nombre && formData.fechaNacimiento && formData.nacionalidad && formData.ciudadNacimiento && formData.ciudadResidencia && formData.estadoCivil);
-    const healthFilled = !!(formData.enfermedadCronica && formData.medicacion && formData.terapiaPsicologica && formData.terapiaPsiquiatrica && formData.medicacionPsiquiatrica);
+    const personalFilled = !!(formData.email && formData.nombre && formData.fechaNacimiento && formData.nacionalidad && formData.ciudadNacimiento && formData.ciudadResidencia);
+    const healthFilled = !!(formData.enfermedadCronica && formData.terapiaPsicologica && formData.terapiaPsiquiatrica && formData.medicacionPsiquiatrica);
     const questionsFilled = !!(formData.pregunta1 && formData.pregunta2);
     const paymentFilled = !!formData.paymentMethod;
     if (paymentFilled) return 4;
@@ -144,9 +149,7 @@ export default function LecturasPage() {
     if (!formData.nacionalidad.trim()) e.nacionalidad = "Ingresá tu nacionalidad";
     if (!formData.ciudadNacimiento.trim()) e.ciudadNacimiento = "Ingresá tu ciudad de nacimiento";
     if (!formData.ciudadResidencia.trim()) e.ciudadResidencia = "Ingresá tu ciudad de residencia";
-    if (!formData.estadoCivil.trim()) e.estadoCivil = "Seleccioná tu estado civil";
     if (!formData.enfermedadCronica.trim()) e.enfermedadCronica = "Este campo es requerido";
-    if (!formData.medicacion.trim()) e.medicacion = "Seleccioná una opción";
     if (!formData.terapiaPsicologica.trim()) e.terapiaPsicologica = "Seleccioná una opción";
     if (formData.terapiaPsicologica === "Sí" && !formData.terapiaPsicologicaDuracion.trim())
       e.terapiaPsicologicaDuracion = "Indicá cuánto tiempo";
@@ -236,7 +239,7 @@ export default function LecturasPage() {
     }
   };
 
-  const readingsPriceArs = cmsNumber(cmsMap, 'readings.price_ars', 20000);
+  const readingsPriceArs = cmsNumber(cmsMap, 'readings.price_ars', 18000);
   const readingsPriceUsd = cmsNumber(cmsMap, 'readings.price_usd', 20);
 
   const paymentOptions: { value: PaymentMethod; label: string; price: string; icon: React.ReactNode; note?: string }[] = [
@@ -286,7 +289,7 @@ export default function LecturasPage() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 flex items-center">
           <Link
             href="/#lecturas"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-mystic-900/60 border border-mystic-700/40 text-foreground/70 hover:text-gold-400 hover:border-gold-400/30 transition-all text-sm font-medium group"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-mystic-900/60 border border-mystic-700/40 text-foreground/70 hover:text-violet-400 hover:border-violet-400/30 transition-all text-sm font-medium group"
           >
             <ArrowLeft className="size-4 group-hover:-translate-x-1 transition-transform" />
             Volver al inicio
@@ -307,12 +310,12 @@ export default function LecturasPage() {
           {/* Title */}
           <motion.div variants={fadeIn} className="text-center mb-8">
             <div className="inline-flex items-center gap-2 mb-4">
-              <Sparkles className="size-5 text-gold-400" />
-              <span className="text-gold-400/80 text-sm font-medium tracking-wider uppercase">
+              <Sparkles className="size-5 text-violet-400" />
+              <span className="text-violet-400/80 text-sm font-medium tracking-wider uppercase">
                 Registros Akáshicos
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-gold-400 leading-tight mb-4">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-foreground leading-tight mb-4">
               Lectura de Registros Akáshicos Personalizada
             </h1>
             <p className="text-foreground/70 text-sm sm:text-base max-w-2xl mx-auto mb-5 leading-relaxed">
@@ -322,10 +325,10 @@ export default function LecturasPage() {
               disponible en el Aula Virtual, desde Córdoba hacia todo el mundo.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3">
-              <Badge variant="outline" className="border-gold-400/30 text-gold-300 bg-gold-400/5">
+              <Badge variant="outline" className="border-violet-400/30 text-violet-300 bg-violet-400/5">
                 Argentina: {`$${readingsPriceArs.toLocaleString("es-AR")} ARS`}
               </Badge>
-              <Badge variant="outline" className="border-gold-400/30 text-gold-300 bg-gold-400/5">
+              <Badge variant="outline" className="border-violet-400/30 text-violet-300 bg-violet-400/5">
                 Internacional: {`US$${readingsPriceUsd}`}
               </Badge>
             </div>
@@ -338,8 +341,8 @@ export default function LecturasPage() {
                 <Collapsible open={agreementOpen} onOpenChange={setAgreementOpen}>
                   <CollapsibleTrigger asChild>
                     <button className="flex items-center justify-between w-full text-left group">
-                      <CardTitle className="text-gold-300 font-serif text-lg flex items-center gap-2">
-                        <AlertTriangle className="size-4 text-gold-400" />
+                      <CardTitle className="text-violet-300 font-serif text-lg flex items-center gap-2">
+                        <AlertTriangle className="size-4 text-violet-400" />
                         Acuerdo de Lectura Akáshica — Marco y Condiciones
                       </CardTitle>
                       <ChevronDown
@@ -355,8 +358,8 @@ export default function LecturasPage() {
                         Por favor tomate el tiempo de leer completo este acuerdo, es fundamental para que la Lectura se desarrolle en un marco de total armonía y comprensión.
                       </p>
 
-                      <div className="p-4 rounded-xl bg-gold-500/10 border border-gold-400/20">
-                        <p className="text-foreground/80 font-semibold mb-1 text-gold-300">NOTA IMPORTANTE:</p>
+                      <div className="p-4 rounded-xl bg-violet-500/10 border border-violet-400/20">
+                        <p className="text-foreground/80 font-semibold mb-1 text-violet-300">NOTA IMPORTANTE:</p>
                         <p>
                           Tu lectura estará disponible en el Aula Virtual dentro de la semana siguiente a la que completas este formulario. Vas a recibir un email con tus credenciales de acceso para ingresar y escuchar tu lectura cuando esté lista. Eventualmente puedo indicarte una fecha de entrega pasada esta semana, depende de la cantidad de solicitudes que hayan ingresado. Si estás solicitando tu lectura con urgencia o sentís que no podés esperar toda la semana siguiente, no completes este formulario. Por favor ten paciencia y disfrutá el proceso! 🙏🥰
                         </p>
@@ -421,19 +424,19 @@ export default function LecturasPage() {
                         <p className="font-semibold text-foreground/90 mb-2">Información adicional:</p>
                         <ul className="space-y-2">
                           <li className="flex items-start gap-2">
-                            <Check className="size-3.5 text-gold-400 shrink-0 mt-0.5" />
+                            <Check className="size-3.5 text-violet-400 shrink-0 mt-0.5" />
                             La lectura dura generalmente entre 30 o 40 minutos en audios.
                           </li>
                           <li className="flex items-start gap-2">
-                            <Check className="size-3.5 text-gold-400 shrink-0 mt-0.5" />
+                            <Check className="size-3.5 text-violet-400 shrink-0 mt-0.5" />
                             Si es necesario puede usar oráculos para complementar la lectura.
                           </li>
                           <li className="flex items-start gap-2">
-                            <Check className="size-3.5 text-gold-400 shrink-0 mt-0.5" />
+                            <Check className="size-3.5 text-violet-400 shrink-0 mt-0.5" />
                             Una foto del consultante es útil (podés enviarla por WhatsApp) — se elimina al finalizar la lectura.
                           </li>
                           <li className="flex items-start gap-2">
-                            <Check className="size-3.5 text-gold-400 shrink-0 mt-0.5" />
+                            <Check className="size-3.5 text-violet-400 shrink-0 mt-0.5" />
                             Excepcionalmente podría solicitar una videollamada de 30 min para transmitir información que no pueda ir en audio.
                           </li>
                         </ul>
@@ -445,23 +448,23 @@ export default function LecturasPage() {
                         <p className="font-semibold text-foreground/90 mb-2">Condiciones:</p>
                         <ul className="space-y-2">
                           <li className="flex items-start gap-2">
-                            <Check className="size-3.5 text-gold-400 shrink-0 mt-0.5" />
+                            <Check className="size-3.5 text-violet-400 shrink-0 mt-0.5" />
                             Confidencialidad absoluta.
                           </li>
                           <li className="flex items-start gap-2">
-                            <Check className="size-3.5 text-gold-400 shrink-0 mt-0.5" />
+                            <Check className="size-3.5 text-violet-400 shrink-0 mt-0.5" />
                             No pretende reemplazar evaluación médica ni psicológica.
                           </li>
                           <li className="flex items-start gap-2">
-                            <Check className="size-3.5 text-gold-400 shrink-0 mt-0.5" />
+                            <Check className="size-3.5 text-violet-400 shrink-0 mt-0.5" />
                             No hay reembolsos.
                           </li>
                           <li className="flex items-start gap-2">
-                            <Check className="size-3.5 text-gold-400 shrink-0 mt-0.5" />
+                            <Check className="size-3.5 text-violet-400 shrink-0 mt-0.5" />
                             El consultante debe ser mayor de 18 años.
                           </li>
                           <li className="flex items-start gap-2">
-                            <Check className="size-3.5 text-gold-400 shrink-0 mt-0.5" />
+                            <Check className="size-3.5 text-violet-400 shrink-0 mt-0.5" />
                             Fernanda se reserva el derecho de admisión.
                           </li>
                         </ul>
@@ -479,10 +482,10 @@ export default function LecturasPage() {
               <Checkbox
                 checked={termsAccepted}
                 onCheckedChange={(checked) => setTermsAccepted(checked === true)}
-                className="mt-0.5 data-[state=checked]:bg-gold-400 data-[state=checked]:border-gold-400 data-[state=checked]:text-mystic-950"
+                className="mt-0.5 data-[state=checked]:bg-foreground data-[state=checked]:border-foreground data-[state=checked]:text-mystic-950"
               />
-              <span className="text-sm text-foreground/70 leading-relaxed">
-                He leído, he comprendido y <strong className="text-foreground/90">acepto el marco y condiciones</strong> detallados arriba para la realización de la Lectura del Campo Akáshico. <span className="text-gold-400">*</span>
+              <span className="text-sm text-foreground leading-relaxed">
+                He leído, he comprendido y <strong className="text-foreground">acepto el marco y condiciones</strong> en que se realizará esta Lectura, expresado y detallado más arriba en el ACUERDO DE LECTURA DE REGISTROS AKÁSHICOS. <span className="text-violet-400">*</span>
               </span>
             </label>
           </motion.div>
@@ -506,22 +509,22 @@ export default function LecturasPage() {
                     <div key={i} className="flex flex-col items-center gap-1 flex-1">
                       <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
                         currentStep > i 
-                          ? "bg-gold-400 text-mystic-950" 
+                          ? "bg-violet-400 text-mystic-950" 
                           : currentStep === i 
-                            ? "bg-gold-400/20 text-gold-400 ring-1 ring-gold-400/40" 
+                            ? "bg-violet-400/20 text-violet-400 ring-1 ring-violet-400/40" 
                             : "bg-mystic-800/60 text-foreground/30"
                       }`}>
                         {currentStep > i ? <Check className="size-4" /> : <step.icon className="size-4 sm:size-5" />}
                       </div>
                       <span className={`text-[10px] sm:text-xs font-medium transition-colors ${
-                        currentStep >= i ? "text-gold-300" : "text-foreground/30"
+                        currentStep >= i ? "text-violet-300" : "text-foreground/30"
                       }`}>{step.label}</span>
                     </div>
                   ))}
                 </div>
                 <div className="h-1 rounded-full bg-mystic-800/60 overflow-hidden">
                   <motion.div 
-                    className="h-full bg-gold-400 rounded-full"
+                    className="h-full bg-violet-400 rounded-full"
                     initial={false}
                     animate={{ width: `${Math.max((currentStep / 4) * 100, 4)}%` }}
                     transition={{ duration: 0.5, ease: "easeInOut" }}
@@ -534,12 +537,12 @@ export default function LecturasPage() {
                   <div className="space-y-6">
                     {/* ---- DATOS PERSONALES ---- */}
                     <div>
-                      <h3 className="text-gold-300 font-serif text-lg mb-4">Datos Personales</h3>
+                      <h3 className="text-violet-300 font-serif text-lg mb-4">Datos Personales</h3>
                       <div className="space-y-4">
                         {/* Email */}
                         <div className="space-y-1.5">
                           <Label htmlFor="email" className="text-foreground/80 text-sm font-medium">
-                            Correo electrónico <span className="text-gold-400">*</span>
+                            Correo electrónico <span className="text-violet-400">*</span>
                           </Label>
                           <Input
                             id="email"
@@ -547,7 +550,7 @@ export default function LecturasPage() {
                             placeholder="Ej: maria@ejemplo.com"
                             value={formData.email}
                             onChange={(e) => updateField("email", e.target.value)}
-                            className={`bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 ${errors.email ? "border-red-400/60" : ""}`}
+                            className={`bg-mystic-900/50 border-mystic-700/40 focus:border-violet-400/60 text-foreground placeholder:text-foreground/30 ${errors.email ? "border-red-400/60" : ""}`}
                           />
                           {errors.email && <p className="text-red-400 text-xs">{errors.email}</p>}
                         </div>
@@ -555,14 +558,14 @@ export default function LecturasPage() {
                         {/* Nombre y apellido */}
                         <div className="space-y-1.5">
                           <Label htmlFor="nombre" className="text-foreground/80 text-sm font-medium">
-                            Nombre y apellido completo <span className="text-gold-400">*</span>
+                            Nombre y apellido completo <span className="text-violet-400">*</span>
                           </Label>
                           <Input
                             id="nombre"
                             placeholder="Ej: María González"
                             value={formData.nombre}
                             onChange={(e) => updateField("nombre", e.target.value)}
-                            className={`bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 ${errors.nombre ? "border-red-400/60" : ""}`}
+                            className={`bg-mystic-900/50 border-mystic-700/40 focus:border-violet-400/60 text-foreground placeholder:text-foreground/30 ${errors.nombre ? "border-red-400/60" : ""}`}
                           />
                           {errors.nombre && <p className="text-red-400 text-xs">{errors.nombre}</p>}
                         </div>
@@ -570,14 +573,14 @@ export default function LecturasPage() {
                         {/* Fecha de nacimiento */}
                         <div className="space-y-1.5">
                           <Label htmlFor="fechaNacimiento" className="text-foreground/80 text-sm font-medium">
-                            Fecha de nacimiento <span className="text-gold-400">*</span>
+                            Fecha de nacimiento <span className="text-violet-400">*</span>
                           </Label>
                           <Input
                             id="fechaNacimiento"
                             type="date"
                             value={formData.fechaNacimiento}
                             onChange={(e) => updateField("fechaNacimiento", e.target.value)}
-                            className={`bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground [color-scheme:dark] ${errors.fechaNacimiento ? "border-red-400/60" : ""}`}
+                            className={`bg-mystic-900/50 border-mystic-700/40 focus:border-violet-400/60 text-foreground [color-scheme:dark] ${errors.fechaNacimiento ? "border-red-400/60" : ""}`}
                           />
                           {errors.fechaNacimiento && <p className="text-red-400 text-xs">{errors.fechaNacimiento}</p>}
                         </div>
@@ -593,21 +596,21 @@ export default function LecturasPage() {
                             placeholder="Ej: 1155123456"
                             value={formData.telefono}
                             onChange={(e) => updateField("telefono", e.target.value)}
-                            className="bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30"
+                            className="bg-mystic-900/50 border-mystic-700/40 focus:border-violet-400/60 text-foreground placeholder:text-foreground/30"
                           />
                         </div>
 
                         {/* Nacionalidad */}
                         <div className="space-y-1.5">
                           <Label htmlFor="nacionalidad" className="text-foreground/80 text-sm font-medium">
-                            Nacionalidad <span className="text-gold-400">*</span>
+                            Nacionalidad <span className="text-violet-400">*</span>
                           </Label>
                           <Input
                             id="nacionalidad"
                             placeholder="Ej: Argentina"
                             value={formData.nacionalidad}
                             onChange={(e) => updateField("nacionalidad", e.target.value)}
-                            className={`bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 ${errors.nacionalidad ? "border-red-400/60" : ""}`}
+                            className={`bg-mystic-900/50 border-mystic-700/40 focus:border-violet-400/60 text-foreground placeholder:text-foreground/30 ${errors.nacionalidad ? "border-red-400/60" : ""}`}
                           />
                           {errors.nacionalidad && <p className="text-red-400 text-xs">{errors.nacionalidad}</p>}
                         </div>
@@ -615,14 +618,14 @@ export default function LecturasPage() {
                         {/* Ciudad de nacimiento */}
                         <div className="space-y-1.5">
                           <Label htmlFor="ciudadNacimiento" className="text-foreground/80 text-sm font-medium">
-                            Ciudad de nacimiento <span className="text-gold-400">*</span>
+                            Ciudad de nacimiento <span className="text-violet-400">*</span>
                           </Label>
                           <Input
                             id="ciudadNacimiento"
                             placeholder="Ej: Córdoba"
                             value={formData.ciudadNacimiento}
                             onChange={(e) => updateField("ciudadNacimiento", e.target.value)}
-                            className={`bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 ${errors.ciudadNacimiento ? "border-red-400/60" : ""}`}
+                            className={`bg-mystic-900/50 border-mystic-700/40 focus:border-violet-400/60 text-foreground placeholder:text-foreground/30 ${errors.ciudadNacimiento ? "border-red-400/60" : ""}`}
                           />
                           {errors.ciudadNacimiento && <p className="text-red-400 text-xs">{errors.ciudadNacimiento}</p>}
                         </div>
@@ -630,45 +633,18 @@ export default function LecturasPage() {
                         {/* Ciudad de residencia */}
                         <div className="space-y-1.5">
                           <Label htmlFor="ciudadResidencia" className="text-foreground/80 text-sm font-medium">
-                            Ciudad de residencia <span className="text-gold-400">*</span>
+                            Ciudad de residencia <span className="text-violet-400">*</span>
                           </Label>
                           <Input
                             id="ciudadResidencia"
                             placeholder="Ej: Buenos Aires"
                             value={formData.ciudadResidencia}
                             onChange={(e) => updateField("ciudadResidencia", e.target.value)}
-                            className={`bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 ${errors.ciudadResidencia ? "border-red-400/60" : ""}`}
+                            className={`bg-mystic-900/50 border-mystic-700/40 focus:border-violet-400/60 text-foreground placeholder:text-foreground/30 ${errors.ciudadResidencia ? "border-red-400/60" : ""}`}
                           />
                           {errors.ciudadResidencia && <p className="text-red-400 text-xs">{errors.ciudadResidencia}</p>}
                         </div>
 
-                        {/* Estado civil */}
-                        <div className="space-y-1.5">
-                          <Label className="text-foreground/80 text-sm font-medium">
-                            Estado civil actual <span className="text-gold-400">*</span>
-                          </Label>
-                          <RadioGroup
-                            value={formData.estadoCivil}
-                            onValueChange={(v) => updateField("estadoCivil", v)}
-                            className="flex flex-wrap gap-2"
-                          >
-                            {["Soltero/a", "Casado/a", "Divorciado/a", "Viudo/a", "En pareja", "Otro"].map((opt) => (
-                              <label
-                                key={opt}
-                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border cursor-pointer text-xs transition-all duration-200 ${
-                                  formData.estadoCivil === opt
-                                    ? "border-gold-400/60 bg-gold-400/10 text-gold-300"
-                                    : "border-mystic-700/40 text-foreground/60 hover:border-mystic-700/70"
-                                }`}
-                              >
-                                <RadioGroupItem value={opt} className="sr-only" />
-                                {formData.estadoCivil === opt && <Check className="size-3" />}
-                                {opt}
-                              </label>
-                            ))}
-                          </RadioGroup>
-                          {errors.estadoCivil && <p className="text-red-400 text-xs">{errors.estadoCivil}</p>}
-                        </div>
                       </div>
                     </div>
 
@@ -676,11 +652,11 @@ export default function LecturasPage() {
 
                     {/* ---- CÓMO SE ENTERÓ ---- */}
                     <div>
-                      <h3 className="text-gold-300 font-serif text-lg mb-4">¿Cómo nos conociste?</h3>
+                      <h3 className="text-violet-300 font-serif text-lg mb-4">¿Cómo te enteraste de mis lecturas?</h3>
                       <div className="space-y-4">
                         <div className="space-y-1.5">
                           <Label className="text-foreground/80 text-sm font-medium">
-                            ¿Cómo te enteraste? <span className="text-gold-400">*</span>
+                            ¿Cómo te enteraste? <span className="text-violet-400">*</span>
                           </Label>
                           <RadioGroup
                             value={formData.comoSeEntero}
@@ -697,7 +673,7 @@ export default function LecturasPage() {
                                 key={opt}
                                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border cursor-pointer text-xs transition-all duration-200 ${
                                   formData.comoSeEntero === opt
-                                    ? "border-gold-400/60 bg-gold-400/10 text-gold-300"
+                                    ? "border-violet-400/60 bg-violet-400/10 text-violet-300"
                                     : "border-mystic-700/40 text-foreground/60 hover:border-mystic-700/70"
                                 }`}
                               >
@@ -716,14 +692,14 @@ export default function LecturasPage() {
                             animate={{ opacity: 1, height: "auto" }}
                           >
                             <Label htmlFor="nombreRecomendo" className="text-foreground/80 text-sm font-medium">
-                              Nombre de quien te recomendó <span className="text-foreground/40">(opcional)</span>
+                              Si te recomendaron, podrías indicarme ¿quién? <span className="text-foreground/40">(opcional)</span>
                             </Label>
                             <Input
                               id="nombreRecomendo"
                               placeholder="Nombre de la persona que te recomendó"
                               value={formData.nombreRecomendo}
                               onChange={(e) => updateField("nombreRecomendo", e.target.value)}
-                              className="bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 mt-1.5"
+                              className="bg-mystic-900/50 border-mystic-700/40 focus:border-violet-400/60 text-foreground placeholder:text-foreground/30 mt-1.5"
                             />
                           </motion.div>
                         )}
@@ -734,12 +710,12 @@ export default function LecturasPage() {
 
                     {/* ---- SALUD ---- */}
                     <div>
-                      <h3 className="text-gold-300 font-serif text-lg mb-4">Salud</h3>
+                      <h3 className="text-violet-300 font-serif text-lg mb-4">Salud</h3>
                       <div className="space-y-4">
                         {/* Enfermedad crónica */}
                         <div className="space-y-1.5">
                           <Label htmlFor="enfermedadCronica" className="text-foreground/80 text-sm font-medium">
-                            ¿Alguna enfermedad crónica? <span className="text-gold-400">*</span>
+                            ¿Alguna enfermedad crónica? ¿Cuál? <span className="text-violet-400">*</span>
                           </Label>
                           <Textarea
                             id="enfermedadCronica"
@@ -747,43 +723,16 @@ export default function LecturasPage() {
                             rows={2}
                             value={formData.enfermedadCronica}
                             onChange={(e) => updateField("enfermedadCronica", e.target.value)}
-                            className={`bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 resize-none ${errors.enfermedadCronica ? "border-red-400/60" : ""}`}
+                            className={`bg-mystic-900/50 border-mystic-700/40 focus:border-violet-400/60 text-foreground placeholder:text-foreground/30 resize-none ${errors.enfermedadCronica ? "border-red-400/60" : ""}`}
                           />
                           {errors.enfermedadCronica && <p className="text-red-400 text-xs">{errors.enfermedadCronica}</p>}
                         </div>
 
-                        {/* Medicación */}
-                        <div className="space-y-1.5">
-                          <Label className="text-foreground/80 text-sm font-medium">
-                            ¿Tomás medicación? <span className="text-gold-400">*</span>
-                          </Label>
-                          <RadioGroup
-                            value={formData.medicacion}
-                            onValueChange={(v) => updateField("medicacion", v)}
-                            className="flex flex-wrap gap-2"
-                          >
-                            {["Sí", "No", "Otro"].map((opt) => (
-                              <label
-                                key={opt}
-                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border cursor-pointer text-xs transition-all duration-200 ${
-                                  formData.medicacion === opt
-                                    ? "border-gold-400/60 bg-gold-400/10 text-gold-300"
-                                    : "border-mystic-700/40 text-foreground/60 hover:border-mystic-700/70"
-                                }`}
-                              >
-                                <RadioGroupItem value={opt} className="sr-only" />
-                                {formData.medicacion === opt && <Check className="size-3" />}
-                                {opt}
-                              </label>
-                            ))}
-                          </RadioGroup>
-                          {errors.medicacion && <p className="text-red-400 text-xs">{errors.medicacion}</p>}
-                        </div>
 
                         {/* Terapia psicológica */}
                         <div className="space-y-1.5">
                           <Label className="text-foreground/80 text-sm font-medium">
-                            ¿Hiciste terapia psicológica? <span className="text-gold-400">*</span>
+                            ¿Hiciste alguna vez terapia psicológica? <span className="text-violet-400">*</span>
                           </Label>
                           <RadioGroup
                             value={formData.terapiaPsicologica}
@@ -795,7 +744,7 @@ export default function LecturasPage() {
                                 key={opt}
                                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border cursor-pointer text-xs transition-all duration-200 ${
                                   formData.terapiaPsicologica === opt
-                                    ? "border-gold-400/60 bg-gold-400/10 text-gold-300"
+                                    ? "border-violet-400/60 bg-violet-400/10 text-violet-300"
                                     : "border-mystic-700/40 text-foreground/60 hover:border-mystic-700/70"
                                 }`}
                               >
@@ -817,7 +766,7 @@ export default function LecturasPage() {
                                 placeholder="¿Por cuánto tiempo?"
                                 value={formData.terapiaPsicologicaDuracion}
                                 onChange={(e) => updateField("terapiaPsicologicaDuracion", e.target.value)}
-                                className={`bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 mt-2 ${errors.terapiaPsicologicaDuracion ? "border-red-400/60" : ""}`}
+                                className={`bg-mystic-900/50 border-mystic-700/40 focus:border-violet-400/60 text-foreground placeholder:text-foreground/30 mt-2 ${errors.terapiaPsicologicaDuracion ? "border-red-400/60" : ""}`}
                               />
                               {errors.terapiaPsicologicaDuracion && (
                                 <p className="text-red-400 text-xs mt-1">{errors.terapiaPsicologicaDuracion}</p>
@@ -829,7 +778,7 @@ export default function LecturasPage() {
                         {/* Terapia psiquiátrica */}
                         <div className="space-y-1.5">
                           <Label className="text-foreground/80 text-sm font-medium">
-                            ¿Hiciste terapia psiquiátrica? <span className="text-gold-400">*</span>
+                            ¿Hiciste alguna vez terapia psiquiátrica? <span className="text-violet-400">*</span>
                           </Label>
                           <RadioGroup
                             value={formData.terapiaPsiquiatrica}
@@ -841,7 +790,7 @@ export default function LecturasPage() {
                                 key={opt}
                                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border cursor-pointer text-xs transition-all duration-200 ${
                                   formData.terapiaPsiquiatrica === opt
-                                    ? "border-gold-400/60 bg-gold-400/10 text-gold-300"
+                                    ? "border-violet-400/60 bg-violet-400/10 text-violet-300"
                                     : "border-mystic-700/40 text-foreground/60 hover:border-mystic-700/70"
                                 }`}
                               >
@@ -863,7 +812,7 @@ export default function LecturasPage() {
                                 placeholder="¿Por cuánto tiempo?"
                                 value={formData.terapiaPsiquiatricaDuracion}
                                 onChange={(e) => updateField("terapiaPsiquiatricaDuracion", e.target.value)}
-                                className={`bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 mt-2 ${errors.terapiaPsiquiatricaDuracion ? "border-red-400/60" : ""}`}
+                                className={`bg-mystic-900/50 border-mystic-700/40 focus:border-violet-400/60 text-foreground placeholder:text-foreground/30 mt-2 ${errors.terapiaPsiquiatricaDuracion ? "border-red-400/60" : ""}`}
                               />
                               {errors.terapiaPsiquiatricaDuracion && (
                                 <p className="text-red-400 text-xs mt-1">{errors.terapiaPsiquiatricaDuracion}</p>
@@ -875,7 +824,7 @@ export default function LecturasPage() {
                         {/* Medicación psiquiátrica */}
                         <div className="space-y-1.5">
                           <Label className="text-foreground/80 text-sm font-medium">
-                            ¿Actualmente tomas medicación como parte del tratamiento psiquiátrico? <span className="text-gold-400">*</span>
+                            ¿Actualmente tomas medicación como parte del tratamiento psiquiátrico? <span className="text-violet-400">*</span>
                           </Label>
                           <RadioGroup
                             value={formData.medicacionPsiquiatrica}
@@ -887,7 +836,7 @@ export default function LecturasPage() {
                                 key={opt}
                                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border cursor-pointer text-xs transition-all duration-200 ${
                                   formData.medicacionPsiquiatrica === opt
-                                    ? "border-gold-400/60 bg-gold-400/10 text-gold-300"
+                                    ? "border-violet-400/60 bg-violet-400/10 text-violet-300"
                                     : "border-mystic-700/40 text-foreground/60 hover:border-mystic-700/70"
                                 }`}
                               >
@@ -906,11 +855,11 @@ export default function LecturasPage() {
 
                     {/* ---- PREGUNTAS ---- */}
                     <div>
-                      <h3 className="text-gold-300 font-serif text-lg mb-4">Preguntas al Campo Akáshico</h3>
+                      <h3 className="text-violet-300 font-serif text-lg mb-4">Preguntas al Campo Akáshico</h3>
                       <div className="space-y-4">
                         <div className="space-y-1.5">
                           <Label htmlFor="pregunta1" className="text-foreground/80 text-sm font-medium">
-                            Pregunta N° 1 <span className="text-gold-400">*</span>
+                            Pregunta al Campo Akáshico N° 1 <span className="text-violet-400">*</span>
                           </Label>
                           <Textarea
                             id="pregunta1"
@@ -918,14 +867,14 @@ export default function LecturasPage() {
                             rows={3}
                             value={formData.pregunta1}
                             onChange={(e) => updateField("pregunta1", e.target.value)}
-                            className={`bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 resize-none ${errors.pregunta1 ? "border-red-400/60" : ""}`}
+                            className={`bg-mystic-900/50 border-mystic-700/40 focus:border-violet-400/60 text-foreground placeholder:text-foreground/30 resize-none ${errors.pregunta1 ? "border-red-400/60" : ""}`}
                           />
                           {errors.pregunta1 && <p className="text-red-400 text-xs">{errors.pregunta1}</p>}
                         </div>
 
                         <div className="space-y-1.5">
                           <Label htmlFor="pregunta2" className="text-foreground/80 text-sm font-medium">
-                            Pregunta N° 2 <span className="text-gold-400">*</span>
+                            Pregunta al Campo Akáshico N° 2 <span className="text-violet-400">*</span>
                           </Label>
                           <Textarea
                             id="pregunta2"
@@ -933,7 +882,7 @@ export default function LecturasPage() {
                             rows={3}
                             value={formData.pregunta2}
                             onChange={(e) => updateField("pregunta2", e.target.value)}
-                            className={`bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 resize-none ${errors.pregunta2 ? "border-red-400/60" : ""}`}
+                            className={`bg-mystic-900/50 border-mystic-700/40 focus:border-violet-400/60 text-foreground placeholder:text-foreground/30 resize-none ${errors.pregunta2 ? "border-red-400/60" : ""}`}
                           />
                           {errors.pregunta2 && <p className="text-red-400 text-xs">{errors.pregunta2}</p>}
                         </div>
@@ -948,8 +897,11 @@ export default function LecturasPage() {
                             rows={4}
                             value={formData.contextoAdicional}
                             onChange={(e) => updateField("contextoAdicional", e.target.value)}
-                            className="bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30 resize-none"
+                            className="bg-mystic-900/50 border-mystic-700/40 focus:border-violet-400/60 text-foreground placeholder:text-foreground/30 resize-none"
                           />
+                          <p className="text-xs text-foreground/50 mt-1.5 leading-relaxed">
+                            En este espacio podés escribir todo lo que considerás necesario para que tu lectura sea lo más completa posible. Podés contarme sobre situaciones que estés atravesando, dudas que tengas, o cualquier contexto que quieras compartir.
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -958,7 +910,7 @@ export default function LecturasPage() {
 
                     {/* ---- PAGO ---- */}
                     <div>
-                      <h3 className="text-gold-300 font-serif text-lg mb-4">Método de Pago</h3>
+                      <h3 className="text-violet-300 font-serif text-lg mb-4">¿Cómo te gustaría realizar tu aporte?</h3>
                       <div className="space-y-3">
                         <RadioGroup
                           value={formData.paymentMethod}
@@ -969,7 +921,7 @@ export default function LecturasPage() {
                               key={opt.value}
                               className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all duration-200 ${
                                 formData.paymentMethod === opt.value
-                                  ? "border-gold-400/60 bg-gold-400/5"
+                                  ? "border-violet-400/60 bg-violet-400/5"
                                   : "border-mystic-700/40 hover:border-mystic-700/70"
                               }`}
                             >
@@ -978,7 +930,7 @@ export default function LecturasPage() {
                                 <div className="flex items-center gap-2 mb-1">
                                   {opt.icon}
                                   <span className="text-sm font-medium text-foreground/90">{opt.label}</span>
-                                  <Badge variant="outline" className="border-gold-400/30 text-gold-300 text-xs ml-auto">
+                                  <Badge variant="outline" className="border-violet-400/30 text-violet-300 text-xs ml-auto">
                                     {opt.price}
                                   </Badge>
                                 </div>
@@ -998,7 +950,7 @@ export default function LecturasPage() {
                             animate={{ opacity: 1, height: "auto" }}
                             className="p-4 rounded-xl bg-mystic-900/50 border border-mystic-700/40 space-y-2 text-sm"
                           >
-                            <p className="text-gold-300 font-semibold">Datos para transferencia Brubank:</p>
+                            <p className="text-violet-300 font-semibold">Datos para transferencia Brubank:</p>
                             <div className="space-y-1 text-foreground/70">
                               <p><span className="text-foreground/50">CBU:</span> 1430001713002632000014</p>
                               <p><span className="text-foreground/50">Alias:</span> fer.cardozo</p>
@@ -1013,7 +965,7 @@ export default function LecturasPage() {
                             animate={{ opacity: 1, height: "auto" }}
                             className="p-4 rounded-xl bg-mystic-900/50 border border-mystic-700/40 text-sm"
                           >
-                            <p className="text-gold-300 font-semibold mb-1">Datos para Western Union:</p>
+                            <p className="text-violet-300 font-semibold mb-1">Datos para Western Union:</p>
                             <p className="text-foreground/70">Envío a <strong>Fernanda Lucrecia Cardozo</strong>, Argentina, Córdoba.</p>
                           </motion.div>
                         )}
@@ -1062,6 +1014,17 @@ export default function LecturasPage() {
           </motion.div>
         )}
       </main>
+
+      {/* Floating scroll-to-top button */}
+      {showScrollTop && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-violet-500 hover:bg-violet-400 text-white shadow-lg shadow-violet-500/20 transition-all duration-300 flex items-center justify-center"
+          aria-label="Volver arriba"
+        >
+          <ArrowUp className="size-5" />
+        </button>
+      )}
 
       {/* Footer */}
       <footer className="border-t border-mystic-700/20 mt-auto">

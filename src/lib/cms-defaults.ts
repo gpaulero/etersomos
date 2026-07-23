@@ -38,7 +38,7 @@ const defaultFaqItems = [
   { question: "¿Es seguro o confidencial?", answer: "Absolutamente. Todo lo que se comparte en una lectura es estrictamente confidencial. No se comparte información con terceros bajo ninguna circunstancia." },
   { question: "¿Necesito experiencia previa para los cursos?", answer: "No. El Nivel 1 Teórico es ideal para principiantes. El Nivel 1 con Práctica y el Nivel 2 van paso a paso con acompañamiento personalizado." },
   { question: "¿Las membresías tienen compromiso?", answer: "No. Podés cancelar tu membresía en cualquier momento desde MercadoPago o PayPal. Sin preguntas, sin penalidades." },
-  { question: "¿Hacen envíos de cristales a todo el país?", answer: "Sí, enviamos cristales a toda Argentina. Cada pieza es seleccionada y empaquetada con cuidado y protección energética." },
+  { question: "¿Hacen envíos a todo el país?", answer: "Sí, desde nuestra tienda realizamos envíos a todo el país para que recibas tu pedido de forma segura y confiable." },
 ]
 
 /* ── Membership Tiers ── */
@@ -108,7 +108,7 @@ const defaultMembershipTiers = [
 /* ── All default CMS items ── */
 export const defaultSiteContent: SiteContentItem[] = [
   // ── Site (general) ──
-  { key: "site.hero_title", value: "", section: "site", label: "Título principal del Hero", type: "text" },
+  { key: "site.hero_title", value: "Eter Somos", section: "site", label: "Título principal del Hero", type: "text" },
   { key: "site.hero_subtitle", value: "", section: "site", label: "Subtítulo del Hero", type: "text" },
   { key: "site.hero_tagline", value: "Un espacio para vivir tu espiritualidad de forma cercana, humana y sobre todo desde la consciencia", section: "site", label: "Tagline del Hero", type: "text" },
   { key: "site.contact_email", value: "etersomos@gmail.com", section: "site", label: "Email de contacto", type: "text" },
@@ -134,7 +134,7 @@ export const defaultSiteContent: SiteContentItem[] = [
   { key: "crystals.categories", value: JSON.stringify(defaultCategories, null, 2), section: "crystals", label: "Categorías de cristales (JSON)", type: "json" },
 
   // ── Readings (lecturas) ──
-  { key: "readings.price_ars", value: "20000", section: "readings", label: "Precio Lectura (ARS)", type: "number" },
+  { key: "readings.price_ars", value: "18000", section: "readings", label: "Precio Lectura (ARS)", type: "number" },
   { key: "readings.price_usd", value: "20", section: "readings", label: "Precio Lectura (USD)", type: "number" },
   { key: "readings.description", value: "Traé claridad a los procesos que estás atravesando. Recibí una lectura personalizada grabada especialmente para vos.", section: "readings", label: "Descripción de Lecturas", type: "textarea" },
   { key: "readings.deadline_badge", value: "5 días hábiles", section: "readings", label: "Badge de plazo de entrega", type: "text" },
@@ -164,15 +164,15 @@ export const defaultSiteContent: SiteContentItem[] = [
   { key: "espacios.heading", value: "¿Qué buscás?", section: "espacios", label: "Título de Espacios", type: "text" },
   { key: "espacios.card1_title", value: "Lectura de Registros Akáshicos", section: "espacios", label: "Card 1 - Título", type: "text" },
   { key: "espacios.card1_desc", value: "Traé claridad a los procesos que estás atravesando. Recibí una lectura personalizada grabada especialmente para vos.", section: "espacios", label: "Card 1 - Descripción", type: "textarea" },
-  { key: "espacios.card1_price", value: "$20.000 ARS · US$20", section: "espacios", label: "Card 1 - Precio", type: "text" },
+  { key: "espacios.card1_price", value: "$18.000 ARS · US$20", section: "espacios", label: "Card 1 - Precio", type: "text" },
   { key: "espacios.card2_title", value: "Cursos de Formación", section: "espacios", label: "Card 2 - Título", type: "text" },
   { key: "espacios.card2_desc", value: "Aprendé a conectar con tus propios Registros Akáshicos y el de otras personas. Niveles 1 y 2 con práctica individual.", section: "espacios", label: "Card 2 - Descripción", type: "textarea" },
   { key: "espacios.card2_price", value: "Desde contribución voluntaria", section: "espacios", label: "Card 2 - Precio", type: "text" },
   { key: "espacios.card3_title", value: "Membresías", section: "espacios", label: "Card 3 - Título", type: "text" },
   { key: "espacios.card3_desc", value: "Contenido exclusivo mensual para tu expansión espiritual. Meditaciones, canalizaciones y activaciones.", section: "espacios", label: "Card 3 - Descripción", type: "textarea" },
   { key: "espacios.card3_price", value: "Desde $5.000 ARS · US$5/mes", section: "espacios", label: "Card 3 - Precio", type: "text" },
-  { key: "espacios.card4_title", value: "Cristales", section: "espacios", label: "Card 4 - Título", type: "text" },
-  { key: "espacios.card4_desc", value: "Guardianes personales de energía. Cristales seleccionados intuitivamente y consagrados para acompañarte como aliados energéticos en tu camino.", section: "espacios", label: "Card 4 - Descripción", type: "textarea" },
+  { key: "espacios.card4_title", value: "Tienda", section: "espacios", label: "Card 4 - Título", type: "text" },
+  { key: "espacios.card4_desc", value: "Cada pieza ha sido elegida por su energía, su significado y el valor que puede aportar a tu camino espiritual.", section: "espacios", label: "Card 4 - Descripción", type: "textarea" },
   { key: "espacios.card4_price", value: "Solo envío en Argentina", section: "espacios", label: "Card 4 - Precio", type: "text" },
 
   // ── Home Sections ──
@@ -205,11 +205,11 @@ export const defaultSiteContent: SiteContentItem[] = [
   { key: "faq_section.subtitle", value: "Preguntas Frecuentes", section: "faq_section", label: "Subtítulo sección FAQ", type: "text" },
 
   // ── Footer ──
-  { key: "footer.description", value: "Lecturas, cursos y cristales para tu camino espiritual. Conexión con la sabiduría del alma.", section: "footer", label: "Descripción del Footer", type: "textarea" },
+  { key: "footer.description", value: "Lecturas, cursos y piezas consagradas para tu camino espiritual.", section: "footer", label: "Descripción del Footer", type: "textarea" },
   { key: "footer.nav_title", value: "Navegación", section: "footer", label: "Título Navegación Footer", type: "text" },
   { key: "footer.contact_title", value: "Contacto", section: "footer", label: "Título Contacto Footer", type: "text" },
   { key: "footer.legal_title", value: "Legal", section: "footer", label: "Título Legal Footer", type: "text" },
-  { key: "footer.legal_text", value: "Las lecturas akáshicas son una herramienta de autoconocimiento y crecimiento espiritual. No reemplazan ningún tratamiento médico o psicológico profesional.", section: "footer", label: "Texto Legal Footer", type: "textarea" },
+  { key: "footer.legal_text", value: "Las lecturas de Registros Akáshicas son una herramienta de autoconocimiento y crecimiento espiritual. No reemplazan ningún tratamiento médico o psicológico profesional.", section: "footer", label: "Texto Legal Footer", type: "textarea" },
   { key: "footer.copyright", value: "© 2026 Eter Somos. Todos los derechos reservados.", section: "footer", label: "Copyright Footer", type: "text" },
 
   // ── Booking Dialog ──
