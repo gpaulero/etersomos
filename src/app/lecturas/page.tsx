@@ -4,7 +4,8 @@ import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { toast, Toaster } from "sonner";
 import Link from "next/link";
-import { ArrowLeft, ChevronDown, Check, Loader2, Sparkles, AlertTriangle, CreditCard, Landmark, DollarSign, User, Heart, MessageCircle, ArrowUp   X,
+import { ArrowLeft, ChevronDown, Check, Loader2, Sparkles, AlertTriangle, CreditCard, Landmark, DollarSign, User, Heart, MessageCircle, ArrowUp,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
