@@ -53,11 +53,8 @@ import {
 } from "@/components/ui/accordion";
 import {
   Star,
-  ShoppingBag,
   Instagram,
   Menu,
-  Plus,
-  Minus,
   Trash2,
   BookOpen,
   Eye,
@@ -83,7 +80,6 @@ import {
   AlertTriangle,
   ExternalLink,
   Lock,
-  CreditCard,
   Landmark,
   Info,
   DollarSign,
@@ -100,75 +96,7 @@ import { useRouter } from "next/navigation";
 /*                                 DATA                                      */
 /* ======================================================================== */
 
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  image: string;
-  description: string;
-  category: string;
-}
 
-interface CartItem extends Product {
-  quantity: number;
-}
-
-const products: Product[] = [
-  {
-    id: 1,
-    name: "Amatista",
-    price: 15000,
-    image: "/images/amethyst.png",
-    description:
-      "Protección y paz interior. Ideal para meditación y conexión espiritual.",
-    category: "Amatista",
-  },
-  {
-    id: 2,
-    name: "Cuarzo Rosa",
-    price: 12000,
-    image: "/images/rose-quartz.png",
-    description:
-      "Amor propio y sanación emocional. Atrae energías de amor y compasión.",
-    category: "Cuarzo Rosa",
-  },
-  {
-    id: 3,
-    name: "Cuarzo Claro",
-    price: 10000,
-    image: "/images/clear-quartz.png",
-    description:
-      "Amplificador energético universal. Limpieza y armonización de chakras.",
-    category: "Cuarzo Claro",
-  },
-  {
-    id: 4,
-    name: "Citrino",
-    price: 13000,
-    image: "/images/citrine.png",
-    description:
-      "Prosperidad y abundancia. Estimula la creatividad y la autoconfianza.",
-    category: "Citrino",
-  },
-  {
-    id: 5,
-    name: "Turmalina Negra",
-    price: 11000,
-    image: "/images/tourmaline.png",
-    description:
-      "Protección contra energías negativas. Radicación y conexión a tierra.",
-    category: "Turmalina",
-  },
-  {
-    id: 6,
-    name: "Selinita",
-    price: 14000,
-    image: "/images/selenite.png",
-    description:
-      "Paz y claridad mental. Conexión con guías espirituales y ángeles.",
-    category: "Selinita",
-  },
-];
 
 const testimonials = [
   {
@@ -205,15 +133,6 @@ const navLinksData = [
   { label: "Aula", href: "/aula", cmsKey: 'nav.link_aula' },
 ];
 
-const crystalCategories = [
-  "Todos",
-  "Amatista",
-  "Cuarzo Rosa",
-  "Cuarzo Claro",
-  "Citrino",
-  "Turmalina",
-  "Selinita",
-];
 
 /* ======================================================================== */
 /*                           MEMBERSHIPS DATA                                */
@@ -390,7 +309,6 @@ export default function Home() {
 
   // CMS-driven values with hardcoded fallbacks
   // SEO-optimized hero copy: incluye "Registros Akáshicos" como H1 principal
-  const heroTitle = cmsValue(cmsMap, 'site.hero_title', "Eter Somos");
   const heroSubtitle = cmsValue(cmsMap, 'site.hero_subtitle', ""); // Eliminado subtítulo visible (SEO en H1 oculto)
   const heroTagline = cmsValue(cmsMap, 'site.hero_tagline', "Un espacio para vivir tu espiritualidad de forma cercana, humana y sobre todo desde la consciencia");
   const contactEmail = cmsValue(cmsMap, 'site.contact_email', "etersomos@gmail.com");
@@ -480,53 +398,12 @@ export default function Home() {
   const bookingPlaceholderMessage = cmsValue(cmsMap, 'booking.placeholder_message', 'Contanos qué te gustaría explorar en tu lectura...');
   const bookingBtnSubmitting = cmsValue(cmsMap, 'booking.btn_submitting', 'Enviando...');
 
-  // Cart CMS values
-  const cartTitle = cmsValue(cmsMap, 'cart.title', 'Tu Carrito');
-  const cartEmpty = cmsValue(cmsMap, 'cart.empty', 'Tu carrito está vacío');
-  const cartProductSingular = cmsValue(cmsMap, 'cart.product_singular', 'producto');
-  const cartProductPlural = cmsValue(cmsMap, 'cart.product_plural', 'productos');
-  const cartInCart = cmsValue(cmsMap, 'cart.in_cart', 'en tu carrito');
-  const cartTotalLabel = cmsValue(cmsMap, 'cart.total_label', 'Total');
-  const cartBtnPay = cmsValue(cmsMap, 'cart.btn_pay', 'Pagar');
-  const cartTrustSecure = cmsValue(cmsMap, 'cart.trust_secure', 'Pago seguro');
-  const cartTrustEncrypted = cmsValue(cmsMap, 'cart.trust_encrypted', 'Datos encriptados');
-  const cartEmptyMessage = cmsValue(cmsMap, 'cart.empty_message', 'Explorá nuestra tienda y agregá los cristales que resuenen con vos.');
-  const cartBtnSeeCrystals = cmsValue(cmsMap, 'cart.btn_see_crystals', 'Ver Cristales');
 
-  // Checkout CMS values
-  const checkoutTitle = cmsValue(cmsMap, 'checkout.title', 'Finalizá tu Compra');
-  const checkoutDescription = cmsValue(cmsMap, 'checkout.description', 'Completá tus datos de envío para recibir tus cristales.');
-  const checkoutFieldName = cmsValue(cmsMap, 'checkout.field_name', 'Nombre completo');
-  const checkoutFieldEmail = cmsValue(cmsMap, 'checkout.field_email', 'Email');
-  const checkoutFieldPhone = cmsValue(cmsMap, 'checkout.field_phone', 'Teléfono');
-  const checkoutFieldAddress = cmsValue(cmsMap, 'checkout.field_address', 'Dirección (calle y número)');
-  const checkoutFieldCity = cmsValue(cmsMap, 'checkout.field_city', 'Ciudad');
-  const checkoutFieldProvince = cmsValue(cmsMap, 'checkout.field_province', 'Provincia');
-  const checkoutFieldPostal = cmsValue(cmsMap, 'checkout.field_postal', 'Código Postal');
-  const checkoutFieldNotes = cmsValue(cmsMap, 'checkout.field_notes', 'Notas adicionales');
-  const checkoutPlaceholderName = cmsValue(cmsMap, 'checkout.placeholder_name', 'Ej: María González');
-  const checkoutPlaceholderEmail = cmsValue(cmsMap, 'checkout.placeholder_email', 'Ej: maria@ejemplo.com');
-  const checkoutPlaceholderPhone = cmsValue(cmsMap, 'checkout.placeholder_phone', 'Ej: 1155123456');
-  const checkoutPlaceholderAddress = cmsValue(cmsMap, 'checkout.placeholder_address', 'Ej: Av. Corrientes 1234');
-  const checkoutPlaceholderCity = cmsValue(cmsMap, 'checkout.placeholder_city', 'Ej: Buenos Aires');
-  const checkoutPlaceholderProvince = cmsValue(cmsMap, 'checkout.placeholder_province', 'Ej: CABA');
-  const checkoutPlaceholderPostal = cmsValue(cmsMap, 'checkout.placeholder_postal', 'Ej: 1234');
-  const checkoutPlaceholderNotes = cmsValue(cmsMap, 'checkout.placeholder_notes', 'Instrucciones especiales de envío, horarios preferidos...');
-  const checkoutOrderSummary = cmsValue(cmsMap, 'checkout.order_summary', 'Resumen del pedido');
-  const checkoutSecurityNote = cmsValue(cmsMap, 'checkout.security_note', 'Tus datos están protegidos con encriptación SSL. No almacenamos información de tarjetas de crédito.');
-  const checkoutBtnProcessing = cmsValue(cmsMap, 'checkout.btn_processing', 'Procesando...');
-  const checkoutBtnPayMercadoPago = cmsValue(cmsMap, 'checkout.btn_pay_mercadopago', 'Pagar con MercadoPago');
-
-  const cmsProducts = cmsJson<Product[]>(cmsMap, 'crystals.products', products);
-  const cmsCategories = cmsJson<string[]>(cmsMap, 'crystals.categories', crystalCategories);
   const cmsTestimonials = cmsJson(cmsMap, 'testimonials.items', testimonials);
   const cmsFaqItems = cmsJson(cmsMap, 'home.faq_items', faqItems);
   const cmsMembershipTiers = cmsJson(cmsMap, 'memberships.tiers', membershipTiers);
 
-  const [cart, setCart] = useState<CartItem[]>([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [cartOpen, setCartOpen] = useState(false);
-  const [activeCategory, setActiveCategory] = useState("Todos");
   const [navScrolled, setNavScrolled] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
@@ -542,22 +419,6 @@ export default function Home() {
   /* ---- Newsletter state ---- */
   const [newsletterEmail, setNewsletterEmail] = useState("");
 
-  /* ---- Checkout form state ---- */
-  const [checkoutDialogOpen, setCheckoutDialogOpen] = useState(false);
-  const [checkoutSubmitting, setCheckoutSubmitting] = useState(false);
-  const [checkoutForm, setCheckoutForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    address: "",
-    city: "",
-    province: "",
-    postalCode: "",
-    notes: "",
-  });
-  const [checkoutErrors, setCheckoutErrors] = useState<Record<string, string>>(
-    {}
-  );
 
   /* ---- Admin state ---- */
   const [adminOpen, setAdminOpen] = useState(false);
@@ -604,49 +465,6 @@ export default function Home() {
     setMobileMenuOpen(false);
   }, []);
 
-  /* ---- Cart operations ---- */
-  const addToCart = useCallback((product: Product) => {
-    setCart((prev) => {
-      const existing = prev.find((item) => item.id === product.id);
-      if (existing) {
-        return prev.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      }
-      return [...prev, { ...product, quantity: 1 }];
-    });
-    toast.success(`${product.name} agregado al carrito`, {
-      description: `$${product.price.toLocaleString("es-AR")} ARS`,
-      icon: <Check className="size-5 text-green-400" />,
-    });
-  }, []);
-
-  const updateQuantity = useCallback((id: number, delta: number) => {
-    setCart((prev) =>
-      prev
-        .map((item) =>
-          item.id === id ? { ...item, quantity: item.quantity + delta } : item
-        )
-        .filter((item) => item.quantity > 0)
-    );
-  }, []);
-
-  const removeFromCart = useCallback((id: number) => {
-    setCart((prev) => prev.filter((item) => item.id !== id));
-  }, []);
-
-  const cartTotal = cart.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
-  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-
-  const filteredProducts =
-    activeCategory === "Todos"
-      ? cmsProducts
-      : cmsProducts.filter((p) => p.category === activeCategory);
 
   /* ---- Floating stars ---- */
   const [starsCount, setStarsCount] = useState(15);
@@ -691,112 +509,6 @@ export default function Home() {
     }
   };
 
-  /* ---- Checkout session helpers ---- */
-  const saveCheckoutSession = (
-    paymentMethod: string,
-    paymentId?: string
-  ) => {
-    const session = {
-      type: "crystal_order" as const,
-      customerName: checkoutForm.name,
-      customerEmail: checkoutForm.email,
-      customerPhone: checkoutForm.phone,
-      address: checkoutForm.address,
-      city: checkoutForm.city,
-      province: checkoutForm.province,
-      postalCode: checkoutForm.postalCode,
-      notes: checkoutForm.notes,
-      items: cart.map((item) => ({
-        id: item.id,
-        name: item.name,
-        quantity: item.quantity,
-        price: item.price,
-      })),
-      total: cartTotal,
-      paymentMethod,
-      paymentId: paymentId || null,
-      createdAt: new Date().toISOString(),
-    };
-    const sessionId = `session_${Date.now()}_${Math.random()
-      .toString(36)
-      .substring(2, 10)}`;
-    localStorage.setItem(
-      `checkoutSession_${sessionId}`,
-      JSON.stringify(session)
-    );
-    return sessionId;
-  };
-
-  const validateCheckoutForm = () => {
-    const errors: Record<string, string> = {};
-    if (!checkoutForm.name.trim()) errors.name = "Ingresá tu nombre completo";
-    if (!checkoutForm.email.trim()) errors.email = "Ingresá tu email";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(checkoutForm.email))
-      errors.email = "Ingresá un email válido";
-    if (!checkoutForm.phone.trim()) errors.phone = "Ingresá tu teléfono";
-    if (!checkoutForm.address.trim())
-      errors.address = "Ingresá tu dirección";
-    if (!checkoutForm.city.trim()) errors.city = "Ingresá tu ciudad";
-    if (!checkoutForm.province.trim())
-      errors.province = "Ingresá tu provincia";
-    if (!checkoutForm.postalCode.trim())
-      errors.postalCode = "Ingresá tu código postal";
-    setCheckoutErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const handleCheckoutChange = (field: string, value: string) => {
-    setCheckoutForm((prev) => ({ ...prev, [field]: value }));
-    if (checkoutErrors[field]) {
-      setCheckoutErrors((prev) => {
-        const next = { ...prev };
-        delete next[field];
-        return next;
-      });
-    }
-  };
-
-  const handlePayWithMercadoPago = async () => {
-    if (!validateCheckoutForm()) return;
-    setCheckoutSubmitting(true);
-    try {
-      const sessionId = saveCheckoutSession("mercadopago");
-      const res = await fetch("/api/payments/create-mercadopago", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          items: cart.map((item) => ({
-            id: item.id,
-            name: item.name,
-            quantity: item.quantity,
-            price: item.price,
-          })),
-          sessionId,
-          buyerEmail: checkoutForm.email,
-        }),
-      });
-      const data = await res.json();
-      if (res.ok && data.initPoint) {
-        const sessionKey = `checkoutSession_${sessionId}`;
-        const session = JSON.parse(
-          localStorage.getItem(sessionKey) || "{}"
-        );
-        session.paymentId = data.preferenceId;
-        localStorage.setItem(sessionKey, JSON.stringify(session));
-        setCartOpen(false);
-        setCheckoutDialogOpen(false);
-        window.location.href = data.initPoint;
-      } else {
-        toast.error(
-          data.error || "Error al crear la preferencia de MercadoPago"
-        );
-      }
-    } catch {
-      toast.error("Error de conexión. Intentá de nuevo.");
-    } finally {
-      setCheckoutSubmitting(false);
-    }
-  };
 
   const handleSubmitBooking = async () => {
     if (!validateForm()) return;
@@ -1199,39 +911,10 @@ export default function Home() {
             >
               <Instagram className="size-5" />
             </a>
-            {/* Desktop Cart Button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative text-foreground/50 hover:text-violet-400 transition-colors duration-300"
-              onClick={() => setCartOpen(true)}
-              aria-label="Abrir carrito"
-            >
-              <ShoppingBag className="size-5" />
-              {cartCount > 0 && (
-                <Badge className="absolute -top-1 -right-1 bg-violet-500 text-white border-0 text-[10px] px-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full">
-                  {cartCount}
-                </Badge>
-              )}
-            </Button>
           </div>
 
           {/* Mobile Menu */}
           <div className="flex lg:hidden items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative text-foreground/50 hover:text-violet-400 transition-colors duration-300"
-              onClick={() => setCartOpen(true)}
-              aria-label="Abrir carrito"
-            >
-              <ShoppingBag className="size-5" />
-              {cartCount > 0 && (
-                <Badge className="absolute -top-1 -right-1 bg-violet-500 text-white border-0 text-[10px] px-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full">
-                  {cartCount}
-                </Badge>
-              )}
-            </Button>
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button
@@ -1354,14 +1037,6 @@ export default function Home() {
             {/* H1 SEO oculto (sr-only) — keywords para Google sin mostrar en UI */}
             <h1 className="sr-only">Registros Akáshicos en Argentina — Lecturas, Cursos y Cristales con Fer Cardozo · Desde Córdoba al mundo</h1>
 
-            {/* Título visible como H2 */}
-            <motion.h2
-              variants={fadeInUp}
-              transition={{ duration: 0.8, delay: 0.15 }}
-              className="text-4xl sm:text-5xl md:text-6xl font-serif font-semibold text-foreground mb-3 leading-tight"
-            >
-              {heroTitle}
-            </motion.h2>
 
             <motion.p
               variants={fadeInUp}
@@ -2635,383 +2310,7 @@ export default function Home() {
         </SheetContent>
       </Sheet>
 
-      {/* ============================================================ */}
-      {/*                       CART SHEET                               */}
-      {/* ============================================================ */}
-      <Sheet open={cartOpen} onOpenChange={setCartOpen}>
-        <SheetContent
-          side="right"
-          className="bg-mystic-950/95 backdrop-blur-xl border-mystic-800/30 w-full sm:max-w-md flex flex-col"
-        >
-          <SheetHeader>
-            <SheetTitle className="text-violet-400 font-serif tracking-wider flex items-center gap-2">
-              <ShoppingBag className="size-5" />
-              {cartTitle}
-            </SheetTitle>
-            <SheetDescription className="text-foreground/60 font-sans">
-              {cartCount === 0
-                ? cartEmpty
-                : `${cartCount} ${
-                    cartCount === 1 ? cartProductSingular : cartProductPlural
-                  } ${cartInCart}`}
-            </SheetDescription>
-          </SheetHeader>
 
-          {cart.length > 0 ? (
-            <>
-              <div className="flex-1 overflow-y-auto py-4 space-y-4">
-                {cart.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex gap-3 p-3 rounded-xl glass"
-                  >
-                    <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0">
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-foreground font-semibold text-sm truncate font-sans">
-                        {item.name}
-                      </h4>
-                      <p className="text-violet-400 text-sm font-medium font-serif">
-                        {formatPrice(item.price)}
-                      </p>
-                      <div className="flex items-center gap-2 mt-1.5">
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="h-7 w-7 text-foreground/60 hover:text-violet-400"
-                          onClick={() => updateQuantity(item.id, -1)}
-                        >
-                          <Minus className="size-3" />
-                        </Button>
-                        <span className="text-sm font-medium text-foreground/80 w-6 text-center font-sans">
-                          {item.quantity}
-                        </span>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="h-7 w-7 text-foreground/60 hover:text-violet-400"
-                          onClick={() => updateQuantity(item.id, 1)}
-                        >
-                          <Plus className="size-3" />
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="h-7 w-7 text-foreground/40 hover:text-red-400 ml-auto"
-                          onClick={() => removeFromCart(item.id)}
-                        >
-                          <Trash2 className="size-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="border-t border-mystic-800/30 pt-4">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-foreground/60 font-medium font-sans">
-                    {cartTotalLabel}
-                  </span>
-                  <span className="text-violet-400 text-xl font-serif font-bold">
-                    {formatPrice(cartTotal)}
-                  </span>
-                </div>
-                <Button
-                  onClick={() => {
-                    setCartOpen(false);
-                    setCheckoutDialogOpen(true);
-                  }}
-                  className="w-full bg-foreground hover:bg-foreground/80 text-background font-sans font-semibold py-6 rounded-full transition-all duration-300 hover:scale-[1.02]"
-                >
-                  <CreditCard className="size-5 mr-2" />
-                  {cartBtnPay}
-                </Button>
-
-                {/* Trust badges */}
-                <div className="flex items-center justify-center gap-4 mt-4">
-                  <div className="flex items-center gap-1.5 text-foreground/40">
-                    <Lock className="size-3.5" />
-                    <span className="text-xs font-sans">{cartTrustSecure}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-foreground/40">
-                    <Shield className="size-3.5" />
-                    <span className="text-xs font-sans">
-                      {cartTrustEncrypted}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </>
-          ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-center py-10">
-              <ShoppingBag className="size-12 text-mystic-700 mb-4" />
-              <p className="text-foreground/50 text-sm font-sans">
-                {cartEmptyMessage}
-              </p>
-              <Button
-                variant="outline"
-                className="mt-4 border-foreground/20 text-foreground/60 hover:bg-foreground/5 hover:text-foreground rounded-full font-sans"
-                onClick={() => {
-                  setCartOpen(false);
-                  scrollTo("#cristales");
-                }}
-              >
-                {cartBtnSeeCrystals}
-                <ArrowRight className="size-4 ml-1" />
-              </Button>
-            </div>
-          )}
-        </SheetContent>
-      </Sheet>
-
-      {/* ============================================================ */}
-      {/*                   CHECKOUT FORM DIALOG                        */}
-      {/* ============================================================ */}
-      <Dialog open={checkoutDialogOpen} onOpenChange={setCheckoutDialogOpen}>
-        <DialogContent className="bg-mystic-950/98 backdrop-blur-xl border-mystic-700/40 sm:max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-violet-400 font-serif text-2xl flex items-center gap-2">
-              <CreditCard className="size-5" />
-              {checkoutTitle}
-            </DialogTitle>
-            <DialogDescription className="text-foreground/60 font-sans">
-              {checkoutDescription}
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4 mt-2">
-            {/* Nombre */}
-            <div className="space-y-2">
-              <Label htmlFor="checkout-name" className="text-foreground/80 text-sm font-medium font-sans">
-                {checkoutFieldName} <span className="text-violet-400">*</span>
-              </Label>
-              <Input
-                id="checkout-name"
-                placeholder={checkoutPlaceholderName}
-                value={checkoutForm.name}
-                onChange={(e) =>
-                  handleCheckoutChange("name", e.target.value)
-                }
-                className={`bg-mystic-900/50 border-mystic-700/40 focus:border-violet-500/60 text-foreground placeholder:text-foreground/30 font-sans ${checkoutErrors.name ? "border-red-400/60" : ""}`}
-              />
-              {checkoutErrors.name && (
-                <p className="text-red-400 text-xs font-sans">
-                  {checkoutErrors.name}
-                </p>
-              )}
-            </div>
-
-            {/* Email */}
-            <div className="space-y-2">
-              <Label htmlFor="checkout-email" className="text-foreground/80 text-sm font-medium font-sans">
-                {checkoutFieldEmail} <span className="text-violet-400">*</span>
-              </Label>
-              <Input
-                id="checkout-email"
-                type="email"
-                placeholder={checkoutPlaceholderEmail}
-                value={checkoutForm.email}
-                onChange={(e) =>
-                  handleCheckoutChange("email", e.target.value)
-                }
-                className={`bg-mystic-900/50 border-mystic-700/40 focus:border-violet-500/60 text-foreground placeholder:text-foreground/30 font-sans ${checkoutErrors.email ? "border-red-400/60" : ""}`}
-              />
-              {checkoutErrors.email && (
-                <p className="text-red-400 text-xs font-sans">
-                  {checkoutErrors.email}
-                </p>
-              )}
-            </div>
-
-            {/* Teléfono */}
-            <div className="space-y-2">
-              <Label htmlFor="checkout-phone" className="text-foreground/80 text-sm font-medium font-sans">
-                {checkoutFieldPhone} <span className="text-violet-400">*</span>
-              </Label>
-              <Input
-                id="checkout-phone"
-                type="tel"
-                placeholder={checkoutPlaceholderPhone}
-                value={checkoutForm.phone}
-                onChange={(e) =>
-                  handleCheckoutChange("phone", e.target.value)
-                }
-                className={`bg-mystic-900/50 border-mystic-700/40 focus:border-violet-500/60 text-foreground placeholder:text-foreground/30 font-sans ${checkoutErrors.phone ? "border-red-400/60" : ""}`}
-              />
-              {checkoutErrors.phone && (
-                <p className="text-red-400 text-xs font-sans">
-                  {checkoutErrors.phone}
-                </p>
-              )}
-            </div>
-
-            {/* Dirección */}
-            <div className="space-y-2">
-              <Label htmlFor="checkout-address" className="text-foreground/80 text-sm font-medium font-sans">
-                {checkoutFieldAddress}{" "}
-                <span className="text-violet-400">*</span>
-              </Label>
-              <Input
-                id="checkout-address"
-                placeholder={checkoutPlaceholderAddress}
-                value={checkoutForm.address}
-                onChange={(e) =>
-                  handleCheckoutChange("address", e.target.value)
-                }
-                className={`bg-mystic-900/50 border-mystic-700/40 focus:border-violet-500/60 text-foreground placeholder:text-foreground/30 font-sans ${checkoutErrors.address ? "border-red-400/60" : ""}`}
-              />
-              {checkoutErrors.address && (
-                <p className="text-red-400 text-xs font-sans">
-                  {checkoutErrors.address}
-                </p>
-              )}
-            </div>
-
-            {/* Ciudad */}
-            <div className="space-y-2">
-              <Label htmlFor="checkout-city" className="text-foreground/80 text-sm font-medium font-sans">
-                {checkoutFieldCity} <span className="text-violet-400">*</span>
-              </Label>
-              <Input
-                id="checkout-city"
-                placeholder={checkoutPlaceholderCity}
-                value={checkoutForm.city}
-                onChange={(e) =>
-                  handleCheckoutChange("city", e.target.value)
-                }
-                className={`bg-mystic-900/50 border-mystic-700/40 focus:border-violet-500/60 text-foreground placeholder:text-foreground/30 font-sans ${checkoutErrors.city ? "border-red-400/60" : ""}`}
-              />
-              {checkoutErrors.city && (
-                <p className="text-red-400 text-xs font-sans">
-                  {checkoutErrors.city}
-                </p>
-              )}
-            </div>
-
-            {/* Provincia */}
-            <div className="space-y-2">
-              <Label htmlFor="checkout-province" className="text-foreground/80 text-sm font-medium font-sans">
-                {checkoutFieldProvince} <span className="text-violet-400">*</span>
-              </Label>
-              <Input
-                id="checkout-province"
-                placeholder={checkoutPlaceholderProvince}
-                value={checkoutForm.province}
-                onChange={(e) =>
-                  handleCheckoutChange("province", e.target.value)
-                }
-                className={`bg-mystic-900/50 border-mystic-700/40 focus:border-violet-500/60 text-foreground placeholder:text-foreground/30 font-sans ${checkoutErrors.province ? "border-red-400/60" : ""}`}
-              />
-              {checkoutErrors.province && (
-                <p className="text-red-400 text-xs font-sans">
-                  {checkoutErrors.province}
-                </p>
-              )}
-            </div>
-
-            {/* Código Postal */}
-            <div className="space-y-2">
-              <Label htmlFor="checkout-postal" className="text-foreground/80 text-sm font-medium font-sans">
-                {checkoutFieldPostal} <span className="text-violet-400">*</span>
-              </Label>
-              <Input
-                id="checkout-postal"
-                placeholder={checkoutPlaceholderPostal}
-                value={checkoutForm.postalCode}
-                onChange={(e) =>
-                  handleCheckoutChange("postalCode", e.target.value)
-                }
-                className={`bg-mystic-900/50 border-mystic-700/40 focus:border-violet-500/60 text-foreground placeholder:text-foreground/30 font-sans ${checkoutErrors.postalCode ? "border-red-400/60" : ""}`}
-              />
-              {checkoutErrors.postalCode && (
-                <p className="text-red-400 text-xs font-sans">
-                  {checkoutErrors.postalCode}
-                </p>
-              )}
-            </div>
-
-            {/* Notas adicionales */}
-            <div className="space-y-2">
-              <Label htmlFor="checkout-notes" className="text-foreground/80 text-sm font-medium font-sans">
-                {checkoutFieldNotes}
-              </Label>
-              <Textarea
-                id="checkout-notes"
-                placeholder={checkoutPlaceholderNotes}
-                rows={3}
-                value={checkoutForm.notes}
-                onChange={(e) =>
-                  handleCheckoutChange("notes", e.target.value)
-                }
-                className="bg-mystic-900/50 border-mystic-700/40 focus:border-violet-500/60 text-foreground placeholder:text-foreground/30 resize-none font-sans"
-              />
-            </div>
-
-            <Separator className="bg-mystic-800/30" />
-
-            {/* Order summary */}
-            <div className="p-3 rounded-xl bg-mystic-900/50 border border-mystic-700/30">
-              <p className="text-sm text-foreground/60 mb-2 font-medium font-sans">
-                {checkoutOrderSummary}
-              </p>
-              {cart.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex justify-between text-sm mb-1 font-sans"
-                >
-                  <span className="text-foreground/70">
-                    {item.name} x{item.quantity}
-                  </span>
-                  <span className="text-foreground/80">
-                    {formatPrice(item.price * item.quantity)}
-                  </span>
-                </div>
-              ))}
-              <Separator className="bg-mystic-800/30 my-2" />
-              <div className="flex justify-between font-bold">
-                <span className="text-violet-300 font-sans">Total</span>
-                <span className="text-violet-400 font-serif">
-                  {formatPrice(cartTotal)}
-                </span>
-              </div>
-            </div>
-
-            {/* Security badge */}
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-mystic-900/30 border border-mystic-700/20">
-              <Shield className="size-5 text-violet-400 shrink-0" />
-              <p className="text-xs text-foreground/50 leading-relaxed font-sans">
-                {checkoutSecurityNote}
-              </p>
-            </div>
-
-            {/* Payment button - MercadoPago only */}
-            <Button
-              onClick={handlePayWithMercadoPago}
-              disabled={checkoutSubmitting}
-              className="w-full bg-[#009ee3] hover:bg-[#0089c7] text-white font-semibold text-base py-5 rounded-full transition-all duration-300 hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 font-sans"
-            >
-              {checkoutSubmitting ? (
-                <>
-                  <Loader2 className="size-5 mr-2 animate-spin" />
-                  {checkoutBtnProcessing}
-                </>
-              ) : (
-                <>
-                  <Landmark className="size-5 mr-2" />
-                  {checkoutBtnPayMercadoPago}
-                </>
-              )}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* Scroll to top button */}
       <AnimatePresence>

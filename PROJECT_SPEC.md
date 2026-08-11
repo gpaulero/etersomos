@@ -1,6 +1,6 @@
 # ETÉR SOMOS - Especificación Completa del Proyecto
 ## (Archivo de referencia CRÍTICO - NO BORRAR)
-## Última actualización: 2026-07-24 (sesión 33)
+## Última actualización: 2026-08-12 (sesión 34)
 
 Este documento describe TODO el estado actual, credenciales, estructura y requisitos del sitio web.
 **Siempre consultar antes de hacer cambios.**
@@ -1707,3 +1707,19 @@ Commit: `778f20d` — 4 archivos, 135 insertions, 161 deletions.
 - Desindexar `etersomos.ga` (acciones del usuario, ver punto 7 de S32)
 - Arrancar con **Blog SEO** (Opción B) — próximo paso grande para rankear "registros akáshicos"
 - **PENDIENTE CRÍTICO**: Rotar el GitHub PAT que el usuario pasó por chat (quedó expuesto)
+
+SESIÓN 34 (12/08/2026 — Home cleanup + Lecturas: acuerdo sincronizado con Google Form)
+GRUPO 1 — Home (src/app/page.tsx):
+- Eliminado el título visible "Eter Somos" (motion.h2) del Hero. Quedan: logo + tagline + botones. El H1 sr-only SEO se mantiene intacto.
+- Eliminado el ícono del carrito del navbar (desktop y mobile). El carrito queda solo en /tienda.
+- Eliminado el código muerto del carrito/checkout de cristales (~700 líneas): interfaces Product/CartItem, array products de cristales, crystalCategories, CMS reads cart.*/checkout.*, cmsProducts/cmsCategories, estados cart/cartOpen/activeCategory/checkout*, addToCart, updateQuantity, removeFromCart, cartTotal/cartCount, filteredProducts, saveCheckoutSession, validateCheckoutForm, handleCheckoutChange, handlePayWithMercadoPago, Cart Sheet, Checkout Dialog e imports sin uso (ShoppingBag, Plus, Minus, CreditCard). La home no vende cristales desde la sesión 8; el botón de carrito vacío apuntaba a #cristales que ya no existía.
+GRUPO 2 — Lecturas (src/app/lecturas/page.tsx):
+- Eliminada la frase del intro "Solicitá tu lectura akáshica personalizada con Fer Cardozo."
+- ACUERDO DE LECTURA sincronizado con el Google Form actualizado (textos acortados por Fer): entrega ~10 días hábiles (antes "dentro de la semana siguiente"), enfoque espiritual sin predicciones, 2 preguntas entregadas en audio, ejemplos de preguntas, duración 30-40 min o más, condiciones, confidencialidad, derecho de admisión con reintegro.
+- Limpieza visual: sin negritas en el acuerdo, sin label "NOTA IMPORTANTE" en mayúsculas, sin separadores redundantes.
+- Recuadros solo blanco/violeta: buenas preguntas y no respondidas ahora usan fondo neutro + borde violeta. Tilde verde (sí se responden) y cruz roja (no se responden; antes AlertTriangle, ahora icono X).
+- Checkbox de aceptación del acuerdo con visibilidad mejorada: borde violeta notorio, fondo violeta sutil, checkbox size-5 que se rellena en violeta (antes casi invisible sobre fondo oscuro).
+- Agregado ícono X de lucide-react.
+Notas:
+- Los errores de validación del formulario mantienen texto rojo chico (funcional, no son recuadros).
+- El precio del acuerdo ya no está duplicado en el texto: se muestra en los badges CMS arriba del acuerdo.

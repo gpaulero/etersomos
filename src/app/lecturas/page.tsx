@@ -4,7 +4,8 @@ import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { toast, Toaster } from "sonner";
 import Link from "next/link";
-import { ArrowLeft, ChevronDown, Check, Loader2, Sparkles, AlertTriangle, CreditCard, Landmark, DollarSign, User, Heart, MessageCircle, ArrowUp } from "lucide-react";
+import { ArrowLeft, ChevronDown, Check, Loader2, Sparkles, AlertTriangle, CreditCard, Landmark, DollarSign, User, Heart, MessageCircle, ArrowUp   X,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -319,7 +320,6 @@ export default function LecturasPage() {
               Lectura de Registros Akáshicos Personalizada
             </h1>
             <p className="text-foreground/70 text-sm sm:text-base max-w-2xl mx-auto mb-5 leading-relaxed">
-              Solicitá tu <strong className="text-foreground/90">lectura akáshica personalizada</strong> con Fer Cardozo.
               Una lectura de Registros Akáshicos te conecta con la sabiduría de tu alma para responder
               las preguntas más profundas de tu camino espiritual. Recibirás tu lectura grabada en audio,
               disponible en el Aula Virtual, desde Córdoba hacia todo el mundo.
@@ -354,121 +354,92 @@ export default function LecturasPage() {
                   </CollapsibleTrigger>
                   <CollapsibleContent>
                     <div className="pt-4 space-y-4 text-sm text-foreground/70 leading-relaxed">
-                      <p className="text-foreground/80 font-medium">
-                        Por favor tomate el tiempo de leer completo este acuerdo, es fundamental para que la Lectura se desarrolle en un marco de total armonía y comprensión.
+                      <p>
+                        Por favor tomate el tiempo de leer completo este acuerdo, es fundamental para que la
+                        Lectura se desarrolle en un marco de total armonía y comprensión.
                       </p>
 
                       <div className="p-4 rounded-xl bg-violet-500/10 border border-violet-400/20">
-                        <p className="text-foreground/80 font-semibold mb-1 text-violet-300">NOTA IMPORTANTE:</p>
                         <p>
-                          Tu lectura estará disponible en el Aula Virtual dentro de la semana siguiente a la que completas este formulario. Vas a recibir un email con tus credenciales de acceso para ingresar y escuchar tu lectura cuando esté lista. Eventualmente puedo indicarte una fecha de entrega pasada esta semana, depende de la cantidad de solicitudes que hayan ingresado. Si estás solicitando tu lectura con urgencia o sentís que no podés esperar toda la semana siguiente, no completes este formulario. Por favor ten paciencia y disfrutá el proceso! 🙏🥰
+                          <span className="text-violet-300">Entrega:</span> tu lectura estará disponible en el
+                          Aula Virtual aproximadamente dentro de los 10 días hábiles posteriores a completar
+                          este formulario. Si necesitás una respuesta urgente, te recomiendo no solicitar la lectura.
                         </p>
                       </div>
 
                       <p>
-                        El objetivo final de esta lectura de Registros Akáshicos es siempre el bienestar y mayor bien de todos los que están involucrados en los temas que son tratados, así como el crecimiento interno y la evolución tanto personal como planetaria.
+                        La lectura tiene un enfoque espiritual orientado al bienestar y crecimiento personal.
+                        Los Registros pueden mostrar información del presente, pasado o futuros potenciales.
+                        No realizo predicciones.
                       </p>
 
-                      <p>
-                        El Akasha puede reflejarnos, a modo de información, datos del presente, del pasado o bien proyecciones de un futuro posible. <strong className="text-foreground/90">NO HAGO PREDICCIONES</strong>, dependiendo de cuál sea la energía que vos imprimas a tu presente, crearás tu futuro.
-                      </p>
+                      <p>Incluye la respuesta a 2 preguntas o temas, entregadas en audio.</p>
 
-                      <p>
-                        Si querés hacer la lectura junto a otra persona (amigxs, pareja, familia), indicámelo al momento de inscribirte para poder prepararla adecuadamente.
-                      </p>
+                      <p>Las preguntas deben estar enfocadas en vos, no en terceros.</p>
 
-                      <p>
-                        El consultante, solicitará a través de este acuerdo y completando el formulario de solicitud de Lectura, una <strong className="text-foreground/90">LECTURA DE REGISTROS AKÁSHICOS</strong>. En la misma se responderán dos preguntas proporcionadas por el consultante, las mismas serán entregadas en audios a través del Aula Virtual, donde podrás acceder con tus credenciales.
-                      </p>
-
-                      <Separator className="bg-mystic-800/30 my-4" />
-
-                      <div>
-                        <p className="font-semibold text-foreground/90 mb-2">Sobre las 2 preguntas:</p>
-                        <p className="mb-3">
-                          Las preguntas en lo posible deben ser concretas, focalizándolas en lo que realmente necesitás saber. Las preguntas que hagas tienen que estar enfocadas en vos, no en terceros.
-                        </p>
-
-                        <div className="grid sm:grid-cols-2 gap-4">
-                          <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20">
-                            <p className="text-green-400 font-semibold text-xs mb-2 flex items-center gap-1">
-                              <Check className="size-3" /> Ejemplos de BUENAS preguntas:
-                            </p>
-                            <ul className="space-y-1 text-xs text-foreground/70">
-                              <li>• ¿Por qué no puedo ser feliz?</li>
-                              <li>• ¿Por qué me siento bloqueada?</li>
-                              <li>• ¿Cómo hago para conseguir un trabajo que me guste?</li>
-                              <li>• ¿Qué necesito saber para crecer en lo profesional?</li>
-                              <li>• ¿Algún consejo de mis guías o maestros?</li>
-                              <li>• Tengo tal síntoma y me gustaría saber qué hay detrás de este síntoma físico.</li>
-                            </ul>
-                          </div>
-                          <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-                            <p className="text-red-400 font-semibold text-xs mb-2 flex items-center gap-1">
-                              <AlertTriangle className="size-3" /> Preguntas que NO se responderán:
-                            </p>
-                            <ul className="space-y-1 text-xs text-foreground/70">
-                              <li>• ¿Voy a volver con mi ex pareja?</li>
-                              <li>• ¿Tal persona siente atracción por mí?</li>
-                              <li>• ¿Aparecerá una pareja en el futuro?</li>
-                              <li>• ¿Mi hijo logrará un equilibrio económico?</li>
-                              <li>• ¿Estoy enferma, lograré superar la enfermedad?</li>
-                            </ul>
-                          </div>
+                      <div className="grid sm:grid-cols-2 gap-4">
+                        <div className="p-3 rounded-lg bg-white/[0.03] border border-violet-400/20">
+                          <p className="text-violet-300 text-xs mb-2 flex items-center gap-1.5">
+                            <Check className="size-3 text-green-400 shrink-0" /> Ejemplos de preguntas que sí se responden
+                          </p>
+                          <ul className="space-y-1 text-xs text-foreground/70">
+                            <li>• ¿Por qué me siento bloqueada?</li>
+                            <li>• ¿Por qué me siento sola o vacía?</li>
+                            <li>• ¿Qué necesito saber para crecer profesionalmente?</li>
+                            <li>• ¿Qué consejo tienen mis guías?</li>
+                            <li>• ¿Qué hay detrás de determinado síntoma físico?</li>
+                          </ul>
+                        </div>
+                        <div className="p-3 rounded-lg bg-white/[0.03] border border-violet-400/20">
+                          <p className="text-violet-300 text-xs mb-2 flex items-center gap-1.5">
+                            <X className="size-3 text-red-400 shrink-0" /> Preguntas que no se responden
+                          </p>
+                          <p className="text-xs text-foreground/70">
+                            No respondo preguntas sobre sentimientos, decisiones o futuro de otras personas.
+                          </p>
                         </div>
                       </div>
 
-                      <Separator className="bg-mystic-800/30 my-4" />
+                      <p>
+                        Podrás compartir el contexto que consideres importante. Te invito a hacerlo con confianza,
+                        ya que facilita y enriquece la lectura. Si una pareja, familiar o persona cercana también
+                        solicita una lectura sobre temas relacionados o compartidos, por favor avisame para poder
+                        observar la energía en conjunto.
+                      </p>
 
-                      <div>
-                        <p className="font-semibold text-foreground/90 mb-2">Información adicional:</p>
-                        <ul className="space-y-2">
-                          <li className="flex items-start gap-2">
-                            <Check className="size-3.5 text-violet-400 shrink-0 mt-0.5" />
-                            La lectura dura generalmente entre 30 o 40 minutos en audios.
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <Check className="size-3.5 text-violet-400 shrink-0 mt-0.5" />
-                            Si es necesario puede usar oráculos para complementar la lectura.
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <Check className="size-3.5 text-violet-400 shrink-0 mt-0.5" />
-                            Una foto del consultante es útil (podés enviarla por WhatsApp) — se elimina al finalizar la lectura.
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <Check className="size-3.5 text-violet-400 shrink-0 mt-0.5" />
-                            Excepcionalmente podría solicitar una videollamada de 30 min para transmitir información que no pueda ir en audio.
-                          </li>
-                        </ul>
-                      </div>
+                      <p>
+                        La lectura suele durar 30 a 40 minutos o más. Si lo considero necesario, podré complementarla
+                        con oráculos, grillas de cristales, limpiezas energéticas u otras herramientas afines.
+                      </p>
 
-                      <Separator className="bg-mystic-800/30 my-4" />
+                      <p>
+                        La lectura comenzará únicamente una vez recibida la contribución. Luego deberás enviarme el
+                        comprobante por email o WhatsApp. Al final de este formulario encontrarás las opciones de
+                        pago disponibles.
+                      </p>
 
-                      <div>
-                        <p className="font-semibold text-foreground/90 mb-2">Condiciones:</p>
-                        <ul className="space-y-2">
-                          <li className="flex items-start gap-2">
-                            <Check className="size-3.5 text-violet-400 shrink-0 mt-0.5" />
-                            Confidencialidad absoluta.
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <Check className="size-3.5 text-violet-400 shrink-0 mt-0.5" />
-                            No pretende reemplazar evaluación médica ni psicológica.
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <Check className="size-3.5 text-violet-400 shrink-0 mt-0.5" />
-                            No hay reembolsos.
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <Check className="size-3.5 text-violet-400 shrink-0 mt-0.5" />
-                            El consultante debe ser mayor de 18 años.
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <Check className="size-3.5 text-violet-400 shrink-0 mt-0.5" />
-                            Fernanda se reserva el derecho de admisión.
-                          </li>
-                        </ul>
-                      </div>
+                      <p>Toda la información compartida es confidencial.</p>
+
+                      <p>
+                        Esta lectura no reemplaza diagnósticos, tratamientos ni indicaciones médicas o psicológicas.
+                        No se realizan reembolsos una vez entregada la lectura ni tampoco por decisión del consultante
+                        de cancelar o desistir del proceso luego de haber realizado su contribución.
+                      </p>
+
+                      <p>
+                        Fernanda Lucrecia Cardozo no se responsabiliza por decisiones o consecuencias derivadas de la
+                        información recibida.
+                      </p>
+
+                      <p>
+                        Al solicitar la lectura declarás que los datos brindados son verdaderos, que sos mayor de 18
+                        años y que participás por voluntad propia.
+                      </p>
+
+                      <p>
+                        Fernanda Lucrecia Cardozo se reserva el derecho de admisión. Si una consulta no pudiera
+                        realizarse por decisión de la facilitadora, cualquier importe abonado será reintegrado.
+                      </p>
                     </div>
                   </CollapsibleContent>
                 </Collapsible>
@@ -478,14 +449,15 @@ export default function LecturasPage() {
 
           {/* Terms Checkbox */}
           <motion.div variants={fadeIn} className="mb-8">
-            <label className="flex items-start gap-3 cursor-pointer p-4 rounded-xl border border-mystic-700/30 glass group">
+            <label className="flex items-start gap-3 cursor-pointer p-5 rounded-xl border border-violet-400/40 bg-violet-500/5 hover:bg-violet-500/10 transition-colors">
               <Checkbox
                 checked={termsAccepted}
                 onCheckedChange={(checked) => setTermsAccepted(checked === true)}
-                className="mt-0.5 data-[state=checked]:bg-foreground data-[state=checked]:border-foreground data-[state=checked]:text-mystic-950"
+                className="mt-0.5 size-5 shrink-0 border-violet-400/60 data-[state=checked]:bg-violet-500 data-[state=checked]:border-violet-500 data-[state=checked]:text-white"
               />
               <span className="text-sm text-foreground leading-relaxed">
-                He leído, he comprendido y <strong className="text-foreground">acepto el marco y condiciones</strong> en que se realizará esta Lectura, expresado y detallado más arriba en el ACUERDO DE LECTURA DE REGISTROS AKÁSHICOS. <span className="text-violet-400">*</span>
+                He leído, he comprendido y acepto el marco y condiciones en que se realizará esta Lectura,
+                expresado y detallado más arriba en el ACUERDO DE LECTURA DE REGISTROS AKÁSHICOS.
               </span>
             </label>
           </motion.div>
