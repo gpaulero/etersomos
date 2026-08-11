@@ -435,9 +435,9 @@ El admin panel está **en el mismo proyecto** que el sitio público bajo `/admin
 
 ### 1. NAVBAR (fija arriba)
 - Logo + "ETER SOMOS" a la izquierda
-- Links: Inicio | Lecturas | Cursos | Mentorías (/mentorias) | Membresías (/membresias) | Recursos (/recursos) | Tienda (/tienda)
+- Links: Inicio | Lecturas | Cursos | Mentorías (/mentorias) | Membresías (/membresias) | Recursos (/recursos) | Tienda (/tienda) | Aula (/aula)
 - Icono de Instagram
-- Icono de carrito (ShoppingBag) con badge de cantidad - SIEMPRE visible en navbar
+- Icono de carrito: ELIMINADO de la navbar global (sesión 34). El carrito existe únicamente dentro de /tienda
 - NO hay botón flotante de carrito abajo
 - Menu hamburguesa en mobile con Sheet lateral
 - **IMPORTANTE**: Los labels del navbar vienen del CMS (nav.link_sesiones=Lecturas, nav.link_mentorias=Mentorías, nav.link_membresia=Membresías, nav.link_recursos=Recursos)
@@ -446,7 +446,7 @@ El admin panel está **en el mismo proyecto** que el sitio público bajo `/admin
 - Imagen de fondo (hero-bg-v2.webp - foto real de Pexels, 5441x3661 → 2560x1440 WebP)
 - Overlay oscuro bg-mystic-950/80
 - Logo circular animado (float) con **opacidad al 85%** (opacity-85)
-- Título: CMS (hero_title, vacío por defecto → usa "Eter Somos" hardcodeado)
+- Título visible: ELIMINADO (sesión 34). El hero muestra solo logo + tagline + botones. El key CMS site.hero_title queda sin usar (H1 sr-only SEO intacto)
 - Tagline: CMS (hero_tagline: "Un espacio para vivir tu espiritualidad de forma cercana, humana y sobre todo desde la consciencia")
 - 2 botones: "Ver servicios" (→ #espacios) y "Pedí tu Lectura" (→ /lecturas) con icono BookOpen
 
@@ -735,7 +735,7 @@ Todos los emails usan el sistema de design tokens `BRAND` que replica la estéti
 ## ARCHIVOS CLAVE
 
 ### Páginas
-- src/app/page.tsx - Página principal (~3000 líneas, sin Tienda ni Recursos desde sesión 8)
+- src/app/page.tsx - Página principal (~2350 líneas, sin Tienda ni Recursos desde sesión 8, sin carrito/checkout desde sesión 34)
 - src/app/tienda/page.tsx - Página tienda de cristales (carrito, checkout, filtros)
 - src/app/tienda/layout.tsx - Layout de tienda (metadata)
 - src/app/recursos/page.tsx - Página recursos gratuitos (newsletter, contribución voluntaria)
@@ -1180,7 +1180,7 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 - Recursos usan modelo de contribución voluntaria: todos gratuitos, con links opcionales de MP/PayPal
 - ProtectedPlayer protege video/audio contra descarga (Blob URL, controlsList="nodownload", etc.)
 - SiteContentProvider en layout.tsx provee CMS a toda la app con auto-refresh cross-tab/focus/visibility
-- Commit actual: 1043243
+- Commit actual: 2abfacc (sesión 34)
 
 ### SESIÓN 19 (17/05/2026 — Revisión completa del sistema + Fix CMS revalidation)
 
