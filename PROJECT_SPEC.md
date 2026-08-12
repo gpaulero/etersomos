@@ -1,6 +1,6 @@
 # ETÉR SOMOS - Especificación Completa del Proyecto
 ## (Archivo de referencia CRÍTICO - NO BORRAR)
-## Última actualización: 2026-08-12 (sesión 36)
+## Última actualización: 2026-08-12 (sesión 37)
 
 Este documento describe TODO el estado actual, credenciales, estructura y requisitos del sitio web.
 **Siempre consultar antes de hacer cambios.**
@@ -1185,7 +1185,7 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 - Recursos usan modelo de contribución voluntaria: todos gratuitos, con links opcionales de MP/PayPal
 - ProtectedPlayer protege video/audio contra descarga (Blob URL, controlsList="nodownload", etc.)
 - SiteContentProvider en layout.tsx provee CMS a toda la app con auto-refresh cross-tab/focus/visibility
-- Commit actual: 8089865 (sesión 36)
+- Commit actual: b86dc50 (sesión 37)
 
 ### SESIÓN 19 (17/05/2026 — Revisión completa del sistema + Fix CMS revalidation)
 
@@ -1759,3 +1759,10 @@ GRUPO 6 — Recuperación de contraseña del Aula Virtual:
 - /aula/login: link "¿Olvidaste tu contraseña?" bajo el formulario.
 - Middleware: ambas rutas agregadas a PUBLIC_ROUTES.
 Pendiente de verificar: flujo completo con un alumno real (pedido → email → link → reset → login).
+
+SESIÓN 37 (12/08/2026 — Lecturas: página de agradecimiento post-solicitud)
+Commits: b86dc50 + commit docs
+- Nueva página /lecturas/gracias (robots noindex): confirmación de solicitud + aviso de accesos al Aula Virtual por email + recordatorio de contribución/comprobante (WhatsApp/email). Header y footer propios con la estética de /lecturas.
+- handleSubmit de /lecturas (flujo transferencia/WU): el toast inline de éxito fue reemplazado por router.push("/lecturas/gracias") — el usuario ahora sale de la página al completar el formulario (consistencia con /cursos/gracias de S36).
+- Agregado useRouter en lecturas/page.tsx.
+Nota: Los flujos MercadoPago/PayPal ya salían de la página (redirigen a la plataforma de pago y vuelven a /payment/success).
