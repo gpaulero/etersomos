@@ -9,6 +9,7 @@ import {
   BookOpen,
   Check,
   AlertCircle,
+  CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -77,6 +78,7 @@ export default function N1PracticaPage() {
   const [formPaused, setFormPaused] = useState(false);
   const [accepted, setAccepted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
 
   // Form fields
@@ -228,6 +230,8 @@ export default function N1PracticaPage() {
       });
       const data = await res.json();
       if (res.ok && data.success) {
+        setSubmitted(true);
+        window.scrollTo({ top: 0, behavior: "smooth" });
         localStorage.removeItem(FORM_KEY);
         toast.success("Inscripción registrada con éxito", {
           description: "Recordá realizar la transferencia con los datos indicados. Te contactaremos para comenzar el curso.",
@@ -271,6 +275,48 @@ export default function N1PracticaPage() {
     "bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30";
   const errorInputClass =
     "bg-mystic-900/50 border-red-400/60 text-foreground placeholder:text-foreground/30";
+
+    if (submitted) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-2xl mx-auto text-center py-10"
+      >
+        <div className="mx-auto w-20 h-20 rounded-full bg-violet-500/15 border border-violet-400/30 flex items-center justify-center mb-6">
+          <CheckCircle2 className="size-10 text-violet-400" />
+        </div>
+        <h1 className="text-3xl sm:text-4xl font-serif font-semibold text-foreground mb-4">
+          ¡Gracias por completar tu inscripción!
+        </h1>
+        <p className="text-foreground/70 text-base sm:text-lg leading-relaxed mb-6">
+          Recibimos tu solicitud correctamente. Te enviaremos por email los accesos
+          al Aula Virtual una vez que confirmemos tu contribución.
+        </p>
+        <div className="glass-light rounded-2xl p-6 text-sm text-foreground/70 leading-relaxed mb-8">
+          Recordá que tu inscripción se confirma una vez realizada tu contribución.
+          Si elegiste transferencia o Western Union, envianos el comprobante por
+          WhatsApp al +54 9 3518 62-9325 o a etersomos@gmail.com.
+        </div>
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Button
+            variant="outline"
+            onClick={() => (window.location.href = "/cursos")}
+            className="rounded-full border-foreground/20 text-foreground/80 hover:bg-foreground/5 hover:text-foreground"
+          >
+            Ver otros cursos
+          </Button>
+          <Button
+            onClick={() => (window.location.href = "/")}
+            className="rounded-full bg-violet-500 hover:bg-violet-600 text-white"
+          >
+            Volver al inicio
+          </Button>
+        </div>
+      </motion.div>
+    );
+  }
 
   if (formPaused) {
     return (

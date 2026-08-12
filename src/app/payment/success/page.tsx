@@ -49,7 +49,7 @@ const TYPE_CONFIG: Record<string, {
   course_enrollment: {
     processingTitle: "Procesando tu inscripción...",
     successTitle: "¡Inscripción Confirmada!",
-    successMessage: (name) => `¡Bienvenido/a, ${name}! Tu inscripción al curso fue registrada. Te contactaremos con los detalles.`,
+    successMessage: (name) => `¡Bienvenido/a, ${name}! Gracias por completar tu inscripción. Te enviaremos los accesos al Aula Virtual por email.`,
     summaryLabel: "Resumen de inscripción",
     summaryIcon: <BookOpen className="size-4" />,
   },
