@@ -678,6 +678,21 @@ export async function ensureSchema() {
           console.warn("[DB] Could not add expiresAt column:", msg)
         }
       }
+      // Add resetToken/resetExpiry columns to Student if missing (password recovery, S36)
+      for (const col of [
+        { name: 'resetToken', sql: `ALTER TABLE Student ADD COLUMN resetToken TEXT` },
+        { name: 'resetExpiry', sql: `ALTER TABLE Student ADD COLUMN resetExpiry TEXT` },
+      ]) {
+        try {
+          await client.execute(col.sql)
+          console.log(`[DB] Added ${col.name} column to Student`)
+        } catch (e: unknown) {
+          const msg = e instanceof Error ? e.message : String(e)
+          if (!msg.includes('duplicate column') && !msg.includes('already exists')) {
+            console.warn(`[DB] Could not add ${col.name} column:`, msg)
+          }
+        }
+      }
     } else {
       await prisma.$executeRawUnsafe(siteContentSql)
       await prisma.$executeRawUnsafe(studentSql)
@@ -687,6 +702,21 @@ export async function ensureSchema() {
       // Add r2Key, fileName, expiresAt columns to StudentEnrollment if missing (existing local DBs)
       for (const col of [
         { name: 'r2Key', sql: `ALTER TABLE StudentEnrollment ADD COLUMN r2Key TEXT NOT NULL DEFAULT ''` },
+      // Add resetToken/resetExpiry columns to Student if missing (password recovery, S36)
+      for (const col of [
+        { name: 'resetToken', sql: `ALTER TABLE Student ADD COLUMN resetToken TEXT` },
+        { name: 'resetExpiry', sql: `ALTER TABLE Student ADD COLUMN resetExpiry TEXT` },
+      ]) {
+        try {
+          await prisma.$executeRawUnsafe(col.sql)
+          console.log(`[DB] Added ${col.name} column to Student`)
+        } catch (e: unknown) {
+          const msg = e instanceof Error ? e.message : String(e)
+          if (!msg.includes('duplicate column') && !msg.includes('already exists')) {
+            console.warn(`[DB] Could not add ${col.name} column:`, msg)
+          }
+        }
+      }
         { name: 'fileName', sql: `ALTER TABLE StudentEnrollment ADD COLUMN fileName TEXT NOT NULL DEFAULT ''` },
         { name: 'expiresAt', sql: `ALTER TABLE StudentEnrollment ADD COLUMN expiresAt TEXT` },
       ]) {

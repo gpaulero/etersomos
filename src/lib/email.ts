@@ -706,6 +706,40 @@ export async function sendLecturaReadyEmail(params: {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
+   PASSWORD RESET EMAIL (S36)
+   ═══════════════════════════════════════════════════════════════════════ */
+
+export async function sendPasswordResetEmail(params: {
+  customerEmail: string
+  resetUrl: string
+}): Promise<void> {
+  const transporter = createTransporter();
+  const html = emailShell(`
+    ${headerBlock("RESTABLECER CONTRASENA", "Eter Somos | Aula Virtual")}
+    <div style="padding: 24px;">
+      <p style="margin: 0 0 16px; color: ${BRAND.text}; font-size: 15px; line-height: 1.6;">
+        Recibimos una solicitud para restablecer la contrasena de tu cuenta del Aula Virtual.
+      </p>
+      <div style="background: ${BRAND.cardInner}; border: 1px solid ${BRAND.borderLight}; border-radius: ${BRAND.radius}; padding: 16px; margin-bottom: 16px;">
+        <p style="margin: 0; color: ${BRAND.muted}; font-size: 13px; line-height: 1.5;">
+          Este enlace expira en 30 minutos y solo puede usarse una vez. Si no solicitaste este cambio,
+          ignora este email: tu contrasena no se modificara.
+        </p>
+      </div>
+    </div>
+    ${ctaButton(params.resetUrl, "Restablecer mi contrasena")}
+    ${footerBlock()}
+  `);
+  await transporter.sendMail({
+    from: `"Eter Somos" <${SMTP_USER}>`,
+    to: [params.customerEmail],
+    subject: "Eter Somos - Restablecer tu contrasena del Aula Virtual",
+    html,
+  });
+  console.log(`[Email] Password reset email sent to ${params.customerEmail}`);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
    AULA VIRTUAL EXISTING STUDENT EMAIL
    Sent when an existing student makes a new purchase (reading/course/mentoria).
    Reminds them to log in with their existing credentials.

@@ -4,6 +4,7 @@
  */
 import bcrypt from 'bcryptjs'
 import { SignJWT, jwtVerify } from 'jose'
+import { randomBytes } from 'crypto'
 import { db, ensureSchema } from './db'
 
 const JWT_SECRET = new TextEncoder().encode(
@@ -283,4 +284,37 @@ export async function ensureStudentWithEnrollment(params: {
     enrollmentId: enrollment.id,
     isNewEnrollment: true,
   }
+}
+
+/* ── Password recovery (S36) ── */
+
+export async function createPasswordResetToken(email: string): Promise<{ studentId: string; token: string } | null> {
+  await ensureSchema()
+  let student = await (db as any).student.findUnique({ where: { email } })
+  if (!student) {
+    const all = await (db as any).student.findMany({})
+    student = all.find((s: any) => String(s.email).toLowerCase() === email.toLowerCase()) || null
+  }
+  if (!student) return null
+  const token = randomBytes(32).toString('hex')
+  const expiry = new Date(Date.now() + 30 * 60 * 1000).toISOString()
+  await (db as any).student.update({
+    where: { id: student.id },
+    data: { resetToken: token, resetExpiry: expiry, updatedAt: new Date() },
+  })
+  return { studentId: student.id, token }
+}
+
+export async function resetPasswordWithToken(token: string, newPassword: string): Promise<boolean> {
+  await ensureSchema()
+  if (!token) return false
+  const student = await (db as any).student.findFirst({ where: { resetToken: token } })
+  if (!student || !student.resetExpiry) return false
+  if (new Date(student.resetExpiry).getTime() < Date.now()) return false
+  const passwordHash = await hashPassword(newPassword)
+  await (db as any).student.update({
+    where: { id: student.id },
+    data: { passwordHash, resetToken: null, resetExpiry: null, updatedAt: new Date() },
+  })
+  return true
 }

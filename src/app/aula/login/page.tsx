@@ -235,6 +235,15 @@ export default function AulaLoginPage() {
             </Button>
           </form>
 
+          <div className="mt-4 text-center">
+            <Link
+              href="/aula/recuperar"
+              className="text-violet-300/80 hover:text-violet-300 text-sm font-sans underline-offset-2 hover:underline transition-colors"
+            >
+              ¿Olvidaste tu contraseña?
+            </Link>
+          </div>
+
           <div className="mt-6 pt-5 border-t border-mystic-700/40 text-center">
             <p className="text-mystic-400 text-sm mb-3 font-sans">¿Todavía no tenés cuenta?</p>
             <Link href="/aula/registro">

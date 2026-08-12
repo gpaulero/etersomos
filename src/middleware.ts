@@ -32,7 +32,7 @@ export function middleware(request: NextRequest) {
 
   if (!pathname.startsWith("/api/")) return addSecurityHeaders(request);
 
-  const PUBLIC_ROUTES = ["/api/auth", "/api/newsletter", "/api/payments", "/api/memberships", "/api/student/auth/login", "/api/student/auth/register", "/api/student/auth/logout"];
+  const PUBLIC_ROUTES = ["/api/auth", "/api/newsletter", "/api/payments", "/api/memberships", "/api/student/auth/login", "/api/student/auth/register", "/api/student/auth/logout", "/api/student/auth/forgot-password", "/api/student/auth/reset-password"];
   for (const route of PUBLIC_ROUTES) {
     if (pathname.startsWith(route)) return addSecurityHeaders(request);
   }
