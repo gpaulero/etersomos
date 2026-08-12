@@ -1,6 +1,6 @@
 # ETÉR SOMOS - Especificación Completa del Proyecto
 ## (Archivo de referencia CRÍTICO - NO BORRAR)
-## Última actualización: 2026-08-12 (sesión 34)
+## Última actualización: 2026-08-12 (sesión 36)
 
 Este documento describe TODO el estado actual, credenciales, estructura y requisitos del sitio web.
 **Siempre consultar antes de hacer cambios.**
@@ -747,6 +747,9 @@ Todos los emails usan el sistema de design tokens `BRAND` que replica la estéti
 - src/app/aula/curso/[courseId]/page.tsx - Reproductor de curso (~604 líneas): video/audio/PDF, playlist, navegación
 - src/app/aula/login/page.tsx - Login aula virtual (~264 líneas): orbes animados, toggle password
 - src/app/aula/registro/page.tsx - Registro de alumnos
+src/app/aula/recuperar/page.tsx - Recuperación de contraseña: pedido de enlace por email (S36)
+src/app/aula/reset/page.tsx - Reset de contraseña con token (?token=..., S36)
+src/app/cursos/gracias/page.tsx - Confirmación post-inscripción de cursos (S36, no indexable)
 - src/app/membresias/page.tsx - Página dedicada de membresías con formulario
 - src/app/membresias/layout.tsx - Layout de membresías (header volver + footer)
 - src/app/payment/success/page.tsx - Página post-pago
@@ -805,6 +808,8 @@ Todos los emails usan el sistema de design tokens `BRAND` que replica la estéti
 - src/app/api/student/auth/register/route.ts - POST registro alumno
 - src/app/api/student/auth/me/route.ts - GET perfil alumno
 - src/app/api/student/auth/logout/route.ts - POST logout alumno
+src/app/api/student/auth/forgot-password/route.ts - POST solicitud de reset de contraseña (S36, pública, respuesta genérica)
+src/app/api/student/auth/reset-password/route.ts - POST reset efectivo con token (S36, pública)
 - src/app/api/student/enrollments/route.ts - GET inscripciones del alumno
 - src/app/api/student/course-content/route.ts - GET contenido de curso (verifica inscripción)
 - src/app/api/student/stream/route.ts - GET streaming protegido (cursos/ y lecturas/)
@@ -1180,7 +1185,7 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 - Recursos usan modelo de contribución voluntaria: todos gratuitos, con links opcionales de MP/PayPal
 - ProtectedPlayer protege video/audio contra descarga (Blob URL, controlsList="nodownload", etc.)
 - SiteContentProvider en layout.tsx provee CMS a toda la app con auto-refresh cross-tab/focus/visibility
-- Commit actual: 2abfacc (sesión 34)
+- Commit actual: 8089865 (sesión 36)
 
 ### SESIÓN 19 (17/05/2026 — Revisión completa del sistema + Fix CMS revalidation)
 
@@ -1723,3 +1728,34 @@ GRUPO 2 — Lecturas (src/app/lecturas/page.tsx):
 Notas:
 - Los errores de validación del formulario mantienen texto rojo chico (funcional, no son recuadros).
 - El precio del acuerdo ya no está duplicado en el texto: se muestra en los badges CMS arriba del acuerdo.
+
+SESIÓN 35 (12/08/2026 — Cursos: intro limpia + pantalla de agradecimiento) — realizada en sesión paralela
+Commits: d94eba1, 3b08821
+- Cursos: intro sin frases redundantes ("con Fer Cardozo", "al mundo (de todos lados)") y cards más claras (ajuste glass-light).
+- Pantalla de agradecimiento post-inscripción (inline) en los 4 formularios de cursos: al enviar con transferencia/WU mostraba "¡Gracias por completar tu inscripción!" + recordatorio de contribución.
+- /payment/success: mensaje recordando los accesos al Aula Virtual.
+Nota: En la sesión 36 la pantalla inline fue reemplazada por redirección a /cursos/gracias (pedido del usuario: "que te saque de esa página").
+
+SESIÓN 36 (12/08/2026 — Tipografías unificadas + violeta total + cards claras + /cursos/gracias + recuperación de contraseña)
+Commits: 3e116fc, 8dc348a, 8089865 + commit docs
+GRUPO 1 — Tipografías (auditoría global):
+- H1 unificados a escala text-2xl sm:text-3xl md:text-4xl en /cursos, /tienda y /recursos.
+- Regla vigente: Playfair Display (font-serif) = títulos, precios y CTAs principales; Josefin Sans (sans) = resto.
+GRUPO 2 — gold → violet (completa la migración iniciada en /lecturas en S33):
+- 4 formularios de cursos (n1-teorico, n1-practica, n2, ambos): ~190 clases gold migradas a violet (text/border/bg/focus/checked), glow dorado eliminado, H1 a text-foreground.
+- /membresias y /payment/success migrados. Ya no quedan clases gold en el código.
+GRUPO 3 — Cards de cursos más claras:
+- .glass-light (globals.css): fondo rgba(52,44,62,0.55) → rgba(66,56,84,0.78), borde violeta 0.25 → 0.45. Solo afecta páginas de /cursos.
+GRUPO 4 — Meta de /cursos: description y twitter card sin "con Fer Cardozo".
+GRUPO 5 — Página de agradecimiento /cursos/gracias:
+- Nueva página dedicada (robots noindex) con confirmación de inscripción + recordatorio de contribución + comprobante por WhatsApp/email.
+- Los 4 formularios de cursos ahora hacen router.push("/cursos/gracias") tras enviar (reemplaza la pantalla inline de S35; eliminados el estado submitted y el bloque inline, agregado useRouter).
+GRUPO 6 — Recuperación de contraseña del Aula Virtual:
+- Tabla Student: columnas resetToken/resetExpiry (auto-migración ALTER TABLE en ambas ramas de ensureSchema: Turso y local/Prisma).
+- student-auth.ts: createPasswordResetToken(email) — token randomBytes(32) hex, expira a los 30 min, búsqueda case-insensitive; resetPasswordWithToken(token, password) — valida expiración, un solo uso, actualiza passwordHash (bcrypt) y limpia el token.
+- email.ts: sendPasswordResetEmail con estética BRAND (headerBlock + ctaButton), asunto "Eter Somos - Restablecer tu contrasena del Aula Virtual".
+- APIs públicas: POST /api/student/auth/forgot-password (respuesta genérica para no revelar si el email existe) y POST /api/student/auth/reset-password (mínimo 8 caracteres).
+- Páginas: /aula/recuperar (email → estado "Revisá tu email") y /aula/reset?token=... (nueva contraseña + confirmación; estados éxito / enlace inválido; Suspense por useSearchParams).
+- /aula/login: link "¿Olvidaste tu contraseña?" bajo el formulario.
+- Middleware: ambas rutas agregadas a PUBLIC_ROUTES.
+Pendiente de verificar: flujo completo con un alumno real (pedido → email → link → reset → login).
