@@ -8,7 +8,7 @@ const SITE_URL = "https://www.etersomos.com";
 export const metadata: Metadata = {
   title: "Cursos de Registros Akáshicos",
   description:
-    "Formación completa en Registros Akáshicos: Nivel 1 Teórico (contribución voluntaria), Nivel 1 con Práctica ($35.000 ARS), Nivel 2 ($45.000 ARS) y pack de ambos cursos ($70.000 ARS). Con Fer Cardozo.",
+    "Formación completa en Registros Akáshicos: Nivel 1 Teórico (contribución voluntaria), Nivel 1 con Práctica ($35.000 ARS), Nivel 2 ($45.000 ARS) y pack de ambos cursos ($70.000 ARS).",
   alternates: {
     canonical: `${SITE_URL}/cursos`,
   },
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Cursos de Registros Akáshicos | Eter Somos",
     description:
-      "Formación completa en Registros Akáshicos con Fer Cardozo.",
+      "Formación completa en Registros Akáshicos: Nivel 1 y Nivel 2 con clases prácticas individuales.",
   },
 };
 

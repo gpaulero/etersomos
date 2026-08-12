@@ -139,7 +139,7 @@ export default function CursosPage() {
             Formación
           </span>
         </div>
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif font-semibold text-foreground mb-4">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-foreground mb-4">
           Cursos de Registros Akáshicos
         </h1>
         <p className="text-foreground/70 max-w-2xl mx-auto font-sans text-base sm:text-lg leading-relaxed">

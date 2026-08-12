@@ -207,8 +207,8 @@ function PaymentSuccessContent() {
       >
         {status === "processing" && (
           <div className="space-y-6">
-            <div className="mx-auto w-20 h-20 rounded-full bg-gold-500/10 flex items-center justify-center">
-              <Loader2 className="size-10 text-gold-400 animate-spin" />
+            <div className="mx-auto w-20 h-20 rounded-full bg-violet-500/10 flex items-center justify-center">
+              <Loader2 className="size-10 text-violet-400 animate-spin" />
             </div>
             <h1 className="text-2xl sm:text-3xl font-serif font-semibold text-foreground">
               {config.processingTitle}
@@ -272,7 +272,7 @@ function PaymentSuccessContent() {
                 transition={{ delay: 0.6 }}
                 className="bg-mystic-900/50 border border-mystic-700/30 rounded-2xl p-6 text-left space-y-4"
               >
-                <div className="flex items-center gap-2 text-gold-400 font-serif font-semibold">
+                <div className="flex items-center gap-2 text-violet-400 font-serif font-semibold">
                   {config.summaryIcon}
                   <span>{config.summaryLabel}</span>
                 </div>
@@ -293,8 +293,8 @@ function PaymentSuccessContent() {
 
                 <div className="border-t border-mystic-700/30 pt-3">
                   <div className="flex justify-between font-bold">
-                    <span className="text-gold-300">Total</span>
-                    <span className="text-gold-400 font-serif">
+                    <span className="text-violet-300">Total</span>
+                    <span className="text-violet-400 font-serif">
                       {formatPrice(orderInfo.total)}
                     </span>
                   </div>
@@ -364,7 +364,7 @@ export default function PaymentSuccessPage() {
     <Suspense
       fallback={
         <div className="min-h-screen flex flex-col items-center justify-center bg-background">
-          <Loader2 className="size-8 text-gold-400 animate-spin" />
+          <Loader2 className="size-8 text-violet-400 animate-spin" />
         </div>
       }
     >

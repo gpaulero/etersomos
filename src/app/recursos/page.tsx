@@ -289,7 +289,7 @@ export default function RecursosPage() {
                 <BookOpen className="size-8 text-violet-400" />
               </div>
             </motion.div>
-            <motion.h1 variants={fadeInUp} transition={{ duration: 0.8, delay: 0.2 }} className="text-3xl sm:text-4xl md:text-5xl font-serif font-semibold text-foreground mb-3">
+            <motion.h1 variants={fadeInUp} transition={{ duration: 0.8, delay: 0.2 }} className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-foreground mb-3">
               Recursos
             </motion.h1>
             <motion.p variants={fadeInUp} transition={{ duration: 0.8, delay: 0.4 }} className="text-foreground/50 max-w-xl mx-auto font-sans">

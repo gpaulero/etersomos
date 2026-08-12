@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -9,7 +11,6 @@ import {
   BookOpen,
   Check,
   AlertCircle,
-  CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -93,7 +94,7 @@ export default function N1TeoricoPage() {
   const [formPaused, setFormPaused] = useState(false);
   const [accepted, setAccepted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const router = useRouter();
   const [errors, setErrors] = useState<FormErrors>({});
 
   const [email, setEmail] = useState("");
@@ -199,13 +200,8 @@ export default function N1TeoricoPage() {
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        setSubmitted(true);
-        window.scrollTo({ top: 0, behavior: "smooth" });
         localStorage.removeItem(FORM_KEY);
-        toast.success("Inscripción registrada con éxito", {
-          description: "Recordá realizar la transferencia con los datos indicados. Te contactaremos para comenzar el curso.",
-          duration: 8000,
-        });
+        router.push("/cursos/gracias");
       } else {
         toast.error(data.error || "Error al registrar la inscripción");
       }
@@ -254,51 +250,10 @@ export default function N1TeoricoPage() {
   };
 
   const inputClass =
-    "bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30";
+    "bg-mystic-900/50 border-mystic-700/40 focus:border-violet-400/60 text-foreground placeholder:text-foreground/30";
   const errorInputClass =
     "bg-mystic-900/50 border-red-400/60 text-foreground placeholder:text-foreground/30";
 
-    if (submitted) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="max-w-2xl mx-auto text-center py-10"
-      >
-        <div className="mx-auto w-20 h-20 rounded-full bg-violet-500/15 border border-violet-400/30 flex items-center justify-center mb-6">
-          <CheckCircle2 className="size-10 text-violet-400" />
-        </div>
-        <h1 className="text-3xl sm:text-4xl font-serif font-semibold text-foreground mb-4">
-          ¡Gracias por completar tu inscripción!
-        </h1>
-        <p className="text-foreground/70 text-base sm:text-lg leading-relaxed mb-6">
-          Recibimos tu solicitud correctamente. Te enviaremos por email los accesos
-          al Aula Virtual una vez que confirmemos tu contribución.
-        </p>
-        <div className="glass-light rounded-2xl p-6 text-sm text-foreground/70 leading-relaxed mb-8">
-          Recordá que tu inscripción se confirma una vez realizada tu contribución.
-          Si elegiste transferencia o Western Union, envianos el comprobante por
-          WhatsApp al +54 9 3518 62-9325 o a etersomos@gmail.com.
-        </div>
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Button
-            variant="outline"
-            onClick={() => (window.location.href = "/cursos")}
-            className="rounded-full border-foreground/20 text-foreground/80 hover:bg-foreground/5 hover:text-foreground"
-          >
-            Ver otros cursos
-          </Button>
-          <Button
-            onClick={() => (window.location.href = "/")}
-            className="rounded-full bg-violet-500 hover:bg-violet-600 text-white"
-          >
-            Volver al inicio
-          </Button>
-        </div>
-      </motion.div>
-    );
-  }
 
   if (formPaused) {
     return (
@@ -323,14 +278,14 @@ export default function N1TeoricoPage() {
       {/* ── Title ── */}
       <div className="text-center space-y-3">
         <Badge>NIVEL 1</Badge>
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-gold-400 text-glow-gold leading-snug">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-foreground leading-snug">
           Aprendé a Conectar con tus Registros Akáshicos
         </h1>
         <p className="text-foreground/50 font-serif italic">
           (1° Nivel solo Teórico)
         </p>
         <div className="inline-block glass rounded-full px-6 py-2 mt-2">
-          <span className="text-gold-300 font-serif font-semibold text-lg">
+          <span className="text-violet-300 font-serif font-semibold text-lg">
             Contribución Voluntaria Consciente
           </span>
         </div>
@@ -341,7 +296,7 @@ export default function N1TeoricoPage() {
         <Collapsible open={agreementOpen} onOpenChange={setAgreementOpen}>
           <CardHeader className="pb-0">
             <CollapsibleTrigger className="flex items-center justify-between w-full group">
-              <CardTitle className="text-lg text-gold-300 font-serif flex items-center gap-2">
+              <CardTitle className="text-lg text-violet-300 font-serif flex items-center gap-2">
                 <BookOpen className="size-5" />
                 Acuerdo y Condiciones
               </CardTitle>
@@ -351,7 +306,7 @@ export default function N1TeoricoPage() {
           <CollapsibleContent>
             <CardContent className="pt-4">
               <div className="text-sm text-foreground/70 leading-relaxed whitespace-pre-line space-y-4">
-                <p className="text-gold-400/80 font-medium">
+                <p className="text-violet-400/80 font-medium">
                   Por favor tomate el tiempo de leer completo este acuerdo, es
                   fundamental para que el curso se desarrolle en un marco de
                   total armonía y comprensión.
@@ -378,7 +333,7 @@ export default function N1TeoricoPage() {
 
               {/* What's included */}
               <div className="space-y-3">
-                <h3 className="text-gold-300 font-serif font-semibold text-base">
+                <h3 className="text-violet-300 font-serif font-semibold text-base">
                   ¿Qué incluye el curso?
                 </h3>
                 <ul className="space-y-1.5">
@@ -387,7 +342,7 @@ export default function N1TeoricoPage() {
                       key={i}
                       className="flex items-start gap-2 text-sm text-foreground/70"
                     >
-                      <Check className="size-3.5 text-gold-400 shrink-0 mt-0.5" />
+                      <Check className="size-3.5 text-violet-400 shrink-0 mt-0.5" />
                       <span
                         className={
                           i >= 1 && i <= 8
@@ -407,12 +362,12 @@ export default function N1TeoricoPage() {
               {/* Important conditions */}
               <div className="space-y-2">
                 <h3 className="text-foreground/90 font-semibold text-sm flex items-center gap-2">
-                  <AlertCircle className="size-4 text-gold-400" />
+                  <AlertCircle className="size-4 text-violet-400" />
                   Condiciones Importantes
                 </h3>
                 <ul className="space-y-2 text-sm text-foreground/60">
                   <li className="flex items-start gap-2">
-                    <span className="text-gold-400 mt-0.5">•</span>
+                    <span className="text-violet-400 mt-0.5">•</span>
                     El material audiovisual{" "}
                     <strong className="text-foreground/80">
                       NO se puede descargar
@@ -420,7 +375,7 @@ export default function N1TeoricoPage() {
                     , se accede de forma online.
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-gold-400 mt-0.5">•</span>
+                    <span className="text-violet-400 mt-0.5">•</span>
                     El acceso al material es por{" "}
                     <strong className="text-foreground/80">
                       1 mes desde la fecha de inscripción
@@ -428,15 +383,15 @@ export default function N1TeoricoPage() {
                     .
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-gold-400 mt-0.5">•</span>
+                    <span className="text-violet-400 mt-0.5">•</span>
                     No se realizan reembolsos.
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-gold-400 mt-0.5">•</span>
+                    <span className="text-violet-400 mt-0.5">•</span>
                     Fernanda se reserva el derecho de admisión.
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-gold-400 mt-0.5">•</span>
+                    <span className="text-violet-400 mt-0.5">•</span>
                     <strong className="text-foreground/80">
                       NOTA: NO INCLUYE clases de prácticas.
                     </strong>
@@ -454,14 +409,14 @@ export default function N1TeoricoPage() {
           id="accept-terms"
           checked={accepted}
           onCheckedChange={(checked) => setAccepted(checked === true)}
-          className="mt-0.5 data-[state=checked]:bg-gold-400 data-[state=checked]:border-gold-400 data-[state=checked]:text-mystic-950"
+          className="mt-0.5 data-[state=checked]:bg-violet-500 data-[state=checked]:border-violet-500 data-[state=checked]:text-mystic-950"
         />
         <Label
           htmlFor="accept-terms"
           className="text-base text-foreground/80 cursor-pointer leading-relaxed"
         >
           He leído y comprendido el marco y condiciones del curso. Al aceptar, podré completar mi formulario de inscripción.
-          <span className="text-gold-400"> *</span>
+          <span className="text-violet-400"> *</span>
         </Label>
       </div>
 
@@ -474,7 +429,7 @@ export default function N1TeoricoPage() {
         >
           <Card className="glass border-mystic-700/30">
             <CardHeader>
-              <CardTitle className="text-lg text-gold-300 font-serif">
+              <CardTitle className="text-lg text-violet-300 font-serif">
                 Formulario de Inscripción
               </CardTitle>
             </CardHeader>
@@ -482,7 +437,7 @@ export default function N1TeoricoPage() {
               {/* Email */}
               <div className="space-y-1.5">
                 <Label htmlFor="email" className="text-foreground/80 text-sm">
-                  Correo electrónico <span className="text-gold-400">*</span>
+                  Correo electrónico <span className="text-violet-400">*</span>
                 </Label>
                 <Input
                   id="email"
@@ -501,7 +456,7 @@ export default function N1TeoricoPage() {
               <div className="space-y-1.5">
                 <Label htmlFor="nombre" className="text-foreground/80 text-sm">
                   Nombre y apellido completo{" "}
-                  <span className="text-gold-400">*</span>
+                  <span className="text-violet-400">*</span>
                 </Label>
                 <Input
                   id="nombre"
@@ -518,7 +473,7 @@ export default function N1TeoricoPage() {
               {/* Fecha de hoy */}
               <div className="space-y-1.5">
                 <Label htmlFor="fecha" className="text-foreground/80 text-sm">
-                  Fecha de hoy <span className="text-gold-400">*</span>
+                  Fecha de hoy <span className="text-violet-400">*</span>
                 </Label>
                 <Input
                   id="fecha"
@@ -538,7 +493,7 @@ export default function N1TeoricoPage() {
                   htmlFor="nacionalidad"
                   className="text-foreground/80 text-sm"
                 >
-                  Nacionalidad <span className="text-gold-400">*</span>
+                  Nacionalidad <span className="text-violet-400">*</span>
                 </Label>
                 <Input
                   id="nacionalidad"
@@ -557,7 +512,7 @@ export default function N1TeoricoPage() {
               {/* Ciudad */}
               <div className="space-y-1.5">
                 <Label htmlFor="ciudad" className="text-foreground/80 text-sm">
-                  Ciudad actual <span className="text-gold-400">*</span>
+                  Ciudad actual <span className="text-violet-400">*</span>
                 </Label>
                 <Input
                   id="ciudad"
@@ -592,7 +547,7 @@ export default function N1TeoricoPage() {
               <div className="space-y-2.5">
                 <Label className="text-foreground/80 text-sm">
                   ¿Sos lector de Registros Akashicos?{" "}
-                  <span className="text-gold-400">*</span>
+                  <span className="text-violet-400">*</span>
                 </Label>
                 <RadioGroup
                   value={lectorAkashico}
@@ -605,7 +560,7 @@ export default function N1TeoricoPage() {
                       htmlFor={`lector-${opt}`}
                       className={`flex items-center gap-2 cursor-pointer rounded-lg border p-3 text-sm transition-colors ${
                         lectorAkashico === opt
-                          ? "border-gold-400/60 bg-gold-400/5 text-gold-300"
+                          ? "border-violet-400/60 bg-violet-400/5 text-violet-300"
                           : "border-mystic-700/40 text-foreground/60 hover:border-mystic-600"
                       }`}
                     >
@@ -627,7 +582,7 @@ export default function N1TeoricoPage() {
               <div className="space-y-2.5">
                 <Label className="text-foreground/80 text-sm">
                   ¿Cómo te enteraste del curso?{" "}
-                  <span className="text-gold-400">*</span>
+                  <span className="text-violet-400">*</span>
                 </Label>
                 <RadioGroup
                   value={comoSeEnteraste}
@@ -645,7 +600,7 @@ export default function N1TeoricoPage() {
                       htmlFor={`enteraste-${opt}`}
                       className={`flex items-center gap-2 cursor-pointer rounded-lg border p-3 text-sm transition-colors ${
                         comoSeEnteraste === opt
-                          ? "border-gold-400/60 bg-gold-400/5 text-gold-300"
+                          ? "border-violet-400/60 bg-violet-400/5 text-violet-300"
                           : "border-mystic-700/40 text-foreground/60 hover:border-mystic-600"
                       }`}
                     >
@@ -694,7 +649,7 @@ export default function N1TeoricoPage() {
               <div className="space-y-1.5">
                 <Label htmlFor="monto" className="text-foreground/80 text-sm">
                   Monto de contribución voluntaria (ARS){" "}
-                  <span className="text-gold-400">*</span>
+                  <span className="text-violet-400">*</span>
                 </Label>
                 <Input
                   id="monto"
@@ -718,7 +673,7 @@ export default function N1TeoricoPage() {
               {/* Método de pago */}
               <div className="space-y-2.5">
                 <Label className="text-foreground/80 text-sm">
-                  Método de pago <span className="text-gold-400">*</span>
+                  Método de pago <span className="text-violet-400">*</span>
                 </Label>
                 <RadioGroup
                   value={metodoPago}
@@ -736,7 +691,7 @@ export default function N1TeoricoPage() {
                       htmlFor={`pago-${opt.value}`}
                       className={`flex items-center gap-2 cursor-pointer rounded-lg border p-3 text-sm transition-colors ${
                         metodoPago === opt.value
-                          ? "border-gold-400/60 bg-gold-400/5 text-gold-300"
+                          ? "border-violet-400/60 bg-violet-400/5 text-violet-300"
                           : "border-mystic-700/40 text-foreground/60 hover:border-mystic-600"
                       }`}
                     >
@@ -759,7 +714,7 @@ export default function N1TeoricoPage() {
                     <p className="text-foreground/70">
                       Vas a ser redirigido a MercadoPago para completar tu pago
                       de{" "}
-                      <strong className="text-gold-300">
+                      <strong className="text-violet-300">
                         ${Number(monto).toLocaleString("es-AR")} ARS
                       </strong>
                       .
@@ -782,22 +737,22 @@ export default function N1TeoricoPage() {
                   <div className="glass rounded-lg p-4 text-sm space-y-3 border border-mystic-700/20">
                     <p className="text-foreground/70">
                       Realizá la transferencia por el monto de{" "}
-                      <strong className="text-gold-300">
+                      <strong className="text-violet-300">
                         ${Number(monto).toLocaleString("es-AR")} ARS
                       </strong>{" "}
                       a:
                     </p>
                     <div className="space-y-1 text-foreground/60">
                       <p>
-                        <span className="text-gold-400 font-medium">Banco:</span>{" "}
+                        <span className="text-violet-400 font-medium">Banco:</span>{" "}
                         Brubank
                       </p>
                       <p>
-                        <span className="text-gold-400 font-medium">CBU:</span>{" "}
+                        <span className="text-violet-400 font-medium">CBU:</span>{" "}
                         1430001713002632000014
                       </p>
                       <p>
-                        <span className="text-gold-400 font-medium">Alias:</span>{" "}
+                        <span className="text-violet-400 font-medium">Alias:</span>{" "}
                         fer.cardozo
                       </p>
                     </div>
@@ -823,7 +778,7 @@ export default function N1TeoricoPage() {
                   <div className="glass rounded-lg p-4 text-sm space-y-2 border border-mystic-700/20">
                     <p className="text-foreground/70">
                       Vas a ser redirigido a PayPal para completar tu pago de{" "}
-                      <strong className="text-gold-300">
+                      <strong className="text-violet-300">
                         ${Number(monto).toLocaleString("es-AR")} ARS
                       </strong>
                       .
@@ -847,7 +802,7 @@ export default function N1TeoricoPage() {
                   <div className="glass rounded-lg p-4 text-sm space-y-3 border border-mystic-700/20">
                     <p className="text-foreground/70">
                       Para pagar con Western Union por{" "}
-                      <strong className="text-gold-300">
+                      <strong className="text-violet-300">
                         ${Number(monto).toLocaleString("es-AR")} ARS
                       </strong>
                       , contactá a Fernanda para recibir los datos de

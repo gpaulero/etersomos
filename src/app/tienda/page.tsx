@@ -674,7 +674,7 @@ export default function TiendaPage() {
             <motion.h1
               variants={fadeInUp}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-3xl sm:text-4xl md:text-5xl font-serif font-semibold text-foreground mb-3"
+              className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-foreground mb-3"
             >
               Tienda de Cristales
             </motion.h1>

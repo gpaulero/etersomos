@@ -231,21 +231,21 @@ function MembershipCard({ tier, perMonth }: { tier: MembershipTier; perMonth: st
   return (
     <motion.div variants={staggerItem} className="flex">
       <Card
-        className={`relative flex flex-col h-full w-full transition-all duration-500 hover:glow-gold border-mystic-700/30 ${
+        className={`relative flex flex-col h-full w-full transition-all duration-500 border-mystic-700/30 ${
           tier.featured
-            ? "md:scale-105 ring-1 ring-gold-400/30 bg-gradient-to-b from-mystic-900/90 to-mystic-950/90"
+            ? "md:scale-105 ring-1 ring-violet-400/30 bg-gradient-to-b from-mystic-900/90 to-mystic-950/90"
             : "glass"
         }`}
       >
         {/* Featured glow pulse */}
         {tier.featured && (
-          <div className="absolute -inset-[1px] rounded-lg bg-gradient-to-b from-gold-400/20 via-gold-400/5 to-transparent pointer-events-none animate-pulse opacity-60" />
+          <div className="absolute -inset-[1px] rounded-lg bg-gradient-to-b from-violet-400/20 via-violet-400/5 to-transparent pointer-events-none animate-pulse opacity-60" />
         )}
 
         {/* Badge */}
         {tier.badge && (
           <div className="mx-auto pt-5 relative z-10">
-            <Badge className="font-serif font-semibold px-3 py-1 text-xs bg-gold-500/20 text-gold-300 border border-gold-400/30">
+            <Badge className="font-serif font-semibold px-3 py-1 text-xs bg-violet-500/20 text-violet-300 border border-violet-400/30">
               <Sparkles className="size-3 mr-1" />
               {tier.badge}
             </Badge>
@@ -260,7 +260,7 @@ function MembershipCard({ tier, perMonth }: { tier: MembershipTier; perMonth: st
               <span className="text-4xl">{tier.emoji}</span>
             )}
           </div>
-          <h3 className="text-2xl font-serif font-semibold text-gold-300">
+          <h3 className="text-2xl font-serif font-semibold text-violet-300">
             {tier.name}
           </h3>
           <div className="flex justify-center mt-2">
@@ -276,7 +276,7 @@ function MembershipCard({ tier, perMonth }: { tier: MembershipTier; perMonth: st
         <CardContent className="relative z-10 flex-1 pt-4 pb-0">
           {/* Price */}
           <div className="text-center mb-5">
-            <span className="text-3xl sm:text-4xl font-serif font-bold text-gold-300">
+            <span className="text-3xl sm:text-4xl font-serif font-bold text-violet-300">
               {tier.price}
             </span>
             <p className="text-xs text-foreground/40 mt-1">{perMonth}</p>
@@ -291,7 +291,7 @@ function MembershipCard({ tier, perMonth }: { tier: MembershipTier; perMonth: st
 
           {/* Extended Description (Collapsible) */}
           <Collapsible open={open} onOpenChange={setOpen} className="mb-5">
-            <CollapsibleTrigger className="flex items-center gap-1.5 text-xs text-gold-400/80 hover:text-gold-300 transition-colors mx-auto">
+            <CollapsibleTrigger className="flex items-center gap-1.5 text-xs text-violet-400/80 hover:text-violet-300 transition-colors mx-auto">
               <span>{open ? "Ver menos" : "Ver más detalles"}</span>
               <ChevronDown
                 className={`size-3.5 transition-transform duration-300 ${
@@ -320,7 +320,7 @@ function MembershipCard({ tier, perMonth }: { tier: MembershipTier; perMonth: st
                 key={benefit}
                 className="flex items-start gap-2 text-sm text-foreground/70"
               >
-                <Check className="size-4 text-gold-400 shrink-0 mt-0.5" />
+                <Check className="size-4 text-violet-400 shrink-0 mt-0.5" />
                 {benefit}
               </li>
             ))}
@@ -365,7 +365,7 @@ function MembershipCard({ tier, perMonth }: { tier: MembershipTier; perMonth: st
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-mystic-900/60 border border-mystic-700/30 text-foreground text-sm placeholder:text-foreground/30 focus:outline-none focus:border-gold-400/40 focus:ring-1 focus:ring-gold-400/20 transition-colors"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-mystic-900/60 border border-mystic-700/30 text-foreground text-sm placeholder:text-foreground/30 focus:outline-none focus:border-violet-400/40 focus:ring-1 focus:ring-violet-400/20 transition-colors"
                 />
               </div>
               <div className="relative">
@@ -377,7 +377,7 @@ function MembershipCard({ tier, perMonth }: { tier: MembershipTier; perMonth: st
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-mystic-900/60 border border-mystic-700/30 text-foreground text-sm placeholder:text-foreground/30 focus:outline-none focus:border-gold-400/40 focus:ring-1 focus:ring-gold-400/20 transition-colors"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-mystic-900/60 border border-mystic-700/30 text-foreground text-sm placeholder:text-foreground/30 focus:outline-none focus:border-violet-400/40 focus:ring-1 focus:ring-violet-400/20 transition-colors"
                 />
               </div>
               {formError && (
@@ -447,8 +447,8 @@ function MembershipCard({ tier, perMonth }: { tier: MembershipTier; perMonth: st
                 Tu suscripción se renueva automáticamente cada mes. Podés cancelarla cuando quieras.
               </p>
               <div className="flex items-center gap-2 justify-center mb-2">
-                <Check className="size-4 text-gold-400" />
-                <p className="text-xs text-gold-400/80">
+                <Check className="size-4 text-violet-400" />
+                <p className="text-xs text-violet-400/80">
                   {formData.name} — {formData.email}
                 </p>
               </div>
@@ -554,7 +554,7 @@ export default function MembresiasPage() {
         {stars.map((star) => (
           <div
             key={star.id}
-            className="absolute rounded-full bg-gold-300 animate-twinkle pointer-events-none"
+            className="absolute rounded-full bg-violet-300 animate-twinkle pointer-events-none"
             style={{
               left: star.left,
               top: star.top,
@@ -585,7 +585,7 @@ export default function MembresiasPage() {
             <motion.p
               variants={fadeInUp}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-xl sm:text-2xl text-gold-400 font-serif font-light mb-6"
+              className="text-xl sm:text-2xl text-violet-400 font-serif font-light mb-6"
             >
               Tres caminos de conexión y expansión espiritual
             </motion.p>
@@ -610,7 +610,7 @@ export default function MembresiasPage() {
       <AnimatedSection className="py-16 sm:py-20 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto">
           <motion.div variants={staggerItem} className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-gold-400 mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-violet-400 mb-4">
               ¿Cómo suscribirte?
             </h2>
           </motion.div>
@@ -620,7 +620,7 @@ export default function MembresiasPage() {
               <motion.div key={step.title} variants={staggerItem}>
                 <div className="text-center">
                   <div className="mx-auto w-14 h-14 rounded-full bg-mystic-800/60 border border-mystic-700/30 flex items-center justify-center mb-3">
-                    <step.icon className="size-6 text-gold-400" />
+                    <step.icon className="size-6 text-violet-400" />
                   </div>
                   <span className="inline-block text-xs text-foreground/30 font-semibold mb-1.5">
                     PASO {idx + 1}
@@ -644,7 +644,7 @@ export default function MembresiasPage() {
       <AnimatedSection className="py-16 sm:py-20 px-4 sm:px-6">
         <div className="max-w-5xl mx-auto">
           <motion.div variants={staggerItem} className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-gold-400 mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-violet-400 mb-4">
               Elegí tu camino
             </h2>
             <p className="text-foreground/50 max-w-2xl mx-auto text-base">
@@ -668,11 +668,11 @@ export default function MembresiasPage() {
       <AnimatedSection className="py-8 px-4 sm:px-6">
         <div className="max-w-3xl mx-auto">
           <motion.div variants={staggerItem}>
-            <div className="p-5 sm:p-6 rounded-xl bg-gold-500/5 border border-gold-400/15">
+            <div className="p-5 sm:p-6 rounded-xl bg-violet-500/5 border border-violet-400/15">
               <div className="flex items-start gap-3">
-                <Info className="size-5 text-gold-400 shrink-0 mt-0.5" />
+                <Info className="size-5 text-violet-400 shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-semibold text-gold-300 mb-2">
+                  <p className="text-sm font-semibold text-violet-300 mb-2">
                     Nota importante sobre tu suscripción
                   </p>
                   <p className="text-sm text-foreground/60 leading-relaxed">
@@ -694,7 +694,7 @@ export default function MembresiasPage() {
       <AnimatedSection className="py-16 sm:py-20 px-4 sm:px-6">
         <div className="max-w-3xl mx-auto">
           <motion.div variants={staggerItem} className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-gold-400 mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-violet-400 mb-4">
               ¿Te quedaron dudas?
             </h2>
             <p className="text-foreground/50 max-w-xl mx-auto text-base">
@@ -710,16 +710,16 @@ export default function MembresiasPage() {
                   {/* Email */}
                   <a
                     href="mailto:etersomos@gmail.com"
-                    className="flex items-center gap-4 p-4 rounded-xl bg-mystic-900/40 border border-mystic-700/20 hover:border-gold-400/20 transition-all duration-300 group"
+                    className="flex items-center gap-4 p-4 rounded-xl bg-mystic-900/40 border border-mystic-700/20 hover:border-violet-400/20 transition-all duration-300 group"
                   >
-                    <div className="w-12 h-12 rounded-full bg-gold-500/10 flex items-center justify-center shrink-0 group-hover:bg-gold-500/20 transition-colors duration-300">
-                      <Mail className="size-5 text-gold-400" />
+                    <div className="w-12 h-12 rounded-full bg-violet-500/10 flex items-center justify-center shrink-0 group-hover:bg-violet-500/20 transition-colors duration-300">
+                      <Mail className="size-5 text-violet-400" />
                     </div>
                     <div>
                       <p className="text-xs text-foreground/40 uppercase tracking-wider mb-0.5">
                         Email
                       </p>
-                      <p className="text-sm text-foreground/80 group-hover:text-gold-300 transition-colors">
+                      <p className="text-sm text-foreground/80 group-hover:text-violet-300 transition-colors">
                         etersomos@gmail.com
                       </p>
                     </div>
@@ -730,16 +730,16 @@ export default function MembresiasPage() {
                     href="https://wa.me/5493518629325"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-4 p-4 rounded-xl bg-mystic-900/40 border border-mystic-700/20 hover:border-gold-400/20 transition-all duration-300 group"
+                    className="flex items-center gap-4 p-4 rounded-xl bg-mystic-900/40 border border-mystic-700/20 hover:border-violet-400/20 transition-all duration-300 group"
                   >
-                    <div className="w-12 h-12 rounded-full bg-gold-500/10 flex items-center justify-center shrink-0 group-hover:bg-gold-500/20 transition-colors duration-300">
-                      <MessageCircle className="size-5 text-gold-400" />
+                    <div className="w-12 h-12 rounded-full bg-violet-500/10 flex items-center justify-center shrink-0 group-hover:bg-violet-500/20 transition-colors duration-300">
+                      <MessageCircle className="size-5 text-violet-400" />
                     </div>
                     <div>
                       <p className="text-xs text-foreground/40 uppercase tracking-wider mb-0.5">
                         WhatsApp
                       </p>
-                      <p className="text-sm text-foreground/80 group-hover:text-gold-300 transition-colors">
+                      <p className="text-sm text-foreground/80 group-hover:text-violet-300 transition-colors">
                         +54 9 3518 62-9325
                       </p>
                     </div>

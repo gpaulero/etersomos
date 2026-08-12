@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -9,7 +11,6 @@ import {
   BookOpen,
   Check,
   AlertCircle,
-  CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -65,7 +66,7 @@ export default function AmbosPage() {
   const [formPaused, setFormPaused] = useState(false);
   const [accepted, setAccepted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const router = useRouter();
   const [errors, setErrors] = useState<FormErrors>({});
 
   // Form fields
@@ -220,13 +221,8 @@ export default function AmbosPage() {
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        setSubmitted(true);
-        window.scrollTo({ top: 0, behavior: "smooth" });
         localStorage.removeItem(FORM_KEY);
-        toast.success("Inscripción registrada con éxito", {
-          description: "Recordá realizar la transferencia con los datos indicados. Te contactaremos para comenzar el curso.",
-          duration: 8000,
-        });
+        router.push("/cursos/gracias");
       } else {
         toast.error(data.error || "Error al registrar la inscripción");
       }
@@ -262,51 +258,10 @@ export default function AmbosPage() {
   };
 
   const inputClass =
-    "bg-mystic-900/50 border-mystic-700/40 focus:border-gold-400/60 text-foreground placeholder:text-foreground/30";
+    "bg-mystic-900/50 border-mystic-700/40 focus:border-violet-400/60 text-foreground placeholder:text-foreground/30";
   const errorInputClass =
     "bg-mystic-900/50 border-red-400/60 text-foreground placeholder:text-foreground/30";
 
-    if (submitted) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="max-w-2xl mx-auto text-center py-10"
-      >
-        <div className="mx-auto w-20 h-20 rounded-full bg-violet-500/15 border border-violet-400/30 flex items-center justify-center mb-6">
-          <CheckCircle2 className="size-10 text-violet-400" />
-        </div>
-        <h1 className="text-3xl sm:text-4xl font-serif font-semibold text-foreground mb-4">
-          ¡Gracias por completar tu inscripción!
-        </h1>
-        <p className="text-foreground/70 text-base sm:text-lg leading-relaxed mb-6">
-          Recibimos tu solicitud correctamente. Te enviaremos por email los accesos
-          al Aula Virtual una vez que confirmemos tu contribución.
-        </p>
-        <div className="glass-light rounded-2xl p-6 text-sm text-foreground/70 leading-relaxed mb-8">
-          Recordá que tu inscripción se confirma una vez realizada tu contribución.
-          Si elegiste transferencia o Western Union, envianos el comprobante por
-          WhatsApp al +54 9 3518 62-9325 o a etersomos@gmail.com.
-        </div>
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Button
-            variant="outline"
-            onClick={() => (window.location.href = "/cursos")}
-            className="rounded-full border-foreground/20 text-foreground/80 hover:bg-foreground/5 hover:text-foreground"
-          >
-            Ver otros cursos
-          </Button>
-          <Button
-            onClick={() => (window.location.href = "/")}
-            className="rounded-full bg-violet-500 hover:bg-violet-600 text-white"
-          >
-            Volver al inicio
-          </Button>
-        </div>
-      </motion.div>
-    );
-  }
 
   if (formPaused) {
     return (
@@ -330,15 +285,15 @@ export default function AmbosPage() {
     >
       {/* ── Title ── */}
       <div className="text-center space-y-3">
-        <Badge className="bg-gold-500/20 text-gold-300">MEJOR PRECIO</Badge>
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-gold-400 text-glow-gold leading-snug">
+        <Badge className="bg-violet-500/20 text-violet-300">MEJOR PRECIO</Badge>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-foreground leading-snug">
           Formación Completa en Registros Akáshicos
         </h1>
         <p className="text-foreground/50 font-serif italic max-w-xl mx-auto">
           1er Nivel: Conectar con el Campo Akashico + 2do Nivel: Consultar los Registros de Otras Personas
         </p>
         <div className="inline-block glass rounded-full px-6 py-2 mt-2 space-y-1 text-center">
-          <span className="text-gold-300 font-serif font-semibold text-lg block">
+          <span className="text-violet-300 font-serif font-semibold text-lg block">
             ${PRICE_ARS.toLocaleString("es-AR")} ARS / US${PRICE_USD_ALT}
           </span>
           <span className="text-foreground/40 text-xs block">
@@ -352,7 +307,7 @@ export default function AmbosPage() {
         <Collapsible open={agreementOpen} onOpenChange={setAgreementOpen}>
           <CardHeader className="pb-0">
             <CollapsibleTrigger className="flex items-center justify-between w-full group">
-              <CardTitle className="text-lg text-gold-300 font-serif flex items-center gap-2">
+              <CardTitle className="text-lg text-violet-300 font-serif flex items-center gap-2">
                 <BookOpen className="size-5" />
                 Acuerdo y Condiciones
               </CardTitle>
@@ -362,7 +317,7 @@ export default function AmbosPage() {
           <CollapsibleContent>
             <CardContent className="pt-4 space-y-5">
               <div className="text-sm text-foreground/70 leading-relaxed space-y-3">
-                <p className="text-gold-400/80 font-medium">
+                <p className="text-violet-400/80 font-medium">
                   Al inscribirte a ambos cursos, accedés a la formación completa en Registros Akáshicos.
                 </p>
                 <p>
@@ -372,18 +327,18 @@ export default function AmbosPage() {
 
               {/* Timeline */}
               <div className="space-y-3">
-                <h3 className="text-gold-300 font-serif font-semibold text-base">Cronograma</h3>
+                <h3 className="text-violet-300 font-serif font-semibold text-base">Cronograma</h3>
                 <ul className="space-y-2 text-sm text-foreground/60">
                   <li className="flex items-start gap-2">
-                    <span className="text-gold-400 mt-0.5">•</span>
+                    <span className="text-violet-400 mt-0.5">•</span>
                     <strong className="text-foreground/80">1er Nivel (~3 semanas):</strong> 8 módulos teóricos + 2 clases prácticas
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-gold-400 mt-0.5">•</span>
+                    <span className="text-violet-400 mt-0.5">•</span>
                     <strong className="text-foreground/80">2do Nivel (~4 semanas):</strong> 10 módulos teóricos + 4 clases prácticas
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-gold-400 mt-0.5">•</span>
+                    <span className="text-violet-400 mt-0.5">•</span>
                     Total: <strong className="text-foreground/80">18 módulos + 6 clases prácticas</strong>
                   </li>
                 </ul>
@@ -393,7 +348,7 @@ export default function AmbosPage() {
 
               {/* What's included */}
               <div className="space-y-3">
-                <h3 className="text-gold-300 font-serif font-semibold text-base">¿Qué incluye?</h3>
+                <h3 className="text-violet-300 font-serif font-semibold text-base">¿Qué incluye?</h3>
                 <ul className="space-y-1.5">
                   {[
                     "Todo el contenido del 1er Nivel con Práctica",
@@ -406,7 +361,7 @@ export default function AmbosPage() {
                     "Seguimiento durante toda la formación",
                   ].map((item, i) => (
                     <li key={i} className="flex items-start gap-2 text-sm text-foreground/70">
-                      <Check className="size-3.5 text-gold-400 shrink-0 mt-0.5" />
+                      <Check className="size-3.5 text-violet-400 shrink-0 mt-0.5" />
                       {item}
                     </li>
                   ))}
@@ -417,24 +372,24 @@ export default function AmbosPage() {
 
               <div className="space-y-2">
                 <h3 className="text-foreground/90 font-semibold text-sm flex items-center gap-2">
-                  <AlertCircle className="size-4 text-gold-400" />
+                  <AlertCircle className="size-4 text-violet-400" />
                   Condiciones Importantes
                 </h3>
                 <ul className="space-y-2 text-sm text-foreground/60">
                   <li className="flex items-start gap-2">
-                    <span className="text-gold-400 mt-0.5">•</span>
+                    <span className="text-violet-400 mt-0.5">•</span>
                     Se necesita disponibilidad de <strong className="text-foreground/80">3 horas consecutivas</strong>.
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-gold-400 mt-0.5">•</span>
+                    <span className="text-violet-400 mt-0.5">•</span>
                     Ambos cursos se completan en un máximo de <strong className="text-foreground/80">2 meses</strong>.
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-gold-400 mt-0.5">•</span>
+                    <span className="text-violet-400 mt-0.5">•</span>
                     Si no tenés rutina de meditación, <strong className="text-foreground/80">mejor empezar solo con el 1er nivel</strong>.
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-gold-400 mt-0.5">•</span>
+                    <span className="text-violet-400 mt-0.5">•</span>
                     No se realizan reembolsos.
                   </li>
                 </ul>
@@ -450,11 +405,11 @@ export default function AmbosPage() {
           id="accept-terms"
           checked={accepted}
           onCheckedChange={(c) => setAccepted(c === true)}
-          className="mt-0.5 data-[state=checked]:bg-gold-400 data-[state=checked]:border-gold-400 data-[state=checked]:text-mystic-950"
+          className="mt-0.5 data-[state=checked]:bg-violet-500 data-[state=checked]:border-violet-500 data-[state=checked]:text-mystic-950"
         />
         <Label htmlFor="accept-terms" className="text-base text-foreground/80 cursor-pointer leading-relaxed">
           He leído y comprendido el marco y condiciones de ambos cursos. Al aceptar, podré completar mi formulario de inscripción.
-          <span className="text-gold-400"> *</span>
+          <span className="text-violet-400"> *</span>
         </Label>
       </div>
 
@@ -463,12 +418,12 @@ export default function AmbosPage() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
           <Card className="glass border-mystic-700/30">
             <CardHeader>
-              <CardTitle className="text-lg text-gold-300 font-serif">Formulario de Inscripción – Ambos Cursos</CardTitle>
+              <CardTitle className="text-lg text-violet-300 font-serif">Formulario de Inscripción – Ambos Cursos</CardTitle>
             </CardHeader>
             <CardContent className="space-y-5">
 
               {/* Disponibilidad horaria (at the top, emphasized) */}
-              <div className="glass rounded-xl p-4 border border-gold-400/20 space-y-2">
+              <div className="glass rounded-xl p-4 border border-violet-400/20 space-y-2">
                 <Field label="Disponibilidad horaria (3 horas consecutivas, lunes a viernes)" required error={errors.disponibilidad}>
                   <Textarea placeholder="Ej: Lunes y miércoles de 14 a 17hs" rows={2} value={disponibilidad} onChange={(e) => setDisponibilidad(e.target.value)} className={errors.disponibilidad ? errorInputClass : inputClass} />
                 </Field>
@@ -576,7 +531,7 @@ export default function AmbosPage() {
                       key={opt}
                       className={`flex items-center gap-2 cursor-pointer rounded-lg border p-2.5 text-sm transition-colors ${
                         meditacionTipo.includes(opt)
-                          ? "border-gold-400/60 bg-gold-400/5 text-gold-300"
+                          ? "border-violet-400/60 bg-violet-400/5 text-violet-300"
                           : "border-mystic-700/40 text-foreground/60 hover:border-mystic-600"
                       }`}
                     >
@@ -587,7 +542,7 @@ export default function AmbosPage() {
                             checked ? [...prev, opt] : prev.filter((v) => v !== opt)
                           );
                         }}
-                        className="border-mystic-600 data-[state=checked]:bg-gold-400 data-[state=checked]:border-gold-400 data-[state=checked]:text-mystic-950"
+                        className="border-mystic-600 data-[state=checked]:bg-violet-500 data-[state=checked]:border-violet-500 data-[state=checked]:text-mystic-950"
                       />
                       {opt}
                     </Label>
@@ -638,7 +593,7 @@ function Field({ label, required, error, children }: { label: string; required?:
   return (
     <div className="space-y-1.5">
       <Label className="text-foreground/80 text-sm">
-        {label} {required && <span className="text-gold-400">*</span>}
+        {label} {required && <span className="text-violet-400">*</span>}
       </Label>
       {children}
       {error && <p className="text-red-400 text-xs">{error}</p>}
@@ -652,7 +607,7 @@ function RadioField({ label, required, value, onChange, error, options, name }: 
   return (
     <div className="space-y-2.5">
       <Label className="text-foreground/80 text-sm">
-        {label} {required && <span className="text-gold-400">*</span>}
+        {label} {required && <span className="text-violet-400">*</span>}
       </Label>
       <RadioGroup value={value} onValueChange={onChange} className="grid grid-cols-1 sm:grid-cols-3 gap-2">
         {options.map((opt) => (
@@ -661,7 +616,7 @@ function RadioField({ label, required, value, onChange, error, options, name }: 
             htmlFor={`${name}-${opt}`}
             className={`flex items-center gap-2 cursor-pointer rounded-lg border p-3 text-sm transition-colors ${
               value === opt
-                ? "border-gold-400/60 bg-gold-400/5 text-gold-300"
+                ? "border-violet-400/60 bg-violet-400/5 text-violet-300"
                 : "border-mystic-700/40 text-foreground/60 hover:border-mystic-600"
             }`}
           >
@@ -683,7 +638,7 @@ function PaymentSection({ method, onChange, error, submitting, priceArs, priceUs
 }) {
   return (
     <div className="space-y-2.5">
-      <Label className="text-foreground/80 text-sm">Método de pago <span className="text-gold-400">*</span></Label>
+      <Label className="text-foreground/80 text-sm">Método de pago <span className="text-violet-400">*</span></Label>
       <RadioGroup value={method} onValueChange={onChange} className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {[
           { value: "mercadopago", label: "MercadoPago" },
@@ -696,7 +651,7 @@ function PaymentSection({ method, onChange, error, submitting, priceArs, priceUs
             htmlFor={`pago-${opt.value}`}
             className={`flex items-center gap-2 cursor-pointer rounded-lg border p-3 text-sm transition-colors ${
               method === opt.value
-                ? "border-gold-400/60 bg-gold-400/5 text-gold-300"
+                ? "border-violet-400/60 bg-violet-400/5 text-violet-300"
                 : "border-mystic-700/40 text-foreground/60 hover:border-mystic-600"
             }`}
           >
@@ -709,7 +664,7 @@ function PaymentSection({ method, onChange, error, submitting, priceArs, priceUs
 
       {method === "mercadopago" && (
         <div className="glass rounded-lg p-4 text-sm space-y-3 border border-mystic-700/20">
-          <p className="text-foreground/70">Vas a ser redirigido a MercadoPago para pagar <strong className="text-gold-300">${priceArs.toLocaleString("es-AR")} ARS</strong>.</p>
+          <p className="text-foreground/70">Vas a ser redirigido a MercadoPago para pagar <strong className="text-violet-300">${priceArs.toLocaleString("es-AR")} ARS</strong>.</p>
           <Button onClick={onPayMercadoPago} disabled={submitting} className="w-full bg-[#009ee3] hover:bg-[#008bc7] text-white font-semibold py-4 rounded-xl transition-all duration-300 disabled:opacity-60">
             {submitting ? <Loader2 className="size-5 animate-spin" /> : "Pagar con MercadoPago"}
           </Button>
@@ -718,11 +673,11 @@ function PaymentSection({ method, onChange, error, submitting, priceArs, priceUs
 
       {method === "transferencia" && (
         <div className="glass rounded-lg p-4 text-sm space-y-3 border border-mystic-700/20">
-          <p className="text-foreground/70">Transferí <strong className="text-gold-300">${priceArs.toLocaleString("es-AR")} ARS</strong> a:</p>
+          <p className="text-foreground/70">Transferí <strong className="text-violet-300">${priceArs.toLocaleString("es-AR")} ARS</strong> a:</p>
           <div className="space-y-1 text-foreground/60">
-            <p><span className="text-gold-400 font-medium">Banco:</span> Brubank</p>
-            <p><span className="text-gold-400 font-medium">CBU:</span> 1430001713002632000014</p>
-            <p><span className="text-gold-400 font-medium">Alias:</span> fer.cardozo</p>
+            <p><span className="text-violet-400 font-medium">Banco:</span> Brubank</p>
+            <p><span className="text-violet-400 font-medium">CBU:</span> 1430001713002632000014</p>
+            <p><span className="text-violet-400 font-medium">Alias:</span> fer.cardozo</p>
           </div>
           <Button onClick={onSubmitOffline} disabled={submitting} className="w-full bg-foreground hover:bg-foreground/80 text-background font-semibold py-4 rounded-xl transition-all duration-300 disabled:opacity-60">
             {submitting ? <Loader2 className="size-5 animate-spin" /> : "Registrar inscripción"}
@@ -732,7 +687,7 @@ function PaymentSection({ method, onChange, error, submitting, priceArs, priceUs
 
       {method === "paypal" && (
         <div className="glass rounded-lg p-4 text-sm space-y-3 border border-mystic-700/20">
-          <p className="text-foreground/70">Vas a ser redirigido a PayPal para pagar <strong className="text-gold-300">US${priceUsd}</strong>.</p>
+          <p className="text-foreground/70">Vas a ser redirigido a PayPal para pagar <strong className="text-violet-300">US${priceUsd}</strong>.</p>
           <Button onClick={onPayPaypal} disabled={submitting} variant="outline" className="w-full border-foreground/20 text-foreground/80 hover:bg-foreground/5 hover:text-foreground font-semibold py-4 rounded-xl transition-all duration-300 disabled:opacity-60">
             {submitting ? <Loader2 className="size-5 animate-spin" /> : "Pagar con PayPal"}
           </Button>
@@ -741,7 +696,7 @@ function PaymentSection({ method, onChange, error, submitting, priceArs, priceUs
 
       {method === "western_union" && (
         <div className="glass rounded-lg p-4 text-sm space-y-3 border border-mystic-700/20">
-          <p className="text-foreground/70">Para Western Union contactá a Fernanda para los datos de transferencia (<strong className="text-gold-300">US${priceUsd}</strong>).</p>
+          <p className="text-foreground/70">Para Western Union contactá a Fernanda para los datos de transferencia (<strong className="text-violet-300">US${priceUsd}</strong>).</p>
           <Button onClick={onSubmitOffline} disabled={submitting} variant="outline" className="w-full border-foreground/20 text-foreground/80 hover:bg-foreground/5 hover:text-foreground font-semibold py-4 rounded-xl transition-all duration-300 disabled:opacity-60">
             {submitting ? <Loader2 className="size-5 animate-spin" /> : "Registrar inscripción"}
           </Button>
