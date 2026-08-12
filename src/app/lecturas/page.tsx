@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { toast, Toaster } from "sonner";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, ChevronDown, Check, Loader2, Sparkles, AlertTriangle, CreditCard, Landmark, DollarSign, User, Heart, MessageCircle, ArrowUp,
   X,
 } from "lucide-react";
@@ -139,6 +140,8 @@ export default function LecturasPage() {
     }
   };
 
+  const router = useRouter();
+
   const validate = (): boolean => {
     const e: FormErrors = {};
 
@@ -197,10 +200,7 @@ export default function LecturasPage() {
         const data = await res.json();
         if (res.ok) {
           localStorage.removeItem(FORM_KEY);
-          toast.success("Solicitud registrada con éxito", {
-            description: "Vas a recibir un email con tus credenciales para ingresar al Aula Virtual, donde podrás escuchar tu lectura cuando esté lista. Recordá realizar la transferencia/envío con los datos indicados.",
-            duration: 8000,
-          });
+          router.push("/lecturas/gracias");
         } else {
           toast.error(data.error || "Error al registrar la solicitud");
         }
