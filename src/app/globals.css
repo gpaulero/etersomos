@@ -232,6 +232,14 @@
   border: 1px solid rgba(42, 37, 32, 0.4);
 }
 
+/* Glass light — variante más clara para cards que necesitan contraste */
+.glass-light {
+  background: rgba(52, 44, 62, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(167, 139, 250, 0.25);
+}
+
 /* Mobile animation adjustments */
 @media (max-width: 640px) {
   .animate-float {

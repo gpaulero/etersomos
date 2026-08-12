@@ -143,10 +143,8 @@ export default function CursosPage() {
           Cursos de Registros Akáshicos
         </h1>
         <p className="text-foreground/70 max-w-2xl mx-auto font-sans text-base sm:text-lg leading-relaxed">
-          Formación completa en <strong className="text-foreground/90">Registros Akáshicos</strong> con Fer Cardozo.
           Aprendé a conectar con el Campo Akáshico, acceder a la sabiduría de tu alma y realizar
-          lecturas akáshicas para vos mismo y para otros. Cursos con práctica individual,
-          desde Córdoba hacia todo el mundo hispanohablante.
+          lecturas akáshicas para vos mismo y para otros.
         </p>
         <p className="text-foreground/50 max-w-2xl mx-auto font-sans text-sm sm:text-base leading-relaxed mt-3">
           Elegí la opción que mejor se adapte a tu camino de aprendizaje.
@@ -164,10 +162,10 @@ export default function CursosPage() {
             className="group"
           >
             <div
-              className={`glass rounded-2xl p-6 sm:p-8 border-mystic-700/20 hover:border-violet-500/30 transition-all duration-500 hover:scale-[1.02] hover:shadow-lg hover:shadow-violet-900/10 h-full flex flex-col cursor-pointer relative overflow-hidden ${
+              className={`relative glass-light rounded-2xl p-6 sm:p-8 transition-all duration-500 hover:scale-[1.02] ${
                 course.badge === "Mejor Precio"
-                  ? "border-violet-500/30 ring-1 ring-violet-500/10"
-                  : ""
+                  ? "border-violet-500/40 ring-1 ring-violet-500/20 hover:border-violet-400/60"
+                  : "hover:border-violet-500/50"
               }`}
             >
               {/* Glow effect for highlighted card */}
@@ -199,7 +197,7 @@ export default function CursosPage() {
                   <h2 className="text-xl font-serif font-semibold text-violet-300 group-hover:text-violet-200 transition-colors duration-300">
                     {course.name}
                   </h2>
-                  <p className="text-foreground/50 text-sm font-serif italic mt-1">
+                  <p className="text-foreground/50 text-sm font-sans mt-1">
                     {course.subtitle}
                   </p>
                 </div>
@@ -256,7 +254,7 @@ export default function CursosPage() {
 
       {/* Info note */}
       <div className="text-center">
-        <div className="glass rounded-2xl p-8 border-mystic-700/20 max-w-2xl mx-auto">
+        <div className="glass-light rounded-2xl p-8 max-w-2xl mx-auto">
           <div className="flex flex-wrap items-center justify-center gap-8 text-foreground/50 text-sm font-sans">
             <div className="flex items-center gap-2">
               <Clock className="size-4 text-violet-400" />

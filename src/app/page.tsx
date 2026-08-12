@@ -1035,7 +1035,7 @@ export default function Home() {
             </motion.div>
 
             {/* H1 SEO oculto (sr-only) — keywords para Google sin mostrar en UI */}
-            <h1 className="sr-only">Registros Akáshicos en Argentina — Lecturas, Cursos y Cristales con Fer Cardozo · Desde Córdoba al mundo</h1>
+            <h1 className="sr-only">Registros Akáshicos en Argentina — Lecturas, Cursos y Cristales</h1>
 
 
             <motion.p
