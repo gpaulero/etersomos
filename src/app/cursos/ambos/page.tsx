@@ -34,9 +34,9 @@ import {
 import { initiateCoursePayment } from "@/lib/course-payment";
 import FormPausedBanner from "@/components/form-paused-banner";
 
-const PRICE_ARS = 70000;
-const PRICE_USD = 55;
-const PRICE_USD_ALT = 50;
+const PRICE_ARS = 85000;
+const PRICE_USD = 65;
+const PRICE_USD_ALT = 65;
 
 interface FormErrors {
   [key: string]: string;
@@ -64,7 +64,19 @@ const FORM_KEY = "etersomos_ambos_form";
 export default function AmbosPage() {
   const [agreementOpen, setAgreementOpen] = useState(true);
   const [formPaused, setFormPaused] = useState(false);
-  const [accepted, setAccepted] = useState(false);
+    const confirmationItems = [
+    "Declaro ser mayor de 18 años y que los datos proporcionados son verdaderos.",
+    "Me comprometo a contar con la disponibilidad horaria requerida y completar la formación dentro del plazo máximo de 2 meses y medio.",
+    "Comprendo que la formación requiere realizar todas las prácticas y que no se ofrece únicamente el material teórico.",
+    "Comprendo que, una vez definidos y aceptados los horarios, las clases prácticas no tienen opción de recuperación.",
+    "Comprendo que esta formación tiene un enfoque espiritual y no reemplaza atención, diagnóstico ni tratamiento médico o psicológico.",
+    "Acepto que Fernanda Lucrecia Cardozo no se responsabiliza por decisiones o consecuencias derivadas de la formación ni de las consultas realizadas por quienes se encuentran en formación.",
+    "Acepto que no se realizan reembolsos si la formación no cumple con mis expectativas o por cualquier otro motivo.",
+    "Acepto el derecho de admisión. Si mi inscripción no fuera aceptada, el importe abonado será reintegrado.",
+    "Comprendo y me comprometo a realizar ambos niveles de la Formación (Nivel 1 y Nivel 2), entendiendo que esta inscripción corresponde a la Formación Completa.",
+  ];
+  const [confirmations, setConfirmations] = useState<boolean[]>(Array(confirmationItems.length).fill(false));
+  const allConfirmed = confirmations.every(Boolean);
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
   const [errors, setErrors] = useState<FormErrors>({});
@@ -134,7 +146,7 @@ export default function AmbosPage() {
         if (parsed.compartirExperiencias) setCompartirExperiencias(parsed.compartirExperiencias);
         if (parsed.disponibilidad) setDisponibilidad(parsed.disponibilidad);
         if (parsed.metodoPago) setMetodoPago(parsed.metodoPago);
-        if (parsed._accepted) setAccepted(true);
+        if (Array.isArray(parsed._confirmations) && parsed._confirmations.length === confirmationItems.length) setConfirmations(parsed._confirmations);
       }
     } catch {}
   }, []);
@@ -150,7 +162,7 @@ export default function AmbosPage() {
         terapiasHolisticas, meditacionFreq, meditacionTipo,
         plantasSagradas, temasPracticas, compartirExperiencias,
         disponibilidad, metodoPago,
-        _accepted: accepted,
+        _confirmations: confirmations,
       }));
     }
   }, [email, nombre, fechaNac, nacionalidad, ciudad, telefono,
@@ -159,7 +171,7 @@ export default function AmbosPage() {
       terapiaPsiquiatra, terapiaPsiquiatraTiempo, episodios,
       terapiasHolisticas, meditacionFreq, meditacionTipo,
       plantasSagradas, temasPracticas, compartirExperiencias,
-      disponibilidad, metodoPago, accepted]);
+      disponibilidad, metodoPago, confirmations]);
 
   const validate = (): boolean => {
     const e: FormErrors = {};
@@ -297,7 +309,7 @@ export default function AmbosPage() {
             ${PRICE_ARS.toLocaleString("es-AR")} ARS / US${PRICE_USD_ALT}
           </span>
           <span className="text-foreground/40 text-xs block">
-            PayPal / Western Union: US${PRICE_USD_ALT} &middot; Mejor precio por formación completa
+            Mejor precio por formación completa &middot; En Argentina se aceptan cuotas con tarjeta
           </span>
         </div>
       </div>
@@ -315,50 +327,53 @@ export default function AmbosPage() {
             </CollapsibleTrigger>
           </CardHeader>
           <CollapsibleContent>
-            <CardContent className="pt-4 space-y-5">
+                        <CardContent className="pt-4 space-y-5">
               <div className="text-sm text-foreground/70 leading-relaxed space-y-3">
                 <p className="text-violet-400/80 font-medium">
-                  Al inscribirte a ambos cursos, accedés a la formación completa en Registros Akáshicos.
+                  Esta formación reúne ambos niveles para aprender a conectar con
+                  tus propios Registros Akáshicos y luego consultar los Registros
+                  de otras personas, desde un enfoque espiritual y priorizando el
+                  bienestar de quienes participan.
                 </p>
                 <p>
-                  La formación combina el contenido del 1er Nivel (conectar con el Campo Akashico) y el 2do Nivel (consultar los Registros de otras personas), completándose en un máximo de <strong className="text-foreground/90">2 meses</strong>.
+                  Está dirigida a personas que desean formarse en ambos niveles de
+                  Registros Akáshicos, comenzando por la conexión con sus propios
+                  Registros y avanzando hacia la consulta de otras personas.
                 </p>
               </div>
 
-              {/* Timeline */}
+              {/* Nivel 1 */}
               <div className="space-y-3">
-                <h3 className="text-violet-300 font-serif font-semibold text-base">Cronograma</h3>
-                <ul className="space-y-2 text-sm text-foreground/60">
-                  <li className="flex items-start gap-2">
-                    <span className="text-violet-400 mt-0.5">•</span>
-                    <strong className="text-foreground/80">1er Nivel (~3 semanas):</strong> 8 módulos teóricos + 2 clases prácticas
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-violet-400 mt-0.5">•</span>
-                    <strong className="text-foreground/80">2do Nivel (~4 semanas):</strong> 10 módulos teóricos + 4 clases prácticas
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-violet-400 mt-0.5">•</span>
-                    Total: <strong className="text-foreground/80">18 módulos + 6 clases prácticas</strong>
-                  </li>
+                <h3 className="text-violet-300 font-serif font-semibold text-base">
+                  Nivel 1 · Conectar con el Campo Akáshico
+                </h3>
+                <ul className="space-y-1.5">
+                  {[
+                    "8 módulos audiovisuales + preguntas frecuentes",
+                    "Meditación guiada y material teórico/bibliográfico en PDF",
+                    "2 prácticas individuales 1:1",
+                    "Oración personalizada de apertura y cierre",
+                    "Contenidos: Akasha, Maestros y Guías · conexión y bloqueos · preguntas y navegación · canales y tipos de información · línea de tiempo, árbol genealógico, vidas pasadas y orígenes cósmicos · reconocimiento de la información · metodología y apertura de Registros",
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-foreground/70">
+                      <Check className="size-3.5 text-violet-400 shrink-0 mt-0.5" />
+                      {item}
+                    </li>
+                  ))}
                 </ul>
               </div>
 
-              <Separator className="bg-mystic-700/30" />
-
-              {/* What's included */}
+              {/* Nivel 2 */}
               <div className="space-y-3">
-                <h3 className="text-violet-300 font-serif font-semibold text-base">¿Qué incluye?</h3>
+                <h3 className="text-violet-300 font-serif font-semibold text-base">
+                  Nivel 2 · Consultar los Registros de otras personas
+                </h3>
                 <ul className="space-y-1.5">
                   {[
-                    "Todo el contenido del 1er Nivel con Práctica",
-                    "Todo el contenido del 2do Nivel Completo",
-                    "6 clases prácticas individuales por videollamada",
-                    "Oración de apertura personalizada y única",
-                    "Meditación guiada en audio",
-                    "Material complementario + bibliografía en PDF",
-                    "PDF de Preguntas Frecuentes",
-                    "Seguimiento durante toda la formación",
+                    "10 módulos audiovisuales + autoevaluación",
+                    "Material teórico en PDF",
+                    "4 prácticas individuales 1:1",
+                    "Contenidos: ética y responsabilidad · bloqueos y protección · esferas de exploración · canales y tipos de información · reconocimiento y transmisión de información · apertura de Registros de otras personas · estructura de una consulta · lecturas offline y por videollamada · preguntas frecuentes",
                   ].map((item, i) => (
                     <li key={i} className="flex items-start gap-2 text-sm text-foreground/70">
                       <Check className="size-3.5 text-violet-400 shrink-0 mt-0.5" />
@@ -370,27 +385,79 @@ export default function AmbosPage() {
 
               <Separator className="bg-mystic-700/30" />
 
-              <div className="space-y-2">
-                <h3 className="text-foreground/90 font-semibold text-sm flex items-center gap-2">
-                  <AlertCircle className="size-4 text-violet-400" />
-                  Condiciones Importantes
-                </h3>
+              {/* Cómo se desarrolla */}
+              <div className="space-y-3">
+                <h3 className="text-violet-300 font-serif font-semibold text-base">¿Cómo se desarrolla?</h3>
                 <ul className="space-y-2 text-sm text-foreground/60">
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    Se necesita disponibilidad de <strong className="text-foreground/80">3 horas consecutivas</strong>.
+                    Recibirás por email el material de cada nivel y tendrás <strong className="text-foreground/80">1 semana</strong> para revisarlo antes de comenzar sus prácticas. Los PDF y la meditación podrán descargarse antes de finalizar el curso; los videos no son descargables.
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    Ambos cursos se completan en un máximo de <strong className="text-foreground/80">2 meses</strong>.
+                    Luego comenzaremos con las clases, que son individuales por videollamada, coordinadas según la disponibilidad de ambos.
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    Si no tenés rutina de meditación, <strong className="text-foreground/80">mejor empezar solo con el 1er nivel</strong>.
+                    <strong className="text-foreground/80">Prácticas del Nivel 1:</strong> son 2 encuentros 1:1, de hasta 2 horas cada uno, para aprender a conectar y consultar tus propios Registros.
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    No se realizan reembolsos.
+                    <strong className="text-foreground/80">Prácticas del Nivel 2:</strong> son 4 encuentros semanales: 3 clases de 2:30 hs y una clase final de 1 hora.
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-violet-400 mt-0.5">•</span>
+                    Deberás conseguir <strong className="text-foreground/80">3 consultantes voluntarios</strong> (nombre completo, fecha de nacimiento y una pregunta o tema). Recibirás un formulario para que completen y es importante contar con los 3 antes de comenzar las prácticas.
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-violet-400 mt-0.5">•</span>
+                    <strong className="text-foreground/80">Clase 1:</strong> repaso, recorrido de esferas (línea y árbol), conexión al Akasha y búsqueda de respuestas. <strong className="text-foreground/80">Clase 2:</strong> vidas pasadas y flujos temporales paralelos. <strong className="text-foreground/80">Clase 3:</strong> repaso, conexión al Akasha y búsqueda de respuestas. <strong className="text-foreground/80">Clase 4:</strong> mentoría de lectura offline, resolución de dudas, envío de una lectura completa y cierre.
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-violet-400 mt-0.5">•</span>
+                    Las primeras 2 clases son ejercicios prácticos, no lecturas completas. Las 2 últimas incluyen una lectura offline completa.
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-violet-400 mt-0.5">•</span>
+                    Toda la información compartida durante tus prácticas es confidencial.
+                  </li>
+                </ul>
+              </div>
+
+              <Separator className="bg-mystic-700/30" />
+
+              {/* Plazos y disponibilidad */}
+              <div className="space-y-3">
+                <h3 className="text-violet-300 font-serif font-semibold text-base">Plazos y Disponibilidad</h3>
+                <ul className="space-y-2 text-sm text-foreground/60">
+                  <li className="flex items-start gap-2">
+                    <span className="text-violet-400 mt-0.5">•</span>
+                    Ambos niveles tienen una duración aproximada de <strong className="text-foreground/80">2 meses</strong>. Contarás con un plazo máximo de <strong className="text-foreground/80">2 meses y medio</strong> desde tu inscripción para completar la formación. Pasado este plazo, tendrá costo adicional para continuar o se dará por finalizada.
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-violet-400 mt-0.5">•</span>
+                    Necesitás contar con <strong className="text-foreground/80">3 horas consecutivas</strong> disponibles, 1 o 2 veces por semana. En este momento tengo disponibilidad de lunes a viernes de 13.30 a 20 hs ARG, y sábados por la mañana.
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-violet-400 mt-0.5">•</span>
+                    Si no tenés una práctica de meditación, introspección y conexión con tu Maestro Interior, puede ser recomendable comenzar únicamente con el Nivel 1.
+                  </li>
+                </ul>
+              </div>
+
+              <Separator className="bg-mystic-700/30" />
+
+              {/* Valor */}
+              <div className="space-y-3">
+                <h3 className="text-violet-300 font-serif font-semibold text-base">Valor</h3>
+                <ul className="space-y-2 text-sm text-foreground/60">
+                  <li className="flex items-start gap-2">
+                    <span className="text-violet-400 mt-0.5">•</span>
+                    Argentina: <strong className="text-foreground/80">$85.000 ARS</strong>, mediante Mercado Pago o transferencia bancaria. Se aceptan cuotas con tarjeta.
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-violet-400 mt-0.5">•</span>
+                    Fuera de Argentina: <strong className="text-foreground/80">USD 65</strong> (valor en promoción), mediante PayPal o Western Union.
                   </li>
                 </ul>
               </div>
@@ -399,22 +466,29 @@ export default function AmbosPage() {
         </Collapsible>
       </Card>
 
-      {/* ── Accept terms ── */}
-      <div className="flex items-start gap-3 glass rounded-xl p-4 border border-mystic-700/30">
-        <Checkbox
-          id="accept-terms"
-          checked={accepted}
-          onCheckedChange={(c) => setAccepted(c === true)}
-          className="mt-0.5 data-[state=checked]:bg-violet-500 data-[state=checked]:border-violet-500 data-[state=checked]:text-mystic-950"
-        />
-        <Label htmlFor="accept-terms" className="text-base text-foreground/80 cursor-pointer leading-relaxed">
-          He leído y comprendido el marco y condiciones de ambos cursos. Al aceptar, podré completar mi formulario de inscripción.
-          <span className="text-violet-400"> *</span>
-        </Label>
+            {/* ── Confirmaciones obligatorias ── */}
+      <div className="p-5 rounded-xl border border-violet-400/40 bg-violet-500/5">
+        <p className="text-sm text-foreground mb-4">
+          Confirmá los siguientes puntos antes de continuar:
+        </p>
+        <div className="space-y-3">
+          {confirmationItems.map((item, i) => (
+            <label key={i} className="flex items-start gap-3 cursor-pointer group">
+              <Checkbox
+                checked={confirmations[i]}
+                onCheckedChange={(checked) =>
+                  setConfirmations((prev) => prev.map((c, j) => (j === i ? checked === true : c)))
+                }
+                className="mt-0.5 size-5 shrink-0 border-violet-400/60 data-[state=checked]:bg-violet-500 data-[state=checked]:border-violet-500 data-[state=checked]:text-white"
+              />
+              <span className="text-sm text-foreground leading-relaxed">{item}</span>
+            </label>
+          ))}
+        </div>
       </div>
 
-      {/* ── Form ── */}
-      {accepted && (
+{/* ── Form ── */}
+      {allConfirmed && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
           <Card className="glass border-mystic-700/30">
             <CardHeader>

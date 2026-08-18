@@ -8,7 +8,7 @@ const SITE_URL = "https://www.etersomos.com";
 export const metadata: Metadata = {
   title: "Cursos de Registros Akáshicos",
   description:
-    "Formación completa en Registros Akáshicos: Nivel 1 Teórico (contribución voluntaria), Nivel 1 con Práctica ($35.000 ARS), Nivel 2 ($45.000 ARS) y pack de ambos cursos ($70.000 ARS).",
+    "Formación completa en Registros Akáshicos: Nivel 1 Teórico (contribución voluntaria), Nivel 1 con Práctica ($45.000 ARS), Nivel 2 ($60.000 ARS) y pack de ambos cursos ($85.000 ARS).",
   alternates: {
     canonical: `${SITE_URL}/cursos`,
   },
