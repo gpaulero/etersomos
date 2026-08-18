@@ -1581,18 +1581,27 @@ export default function AdminPage() {
 
     // Compresión automática (S43): audio → MP3, imágenes JPG/PNG → WebP
     let fileToUpload: File = selectedFile;
-    const willCompress = compressEnabled && (isCompressibleAudio(selectedFile) || isCompressibleImage(selectedFile));
+    const isAudioFile = isCompressibleAudio(selectedFile);
+    const isImageFile = isCompressibleImage(selectedFile);
+    // Audios muy largos: decodificarlos/comprimirlos en el navegador lo congela → se suben sin comprimir
+    const audioTooLarge = isAudioFile && selectedFile.size > 20 * 1024 * 1024;
+    const willCompress = compressEnabled && (isAudioFile || isImageFile) && !audioTooLarge;
+    if (audioTooLarge) {
+      setCompressNote(
+        `Audio muy largo (${formatMB(selectedFile.size)}): se sube sin comprimir para no congelar la página. Avisame y lo comprimo yo (más rápido y seguro).`
+      );
+    }
     if (willCompress) {
       setUploading(true);
       setUploadProgress(`Comprimiendo ${selectedFile.name}...`);
     }
-    if (compressEnabled) {
+    if (willCompress) {
       try {
-        if (isCompressibleAudio(selectedFile)) {
+        if (isAudioFile) {
           const comp = await compressAudio(selectedFile, audioKbps, setUploadProgress);
           fileToUpload = comp.file;
           setCompressNote(`Audio comprimido: ${formatMB(comp.originalSize)} → ${formatMB(comp.file.size)} (${comp.file.name.endsWith(".m4a") ? "AAC" : "MP3"} ${audioKbps}kbps)`);
-        } else if (isCompressibleImage(selectedFile)) {
+        } else if (isImageFile) {
           const comp = await compressImage(selectedFile, setUploadProgress);
           fileToUpload = comp.file;
           if (comp.file !== selectedFile) {
