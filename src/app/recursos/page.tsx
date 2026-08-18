@@ -32,6 +32,7 @@ import {
   Loader2,
   Play,
   X,
+  Search,
   Download,
   Mail,
 } from "lucide-react";
@@ -138,6 +139,15 @@ function getFileTypeInfo(fileType: string): {
   }
 }
 
+const TYPE_LABELS: Record<string, string> = {
+  meditacion: "Meditaciones",
+  audio: "Audios",
+  video: "Videos",
+  guia: "Guías",
+  documento: "Documentos",
+  imagen: "Imágenes",
+};
+
 /* ======================================================================== */
 /*                           MAIN PAGE                                       */
 /* ======================================================================== */
@@ -150,6 +160,8 @@ export default function RecursosPage() {
   const [resources, setResources] = useState<Resource[]>([]);
   const [resourcesLoading, setResourcesLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState("todos");
   const [playerOpen, setPlayerOpen] = useState(false);
   const [playerResource, setPlayerResource] = useState<Resource | null>(null);
   const [inlineAudioOpen, setInlineAudioOpen] = useState<Record<string, boolean>>({});
@@ -182,6 +194,15 @@ export default function RecursosPage() {
     };
     fetchResources();
   }, []);
+
+  /* ---- Filtros (S42) ---- */
+  const availableTypes = Array.from(new Set(resources.map((r) => normalizeFileType(r.fileType))));
+  const filteredResources = resources.filter((r) => {
+    const q = searchQuery.trim().toLowerCase();
+    const matchesType = typeFilter === "todos" || normalizeFileType(r.fileType) === typeFilter;
+    const matchesSearch = !q || r.title.toLowerCase().includes(q) || (r.description || "").toLowerCase().includes(q);
+    return matchesType && matchesSearch;
+  });
 
   /* ---- Floating stars ---- */
   const [starsCount, setStarsCount] = useState(15);
@@ -312,6 +333,52 @@ export default function RecursosPage() {
               {fetchError}
             </div>
           )}
+          {/* Filtros (S42) */}
+          {!resourcesLoading && resources.length > 0 && (
+            <div className="mb-8 space-y-4">
+              <div className="relative max-w-md mx-auto">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-foreground/30" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Buscar por título..."
+                  className="w-full pl-10 pr-9 py-2.5 rounded-full bg-mystic-900/60 border border-mystic-700/30 text-foreground text-sm font-sans placeholder:text-foreground/30 focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 outline-none transition-colors"
+                />
+                {searchQuery && (
+                  <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/30 hover:text-foreground/60 transition-colors" aria-label="Limpiar búsqueda">
+                    <X className="size-4" />
+                  </button>
+                )}
+              </div>
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <button
+                  onClick={() => setTypeFilter("todos")}
+                  className={`px-4 py-1.5 rounded-full text-xs font-sans font-medium border transition-colors ${
+                    typeFilter === "todos"
+                      ? "bg-violet-500/20 border-violet-400/40 text-violet-300"
+                      : "bg-mystic-900/40 border-mystic-700/30 text-foreground/50 hover:text-foreground/70 hover:border-mystic-600/40"
+                  }`}
+                >
+                  Todos ({resources.length})
+                </button>
+                {availableTypes.map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => setTypeFilter(t)}
+                    className={`px-4 py-1.5 rounded-full text-xs font-sans font-medium border transition-colors ${
+                      typeFilter === t
+                        ? "bg-violet-500/20 border-violet-400/40 text-violet-300"
+                        : "bg-mystic-900/40 border-mystic-700/30 text-foreground/50 hover:text-foreground/70 hover:border-mystic-600/40"
+                    }`}
+                  >
+                    {TYPE_LABELS[t] || t} ({resources.filter((r) => normalizeFileType(r.fileType) === t).length})
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {resourcesLoading ? (
             <div className="py-16 flex flex-col items-center justify-center gap-3">
               <Loader2 className="size-6 text-violet-400 animate-spin" />
@@ -325,9 +392,20 @@ export default function RecursosPage() {
                 Estamos preparando meditaciones, guías y contenido para tu crecimiento espiritual. Suscribite al newsletter para enterarte cuando subamos algo nuevo.
               </p>
             </motion.div>
+          ) : filteredResources.length === 0 ? (
+            <div className="text-center py-16">
+              <Search className="size-10 text-foreground/10 mx-auto mb-4" />
+              <p className="text-foreground/40 text-base font-serif mb-3">No encontramos recursos con esos filtros</p>
+              <button
+                onClick={() => { setSearchQuery(""); setTypeFilter("todos"); }}
+                className="text-violet-400 hover:text-violet-300 text-sm font-sans underline underline-offset-4 transition-colors"
+              >
+                Limpiar filtros
+              </button>
+            </div>
           ) : (
             <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {resources.map((resource) => {
+              {filteredResources.map((resource) => {
                 const typeInfo = getFileTypeInfo(resource.fileType);
                 const TypeIcon = typeInfo.icon;
                 const streamable = isStreamableType(resource.fileType);

@@ -146,7 +146,7 @@ export async function PUT(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { id, title, description, fileType, price, priceArs, priceUsd, category, active } = body;
+    const { id, title, description, fileType, price, priceArs, priceUsd, category, active, r2Key, fileName, fileSize } = body;
 
     if (!id) {
       return NextResponse.json({ error: "Se requiere el campo 'id'" }, { status: 400 });
@@ -158,6 +158,9 @@ export async function PUT(request: NextRequest) {
     if (description !== undefined) { sets.push('"description" = ?'); values.push(description); }
     if (category !== undefined) { sets.push('"category" = ?'); values.push(category); }
     if (fileType !== undefined) { sets.push('"fileType" = ?'); values.push(fileType); }
+    if (r2Key !== undefined) { sets.push('"r2Key" = ?'); values.push(r2Key); }
+    if (fileName !== undefined) { sets.push('"fileName" = ?'); values.push(fileName); }
+    if (fileSize !== undefined) { sets.push('"fileSize" = ?'); values.push(fileSize); }
     // Update all price columns for compatibility
     if (price !== undefined) { sets.push('"price" = ?'); values.push(price); sets.push('"priceArs" = ?'); values.push(price); }
     if (priceArs !== undefined) { sets.push('"priceArs" = ?'); values.push(priceArs); }
