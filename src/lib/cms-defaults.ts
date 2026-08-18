@@ -134,7 +134,7 @@ export const defaultSiteContent: SiteContentItem[] = [
   { key: "crystals.categories", value: JSON.stringify(defaultCategories, null, 2), section: "crystals", label: "Categorías de cristales (JSON)", type: "json" },
 
   // ── Readings (lecturas) ──
-  { key: "readings.price_ars", value: "18000", section: "readings", label: "Precio Lectura (ARS)", type: "number" },
+  { key: "readings.price_ars", value: "20000", section: "readings", label: "Precio Lectura (ARS)", type: "number" },
   { key: "readings.price_usd", value: "20", section: "readings", label: "Precio Lectura (USD)", type: "number" },
   { key: "readings.description", value: "Traé claridad a los procesos que estás atravesando. Recibí una lectura personalizada grabada especialmente para vos.", section: "readings", label: "Descripción de Lecturas", type: "textarea" },
   { key: "readings.deadline_badge", value: "5 días hábiles", section: "readings", label: "Badge de plazo de entrega", type: "text" },
@@ -164,7 +164,7 @@ export const defaultSiteContent: SiteContentItem[] = [
   { key: "espacios.heading", value: "¿Qué buscás?", section: "espacios", label: "Título de Espacios", type: "text" },
   { key: "espacios.card1_title", value: "Lectura de Registros Akáshicos", section: "espacios", label: "Card 1 - Título", type: "text" },
   { key: "espacios.card1_desc", value: "Traé claridad a los procesos que estás atravesando. Recibí una lectura personalizada grabada especialmente para vos.", section: "espacios", label: "Card 1 - Descripción", type: "textarea" },
-  { key: "espacios.card1_price", value: "$18.000 ARS · US$20", section: "espacios", label: "Card 1 - Precio", type: "text" },
+  { key: "espacios.card1_price", value: "$20.000 ARS · US$20", section: "espacios", label: "Card 1 - Precio", type: "text" },
   { key: "espacios.card2_title", value: "Cursos de Formación", section: "espacios", label: "Card 2 - Título", type: "text" },
   { key: "espacios.card2_desc", value: "Aprendé a conectar con tus propios Registros Akáshicos y el de otras personas. Niveles 1 y 2 con práctica individual.", section: "espacios", label: "Card 2 - Descripción", type: "textarea" },
   { key: "espacios.card2_price", value: "Desde contribución voluntaria", section: "espacios", label: "Card 2 - Precio", type: "text" },

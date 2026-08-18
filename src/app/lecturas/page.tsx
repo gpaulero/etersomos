@@ -53,7 +53,15 @@ const fadeIn = {
 export default function LecturasPage() {
   const [agreementOpen, setAgreementOpen] = useState(true);
   const [formPaused, setFormPaused] = useState(false);
-  const [termsAccepted, setTermsAccepted] = useState(false);
+  const confirmationItems = [
+    "Declaro ser mayor de 18 años, que los datos proporcionados son verdaderos y que participo de manera libre y voluntaria.",
+    "Comprendo que esta lectura tiene un propósito espiritual y no reemplaza diagnósticos, tratamientos ni indicaciones médicas o psicológicas.",
+    "Acepto que no se realizan reembolsos una vez entregada la lectura ni por cancelación o desistimiento posterior al pago.",
+    "Comprendo que Fernanda Lucrecia Cardozo no se responsabiliza por decisiones o consecuencias derivadas de la información recibida.",
+    "Comprendo y acepto que Fernanda Lucrecia Cardozo se reserva el derecho de admisión, el importe abonado será reintegrado inmediatamente.",
+  ];
+  const [confirmations, setConfirmations] = useState<boolean[]>(Array(confirmationItems.length).fill(false));
+  const allConfirmed = confirmations.every(Boolean);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -104,7 +112,7 @@ export default function LecturasPage() {
       if (saved) {
         const parsed = JSON.parse(saved);
         setFormData(parsed);
-        if (parsed._termsAccepted) setTermsAccepted(true);
+        if (Array.isArray(parsed._confirmations) && parsed._confirmations.length === 5) setConfirmations(parsed._confirmations);
       }
     } catch {}
   }, []);
@@ -112,9 +120,9 @@ export default function LecturasPage() {
   // Auto-save on every change
   useEffect(() => {
     if (formData.email || formData.nombre) {
-      localStorage.setItem(FORM_KEY, JSON.stringify({ ...formData, _termsAccepted: termsAccepted }));
+      localStorage.setItem(FORM_KEY, JSON.stringify({ ...formData, _confirmations: confirmations }));
     }
-  }, [formData, termsAccepted]);
+  }, [formData, confirmations]);
 
   // Progress stepper calculation
   const currentStep = useMemo(() => {
@@ -172,8 +180,8 @@ export default function LecturasPage() {
   };
 
   const handleSubmit = async () => {
-    if (!termsAccepted) {
-      toast.error("Debés aceptar el marco y condiciones antes de continuar");
+    if (!allConfirmed) {
+      toast.error("Debés confirmar todos los puntos antes de continuar");
       return;
     }
     if (!validate()) {
@@ -241,7 +249,7 @@ export default function LecturasPage() {
     }
   };
 
-  const readingsPriceArs = cmsNumber(cmsMap, 'readings.price_ars', 18000);
+  const readingsPriceArs = cmsNumber(cmsMap, 'readings.price_ars', 20000);
   const readingsPriceUsd = cmsNumber(cmsMap, 'readings.price_usd', 20);
 
   const paymentOptions: { value: PaymentMethod; label: string; price: string; icon: React.ReactNode; note?: string }[] = [
@@ -323,7 +331,7 @@ export default function LecturasPage() {
             <p className="text-foreground/70 text-sm sm:text-base max-w-2xl mx-auto mb-5 leading-relaxed">
               Una lectura de Registros Akáshicos te conecta con la sabiduría de tu alma para responder
               las preguntas más profundas de tu camino espiritual. Recibirás tu lectura grabada en audio,
-              disponible en el Aula Virtual, desde Córdoba hacia todo el mundo.
+              disponible en el Aula Virtual.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3">
               <Badge variant="outline" className="border-violet-400/30 text-violet-300 bg-violet-400/5">
@@ -370,13 +378,19 @@ export default function LecturasPage() {
 
                       <p>
                         La lectura tiene un enfoque espiritual orientado al bienestar y crecimiento personal.
-                        Los Registros pueden mostrar información del presente, pasado o futuros potenciales.
-                        No realizo predicciones.
+                        Los Registros pueden brindar información del presente, pasado y futuros potenciales;
+                        no realizo predicciones.
                       </p>
 
-                      <p>Incluye la respuesta a 2 preguntas o temas, entregadas en audio.</p>
+                      <p>
+                        La duración aproximada es de 30 a 40 minutos o más y, si lo considero necesario, puedo
+                        complementarla con oráculos, cristales, limpiezas energéticas u otras herramientas afines.
+                      </p>
 
-                      <p>Las preguntas deben estar enfocadas en vos, no en terceros.</p>
+                      <p>
+                        Incluye 2 temas o preguntas sobre vos, respondidos mediante un audio personalizado
+                        enviado por email.
+                      </p>
 
                       <div className="grid sm:grid-cols-2 gap-4">
                         <div className="p-3 rounded-lg bg-white/[0.03] border border-violet-400/20">
@@ -402,45 +416,11 @@ export default function LecturasPage() {
                       </div>
 
                       <p>
-                        Podrás compartir el contexto que consideres importante. Te invito a hacerlo con confianza,
-                        ya que facilita y enriquece la lectura. Si una pareja, familiar o persona cercana también
-                        solicita una lectura sobre temas relacionados o compartidos, por favor avisame para poder
-                        observar la energía en conjunto.
+                        Si una pareja, familiar o persona cercana también solicita una lectura sobre temas
+                        relacionados o compartidos, por favor avisame para poder observar la energía en conjunto.
                       </p>
 
-                      <p>
-                        La lectura suele durar 30 a 40 minutos o más. Si lo considero necesario, podré complementarla
-                        con oráculos, grillas de cristales, limpiezas energéticas u otras herramientas afines.
-                      </p>
-
-                      <p>
-                        La lectura comenzará únicamente una vez recibida la contribución. Luego deberás enviarme el
-                        comprobante por email o WhatsApp. Al final de este formulario encontrarás las opciones de
-                        pago disponibles.
-                      </p>
-
-                      <p>Toda la información compartida es confidencial.</p>
-
-                      <p>
-                        Esta lectura no reemplaza diagnósticos, tratamientos ni indicaciones médicas o psicológicas.
-                        No se realizan reembolsos una vez entregada la lectura ni tampoco por decisión del consultante
-                        de cancelar o desistir del proceso luego de haber realizado su contribución.
-                      </p>
-
-                      <p>
-                        Fernanda Lucrecia Cardozo no se responsabiliza por decisiones o consecuencias derivadas de la
-                        información recibida.
-                      </p>
-
-                      <p>
-                        Al solicitar la lectura declarás que los datos brindados son verdaderos, que sos mayor de 18
-                        años y que participás por voluntad propia.
-                      </p>
-
-                      <p>
-                        Fernanda Lucrecia Cardozo se reserva el derecho de admisión. Si una consulta no pudiera
-                        realizarse por decisión de la facilitadora, cualquier importe abonado será reintegrado.
-                      </p>
+                      <p>Toda la información proporcionada será tratada de manera confidencial.</p>
                     </div>
                   </CollapsibleContent>
                 </Collapsible>
@@ -448,23 +428,31 @@ export default function LecturasPage() {
             </Card>
           </motion.div>
 
-          {/* Terms Checkbox */}
+          {/* Confirmaciones obligatorias */}
           <motion.div variants={fadeIn} className="mb-8">
-            <label className="flex items-start gap-3 cursor-pointer p-5 rounded-xl border border-violet-400/40 bg-violet-500/5 hover:bg-violet-500/10 transition-colors">
-              <Checkbox
-                checked={termsAccepted}
-                onCheckedChange={(checked) => setTermsAccepted(checked === true)}
-                className="mt-0.5 size-5 shrink-0 border-violet-400/60 data-[state=checked]:bg-violet-500 data-[state=checked]:border-violet-500 data-[state=checked]:text-white"
-              />
-              <span className="text-sm text-foreground leading-relaxed">
-                He leído, he comprendido y acepto el marco y condiciones en que se realizará esta Lectura,
-                expresado y detallado más arriba en el ACUERDO DE LECTURA DE REGISTROS AKÁSHICOS.
-              </span>
-            </label>
+            <div className="p-5 rounded-xl border border-violet-400/40 bg-violet-500/5">
+              <p className="text-sm text-foreground mb-4">
+                Confirmá los siguientes puntos antes de continuar:
+              </p>
+              <div className="space-y-3">
+                {confirmationItems.map((item, i) => (
+                  <label key={i} className="flex items-start gap-3 cursor-pointer group">
+                    <Checkbox
+                      checked={confirmations[i]}
+                      onCheckedChange={(checked) =>
+                        setConfirmations((prev) => prev.map((c, j) => (j === i ? checked === true : c)))
+                      }
+                      className="mt-0.5 size-5 shrink-0 border-violet-400/60 data-[state=checked]:bg-violet-500 data-[state=checked]:border-violet-500 data-[state=checked]:text-white"
+                    />
+                    <span className="text-sm text-foreground leading-relaxed">{item}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
           </motion.div>
 
           {/* Form - only visible when terms accepted */}
-          {termsAccepted && (
+          {allConfirmed && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -975,13 +963,13 @@ export default function LecturasPage() {
             </motion.div>
           )}
 
-          {!termsAccepted && (
+          {!allConfirmed && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="text-center py-12 text-foreground/40"
             >
-              <p className="text-sm">Aceptá el marco y condiciones arriba para acceder al formulario.</p>
+              <p className="text-sm">Confirmá todos los puntos de arriba para acceder al formulario.</p>
             </motion.div>
           )}
           </motion.div>
