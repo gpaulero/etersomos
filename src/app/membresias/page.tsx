@@ -538,17 +538,20 @@ export default function MembresiasPage() {
 
       {/* ============================================================ */}
       <section className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
-        {/* Background Image — same as index membresías section */}
+        {/* Background Image — starfield uniforme sin núcleo brillante (S40) */}
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: "url('/images/membresias-bg.webp')" }}
         />
 
-        {/* Dark overlay — same opacity as index */}
-        <div className="absolute inset-0 bg-mystic-950/80" />
+        {/* Dark overlay para legibilidad del texto */}
+        <div className="absolute inset-0 bg-mystic-950/85" />
 
-        {/* Bottom fade */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-mystic-950 to-transparent z-[1]" />
+        {/* Bordes difuminados — integración con header y sección "Cómo suscribirte" */}
+        <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-mystic-950 to-transparent z-[1]" />
+        <div className="absolute bottom-0 left-0 right-0 h-56 bg-gradient-to-t from-mystic-950 via-mystic-950/80 to-transparent z-[1]" />
+        <div className="absolute inset-y-0 left-0 w-16 sm:w-32 bg-gradient-to-r from-mystic-950/90 to-transparent z-[1]" />
+        <div className="absolute inset-y-0 right-0 w-16 sm:w-32 bg-gradient-to-l from-mystic-950/90 to-transparent z-[1]" />
 
         {/* Floating stars */}
         {stars.map((star) => (
