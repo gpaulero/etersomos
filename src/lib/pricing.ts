@@ -32,9 +32,9 @@ export const readingPrice: PriceEntry = { ars: 20000, usd: 20 };
  * Course prices — based on Fernanda's actual Google Forms
  *
  * Course 1 – Solo Teórico:        VOLUNTARY CONTRIBUTION (no fixed price)
- * Course 2 – Práctica Incluida:    ARS $35.000 / USD $30
- * Course 3 – Nivel 2 Completo:     ARS $45.000 / USD $45  (with 10% discount: $40.500 / $40)
- * Course 4 – Ambos Cursos:         ARS $70.000 / USD $55  (PayPal/WU: $50)
+ * Course 2 – Práctica Incluida:    ARS $45.000 / USD $35
+ * Course 3 – Nivel 2 Completo:     ARS $60.000 / USD $50  (with 10% discount: $54.000 / $45)
+ * Course 4 – Ambos Cursos:         ARS $85.000 / USD $65
  */
 export const coursePricing = {
   "n1-teorico": {
@@ -47,25 +47,25 @@ export const coursePricing = {
   "n1-practica": {
     name: "1er Nivel con Práctica Incluida – Aprendé a Conectar con el Campo Akashico",
     voluntary: false,
-    ars: 35000,
-    usd: 30,
+    ars: 45000,
+    usd: 35,
     description: "Material teórico + 2 clases prácticas individuales por videollamada.",
   },
   "n2-completo": {
     name: "2do Nivel – Aprendé a Consultar los Registros Akashicos de Otras Personas",
     voluntary: false,
-    ars: 45000,
-    usd: 45,
-    discountArs: 40500,
-    discountUsd: 40,
+    ars: 60000,
+    usd: 50,
+    discountArs: 54000,
+    discountUsd: 45,
     description: "Curso teórico/práctico completo para leer Registros de terceros.",
   },
   "ambos-cursos": {
     name: "Ambos Cursos – 1er Nivel + 2do Nivel",
     voluntary: false,
-    ars: 70000,
-    usd: 55,
-    paypalUsd: 50,
+    ars: 85000,
+    usd: 65,
+    paypalUsd: 65,
     description: "Formación completa: autoconocimiento + consulta a terceros.",
   },
 } as const;

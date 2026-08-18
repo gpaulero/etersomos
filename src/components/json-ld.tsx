@@ -105,7 +105,7 @@ export function LocalBusinessJsonLd() {
                   sameAs: SITE_URL,
                 },
               },
-              price: "35000",
+              price: "45000",
               priceCurrency: "ARS",
             },
             {
@@ -121,7 +121,7 @@ export function LocalBusinessJsonLd() {
                   sameAs: SITE_URL,
                 },
               },
-              price: "45000",
+              price: "60000",
               priceCurrency: "ARS",
             },
           ],
@@ -185,7 +185,7 @@ export function CoursesJsonLd() {
           url: `${SITE_URL}/cursos/n1-practica`,
           offers: {
             "@type": "Offer",
-            price: "35000",
+            price: "45000",
             priceCurrency: "ARS",
             availability: "https://schema.org/InStock",
           },
@@ -207,7 +207,7 @@ export function CoursesJsonLd() {
           url: `${SITE_URL}/cursos/n2`,
           offers: {
             "@type": "Offer",
-            price: "45000",
+            price: "60000",
             priceCurrency: "ARS",
             availability: "https://schema.org/InStock",
           },
@@ -229,7 +229,7 @@ export function CoursesJsonLd() {
           url: `${SITE_URL}/cursos/ambos`,
           offers: {
             "@type": "Offer",
-            price: "70000",
+            price: "85000",
             priceCurrency: "ARS",
             availability: "https://schema.org/InStock",
           },

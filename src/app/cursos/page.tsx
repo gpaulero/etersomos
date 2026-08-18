@@ -22,16 +22,16 @@ export default function CursosPage() {
   const n1TeoricoUsd = cmsNumber(cmsMap, 'courses.n1teorico_price_usd', 0);
   const n1TeoricoBadgeRaw = cmsValue(cmsMap, 'courses.n1teorico_badge', '');
 
-  const n1PracticaArs = cmsNumber(cmsMap, 'courses.n1practica_price_ars', 35000);
-  const n1PracticaUsd = cmsNumber(cmsMap, 'courses.n1practica_price_usd', 30);
+  const n1PracticaArs = cmsNumber(cmsMap, 'courses.n1practica_price_ars', 45000);
+  const n1PracticaUsd = cmsNumber(cmsMap, 'courses.n1practica_price_usd', 35);
   const n1PracticaBadgeRaw = cmsValue(cmsMap, 'courses.n1practica_badge', 'Más Elegido');
 
-  const n2Ars = cmsNumber(cmsMap, 'courses.n2_price_ars', 45000);
-  const n2Usd = cmsNumber(cmsMap, 'courses.n2_price_usd', 45);
+  const n2Ars = cmsNumber(cmsMap, 'courses.n2_price_ars', 60000);
+  const n2Usd = cmsNumber(cmsMap, 'courses.n2_price_usd', 50);
   const n2BadgeRaw = cmsValue(cmsMap, 'courses.n2_badge', '');
 
-  const ambosArs = cmsNumber(cmsMap, 'courses.ambos_price_ars', 70000);
-  const ambosUsd = cmsNumber(cmsMap, 'courses.ambos_price_usd', 55);
+  const ambosArs = cmsNumber(cmsMap, 'courses.ambos_price_ars', 85000);
+  const ambosUsd = cmsNumber(cmsMap, 'courses.ambos_price_usd', 65);
   const ambosBadgeRaw = cmsValue(cmsMap, 'courses.ambos_badge', 'Mejor Precio');
 
   // Badge: if CMS returns empty string, set to null
