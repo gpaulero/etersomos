@@ -1,6 +1,6 @@
 # ETÉR SOMOS - Especificación Completa del Proyecto
 ## (Archivo de referencia CRÍTICO - NO BORRAR)
-## Última actualización: 2026-08-19 (sesión 39)
+## Última actualización: 2026-08-19 (sesión 40)
 
 Este documento describe TODO el estado actual, credenciales, estructura y requisitos del sitio web.
 **Siempre consultar antes de hacer cambios.**
@@ -1185,7 +1185,7 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 - Recursos usan modelo de contribución voluntaria: todos gratuitos, con links opcionales de MP/PayPal
 - ProtectedPlayer protege video/audio contra descarga (Blob URL, controlsList="nodownload", etc.)
 - SiteContentProvider en layout.tsx provee CMS a toda la app con auto-refresh cross-tab/focus/visibility
-- Commit actual: dc0d57f (sesión 39)
+- Commit actual: 3fc1cbe (sesión 40)
 
 ### SESIÓN 19 (17/05/2026 — Revisión completa del sistema + Fix CMS revalidation)
 
@@ -1789,3 +1789,16 @@ GRUPO 2 — Formularios sincronizados con los Google Forms:
 - /cursos/ambos (dc0d57f): acuerdo nuevo (ambos niveles con contenidos, cómo se desarrolla, prácticas de cada nivel, plazos 2 meses y medio máximo, disponibilidad, valor promocional) + 9 casillas obligatorias.
 - Los 3 usan el mismo mecanismo que /lecturas (S38): confirmations state + allConfirmed gate del formulario, persistencia en localStorage (_confirmations).
 - Meta description de /cursos actualizada con los precios nuevos (dc0d57f).
+
+SESIÓN 40 (19/08/2026 — N1 Práctica limpieza de campos + Prácticas legibles + Membresías fondo/ideal-para + N2/Ambos habilitados)
+Commits: b149c8e, 3fc1cbe + cambios runtime (CMS bulk + settings)
+GRUPO 1 — /cursos/n1-practica (b149c8e):
+- Eliminados campos que NO están en el Google Form original: "¿A qué te dedicás? ¿Profesión?", "¿Con qué regularidad meditas?" y "¿Qué tipo de meditaciones?" (estados, arrays meditationOptions/medFrequencyOptions, restore localStorage, autosave, validación, enrollmentData y JSX).
+- Sección "Prácticas" del acuerdo reescrita en párrafos claros (antes bullets que se leían como columnas): duración de encuentros, disponibilidad de Fer (Lun-Vie 13.30-20hs ARG + sábados), plazo 30 días, confidencialidad, encuentros adicionales.
+- Fix placeholder roto con caracteres chinos ("Si经历的..." → "Si tuviste algún episodio...").
+GRUPO 2 — /membresias (3fc1cbe + CMS bulk):
+- Fondo nuevo: starfield uniforme sin núcleo brillante (reemplaza membresias-bg.webp galaxia con blanco concentrado que competía con el texto). WebP 71KB (antes 601KB).
+- Bordes difuminados para integración con header y sección "Cómo suscribirte": gradientes top (h-24), bottom (h-56 con via), laterales (w-16/w-32) + overlay subido a bg-mystic-950/85 para legibilidad.
+- Fix "Ideal para" vacío: la DB del CMS (memberships.tiers) tenía versión vieja sin idealFor/extendedDescription → actualizada via PUT /api/cms/content/bulk con los valores del código. Verificado: las 3 membresías muestran idealFor.
+GRUPO 3 — Form toggles (runtime):
+- Habilitados n2-completo y ambos (estaban en false/pausados). Estado final forms: lecturas✅ n1-teorico❌ n1-con-practica✅ n2-completo✅ ambos✅ membresias✅ tienda❌.
