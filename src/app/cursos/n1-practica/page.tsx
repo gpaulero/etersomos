@@ -34,22 +34,8 @@ import {
 import { initiateCoursePayment } from "@/lib/course-payment";
 import FormPausedBanner from "@/components/form-paused-banner";
 
-const PRICE_ARS = 35000;
-const PRICE_USD = 30;
-
-/* ------------------------------------------------------------------ */
-/*  MODULES                                                           */
-/* ------------------------------------------------------------------ */
-const modules = [
-  "Módulo 1 – ¿Qué es el Akasha? Maestros y Guías.",
-  "Módulo 2 – Lo que bloquea tu Conexión con el Akasha.",
-  "Módulo 3 – Cómo formular preguntas. Formas de Navegar en el Akasha.",
-  "Módulo 4 – Canales de la Información.",
-  "Módulo 5 – Tipos de Información.",
-  "Módulo 6 – Esferas de vos mismo que podés explorar, y cómo hacerlo. Línea de tiempo, árbol genealógico, vidas pasadas, orígenes cósmicos.",
-  "Módulo 7 – Cómo reconocer la Información del Akasha.",
-  "Módulo 8 – Metodología, Pasos para abrir tus Registros Akashicos.",
-];
+const PRICE_ARS = 45000;
+const PRICE_USD = 35;
 
 interface FormErrors {
   [key: string]: string;
@@ -77,7 +63,16 @@ const FORM_KEY = "etersomos_n1practica_form";
 export default function N1PracticaPage() {
   const [agreementOpen, setAgreementOpen] = useState(true);
   const [formPaused, setFormPaused] = useState(false);
-  const [accepted, setAccepted] = useState(false);
+  const confirmationItems = [
+    "Declaro ser mayor de 18 años y que los datos proporcionados son verdaderos.",
+    "Me comprometo a contar con la disponibilidad horaria requerida y completar las prácticas dentro de los 30 días. Comprendo que las cancelaciones con menos de 24 hs no podrán recuperarse.",
+    "Comprendo que esta formación tiene un enfoque espiritual y no reemplaza atención, diagnóstico ni tratamiento médico o psicológico.",
+    "Acepto que no se realizan reembolsos una vez abonada la formación.",
+    "Comprendo que Fernanda Lucrecia Cardozo no se responsabiliza por decisiones o consecuencias derivadas del uso del material o de las prácticas.",
+    "Acepto el derecho de admisión. Si mi inscripción no fuera aceptada, el importe abonado será reintegrado.",
+  ];
+  const [confirmations, setConfirmations] = useState<boolean[]>(Array(confirmationItems.length).fill(false));
+  const allConfirmed = confirmations.every(Boolean);
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
   const [errors, setErrors] = useState<FormErrors>({});
@@ -147,7 +142,7 @@ export default function N1PracticaPage() {
         if (parsed.temasPracticas) setTemasPracticas(parsed.temasPracticas);
         if (parsed.compartirExperiencias) setCompartirExperiencias(parsed.compartirExperiencias);
         if (parsed.metodoPago) setMetodoPago(parsed.metodoPago);
-        if (parsed._accepted) setAccepted(true);
+        if (Array.isArray(parsed._confirmations) && parsed._confirmations.length === confirmationItems.length) setConfirmations(parsed._confirmations);
       }
     } catch {}
   }, []);
@@ -163,7 +158,7 @@ export default function N1PracticaPage() {
         terapiasHolisticas, meditacionFreq, meditacionTipo,
         plantasSagradas, disponibilidad, temasPracticas,
         compartirExperiencias, metodoPago,
-        _accepted: accepted,
+        _confirmations: confirmations,
       }));
     }
   }, [email, nombre, fechaNac, nacionalidad, ciudad, telefono,
@@ -172,7 +167,7 @@ export default function N1PracticaPage() {
       terapiaPsiquiatra, terapiaPsiquiatraTiempo, episodios,
       terapiasHolisticas, meditacionFreq, meditacionTipo,
       plantasSagradas, disponibilidad, temasPracticas,
-      compartirExperiencias, metodoPago, accepted]);
+      compartirExperiencias, metodoPago, confirmations]);
 
   const validate = (): boolean => {
     const e: FormErrors = {};
@@ -325,7 +320,7 @@ export default function N1PracticaPage() {
             </CollapsibleTrigger>
           </CardHeader>
           <CollapsibleContent>
-            <CardContent className="pt-4 space-y-5">
+                        <CardContent className="pt-4 space-y-5">
               <div className="text-sm text-foreground/70 leading-relaxed space-y-3">
                 <p className="text-violet-400/80 font-medium">
                   Por favor tomate el tiempo de leer completo este acuerdo, es
@@ -333,12 +328,8 @@ export default function N1PracticaPage() {
                   total armonía y comprensión.
                 </p>
                 <p>
-                  El objetivo principal de este curso es que aprendas a navegar
-                  en el Campo Akashico, y puedas consultar tus Registros
-                  Akashicos con acompañamiento práctico.{" "}
-                  <strong className="text-foreground/90">
-                    Incluye 2 clases prácticas individuales por videollamada.
-                  </strong>
+                  Con esta formación vas a aprender a acceder a tus propios
+                  Registros Akáshicos como herramienta de autoconocimiento.
                 </p>
               </div>
 
@@ -349,14 +340,11 @@ export default function N1PracticaPage() {
                 </h3>
                 <ul className="space-y-1.5">
                   {[
-                    "Material audiovisual pregrabado (8 módulos de 20 min cada uno)",
-                    ...modules,
-                    "Módulo 9 – PDF de Preguntas Frecuentes",
-                    "2 clases prácticas individuales por videollamada",
-                    "Oración de apertura y cierre PERSONALIZADA",
+                    "8 módulos audiovisuales sobre: Akasha, Maestros y Guías · conexión y bloqueos · preguntas · canales y tipos de información · línea de tiempo, árbol genealógico, vidas pasadas y acercamiento a orígenes cósmicos · reconocimiento de la información · apertura de Registros",
+                    "Material teórico y bibliografía en PDF",
                     "Meditación guiada en audio",
-                    "Material complementario en PDF",
-                    "Material bibliográfico sugerido en PDF",
+                    "2 prácticas individuales 1:1 por videollamada",
+                    "Oración personalizada de apertura y cierre, canalizada según tu esencia",
                   ].map((item, i) => (
                     <li key={i} className="flex items-start gap-2 text-sm text-foreground/70">
                       <Check className="size-3.5 text-violet-400 shrink-0 mt-0.5" />
@@ -364,71 +352,75 @@ export default function N1PracticaPage() {
                     </li>
                   ))}
                 </ul>
+                <p className="text-sm text-foreground/60">
+                  Recibirás el material por email y tendrás 1 semana para
+                  revisarlo antes de comenzar las prácticas.
+                </p>
               </div>
 
               <Separator className="bg-mystic-700/30" />
 
-              {/* Practice details */}
+              {/* Prácticas */}
               <div className="space-y-3">
                 <h3 className="text-violet-300 font-serif font-semibold text-base">
-                  Detalles de las Prácticas
+                  Prácticas
                 </h3>
                 <ul className="space-y-2 text-sm text-foreground/60">
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    Las prácticas se realizan de <strong className="text-foreground/80">lunes a viernes</strong>.
+                    Necesitarás disponer de <strong className="text-foreground/80">2 horas consecutivas</strong>, 1 o 2 veces por semana. En este momento tengo disponibilidad de lunes a viernes de 13.30 a 20 hs ARG, y sábados por la mañana.
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    Se necesita disponibilidad de <strong className="text-foreground/80">2 horas consecutivas</strong>, 1 a 2 veces por semana.
+                    Las 2 prácticas deben completarse dentro de los <strong className="text-foreground/80">30 días</strong> posteriores a la inscripción. Luego tendrán costo adicional para continuar o se dará por finalizada la formación.
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    <strong className="text-foreground/80">2 clases prácticas</strong> dentro de los 30 días desde la inscripción.
+                    Toda la información compartida durante tus prácticas es confidencial.
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    Tenés 1 semana para revisar el material teórico antes de las prácticas.
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-violet-400 mt-0.5">•</span>
-                    Videollamadas individuales de <strong className="text-foreground/80">1h40 a 2h</strong>.
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-violet-400 mt-0.5">•</span>
-                    Primer encuentro: evacuar dudas + primera práctica + entrega de oración personalizada.
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-violet-400 mt-0.5">•</span>
-                    La oración tiene características propias y únicas.
+                    Al completar las 2 prácticas incluidas, podrás solicitar más encuentros adicionales.
                   </li>
                 </ul>
               </div>
 
               <Separator className="bg-mystic-700/30" />
 
-              {/* Conditions */}
-              <div className="space-y-2">
-                <h3 className="text-foreground/90 font-semibold text-sm flex items-center gap-2">
-                  <AlertCircle className="size-4 text-violet-400" />
-                  Condiciones Importantes
+              {/* Material */}
+              <div className="space-y-3">
+                <h3 className="text-violet-300 font-serif font-semibold text-base">
+                  Material
+                </h3>
+                <p className="text-sm text-foreground/60">
+                  Los PDF y la meditación podrán descargarse antes de finalizar
+                  el curso. Los videos no son descargables.
+                </p>
+              </div>
+
+              <Separator className="bg-mystic-700/30" />
+
+              {/* Valor */}
+              <div className="space-y-3">
+                <h3 className="text-violet-300 font-serif font-semibold text-base">
+                  Valor
                 </h3>
                 <ul className="space-y-2 text-sm text-foreground/60">
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    Cancelaciones con menos de 24hs de anticipación no se recuperan.
+                    Argentina: <strong className="text-foreground/80">$45.000 ARS</strong>, mediante Mercado Pago o transferencia bancaria.
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    El material audiovisual <strong className="text-foreground/80">NO se puede descargar</strong>.
+                    Fuera de Argentina: <strong className="text-foreground/80">USD 35</strong>, mediante PayPal o Western Union.
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    No se realizan reembolsos.
+                    Si estás en Argentina y querés abonar por PayPal el valor es 35 USD.
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    <strong className="text-foreground/80">10% de descuento</strong> al inscribirse al 2do nivel.
+                    <strong className="text-foreground/80">Beneficio:</strong> tenés 10% de descuento si luego querés inscribirte en el Nivel 2.
                   </li>
                 </ul>
               </div>
@@ -437,22 +429,29 @@ export default function N1PracticaPage() {
         </Collapsible>
       </Card>
 
-      {/* ── Accept terms ── */}
-      <div className="flex items-start gap-3 glass rounded-xl p-4 border border-mystic-700/30">
-        <Checkbox
-          id="accept-terms"
-          checked={accepted}
-          onCheckedChange={(c) => setAccepted(c === true)}
-          className="mt-0.5 data-[state=checked]:bg-violet-500 data-[state=checked]:border-violet-500 data-[state=checked]:text-mystic-950"
-        />
-        <Label htmlFor="accept-terms" className="text-base text-foreground/80 cursor-pointer leading-relaxed">
-          He leído y comprendido el marco y condiciones del curso. Al aceptar, podré completar mi formulario de inscripción.
-          <span className="text-violet-400"> *</span>
-        </Label>
+            {/* ── Confirmaciones obligatorias ── */}
+      <div className="p-5 rounded-xl border border-violet-400/40 bg-violet-500/5">
+        <p className="text-sm text-foreground mb-4">
+          Confirmá los siguientes puntos antes de continuar:
+        </p>
+        <div className="space-y-3">
+          {confirmationItems.map((item, i) => (
+            <label key={i} className="flex items-start gap-3 cursor-pointer group">
+              <Checkbox
+                checked={confirmations[i]}
+                onCheckedChange={(checked) =>
+                  setConfirmations((prev) => prev.map((c, j) => (j === i ? checked === true : c)))
+                }
+                className="mt-0.5 size-5 shrink-0 border-violet-400/60 data-[state=checked]:bg-violet-500 data-[state=checked]:border-violet-500 data-[state=checked]:text-white"
+              />
+              <span className="text-sm text-foreground leading-relaxed">{item}</span>
+            </label>
+          ))}
+        </div>
       </div>
 
-      {/* ── Form ── */}
-      {accepted && (
+{/* ── Form ── */}
+      {allConfirmed && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
           <Card className="glass border-mystic-700/30">
             <CardHeader>
