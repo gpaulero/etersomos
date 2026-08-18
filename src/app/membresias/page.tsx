@@ -580,7 +580,7 @@ export default function MembresiasPage() {
             <motion.h1
               variants={fadeInUp}
               transition={{ duration: 0.8 }}
-              className="text-4xl sm:text-5xl md:text-6xl font-serif font-semibold text-foreground tracking-wider mb-4"
+              className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-foreground mb-4"
             >
               {cmsValue(cmsMap, 'membresias_section.title', 'Membresías Eter Somos')}
             </motion.h1>
@@ -613,7 +613,7 @@ export default function MembresiasPage() {
       <AnimatedSection className="py-16 sm:py-20 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto">
           <motion.div variants={staggerItem} className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-violet-400 mb-4">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-serif font-semibold text-foreground mb-4">
               ¿Cómo suscribirte?
             </h2>
           </motion.div>
@@ -647,7 +647,7 @@ export default function MembresiasPage() {
       <AnimatedSection className="py-16 sm:py-20 px-4 sm:px-6">
         <div className="max-w-5xl mx-auto">
           <motion.div variants={staggerItem} className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-violet-400 mb-4">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-serif font-semibold text-foreground mb-4">
               Elegí tu camino
             </h2>
             <p className="text-foreground/50 max-w-2xl mx-auto text-base">
@@ -697,7 +697,7 @@ export default function MembresiasPage() {
       <AnimatedSection className="py-16 sm:py-20 px-4 sm:px-6">
         <div className="max-w-3xl mx-auto">
           <motion.div variants={staggerItem} className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-violet-400 mb-4">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-serif font-semibold text-foreground mb-4">
               ¿Te quedaron dudas?
             </h2>
             <p className="text-foreground/50 max-w-xl mx-auto text-base">

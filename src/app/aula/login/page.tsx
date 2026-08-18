@@ -151,7 +151,7 @@ export default function AulaLoginPage() {
               <img src="/images/logo-etersomos.jpg" alt="Eter Somos" className="w-full h-full object-cover" />
             </motion.div>
           </Link>
-          <h1 className="font-serif text-3xl sm:text-4xl text-foreground mb-2">Aula Virtual</h1>
+          <h1 className="font-serif font-semibold text-2xl sm:text-3xl md:text-4xl text-foreground mb-2">Aula Virtual</h1>
           <p className="text-mystic-300 font-sans text-sm">
             Tu espacio de aprendizaje con Fer Cardozo
           </p>

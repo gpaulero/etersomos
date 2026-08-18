@@ -210,7 +210,7 @@ function PaymentSuccessContent() {
             <div className="mx-auto w-20 h-20 rounded-full bg-violet-500/10 flex items-center justify-center">
               <Loader2 className="size-10 text-violet-400 animate-spin" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-serif font-semibold text-foreground">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-foreground">
               {config.processingTitle}
             </h1>
             <p className="text-foreground/60">
@@ -236,7 +236,7 @@ function PaymentSuccessContent() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
             >
-              <h1 className="text-2xl sm:text-3xl font-serif font-semibold text-foreground mb-2">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-foreground mb-2">
                 {config.successTitle}
               </h1>
               <p className="text-foreground/60">
@@ -341,7 +341,7 @@ function PaymentSuccessContent() {
             <div className="mx-auto w-20 h-20 rounded-full bg-red-500/10 border-2 border-red-500/30 flex items-center justify-center">
               <AlertTriangle className="size-10 text-red-400" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-serif font-semibold text-foreground">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-foreground">
               Error en el pago
             </h1>
             <p className="text-foreground/60">{errorMessage}</p>

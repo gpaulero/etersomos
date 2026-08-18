@@ -274,7 +274,7 @@ export default function MentoriasPage() {
       {/* ── Title ── */}
       <div className="text-center space-y-3">
         <Badge variant="secondary">MENTORÍAS</Badge>
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-white leading-snug">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-foreground leading-snug">
           Mentorías para Lectores de Registros Akáshicos
         </h1>
         <p className="text-foreground/50 font-serif italic max-w-lg mx-auto">
@@ -431,7 +431,7 @@ export default function MentoriasPage() {
           id="accept-terms"
           checked={accepted}
           onCheckedChange={(checked) => setAccepted(checked === true)}
-          className="mt-0.5 data-[state=checked]:bg-gold-400 data-[state=checked]:border-gold-400 data-[state=checked]:text-mystic-950"
+          className="mt-0.5 data-[state=checked]:bg-violet-500 data-[state=checked]:border-violet-500 data-[state=checked]:text-mystic-950"
         />
         <Label
           htmlFor="accept-terms"

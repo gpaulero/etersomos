@@ -1054,7 +1054,7 @@ export default function Home() {
               <Button
                 size="lg"
                 onClick={() => scrollTo("#espacios")}
-                className="bg-violet-500 hover:bg-violet-600 text-white font-serif text-base px-8 py-6 rounded-full transition-all duration-300 hover:scale-105 shadow-lg shadow-violet-900/30"
+                className="bg-violet-500 hover:bg-violet-600 text-white text-base px-8 py-6 rounded-full transition-all duration-300 hover:scale-105 shadow-lg shadow-violet-900/30"
               >
                 {heroBtnServices}
                 <ArrowRight className="size-5 ml-2" />

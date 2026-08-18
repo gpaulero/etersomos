@@ -498,7 +498,7 @@ export default function LecturasPage() {
                   <div className="space-y-6">
                     {/* ---- DATOS PERSONALES ---- */}
                     <div>
-                      <h3 className="text-violet-300 font-serif text-lg mb-4">Datos Personales</h3>
+                      <h3 className="text-violet-300 font-serif font-semibold text-base mb-4">Datos Personales</h3>
                       <div className="space-y-4">
                         {/* Email */}
                         <div className="space-y-1.5">
@@ -613,7 +613,7 @@ export default function LecturasPage() {
 
                     {/* ---- CÓMO SE ENTERÓ ---- */}
                     <div>
-                      <h3 className="text-violet-300 font-serif text-lg mb-4">¿Cómo te enteraste de mis lecturas?</h3>
+                      <h3 className="text-violet-300 font-serif font-semibold text-base mb-4">¿Cómo te enteraste de mis lecturas?</h3>
                       <div className="space-y-4">
                         <div className="space-y-1.5">
                           <Label className="text-foreground/80 text-sm font-medium">
@@ -671,7 +671,7 @@ export default function LecturasPage() {
 
                     {/* ---- SALUD ---- */}
                     <div>
-                      <h3 className="text-violet-300 font-serif text-lg mb-4">Salud</h3>
+                      <h3 className="text-violet-300 font-serif font-semibold text-base mb-4">Salud</h3>
                       <div className="space-y-4">
                         {/* Enfermedad crónica */}
                         <div className="space-y-1.5">
@@ -816,7 +816,7 @@ export default function LecturasPage() {
 
                     {/* ---- PREGUNTAS ---- */}
                     <div>
-                      <h3 className="text-violet-300 font-serif text-lg mb-4">Preguntas al Campo Akáshico</h3>
+                      <h3 className="text-violet-300 font-serif font-semibold text-base mb-4">Preguntas al Campo Akáshico</h3>
                       <div className="space-y-4">
                         <div className="space-y-1.5">
                           <Label htmlFor="pregunta1" className="text-foreground/80 text-sm font-medium">
@@ -871,7 +871,7 @@ export default function LecturasPage() {
 
                     {/* ---- PAGO ---- */}
                     <div>
-                      <h3 className="text-violet-300 font-serif text-lg mb-4">¿Cómo te gustaría realizar tu aporte?</h3>
+                      <h3 className="text-violet-300 font-serif font-semibold text-base mb-4">¿Cómo te gustaría realizar tu aporte?</h3>
                       <div className="space-y-3">
                         <RadioGroup
                           value={formData.paymentMethod}
@@ -939,7 +939,7 @@ export default function LecturasPage() {
                     <Button
                       onClick={handleSubmit}
                       disabled={submitting}
-                      className="w-full bg-foreground hover:bg-foreground/80 text-background font-serif font-semibold text-base py-6 rounded-full transition-all duration-300 hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
+                      className="w-full bg-foreground hover:bg-foreground/80 text-background font-semibold text-base py-6 rounded-full transition-all duration-300 hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
                     >
                       {submitting ? (
                         <>

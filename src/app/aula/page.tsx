@@ -102,7 +102,7 @@ const statusConfig: Record<string, { label: string; color: string; icon: React.R
 const typeConfig: Record<string, { label: string; icon: React.ReactNode; color: string; gradient: string }> = {
   curso: { label: "Curso", icon: <GraduationCap className="w-5 h-5" />, color: "text-blue-400", gradient: "from-blue-600/20 to-mystic-900/40" },
   lectura: { label: "Lectura", icon: <BookOpen className="w-5 h-5" />, color: "text-violet-400", gradient: "from-violet-600/20 to-mystic-900/40" },
-  mentoria: { label: "Mentoría", icon: <Sparkles className="w-5 h-5" />, color: "text-gold-400", gradient: "from-gold-600/20 to-mystic-900/40" },
+  mentoria: { label: "Mentoría", icon: <Sparkles className="w-5 h-5" />, color: "text-amber-400", gradient: "from-amber-600/20 to-mystic-900/40" },
 };
 
 /* ── Spiritual Quotes ── */
@@ -584,7 +584,7 @@ export default function AulaDashboard() {
                   <Moon className="w-4 h-4 text-violet-400" />
                   <span className="text-mystic-400 text-sm font-sans capitalize">{getFormattedDate()}</span>
                 </div>
-                <h1 className="font-serif text-3xl sm:text-4xl text-foreground mb-2">
+                <h1 className="font-serif font-semibold text-2xl sm:text-3xl md:text-4xl text-foreground mb-2">
                   {getGreeting()}, <span className="text-violet-300">{student.nombre.split(" ")[0]}</span>
                 </h1>
                 <p className="text-mystic-300/80 font-sans text-sm italic max-w-lg">
@@ -599,7 +599,7 @@ export default function AulaDashboard() {
                 {[
                   { icon: GraduationCap, count: cursos.length, label: "Cursos", color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20", barColor: "bg-blue-500" },
                   { icon: BookOpen, count: lecturas.length, label: "Lecturas", color: "text-violet-400", bg: "bg-violet-500/10", border: "border-violet-500/20", barColor: "bg-violet-500" },
-                  { icon: Sparkles, count: mentorias.length, label: "Mentorías", color: "text-gold-400", bg: "bg-gold-500/10", border: "border-gold-500/20", barColor: "bg-gold-500" },
+                  { icon: Sparkles, count: mentorias.length, label: "Mentorías", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20", barColor: "bg-amber-500" },
                   { icon: CheckCircle2, count: completedCount, label: "Completados", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20", barColor: "bg-emerald-500" },
                 ].map((stat, i) => {
                   const Icon = stat.icon;
@@ -752,12 +752,12 @@ export default function AulaDashboard() {
                     >
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-lg bg-gold-500/15 border border-gold-500/20 flex items-center justify-center">
-                            <Sparkles className="w-4 h-4 text-gold-400" />
+                          <div className="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/20 flex items-center justify-center">
+                            <Sparkles className="w-4 h-4 text-amber-400" />
                           </div>
                           <h2 className="font-serif text-xl sm:text-2xl text-foreground">Mis Mentorías</h2>
                         </div>
-                        <Badge variant="outline" className="border-gold-500/20 text-gold-300 text-xs">
+                        <Badge variant="outline" className="border-amber-500/20 text-amber-300 text-xs">
                           {mentorias.length} {mentorias.length === 1 ? "mentoría" : "mentorías"}
                         </Badge>
                       </div>
@@ -1218,11 +1218,11 @@ function EnrollmentCard({
 
   return (
     <motion.div whileHover={{ y: -2 }} transition={{ duration: 0.15 }}>
-      <Card className="bg-mystic-900/60 border-mystic-700/40 backdrop-blur hover:border-gold-500/30 transition-all overflow-hidden h-full flex flex-col">
+      <Card className="bg-mystic-900/60 border-mystic-700/40 backdrop-blur hover:border-amber-500/30 transition-all overflow-hidden h-full flex flex-col">
         {/* Gradient header */}
         <div className={`h-16 bg-gradient-to-r ${tc.gradient} relative flex items-center px-4`}>
           <div className="w-8 h-8 rounded-lg bg-mystic-950/50 backdrop-blur border border-mystic-700/40 flex items-center justify-center">
-            <Calendar className="w-4 h-4 text-gold-400" />
+            <Calendar className="w-4 h-4 text-amber-400" />
           </div>
           <div className="ml-3">
             <Badge variant="outline" className={`${sc.color} text-xs gap-1 border bg-mystic-950/60 backdrop-blur`}>

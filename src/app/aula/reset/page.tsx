@@ -66,7 +66,7 @@ function ResetForm() {
               <img src="/images/logo-etersomos.jpg" alt="Eter Somos" className="w-full h-full object-cover" />
             </div>
           </Link>
-          <h1 className="font-serif text-2xl sm:text-3xl text-foreground mb-2">Nueva contraseña</h1>
+          <h1 className="font-serif font-semibold text-2xl sm:text-3xl md:text-4xl text-foreground mb-2">Nueva contraseña</h1>
           <p className="text-mystic-300 font-sans text-sm">Elegí una contraseña nueva para tu cuenta</p>
         </motion.div>
 

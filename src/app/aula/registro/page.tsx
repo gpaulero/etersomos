@@ -59,7 +59,7 @@ export default function AulaRegistroPage() {
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-violet-950/60 via-mystic-950 to-mystic-950" />
       <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-violet-500/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-1/3 left-1/4 w-64 h-64 bg-gold-400/8 rounded-full blur-3xl" />
+      <div className="absolute bottom-1/3 left-1/4 w-64 h-64 bg-violet-400/10 rounded-full blur-3xl" />
 
       <div className="relative z-10 w-full max-w-md">
         {/* Logo */}
@@ -69,7 +69,7 @@ export default function AulaRegistroPage() {
               <img src="/images/logo-etersomos.jpg" alt="Eter Somos" className="w-full h-full object-cover" />
             </div>
           </Link>
-          <h1 className="font-serif text-3xl text-foreground mb-2">Crear cuenta</h1>
+          <h1 className="font-serif font-semibold text-2xl sm:text-3xl md:text-4xl text-foreground mb-2">Crear cuenta</h1>
           <p className="text-mystic-300 font-sans text-sm">
             Registrate para acceder al Aula Virtual
           </p>

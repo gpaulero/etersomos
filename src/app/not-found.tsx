@@ -6,8 +6,8 @@ export default function NotFound() {
     <div className="min-h-screen bg-mystic-950 flex items-center justify-center px-4">
       <div className="text-center max-w-md">
         <div className="mb-6">
-          <Sparkles className="size-12 text-gold-400 mx-auto mb-4" />
-          <h1 className="text-8xl font-serif font-bold text-gold-400 mb-2">404</h1>
+          <Sparkles className="size-12 text-violet-400 mx-auto mb-4" />
+          <h1 className="text-8xl font-serif font-semibold text-violet-400 mb-2">404</h1>
           <p className="text-foreground/60 text-lg">Parece que esta página se perdió en los Registros Akáshicos.</p>
         </div>
         <p className="text-foreground/40 text-sm mb-8">
