@@ -1,6 +1,6 @@
 # ETÉR SOMOS - Especificación Completa del Proyecto
 ## (Archivo de referencia CRÍTICO - NO BORRAR)
-## Última actualización: 2026-08-19 (sesión 43)
+## Última actualización: 2026-08-19 (sesión 44)
 
 Este documento describe TODO el estado actual, credenciales, estructura y requisitos del sitio web.
 **Siempre consultar antes de hacer cambios.**
@@ -1187,7 +1187,7 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 - Recursos usan modelo de contribución voluntaria: todos gratuitos, con links opcionales de MP/PayPal
 - ProtectedPlayer protege video/audio contra descarga (Blob URL, controlsList="nodownload", etc.)
 - SiteContentProvider en layout.tsx provee CMS a toda la app con auto-refresh cross-tab/focus/visibility
-- Commit actual: fcdc5d6 (sesión 43)
+- Commit actual: 163c389 (sesión 44)
 
 ### SESIÓN 19 (17/05/2026 — Revisión completa del sistema + Fix CMS revalidation)
 
@@ -1855,3 +1855,23 @@ GRUPO 2 — Integración en admin (fcdc5d6, sección Recursos):
 Notas:
 - Todo ocurre en el navegador del admin (no necesita servidor ni funciones extra en Vercel).
 - La decodificación de audios muy largos (>45 min stereo) usa ~1GB de RAM → el mixdown a mono automático cubre ese caso; si el navegador no puede, el fallback sube el original.
+
+SESIÓN 44 (19/08/2026 — Fix compresión de audio: progreso visible + compresión rápida WebCodecs/AAC)
+BUG reportado por el usuario: "subo el audio pero no hace nada el botón de subir".
+Causa raíz (2 problemas):
+1. setUploading(true) se ejecutaba DESPUÉS de la compresión → durante la compresión (lenta) el spinner/progreso estaba oculto y el botón parecía no hacer nada.
+2. La compresión MP3 con lamejs (JavaScript puro) es MUY lenta para audios largos (meditaciones de 20-50 min → varios minutos).
+FIX 1 — Progreso visible (commit 68d3c0b):
+- setUploading(true) + setUploadProgress("Comprimiendo...") ANTES de empezar la compresión en handleUploadResource.
+- Ahora el spinner y el % de progreso se muestran durante toda la compresión.
+FIX 2 — Compresión rápida con WebCodecs/AAC (commit 163c389):
+- Nueva vía rápida: Web Audio decodifica → AudioEncoder (WebCodecs, codec AAC mp4a.40.2, ~tiempo real, nativo) → mp4-muxer empaqueta a M4A.
+- Verificación AudioEncoder.isConfigSupported() antes de usar; si no está soportado o falla → fallback automático a MP3 (lamejs).
+- Nuevo archivo public/lib/mp4-muxer.js (72KB, cargado on-demand, igual que lame.min.js).
+- src/lib/compress.ts reescrito: compressAudioAac() rápido + compressAudioMp3() fallback + compressAudio() que elige solo.
+- Salida rápida = .m4a (AAC, mejor calidad que MP3 al mismo bitrate, compatible con todos los browsers incl. Safari). Salida fallback = .mp3.
+- Admin: la nota ahora muestra el formato real (AAC o MP3).
+Notas:
+- WebCodecs disponible en Chrome/Edge y browsers modernos. Si el navegador no lo tiene, usa MP3 automáticamente.
+- Si el AAC producido es inválido o el encoder tira error, cae a MP3. El usuario nunca queda bloqueado.
+Commits: 68d3c0b (fix progreso), 163c389 (WebCodecs/AAC + muxer + nota formato).
