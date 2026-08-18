@@ -1581,6 +1581,11 @@ export default function AdminPage() {
 
     // Compresión automática (S43): audio → MP3, imágenes JPG/PNG → WebP
     let fileToUpload: File = selectedFile;
+    const willCompress = compressEnabled && (isCompressibleAudio(selectedFile) || isCompressibleImage(selectedFile));
+    if (willCompress) {
+      setUploading(true);
+      setUploadProgress(`Comprimiendo ${selectedFile.name}...`);
+    }
     if (compressEnabled) {
       try {
         if (isCompressibleAudio(selectedFile)) {
