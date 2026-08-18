@@ -1591,7 +1591,7 @@ export default function AdminPage() {
         if (isCompressibleAudio(selectedFile)) {
           const comp = await compressAudio(selectedFile, audioKbps, setUploadProgress);
           fileToUpload = comp.file;
-          setCompressNote(`Audio comprimido: ${formatMB(comp.originalSize)} → ${formatMB(comp.file.size)} (MP3 ${audioKbps}kbps)`);
+          setCompressNote(`Audio comprimido: ${formatMB(comp.originalSize)} → ${formatMB(comp.file.size)} (${comp.file.name.endsWith(".m4a") ? "AAC" : "MP3"} ${audioKbps}kbps)`);
         } else if (isCompressibleImage(selectedFile)) {
           const comp = await compressImage(selectedFile, setUploadProgress);
           fileToUpload = comp.file;
