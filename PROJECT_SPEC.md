@@ -1,6 +1,6 @@
 # ETÉR SOMOS - Especificación Completa del Proyecto
 ## (Archivo de referencia CRÍTICO - NO BORRAR)
-## Última actualización: 2026-08-19 (sesión 41)
+## Última actualización: 2026-08-19 (sesión 42)
 
 Este documento describe TODO el estado actual, credenciales, estructura y requisitos del sitio web.
 **Siempre consultar antes de hacer cambios.**
@@ -531,6 +531,8 @@ TODOS los pagos pasan por la pasarela del sitio web (MercadoPago o PayPal).
 - Formulario de newsletter (email + suscribirme)
 - Backend real de newsletter: POST /api/newsletter/subscribe → DB + email admin
 - Grid de recursos gratuitos cargados desde la DB (tabla Resource, active=1)
+- Filtros (S42): buscador por título/descripción + chips por tipo de archivo con contadores (Meditaciones, Audios, Videos, Guías, Documentos, Imágenes — dinámicos según recursos activos) + estado vacío con "Limpiar filtros"
+- PUT /api/resources acepta r2Key/fileName/fileSize (S42) — permite reemplazar el archivo de un recurso sin recrearlo
 - Cada recurso muestra título, descripción, tipo de archivo, botón de descarga
 - **Modelo de contribución voluntaria**: Recursos gratuitos + links opcionales de MP/PayPal para contribuir
 - ProtectedPlayer para video/audio (anti-descarga)
@@ -1185,7 +1187,7 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 - Recursos usan modelo de contribución voluntaria: todos gratuitos, con links opcionales de MP/PayPal
 - ProtectedPlayer protege video/audio contra descarga (Blob URL, controlsList="nodownload", etc.)
 - SiteContentProvider en layout.tsx provee CMS a toda la app con auto-refresh cross-tab/focus/visibility
-- Commit actual: b4867eb (sesión 41)
+- Commit actual: 6ae624d (sesión 42)
 
 ### SESIÓN 19 (17/05/2026 — Revisión completa del sistema + Fix CMS revalidation)
 
@@ -1818,3 +1820,21 @@ GRUPO 3 — Gold residual eliminado (la paleta del sitio es violeta desde S33/S3
 - Orbe decorativo de /aula/registro: gold → violet.
 - Aula dashboard: tipo "Mentoría" gold → AMBER (mantiene la diferenciación por tipo: curso=azul, lectura=violeta, mentoría=ámbar). 7 lugares: typeConfig, stats card, iconos, badge, hover de card próxima sesión.
 Resultado: 0 clases gold en el sitio público; escalas tipográficas coherentes (H1 2xl→4xl en todas las páginas, H2 de sección, H3 de subsección).
+
+SESIÓN 42 (19/08/2026 — Filtros en /recursos + compresión de meditaciones + limpieza R2)
+Commits: 6ae624d + docs
+GRUPO 1 — Filtros en /recursos (6ae624d):
+- Buscador por título y descripción (input redondeado con ícono Search y botón de limpiar).
+- Chips de filtro por tipo de archivo, generados dinámicamente según los recursos activos, con contador por tipo (Todos, Meditaciones, Audios, Videos, Guías, Documentos, Imágenes).
+- Estado vacío "No encontramos recursos con esos filtros" + botón "Limpiar filtros".
+- Todo client-side (recursos ya vienen de /api/resources?public=true).
+GRUPO 2 — Compresión de meditaciones (petición del usuario: archivos muy pesados):
+- Ambas meditaciones estaban a 128kbps stereo. Re-codificadas a 64kbps (calidad suficiente para voz + música de meditación, streaming más liviano):
+  - "Meditación Amor Incondicional" (48,7 min): 44,6 MB → 22,3 MB (-50%)
+  - "Meditación para aprender a Soltar y conectar con tu Libertad" (24,6 min): 22,5 MB → 11,3 MB (-50%)
+- Flujo: descarga desde R2 → re-encode ffmpeg (chunks en paralelo) → presign upload con key nueva → update DB (r2Key/fileSize via PUT /api/resources) → delete del objeto viejo.
+- Duración verificada idéntica a los originales (2923,99s y 1475,66s).
+GRUPO 3 — Limpieza de R2:
+- Eliminados 4 objetos huérfanos de testing de sesiones antiguas: test-upload.txt, test-recurso.txt, test-10mb.bin, test-session18.txt.
+- Bucket recursos/ queda con 3 objetos activos (2 meditaciones + guía).
+Nota: Para futuras subidas de audio pesado, se recomienda exportar directo a 64-96kbps o repetir el flujo de re-compresión (la API ya soporta reemplazo de archivo).
