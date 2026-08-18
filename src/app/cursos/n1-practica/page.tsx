@@ -41,23 +41,6 @@ interface FormErrors {
   [key: string]: string;
 }
 
-const meditationOptions = [
-  "Guiadas",
-  "En silencio",
-  "Solo con música",
-  "Visualizaciones",
-  "Me cuesta meditar",
-  "Otro",
-];
-
-const medFrequencyOptions = [
-  "Todos los días",
-  "Cada 3 días",
-  "Una vez a la semana",
-  "Cuando me acuerdo o puedo",
-  "Otro",
-];
-
 const FORM_KEY = "etersomos_n1practica_form";
 
 export default function N1PracticaPage() {
@@ -86,7 +69,6 @@ export default function N1PracticaPage() {
   const [telefono, setTelefono] = useState("");
   const [lectorAkashico, setLectorAkashico] = useState("");
   const [porQue, setPorQue] = useState("");
-  const [profesion, setProfesion] = useState("");
   const [enfermedadCronica, setEnfermedadCronica] = useState("");
   const [medicacion, setMedicacion] = useState("");
   const [medicacionTiempo, setMedicacionTiempo] = useState("");
@@ -96,8 +78,6 @@ export default function N1PracticaPage() {
   const [terapiaPsiquiatraTiempo, setTerapiaPsiquiatraTiempo] = useState("");
   const [episodios, setEpisodios] = useState("");
   const [terapiasHolisticas, setTerapiasHolisticas] = useState("");
-  const [meditacionFreq, setMeditacionFreq] = useState("");
-  const [meditacionTipo, setMeditacionTipo] = useState<string[]>([]);
   const [plantasSagradas, setPlantasSagradas] = useState("");
   const [disponibilidad, setDisponibilidad] = useState("");
   const [temasPracticas, setTemasPracticas] = useState("");
@@ -125,7 +105,6 @@ export default function N1PracticaPage() {
         if (parsed.telefono) setTelefono(parsed.telefono);
         if (parsed.lectorAkashico) setLectorAkashico(parsed.lectorAkashico);
         if (parsed.porQue) setPorQue(parsed.porQue);
-        if (parsed.profesion) setProfesion(parsed.profesion);
         if (parsed.enfermedadCronica) setEnfermedadCronica(parsed.enfermedadCronica);
         if (parsed.medicacion) setMedicacion(parsed.medicacion);
         if (parsed.medicacionTiempo) setMedicacionTiempo(parsed.medicacionTiempo);
@@ -135,8 +114,6 @@ export default function N1PracticaPage() {
         if (parsed.terapiaPsiquiatraTiempo) setTerapiaPsiquiatraTiempo(parsed.terapiaPsiquiatraTiempo);
         if (parsed.episodios) setEpisodios(parsed.episodios);
         if (parsed.terapiasHolisticas) setTerapiasHolisticas(parsed.terapiasHolisticas);
-        if (parsed.meditacionFreq) setMeditacionFreq(parsed.meditacionFreq);
-        if (Array.isArray(parsed.meditacionTipo)) setMeditacionTipo(parsed.meditacionTipo);
         if (parsed.plantasSagradas) setPlantasSagradas(parsed.plantasSagradas);
         if (parsed.disponibilidad) setDisponibilidad(parsed.disponibilidad);
         if (parsed.temasPracticas) setTemasPracticas(parsed.temasPracticas);
@@ -152,21 +129,19 @@ export default function N1PracticaPage() {
     if (email || nombre) {
       localStorage.setItem(FORM_KEY, JSON.stringify({
         email, nombre, fechaNac, nacionalidad, ciudad, telefono,
-        lectorAkashico, porQue, profesion, enfermedadCronica,
+        lectorAkashico, porQue, enfermedadCronica,
         medicacion, medicacionTiempo, terapiaPsico, terapiaPsicoTiempo,
         terapiaPsiquiatra, terapiaPsiquiatraTiempo, episodios,
-        terapiasHolisticas, meditacionFreq, meditacionTipo,
-        plantasSagradas, disponibilidad, temasPracticas,
+                plantasSagradas, disponibilidad, temasPracticas,
         compartirExperiencias, metodoPago,
         _confirmations: confirmations,
       }));
     }
   }, [email, nombre, fechaNac, nacionalidad, ciudad, telefono,
-      lectorAkashico, porQue, profesion, enfermedadCronica,
+      lectorAkashico, porQue, enfermedadCronica,
       medicacion, medicacionTiempo, terapiaPsico, terapiaPsicoTiempo,
       terapiaPsiquiatra, terapiaPsiquiatraTiempo, episodios,
-      terapiasHolisticas, meditacionFreq, meditacionTipo,
-      plantasSagradas, disponibilidad, temasPracticas,
+            plantasSagradas, disponibilidad, temasPracticas,
       compartirExperiencias, metodoPago, confirmations]);
 
   const validate = (): boolean => {
@@ -184,7 +159,6 @@ export default function N1PracticaPage() {
     if (medicacion === "Otro" && !medicacionTiempo.trim()) e.medicacionTiempo = "Contanos más";
     if (!terapiaPsico) e.terapiaPsico = "Requerido";
     if (!terapiaPsiquiatra) e.terapiaPsiquiatra = "Requerido";
-    if (!meditacionFreq) e.meditacionFreq = "Requerido";
     if (!disponibilidad.trim()) e.disponibilidad = "Requerido";
     if (!compartirExperiencias) e.compartirExperiencias = "Requerido";
     if (!metodoPago) e.metodoPago = "Requerido";
@@ -194,11 +168,10 @@ export default function N1PracticaPage() {
 
   const enrollmentData = {
     email, nombre, fechaNac, nacionalidad, ciudad, telefono,
-    lectorAkashico, porQue, profesion, enfermedadCronica,
+    lectorAkashico, porQue, enfermedadCronica,
     medicacion, medicacionTiempo, terapiaPsico, terapiaPsicoTiempo,
     terapiaPsiquiatra, terapiaPsiquiatraTiempo, episodios,
-    terapiasHolisticas, meditacionFreq, meditacionTipo,
-    plantasSagradas, disponibilidad, temasPracticas,
+        plantasSagradas, disponibilidad, temasPracticas,
     compartirExperiencias, metodoPago,
   };
 
@@ -365,27 +338,28 @@ export default function N1PracticaPage() {
                 <h3 className="text-violet-300 font-serif font-semibold text-base">
                   Prácticas
                 </h3>
-                <ul className="space-y-2 text-sm text-foreground/60">
-                  <li className="flex items-start gap-2">
-                    <span className="text-violet-400 mt-0.5">•</span>
-                    Necesitarás disponer de <strong className="text-foreground/80">2 horas consecutivas</strong>, 1 o 2 veces por semana. En este momento tengo disponibilidad de lunes a viernes de 13.30 a 20 hs ARG, y sábados por la mañana.
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-violet-400 mt-0.5">•</span>
-                    Las 2 prácticas deben completarse dentro de los <strong className="text-foreground/80">30 días</strong> posteriores a la inscripción. Luego tendrán costo adicional para continuar o se dará por finalizada la formación.
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-violet-400 mt-0.5">•</span>
+                <div className="space-y-3 text-sm text-foreground/60 leading-relaxed">
+                  <p>
+                    Las 2 prácticas son encuentros individuales 1:1 por videollamada.
+                    Necesitarás disponer de <strong className="text-foreground/80">2 horas consecutivas</strong>,
+                    1 o 2 veces por semana.
+                  </p>
+                  <p>
+                    En este momento mi disponibilidad es de lunes a viernes de 13.30 a 20 hs ARG,
+                    y sábados por la mañana. En el formulario podrás indicarme tu disponibilidad
+                    para encontrar un horario cómodo para ambos.
+                  </p>
+                  <p>
+                    Las 2 prácticas deben completarse dentro de los <strong className="text-foreground/80">30 días</strong> posteriores
+                    a la inscripción. Pasado ese plazo, tendrán costo adicional para continuar o se dará
+                    por finalizada la formación.
+                  </p>
+                  <p>
                     Toda la información compartida durante tus prácticas es confidencial.
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-violet-400 mt-0.5">•</span>
                     Al completar las 2 prácticas incluidas, podrás solicitar más encuentros adicionales.
-                  </li>
-                </ul>
+                  </p>
+                </div>
               </div>
-
-              <Separator className="bg-mystic-700/30" />
 
               {/* Material */}
               <div className="space-y-3">
@@ -498,11 +472,6 @@ export default function N1PracticaPage() {
                 <Textarea placeholder="Contanos tu motivación..." rows={3} value={porQue} onChange={(e) => setPorQue(e.target.value)} className={errors.porQue ? errorInputClass : inputClass} />
               </Field>
 
-              {/* Profesión */}
-              <Field label="¿A qué te dedicás? ¿Profesión?">
-                <Input placeholder="Opcional" value={profesion} onChange={(e) => setProfesion(e.target.value)} className={inputClass} />
-              </Field>
-
               {/* Enfermedad crónica */}
               <Field label="¿Alguna enfermedad crónica?">
                 <Textarea placeholder="Opcional — si es así, detallá cuál" rows={2} value={enfermedadCronica} onChange={(e) => setEnfermedadCronica(e.target.value)} className={inputClass} />
@@ -537,48 +506,13 @@ export default function N1PracticaPage() {
 
               {/* Episodios */}
               <Field label="Episodios de ansiedad/depresión/ataques de pánico/diagnóstico psiquiátrico">
-                <Textarea placeholder="Si经历的 algún episodio, contanos brevemente..." rows={2} value={episodios} onChange={(e) => setEpisodios(e.target.value)} className={inputClass} />
+                <Textarea placeholder="Si tuviste algún episodio, contanos brevemente..." rows={2} value={episodios} onChange={(e) => setEpisodios(e.target.value)} className={inputClass} />
               </Field>
 
               {/* Terapias holísticas */}
               <Field label="¿Qué terapias holísticas realizaste?">
                 <Textarea placeholder="Opcional — Yoga, reiki, etc." rows={2} value={terapiasHolisticas} onChange={(e) => setTerapiasHolisticas(e.target.value)} className={inputClass} />
               </Field>
-
-              <Separator className="bg-mystic-800/30" />
-
-              {/* Meditación frecuencia */}
-              <RadioField label="¿Con qué regularidad meditas?" required value={meditacionFreq} onChange={setMeditacionFreq} error={errors.meditacionFreq} options={medFrequencyOptions} name="med-freq" />
-
-              {/* Meditación tipo */}
-              <div className="space-y-2.5">
-                <Label className="text-foreground/80 text-sm">¿Qué tipo de meditaciones?</Label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {meditationOptions.map((opt) => (
-                    <Label
-                      key={opt}
-                      className={`flex items-center gap-2 cursor-pointer rounded-lg border p-2.5 text-sm transition-colors ${
-                        meditacionTipo.includes(opt)
-                          ? "border-violet-400/60 bg-violet-400/5 text-violet-300"
-                          : "border-mystic-700/40 text-foreground/60 hover:border-mystic-600"
-                      }`}
-                    >
-                      <Checkbox
-                        checked={meditacionTipo.includes(opt)}
-                        onCheckedChange={(checked) => {
-                          setMeditacionTipo((prev) =>
-                            checked
-                              ? [...prev, opt]
-                              : prev.filter((v) => v !== opt)
-                          );
-                        }}
-                        className="border-mystic-600 data-[state=checked]:bg-violet-500 data-[state=checked]:border-violet-500 data-[state=checked]:text-mystic-950"
-                      />
-                      {opt}
-                    </Label>
-                  ))}
-                </div>
-              </div>
 
               {/* Plantas sagradas */}
               <Field label="¿Tomaste plantas sagradas recientemente?">
