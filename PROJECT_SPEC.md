@@ -1,6 +1,6 @@
 # ETÉR SOMOS - Especificación Completa del Proyecto
 ## (Archivo de referencia CRÍTICO - NO BORRAR)
-## Última actualización: 2026-08-19 (sesión 42)
+## Última actualización: 2026-08-19 (sesión 43)
 
 Este documento describe TODO el estado actual, credenciales, estructura y requisitos del sitio web.
 **Siempre consultar antes de hacer cambios.**
@@ -1187,7 +1187,7 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 - Recursos usan modelo de contribución voluntaria: todos gratuitos, con links opcionales de MP/PayPal
 - ProtectedPlayer protege video/audio contra descarga (Blob URL, controlsList="nodownload", etc.)
 - SiteContentProvider en layout.tsx provee CMS a toda la app con auto-refresh cross-tab/focus/visibility
-- Commit actual: 6ae624d (sesión 42)
+- Commit actual: fcdc5d6 (sesión 43)
 
 ### SESIÓN 19 (17/05/2026 — Revisión completa del sistema + Fix CMS revalidation)
 
@@ -1838,3 +1838,20 @@ GRUPO 3 — Limpieza de R2:
 - Eliminados 4 objetos huérfanos de testing de sesiones antiguas: test-upload.txt, test-recurso.txt, test-10mb.bin, test-session18.txt.
 - Bucket recursos/ queda con 3 objetos activos (2 meditaciones + guía).
 Nota: Para futuras subidas de audio pesado, se recomienda exportar directo a 64-96kbps o repetir el flujo de re-compresión (la API ya soporta reemplazo de archivo).
+
+SESIÓN 43 (19/08/2026 — Compresión automática de recursos en el admin)
+Commits: 8bf160e, fcdc5d6 + docs
+Decisión del usuario: compresión automática ANTES de subir, con 64kbps como default para audio.
+GRUPO 1 — Librería de compresión client-side (8bf160e):
+- public/lib/lame.min.js: encoder MP3 lamejs 1.2.1 vendoreado (152KB, se carga on-demand solo cuando se comprime — cero impacto en el bundle).
+- src/lib/compress.ts: compressAudio(file, kbps, onProgress) — decodifica con Web Audio API y re-codifica a MP3 (lamejs) en chunks con progreso; mixdown automático a mono si el PCM excedería ~700MB de memoria (archivos muy largos). compressImage(file) — convierte JPG/PNG a WebP calidad 85% con canvas, redimensionando a máx 2560px de ancho (si el resultado pesa más que el original, mantiene el original). Helpers: isCompressibleAudio/isCompressibleImage/formatMB.
+GRUPO 2 — Integración en admin (fcdc5d6, sección Recursos):
+- Toggle "Comprimir antes de subir" (activo por defecto).
+- Selector de bitrate para audio: MP3 64kbps voz/meditación (default, recomendado) · 96kbps estándar · 128kbps alta calidad.
+- Al elegir archivo muestra qué se hará ("Se comprimirá a MP3 64kbps antes de subir (44.6 MB originales)") y al terminar el resultado ("✓ Audio comprimido: 44.6 MB → 22.3 MB").
+- handleUploadResource comprime antes del presign; sube el archivo comprimido con su nuevo nombre/tamaño/contentType (.mp3 / .webp).
+- Si la compresión falla (ej: archivo corrupto), avisa con toast y sube el original (fallback graceful).
+- PDF, video y resto de formatos pasan sin cambios.
+Notas:
+- Todo ocurre en el navegador del admin (no necesita servidor ni funciones extra en Vercel).
+- La decodificación de audios muy largos (>45 min stereo) usa ~1GB de RAM → el mixdown a mono automático cubre ese caso; si el navegador no puede, el fallback sube el original.
