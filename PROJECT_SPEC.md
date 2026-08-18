@@ -1,6 +1,6 @@
 # ETÉR SOMOS - Especificación Completa del Proyecto
 ## (Archivo de referencia CRÍTICO - NO BORRAR)
-## Última actualización: 2026-08-12 (sesión 37)
+## Última actualización: 2026-08-19 (sesión 39)
 
 Este documento describe TODO el estado actual, credenciales, estructura y requisitos del sitio web.
 **Siempre consultar antes de hacer cambios.**
@@ -508,9 +508,9 @@ Grid 2x2 en desktop, 1 columna en mobile:
 | ID | Nombre | Precio ARS | Precio USD | Badge | Link |
 |----|--------|-----------|-----------|-------|------|
 | n1-teorico | 1er Nivel Solo Teórico | Voluntario | Voluntario | sin badge | /cursos/n1-teorico |
-| n1-practica | 1er Nivel con Práctica | $35.000 | $30 | "Más Elegido" | /cursos/n1-practica |
-| n2 | 2do Nivel Completo | $45.000 | $45 | sin badge | /cursos/n2 |
-| ambos | Ambos Cursos | $70.000 | $55 | "Mejor Precio" | /cursos/ambos |
+| n1-practica | 1er Nivel con Práctica | $45.000 | $35 | "Más Elegido" | /cursos/n1-practica |
+| n2 | 2do Nivel Completo | $60.000 | $50 | sin badge | /cursos/n2 |
+| ambos | Ambos Cursos | $85.000 | $65 | "Mejor Precio" | /cursos/ambos |
 
 IMPORTANTE: Cada card lleva a su página dedicada con formulario completo de inscripción.
 Los links de pago que estaban en los formularios originales de Google NO se usan.
@@ -563,13 +563,13 @@ TODOS los pagos pasan por la pasarela del sitio web (MercadoPago o PayPal).
 - 1er Nivel Solo Teórico — Contribución voluntaria (~12 campos)
 
 ### /cursos/n1-practica
-- 1er Nivel con Práctica Incluida — $35.000 ARS / US$30 (~25 campos)
+- 1er Nivel con Práctica Incluida — $45.000 ARS / US$35 (~25 campos)
 
 ### /cursos/n2
-- 2do Nivel Completo — $45.000 ARS / US$45 — 10% descuento si ya hizo 1er nivel (~28 campos)
+- 2do Nivel Completo — $60.000 ARS / US$50 — 10% descuento si ya hizo 1er nivel ($54.000 / US$45) (~28 campos)
 
 ### /cursos/ambos
-- Ambos Cursos (1er + 2do Nivel) — $70.000 ARS / US$55 (~25 campos)
+- Ambos Cursos (1er + 2do Nivel) — $85.000 ARS / US$65 (~25 campos)
 
 ### /lecturas
 - Lectura Akáshica Individual — $20.000 ARS / US$20 (~21 campos)
@@ -608,9 +608,9 @@ TODOS los pagos pasan por la pasarela del sitio web (MercadoPago o PayPal).
 | Mentoría Individual | $20.000 | — |
 | Mentoría Pack (3+) | $15.000/sesión | — |
 | N1 Solo Teórico | Voluntario | Voluntario |
-| N1 con Práctica | $35.000 | $30 |
-| N2 Completo | $45.000 | $45 |
-| Ambos Cursos | $70.000 | $55 |
+| N1 con Práctica | $45.000 | $35 |
+| N2 Completo | $60.000 | $50 |
+| Ambos Cursos | $85.000 | $65 |
 
 ---
 
@@ -1185,7 +1185,7 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 - Recursos usan modelo de contribución voluntaria: todos gratuitos, con links opcionales de MP/PayPal
 - ProtectedPlayer protege video/audio contra descarga (Blob URL, controlsList="nodownload", etc.)
 - SiteContentProvider en layout.tsx provee CMS a toda la app con auto-refresh cross-tab/focus/visibility
-- Commit actual: b86dc50 (sesión 37)
+- Commit actual: dc0d57f (sesión 39)
 
 ### SESIÓN 19 (17/05/2026 — Revisión completa del sistema + Fix CMS revalidation)
 
@@ -1766,3 +1766,26 @@ Commits: b86dc50 + commit docs
 - handleSubmit de /lecturas (flujo transferencia/WU): el toast inline de éxito fue reemplazado por router.push("/lecturas/gracias") — el usuario ahora sale de la página al completar el formulario (consistencia con /cursos/gracias de S36).
 - Agregado useRouter en lecturas/page.tsx.
 Nota: Los flujos MercadoPago/PayPal ya salían de la página (redirigen a la plataforma de pago y vuelven a /payment/success).
+
+SESIÓN 38 (18/08/2026 — Lecturas: precio $20.000 + acuerdo actualizado + casillas de confirmación)
+Commit: b3572f8 (lecturas/page.tsx +52/-64, json-ld.tsx, cms-defaults.ts)
+- Precio de lectura: $18.000 → $20.000 ARS (vuelve al valor original; USD $20 sin cambios). Actualizado en código, cms-defaults, JSON-LD y DB del CMS.
+- Eliminado "desde Córdoba hacia todo el mundo" del párrafo introductorio.
+- Acuerdo actualizado según el Google Form de lecturas: entrega 10 días hábiles, enfoque espiritual sin predicciones, duración 30-40 min, incluye 2 temas/preguntas respondidos en audio personalizado por email.
+- Recuadros de preguntas (sí se responden / no se responden) sin cambios.
+- El checkbox único de aceptación fue reemplazado por "Confirmá los siguientes puntos antes de continuar:" con 5 casillas obligatorias (mayor de 18/datos verdaderos, propósito espiritual no reemplaza atención médica, sin reembolsos, no responsabilidad por decisiones, derecho de admisión con reintegro). El formulario de datos solo aparece cuando las 5 están tildadas.
+
+SESIÓN 39 (18-19/08/2026 — Cursos: precios nuevos + formularios sincronizados con Google Forms)
+Commits: 524769c, 54a3c49, 2dcdbbb, dc0d57f
+Decisión: los Google Forms pasados por el usuario (N1 Práctica, N2, Ambos) son REFERENCIA de contenido — se mantienen los formularios propios del sitio (conservan DB, emails y auto-enrollment al Aula Virtual). Precios confirmados por el usuario.
+GRUPO 1 — Precios nuevos (commit 524769c):
+- N1 con Práctica: $35.000/US$30 → $45.000/USD 35
+- N2 Completo: $45.000/US$45 → $60.000/USD 50 (descuento 10%: $40.500/US$40 → $54.000/USD 45)
+- Ambos Cursos: $70.000/US$55 → $85.000/USD 65 (PayPal/WU ya no tienen precio alternativo)
+- Actualizado en: pricing.ts, cms-defaults.ts, json-ld.tsx (LocalBusiness + CoursesJsonLd), fallbacks de /cursos y DB del CMS (bulk update verificado).
+GRUPO 2 — Formularios sincronizados con los Google Forms:
+- /cursos/n1-practica (54a3c49): acuerdo nuevo (qué incluye, prácticas con plazo de 30 días y disponibilidad Lun-Vie 13.30-20hs ARG + sábados, material, valor con beneficio 10% para Nivel 2) + 6 casillas obligatorias "Confirmá los siguientes puntos antes de continuar:".
+- /cursos/n2 (2dcdbbb): acuerdo nuevo (dirigido a quienes ya abren sus Registros, etapa teórica de 10 módulos + autoevaluación, etapa práctica de 4 clases con detalle clase por clase, 3 consultantes voluntarios, plazo 2 meses, valor con descuento por Nivel 1 hecho con Fer) + 8 casillas obligatorias.
+- /cursos/ambos (dc0d57f): acuerdo nuevo (ambos niveles con contenidos, cómo se desarrolla, prácticas de cada nivel, plazos 2 meses y medio máximo, disponibilidad, valor promocional) + 9 casillas obligatorias.
+- Los 3 usan el mismo mecanismo que /lecturas (S38): confirmations state + allConfirmed gate del formulario, persistencia en localStorage (_confirmations).
+- Meta description de /cursos actualizada con los precios nuevos (dc0d57f).
