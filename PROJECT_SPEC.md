@@ -1,6 +1,6 @@
 # ETÉR SOMOS - Especificación Completa del Proyecto
 ## (Archivo de referencia CRÍTICO - NO BORRAR)
-## Última actualización: 2026-08-19 (sesión 40)
+## Última actualización: 2026-08-19 (sesión 41)
 
 Este documento describe TODO el estado actual, credenciales, estructura y requisitos del sitio web.
 **Siempre consultar antes de hacer cambios.**
@@ -1185,7 +1185,7 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 - Recursos usan modelo de contribución voluntaria: todos gratuitos, con links opcionales de MP/PayPal
 - ProtectedPlayer protege video/audio contra descarga (Blob URL, controlsList="nodownload", etc.)
 - SiteContentProvider en layout.tsx provee CMS a toda la app con auto-refresh cross-tab/focus/visibility
-- Commit actual: 3fc1cbe (sesión 40)
+- Commit actual: b4867eb (sesión 41)
 
 ### SESIÓN 19 (17/05/2026 — Revisión completa del sistema + Fix CMS revalidation)
 
@@ -1802,3 +1802,19 @@ GRUPO 2 — /membresias (3fc1cbe + CMS bulk):
 - Fix "Ideal para" vacío: la DB del CMS (memberships.tiers) tenía versión vieja sin idealFor/extendedDescription → actualizada via PUT /api/cms/content/bulk con los valores del código. Verificado: las 3 membresías muestran idealFor.
 GRUPO 3 — Form toggles (runtime):
 - Habilitados n2-completo y ambos (estaban en false/pausados). Estado final forms: lecturas✅ n1-teorico❌ n1-con-practica✅ n2-completo✅ ambos✅ membresias✅ tienda❌.
+
+SESIÓN 41 (19/08/2026 — DTP global: auditoría y normalización tipográfica completa)
+Commit: b4867eb (14 archivos)
+Auditoría de 35 archivos TSX → normalización aplicada:
+GRUPO 1 — Jerarquía de títulos unificada:
+- H1 estándar en TODO el sitio: text-2xl sm:text-3xl md:text-4xl · font-semibold · serif · text-foreground. Ajustados: membresias (4xl-6xl→ estándar), mentorias (text-white→foreground), aula dashboard/login/registro (sin semibold y escalas fijas→estándar), recuperar/reset y payment/success (faltaba md:text-4xl y semibold), not-found.
+- H2 de secciones de membresias: 2xl-4xl violet-400 → text-xl sm:text-2xl md:text-3xl · text-foreground (un paso bajo el H1, mismo color que el resto del sitio).
+- H3 de secciones de /lecturas: text-lg sin peso → text-base font-semibold violet-300 (patrón de acuerdos de cursos).
+GRUPO 2 — Botones: CTAs siempre sans. Removido font-serif del submit de /lecturas y del botón primario del hero de la home.
+GRUPO 3 — Gold residual eliminado (la paleta del sitio es violeta desde S33/S36):
+- Hover del botón "Volver" en layouts de /cursos, /membresias, /mentorias: gold → violet.
+- Checkbox de aceptación de /mentorias: checked gold → violet-500.
+- /not-found: icono y 404 gold-400/bold → violet-400/semibold.
+- Orbe decorativo de /aula/registro: gold → violet.
+- Aula dashboard: tipo "Mentoría" gold → AMBER (mantiene la diferenciación por tipo: curso=azul, lectura=violeta, mentoría=ámbar). 7 lugares: typeConfig, stats card, iconos, badge, hover de card próxima sesión.
+Resultado: 0 clases gold en el sitio público; escalas tipográficas coherentes (H1 2xl→4xl en todas las páginas, H2 de sección, H3 de subsección).
