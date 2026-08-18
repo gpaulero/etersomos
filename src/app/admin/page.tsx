@@ -90,6 +90,7 @@ import {
 import { sectionLabels, sectionOrder, defaultSiteContent } from "@/lib/cms-defaults";
 import { CMS_UPDATED_EVENT } from "@/hooks/use-site-content";
 import { toast, Toaster } from "sonner";
+import { compressAudio, compressImage, isCompressibleAudio, isCompressibleImage, formatMB } from "@/lib/compress";
 
 /* ── Types ─�────────────────────────────────────────────────────────────── */
 
@@ -744,6 +745,9 @@ export default function AdminPage() {
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [uploadForm, setUploadForm] = useState<UploadForm>({ title: "", description: "", fileType: "documento", price: "", priceArs: "", priceUsd: "" });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [compressEnabled, setCompressEnabled] = useState(true);
+  const [audioKbps, setAudioKbps] = useState(64);
+  const [compressNote, setCompressNote] = useState("");
   const [editingResource, setEditingResource] = useState<string | null>(null);
 
   // Students state (aula virtual)
@@ -1575,6 +1579,27 @@ export default function AdminPage() {
       return;
     }
 
+    // Compresión automática (S43): audio → MP3, imágenes JPG/PNG → WebP
+    let fileToUpload: File = selectedFile;
+    if (compressEnabled) {
+      try {
+        if (isCompressibleAudio(selectedFile)) {
+          const comp = await compressAudio(selectedFile, audioKbps, setUploadProgress);
+          fileToUpload = comp.file;
+          setCompressNote(`Audio comprimido: ${formatMB(comp.originalSize)} → ${formatMB(comp.file.size)} (MP3 ${audioKbps}kbps)`);
+        } else if (isCompressibleImage(selectedFile)) {
+          const comp = await compressImage(selectedFile, setUploadProgress);
+          fileToUpload = comp.file;
+          if (comp.file !== selectedFile) {
+            setCompressNote(`Imagen optimizada: ${formatMB(comp.originalSize)} → ${formatMB(comp.file.size)} (WebP)`);
+          }
+        }
+      } catch (compErr: any) {
+        setCompressNote("");
+        toast.error(`No se pudo comprimir (${compErr?.message || compErr}). Se sube el archivo original.`);
+      }
+    }
+
     setUploading(true);
     setUploadProgress(`Preparando subida de ${selectedFile.name}...`);
     setResourceError("");
@@ -1583,7 +1608,7 @@ export default function AdminPage() {
       const presignRes = await authFetch("/api/resources/presign", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fileName: selectedFile.name, contentType: selectedFile.type || "application/octet-stream" }),
+        body: JSON.stringify({ fileName: fileToUpload.name, contentType: fileToUpload.type || "application/octet-stream" }),
       });
       if (!presignRes.ok) {
         const data = await presignRes.json().catch(() => null);
@@ -1595,8 +1620,8 @@ export default function AdminPage() {
       setUploadProgress(`Subiendo ${selectedFile.name}...`);
       const uploadRes = await fetch(uploadUrl, {
         method: "PUT",
-        body: selectedFile,
-        headers: { "Content-Type": selectedFile.type || "application/octet-stream" },
+        body: fileToUpload,
+        headers: { "Content-Type": fileToUpload.type || "application/octet-stream" },
       });
       if (!uploadRes.ok) throw new Error(`Error al subir archivo (${uploadRes.status})`);
 
@@ -1610,8 +1635,8 @@ export default function AdminPage() {
           description: uploadForm.description.trim(),
           fileType: uploadForm.fileType,
           r2Key: key,
-          fileName: selectedFile.name,
-          fileSize: selectedFile.size,
+          fileName: fileToUpload.name,
+          fileSize: fileToUpload.size,
           price: parseFloat(uploadForm.price) || parseFloat(uploadForm.priceArs) || 0,
           priceArs: parseFloat(uploadForm.priceArs) || parseFloat(uploadForm.price) || 0,
           priceUsd: parseFloat(uploadForm.priceUsd) || 0,
@@ -1626,6 +1651,7 @@ export default function AdminPage() {
       setShowUploadForm(false);
       setUploadForm({ title: "", description: "", fileType: "documento", price: "", priceArs: "", priceUsd: "" });
       setSelectedFile(null);
+      setCompressNote("");
       fetchResources();
     } catch (err: any) {
       const msg = err?.message || String(err);
@@ -2839,6 +2865,39 @@ export default function AdminPage() {
                         )}
                         <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.svg,.mp4,.webm,.mov,.avi,.mp3,.wav,.ogg,.m4a,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.7z,.txt,.csv" onChange={(e) => setSelectedFile(e.target.files?.[0] || null)} disabled={uploading} />
                       </label>
+                      {selectedFile && compressEnabled && (isCompressibleAudio(selectedFile) || isCompressibleImage(selectedFile)) && (
+                        <p className="text-[11px] text-mystic-400 font-josefin mt-1.5">
+                          {isCompressibleAudio(selectedFile)
+                            ? `Se comprimirá a MP3 ${audioKbps}kbps antes de subir (${formatMB(selectedFile.size)} originales)`
+                            : `Se convertirá a WebP antes de subir (${formatMB(selectedFile.size)} originales)`}
+                        </p>
+                      )}
+                      {compressNote && <p className="text-xs text-emerald-400 font-josefin mt-1.5">✓ {compressNote}</p>}
+                    </div>
+
+                    {/* Compresión automática (S43) */}
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 p-2.5 rounded-lg bg-mystic-800/40 border border-mystic-700/40">
+                      <label className="flex items-center gap-2 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={compressEnabled}
+                          onChange={(e) => { setCompressEnabled(e.target.checked); if (!e.target.checked) setCompressNote(""); }}
+                          className="w-4 h-4 accent-gold-400"
+                        />
+                        <span className="text-xs text-cream-200 font-josefin">Comprimir antes de subir</span>
+                      </label>
+                      {selectedFile && compressEnabled && isCompressibleAudio(selectedFile) && (
+                        <select
+                          value={audioKbps}
+                          onChange={(e) => setAudioKbps(Number(e.target.value))}
+                          className="bg-mystic-800/60 border border-mystic-700/50 text-cream-100 text-xs rounded-md px-2 py-1.5 h-8"
+                        >
+                          <option value={64}>MP3 64kbps — voz/meditación (recomendado)</option>
+                          <option value={96}>MP3 96kbps — estándar</option>
+                          <option value={128}>MP3 128kbps — alta calidad</option>
+                        </select>
+                      )}
+                      <span className="text-[11px] text-mystic-400 font-josefin">Audio → MP3 · Imágenes JPG/PNG → WebP · PDF y video sin cambios</span>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
