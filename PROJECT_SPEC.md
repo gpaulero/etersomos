@@ -1875,3 +1875,17 @@ Notas:
 - WebCodecs disponible en Chrome/Edge y browsers modernos. Si el navegador no lo tiene, usa MP3 automáticamente.
 - Si el AAC producido es inválido o el encoder tira error, cae a MP3. El usuario nunca queda bloqueado.
 Commits: 68d3c0b (fix progreso), 163c389 (WebCodecs/AAC + muxer + nota formato).
+
+SESIÓN 46 (19/08/2026 — Compresor robusto: audio comprimido 100% automático sin congelar la página)
+Commit: fa4ac16
+Problema resuelto: las meditaciones largas (>20MB) congelaban la pestaña del admin al subirlas (el navegador decodifica el audio completo en memoria antes de comprimir). Desde S45 se subían sin comprimir y había que pedirme la compresión manual.
+Solución implementada — Compresión en Web Worker:
+- Nuevo archivo public/lib/compress-worker.js (worker clásico): recibe el archivo, lo decodifica y lo comprime en un hilo aparte → la página NUNCA se congela.
+- Decode: OfflineAudioContext dentro del worker. Audios >20MB se decodifican a 22050Hz + downmix mono (reduce memoria ~4x, calidad suficiente para meditaciones a 64kbps).
+- Encode: WebCodecs AudioEncoder → AAC/M4A (nativo, ~tiempo real) con empaquetado mp4-muxer (public/lib/mp4-muxer.js). Fallback automático a lamejs/MP3 si el navegador no soporta WebCodecs.
+- Progreso en vivo: el worker reporta pasos ("Leyendo audio...", "Decodificado...", "Comprimiendo (AAC)... N%") al panel.
+- src/lib/compress.ts: compressAudio() ahora intenta SIEMPRE la vía worker primero; el fallback main-thread queda solo para audios <=20MB si el worker falla.
+- Admin (src/app/admin/page.tsx): eliminado el límite de 20MB que salteaba la compresión — ahora TODOS los audios se comprimen automáticamente al subirlos.
+Red de seguridad: si el worker falla por cualquier motivo, el archivo se sube igualmente (sin comprimir) con aviso — nunca se bloquea una subida.
+Nota: primer uso en cada página carga el worker (~7KB) + los encoders (lame 152KB / muxer 71KB) on-demand; después quedan cacheados.
+Pendiente de validación con usuario: subir una meditación larga real desde el admin y confirmar que se comprime sin congelar.
