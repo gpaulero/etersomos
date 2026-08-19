@@ -1,6 +1,6 @@
 # ETÉR SOMOS - Especificación Completa del Proyecto
 ## (Archivo de referencia CRÍTICO - NO BORRAR)
-## Última actualización: 2026-08-19 (sesión 46)
+## Última actualización: 2026-08-19 (sesión 48)
 
 Este documento describe TODO el estado actual, credenciales, estructura y requisitos del sitio web.
 **Siempre consultar antes de hacer cambios.**
@@ -1187,7 +1187,7 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 - Recursos usan modelo de contribución voluntaria: todos gratuitos, con links opcionales de MP/PayPal
 - ProtectedPlayer protege video/audio contra descarga (Blob URL, controlsList="nodownload", etc.)
 - SiteContentProvider en layout.tsx provee CMS a toda la app con auto-refresh cross-tab/focus/visibility
-- Commit actual: 8d6deb7 (sesión 46)
+- Commit actual: 8b09cbe (sesión 48)
 
 ### SESIÓN 19 (17/05/2026 — Revisión completa del sistema + Fix CMS revalidation)
 
@@ -1889,3 +1889,29 @@ Solución implementada — Compresión en Web Worker:
 Red de seguridad: si el worker falla por cualquier motivo, el archivo se sube igualmente (sin comprimir) con aviso — nunca se bloquea una subida.
 Nota: primer uso en cada página carga el worker (~7KB) + los encoders (lame 152KB / muxer 71KB) on-demand; después quedan cacheados.
 Pendiente de validación con usuario: subir una meditación larga real desde el admin y confirmar que se comprime sin congelar.
+
+SESIÓN 45 (19/08/2026 — Guard anti-congelamiento, luego reemplazado)
+Commit: b88ec36
+- Los audios >20MB se subían sin comprimir para evitar congelar la pestaña (guard en handleUploadResource). Mensaje invitaba a pedir compresión manual.
+Nota: este enfoque fue reemplazado en las sesiones 46-48 (compresión en Web Worker + streaming).
+
+SESIÓN 47 (19/08/2026 — Reordenar fallbacks de compresión)
+Commit: 3e3a6a1
+- compressAudio(): si el worker falla, ahora prueba WebCodecs en main thread ANTES de rechazar archivos grandes (WebCodecs es asíncrono/nativo y no congela). El guard de 20MB quedó solo para el camino lamejs. El mensaje de error incluye el detalle técnico del fallo del worker.
+
+SESIÓN 48 (19/08/2026 — Compresión STREAMING MP3→AAC: audios de cualquier duración sin agotar memoria)
+Commit: 8b09cbe
+Problema: el usuario (Chrome) seguía recibiendo "audio tan largo" — decodificar el archivo completo en memoria (decodeAudioData) agota la memoria con meditaciones de 30-40 min.
+Solución (opción B elegida por el usuario — decodificar por partes):
+- public/lib/compress-worker.js reescrito: vía principal = TRANSCODE STREAMING MP3→AAC:
+  - Parser de cuadros MP3 propio (saltea ID3v2/ID3v1, calcula frame size por bitrate/samplerate, soporta MPEG1/2/2.5 Layer III).
+  - Cada cuadro se manda a WebCodecs AudioDecoder (codec "mp3", con fallbacks "mp4a.6b"/"mp4a.6c") → AudioData → AudioEncoder AAC → mp4-muxer → M4A.
+  - La memoria se mantiene baja siempre: solo hay en memoria el archivo comprimido original + unos pocos cuadros/PCM en vuelo (nunca el PCM completo de la meditación).
+  - Backpressure por decodeQueueSize (>64 → yield al event loop).
+  - Progreso en vivo por porcentaje de cuadros procesados.
+- Si el streaming no está disponible (browser sin WebCodecs/AudioDecoder para MP3) → fallback clásico (OfflineAudioContext + downmix mono 22kHz para grandes + AAC o lamejs).
+- Admin: errores de compresión ahora se muestran PERSISTENTES debajo del selector de archivo (texto rojo, legible) además del toast (12s) — antes el toast desaparecía antes de poder leerlo.
+Notas técnicas:
+- Salida del streaming = .m4a/AAC 64kbps (mejor calidad que MP3 al mismo bitrate; el reproductor protegido ya soporta m4a).
+- Si todo falla, el archivo se sube sin comprimir con el error visible (nunca se bloquea la subida).
+Pendiente: validación del usuario subiendo una meditación larga real.
