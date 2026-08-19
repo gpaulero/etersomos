@@ -748,6 +748,7 @@ export default function AdminPage() {
   const [compressEnabled, setCompressEnabled] = useState(true);
   const [audioKbps, setAudioKbps] = useState(64);
   const [compressNote, setCompressNote] = useState("");
+  const [compressError, setCompressError] = useState("");
   const [editingResource, setEditingResource] = useState<string | null>(null);
 
   // Students state (aula virtual)
@@ -1587,6 +1588,7 @@ export default function AdminPage() {
     const willCompress = compressEnabled && (isAudioFile || isImageFile);
     if (willCompress) {
       setUploading(true);
+      setCompressError("");
       setUploadProgress(`Comprimiendo ${selectedFile.name}...`);
     }
     if (willCompress) {
@@ -1604,7 +1606,8 @@ export default function AdminPage() {
         }
       } catch (compErr: any) {
         setCompressNote("");
-        toast.error(`No se pudo comprimir (${compErr?.message || compErr}). Se sube el archivo original.`);
+        setCompressError(`No se pudo comprimir: ${compErr?.message || compErr}. El archivo se sube sin comprimir.`);
+        toast.error("No se pudo comprimir — se sube sin comprimir (detalle debajo del archivo)", { duration: 12000 });
       }
     }
 
@@ -2881,6 +2884,7 @@ export default function AdminPage() {
                         </p>
                       )}
                       {compressNote && <p className="text-xs text-emerald-400 font-josefin mt-1.5">✓ {compressNote}</p>}
+                      {compressError && <p className="text-xs text-red-400 font-josefin mt-1.5 leading-relaxed">⚠️ {compressError}</p>}
                     </div>
 
                     {/* Compresión automática (S43) */}
