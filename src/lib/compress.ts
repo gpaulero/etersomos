@@ -331,19 +331,19 @@ export async function compressAudio(
   kbps: number,
   onProgress?: (step: string) => void
 ): Promise<{ file: File; originalSize: number }> {
+  let workerError: unknown = null;
   // 1) Vía Web Worker: no bloquea la página y soporta audios largos (meditaciones)
   if (typeof window !== "undefined" && typeof Worker !== "undefined") {
     try {
       return await compressAudioViaWorker(file, kbps, onProgress);
     } catch (e) {
+      workerError = e;
       console.warn("[compress] Worker falló, usando main thread:", e);
       onProgress?.("Usando compresión en la página...");
     }
   }
-  // 2) Fallback main thread — solo audios chicos (los grandes congelarían la pestaña)
-  if (file.size > 20 * 1024 * 1024) {
-    throw new Error("El audio es muy largo para comprimirlo en este navegador");
-  }
+  // 2) WebCodecs en main thread: es asíncrono y nativo (no congela la pestaña),
+  //    por eso puede con audios grandes aunque el worker haya fallado
   const hasWebCodecs =
     typeof window !== "undefined" &&
     typeof window.AudioEncoder !== "undefined" &&
@@ -355,6 +355,17 @@ export async function compressAudio(
       console.warn("[compress] AAC falló, usando MP3:", e);
       onProgress?.("Usando compresión MP3 (más lenta)...");
     }
+  }
+  // 3) Solo queda lamejs (síncrono y lento): proteger de audios grandes que congelarían la pestaña
+  if (file.size > 20 * 1024 * 1024) {
+    const detalle = workerError
+      ? " Detalle técnico: " + String((workerError as Error)?.message || workerError)
+      : "";
+    throw new Error(
+      "No se pudo comprimir un audio tan largo en este navegador." +
+        detalle +
+        " Probá con Chrome o Edge actualizados, o avisame y lo comprimo yo."
+    );
   }
   return compressAudioMp3(file, kbps, onProgress);
 }
