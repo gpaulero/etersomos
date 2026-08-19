@@ -1583,14 +1583,8 @@ export default function AdminPage() {
     let fileToUpload: File = selectedFile;
     const isAudioFile = isCompressibleAudio(selectedFile);
     const isImageFile = isCompressibleImage(selectedFile);
-    // Audios muy largos: decodificarlos/comprimirlos en el navegador lo congela → se suben sin comprimir
-    const audioTooLarge = isAudioFile && selectedFile.size > 20 * 1024 * 1024;
-    const willCompress = compressEnabled && (isAudioFile || isImageFile) && !audioTooLarge;
-    if (audioTooLarge) {
-      setCompressNote(
-        `Audio muy largo (${formatMB(selectedFile.size)}): se sube sin comprimir para no congelar la página. Avisame y lo comprimo yo (más rápido y seguro).`
-      );
-    }
+    // La compresión corre en un Web Worker: no congela la página ni con audios largos
+    const willCompress = compressEnabled && (isAudioFile || isImageFile);
     if (willCompress) {
       setUploading(true);
       setUploadProgress(`Comprimiendo ${selectedFile.name}...`);

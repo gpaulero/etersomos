@@ -262,11 +262,88 @@ async function compressAudioMp3(
 }
 
 /* ── Entrada principal: AAC rápido si hay WebCodecs, si no MP3 ── */
+function compressAudioViaWorker(
+  file: File,
+  kbps: number,
+  onProgress?: (step: string) => void
+): Promise<{ file: File; originalSize: number }> {
+  return new Promise((resolve, reject) => {
+    file
+      .arrayBuffer()
+      .then((arrayBuffer) => {
+        const worker = new Worker("/lib/compress-worker.js");
+        const id = Math.random().toString(36).slice(2);
+        let settled = false;
+        const timeout = setTimeout(() => {
+          if (!settled) {
+            settled = true;
+            worker.terminate();
+            reject(new Error("Tiempo de compresión excedido"));
+          }
+        }, 20 * 60 * 1000);
+        worker.onmessage = (e: MessageEvent) => {
+          const m = (e.data || {}) as {
+            id?: string;
+            progress?: number;
+            step?: string;
+            ok?: boolean;
+            buffer?: ArrayBuffer;
+            name?: string;
+            type?: string;
+            originalSize?: number;
+            error?: string;
+          };
+          if (m.id !== id) return;
+          if (typeof m.progress === "number") {
+            onProgress?.(m.step || "Comprimiendo...");
+            return;
+          }
+          if (settled) return;
+          settled = true;
+          clearTimeout(timeout);
+          worker.terminate();
+          if (m.ok && m.buffer) {
+            const type = m.type || "audio/mpeg";
+            const blob = new Blob([m.buffer], { type });
+            const out = new File([blob], m.name || file.name, { type });
+            resolve({ file: out, originalSize: m.originalSize || file.size });
+          } else {
+            reject(new Error(m.error || "Error en el compresor"));
+          }
+        };
+        worker.onerror = (e) => {
+          if (!settled) {
+            settled = true;
+            clearTimeout(timeout);
+            worker.terminate();
+            reject(new Error(e.message || "Error del worker de compresión"));
+          }
+        };
+        onProgress?.("Leyendo audio...");
+        worker.postMessage({ id, buffer: arrayBuffer, kbps, filename: file.name }, [arrayBuffer]);
+      })
+      .catch(reject);
+  });
+}
+
 export async function compressAudio(
   file: File,
   kbps: number,
   onProgress?: (step: string) => void
 ): Promise<{ file: File; originalSize: number }> {
+  // 1) Vía Web Worker: no bloquea la página y soporta audios largos (meditaciones)
+  if (typeof window !== "undefined" && typeof Worker !== "undefined") {
+    try {
+      return await compressAudioViaWorker(file, kbps, onProgress);
+    } catch (e) {
+      console.warn("[compress] Worker falló, usando main thread:", e);
+      onProgress?.("Usando compresión en la página...");
+    }
+  }
+  // 2) Fallback main thread — solo audios chicos (los grandes congelarían la pestaña)
+  if (file.size > 20 * 1024 * 1024) {
+    throw new Error("El audio es muy largo para comprimirlo en este navegador");
+  }
   const hasWebCodecs =
     typeof window !== "undefined" &&
     typeof window.AudioEncoder !== "undefined" &&
