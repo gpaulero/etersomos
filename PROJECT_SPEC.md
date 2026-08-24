@@ -1,6 +1,6 @@
 # ETÉR SOMOS - Especificación Completa del Proyecto
 ## (Archivo de referencia CRÍTICO - NO BORRAR)
-## Última actualización: 2026-08-19 (sesión 48)
+## Última actualización: 2026-08-19 (sesión 49)
 
 Este documento describe TODO el estado actual, credenciales, estructura y requisitos del sitio web.
 **Siempre consultar antes de hacer cambios.**
@@ -1187,7 +1187,7 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 - Recursos usan modelo de contribución voluntaria: todos gratuitos, con links opcionales de MP/PayPal
 - ProtectedPlayer protege video/audio contra descarga (Blob URL, controlsList="nodownload", etc.)
 - SiteContentProvider en layout.tsx provee CMS a toda la app con auto-refresh cross-tab/focus/visibility
-- Commit actual: 8b09cbe (sesión 48)
+- Commit actual: 7f306cb (sesión 49)
 
 ### SESIÓN 19 (17/05/2026 — Revisión completa del sistema + Fix CMS revalidation)
 
@@ -1915,3 +1915,15 @@ Notas técnicas:
 - Salida del streaming = .m4a/AAC 64kbps (mejor calidad que MP3 al mismo bitrate; el reproductor protegido ya soporta m4a).
 - Si todo falla, el archivo se sube sin comprimir con el error visible (nunca se bloquea la subida).
 Pendiente: validación del usuario subiendo una meditación larga real.
+
+SESIÓN 49 (19/08/2026 — Responsive cursos/mentorías + Mentorías info completa del form)
+Commit: 7f306cb
+BUG responsive (reportado con screenshot de /cursos): los <li className="flex items-start gap-2"> con contenido mixto
+(texto + <strong> + texto) renderizaban cada nodo como columna flex separada en mobile → texto en columnas angostas, ilegible.
+FIX: envolver el contenido de cada <li> en <span className="flex-1 min-w-0"> para que el texto fluya en una sola columna.
+Aplicado a: /cursos/n1-practica (4 li), /cursos/n2 (14 li), /cursos/ambos (13 li), /mentorias (6 li).
+Mentorías — info completa sincronizada desde el Google Form (https://forms.gle/bf5b5vX4DpcqK6B38):
+- Condiciones: agregados valores exterior (USD 20 / USD 15 desde 3 encuentros), "las clases extras no tienen recuperación",
+  "los horarios se reservan una vez realizada la contribución".
+- Nota importante agregada al intro: "completá este formulario únicamente si estás segurx de que podrás comenzar tus clases a la brevedad".
+- Nuevo campo de formulario "compartir experiencias" (RadioGroup sí/no, anónimo) con state + payload.
