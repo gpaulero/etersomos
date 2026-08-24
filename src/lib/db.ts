@@ -545,6 +545,19 @@ export async function ensureSchema() {
         const msg = e instanceof Error ? e.message : String(e)
         console.warn("[DB] Could not add newsletter email index:", msg)
       }
+      // S50: Aula personal — módulos + progreso + continuar donde quedó
+      for (const stmt of [
+        `ALTER TABLE CourseContent ADD COLUMN module TEXT NOT NULL DEFAULT ''`,
+        `ALTER TABLE CourseContent ADD COLUMN moduleOrder INTEGER NOT NULL DEFAULT 0`,
+        `ALTER TABLE StudentEnrollment ADD COLUMN completedContent TEXT NOT NULL DEFAULT '[]'`,
+        `ALTER TABLE StudentEnrollment ADD COLUMN lastContentId TEXT NOT NULL DEFAULT ''`,
+      ]) {
+        try { await client.execute(stmt); console.log("[DB] Added aula column") }
+        catch (e: unknown) {
+          const msg = e instanceof Error ? e.message : String(e)
+          if (!msg.includes('duplicate column') && !msg.includes('already exists')) console.warn("[DB] aula col:", msg)
+        }
+      }
     } else {
       await prisma.$executeRawUnsafe(sql)
       await prisma.$executeRawUnsafe(newsletterSql)
@@ -554,6 +567,14 @@ export async function ensureSchema() {
       await prisma.$executeRawUnsafe(courseInterestSql)
       await prisma.$executeRawUnsafe(resourcePurchaseSql)
     }
+      for (const stmt of [
+        `ALTER TABLE CourseContent ADD COLUMN module TEXT NOT NULL DEFAULT ''`,
+        `ALTER TABLE CourseContent ADD COLUMN moduleOrder INTEGER NOT NULL DEFAULT 0`,
+        `ALTER TABLE StudentEnrollment ADD COLUMN completedContent TEXT NOT NULL DEFAULT '[]'`,
+        `ALTER TABLE StudentEnrollment ADD COLUMN lastContentId TEXT NOT NULL DEFAULT ''`,
+      ]) {
+        try { await prisma.$executeRawUnsafe(stmt) } catch (e) {}
+      }
     // Create SiteContent table
     const siteContentSql = `
       CREATE TABLE IF NOT EXISTS SiteContent (
