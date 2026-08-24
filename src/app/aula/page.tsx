@@ -519,10 +519,10 @@ export default function AulaDashboard() {
   const cursos = enrollments.filter((e) => e.type === "curso");
   const lecturas = enrollments.filter((e) => e.type === "lectura");
   const mentorias = enrollments.filter((e) => e.type === "mentoria");
-  const completedCount = enrollments.filter((e) => e.status === "completada" || e.status === "entregada")
+  const completedCount = enrollments.filter((e) => e.status === "completada" || e.status === "entregada").length;
   const visibleNav = ["inicio", ...(cursos.length ? ["cursos"] : []), ...(lecturas.length ? ["lecturas"] : []), ...(mentorias.length ? ["mentorias"] : []), "perfil"];
   const continueEnrollment = cursos.find((c: any) => c.lastContentId) || cursos[0] || null;
-  const continueProgress = continueEnrollment ? (() => { const total = contentCounts[(continueEnrollment as any).referenceId] || 0; let done = 0; try { done = (JSON.parse((continueEnrollment as any).completedContent || "[]") || []).length; } catch {} if (!total) return null; return Math.min(100, Math.round((done / total) * 100)); })() : null;.length;
+  const continueProgress = continueEnrollment ? (() => { const total = contentCounts[(continueEnrollment as any).referenceId] || 0; let done = 0; try { done = (JSON.parse((continueEnrollment as any).completedContent || "[]") || []).length; } catch {} if (!total) return null; return Math.min(100, Math.round((done / total) * 100)); })() : null;
   const quote = spiritualQuotes[Math.floor(Date.now() / 86400000) % spiritualQuotes.length];
 
   if (loading) {
