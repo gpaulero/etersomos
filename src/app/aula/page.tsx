@@ -372,12 +372,14 @@ function SidebarContent({
   onLogout,
   lecturasCount,
   cursosCount,
+  visibleNav,
 }: {
   activeSection: string;
   onNavClick: (id: string) => void;
   onLogout: () => void;
   lecturasCount: number;
   cursosCount: number;
+  visibleNav?: string[];
 }) {
   return (
     <div className="flex flex-col h-full">
@@ -396,7 +398,7 @@ function SidebarContent({
 
       {/* Navigation */}
       <nav className="flex-1 p-3 space-y-1">
-        {navItems.map((item) => {
+        {navItems.filter((item) => !visibleNav || visibleNav.includes(item.id)).map((item) => {
           const Icon = item.icon;
           const isActive = activeSection === item.id;
           return (
@@ -454,6 +456,7 @@ export default function AulaDashboard() {
   const [loading, setLoading] = useState(true);
   const [expandedEnrollment, setExpandedEnrollment] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState("inicio");
+  const [contentCounts, setContentCounts] = useState<Record<string, number>>({});
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const mainRef = useRef<HTMLDivElement>(null);
 
@@ -470,7 +473,22 @@ export default function AulaDashboard() {
       const enrRes = await fetch("/api/student/enrollments");
       if (enrRes.ok) {
         const enrData = await enrRes.json();
-        setEnrollments(enrData.enrollments || []);
+        const list = enrData.enrollments || [];
+        setEnrollments(list);
+        const counts: Record<string, number> = {};
+        await Promise.all(
+          list.filter((e: any) => e.type === "curso" && e.referenceId).map(async (e: any) => {
+            try {
+              const cRes = await fetch(`/api/student/course-content?courseId=${e.referenceId}`);
+              if (cRes.ok) {
+                const cd = await cRes.json();
+                const arr = Array.isArray(cd) ? cd : cd.content || [];
+                counts[e.referenceId] = arr.filter((c: any) => c.active !== 0 && c.active !== false).length;
+              }
+            } catch {}
+          })
+        );
+        setContentCounts(counts);
       }
     } catch {
       router.push("/aula/login");
@@ -501,7 +519,10 @@ export default function AulaDashboard() {
   const cursos = enrollments.filter((e) => e.type === "curso");
   const lecturas = enrollments.filter((e) => e.type === "lectura");
   const mentorias = enrollments.filter((e) => e.type === "mentoria");
-  const completedCount = enrollments.filter((e) => e.status === "completada" || e.status === "entregada").length;
+  const completedCount = enrollments.filter((e) => e.status === "completada" || e.status === "entregada")
+  const visibleNav = ["inicio", ...(cursos.length ? ["cursos"] : []), ...(lecturas.length ? ["lecturas"] : []), ...(mentorias.length ? ["mentorias"] : []), "perfil"];
+  const continueEnrollment = cursos.find((c: any) => c.lastContentId) || cursos[0] || null;
+  const continueProgress = continueEnrollment ? (() => { const total = contentCounts[(continueEnrollment as any).referenceId] || 0; let done = 0; try { done = (JSON.parse((continueEnrollment as any).completedContent || "[]") || []).length; } catch {} if (!total) return null; return Math.min(100, Math.round((done / total) * 100)); })() : null;.length;
   const quote = spiritualQuotes[Math.floor(Date.now() / 86400000) % spiritualQuotes.length];
 
   if (loading) {
@@ -551,6 +572,7 @@ export default function AulaDashboard() {
                 onLogout={handleLogout}
                 lecturasCount={lecturas.length}
                 cursosCount={cursos.length}
+                visibleNav={visibleNav}
               />
             </SheetContent>
           </Sheet>
@@ -566,6 +588,7 @@ export default function AulaDashboard() {
             onLogout={handleLogout}
             lecturasCount={lecturas.length}
             cursosCount={cursos.length}
+            visibleNav={visibleNav}
           />
         </aside>
 
@@ -591,6 +614,38 @@ export default function AulaDashboard() {
                   &ldquo;{quote}&rdquo;
                 </p>
               </motion.div>
+
+              {continueEnrollment && (
+                <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.15 }} className="mt-5">
+                  <Card className="bg-violet-500/10 border-violet-500/25 backdrop-blur overflow-hidden">
+                    <CardContent className="p-4 sm:p-5">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <Sparkles className="w-4 h-4 text-violet-300" />
+                        <span className="text-violet-300 text-xs font-sans uppercase tracking-wider">Continuar donde lo dejaste</span>
+                      </div>
+                      <div className="flex items-center justify-between gap-3 flex-wrap">
+                        <div className="min-w-0">
+                          <p className="font-serif text-base sm:text-lg text-foreground truncate">{continueEnrollment.title}</p>
+                          {continueProgress !== null && (
+                            <div className="flex items-center gap-2 mt-2">
+                              <div className="w-40 h-1.5 bg-mystic-800/60 rounded-full overflow-hidden">
+                                <div className="h-full bg-violet-400 rounded-full" style={{ width: `${continueProgress}%` }} />
+                              </div>
+                              <span className="text-mystic-300 text-xs font-sans">{continueProgress}%</span>
+                            </div>
+                          )}
+                        </div>
+                        <Link href={`/aula/curso/${continueEnrollment.referenceId || continueEnrollment.id}`}>
+                          <Button className="bg-violet-500 hover:bg-violet-400 text-white gap-2 shrink-0">
+                            Continuar
+                            <ArrowRight className="w-4 h-4" />
+                          </Button>
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
             </section>
 
             {/* ─── STATS ─── */}
