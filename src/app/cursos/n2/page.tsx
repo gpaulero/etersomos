@@ -405,31 +405,31 @@ export default function N2Page() {
                 <ul className="space-y-2 text-sm text-foreground/60">
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    4 encuentros semanales por videollamada: <strong className="text-foreground/80">3 clases de 2:30 hs + 1 clase final de 1 hora</strong>.
+<span className="flex-1 min-w-0">                    4 encuentros semanales por videollamada: <strong className="text-foreground/80">3 clases de 2:30 hs + 1 clase final de 1 hora</strong>.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    En cada encuentro trabajarás los Registros de uno de tus <strong className="text-foreground/80">3 consultantes voluntarios</strong>, que deberás conseguir previamente (solo necesitaremos su nombre completo, fecha de nacimiento y una pregunta o tema).
+<span className="flex-1 min-w-0">                    En cada encuentro trabajarás los Registros de uno de tus <strong className="text-foreground/80">3 consultantes voluntarios</strong>, que deberás conseguir previamente (solo necesitaremos su nombre completo, fecha de nacimiento y una pregunta o tema).</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    <strong className="text-foreground/80">Clase 1:</strong> repaso teórico, recorrido de esferas (línea y árbol), conexión al Akasha y búsqueda de respuestas.
+<span className="flex-1 min-w-0">                    <strong className="text-foreground/80">Clase 1:</strong> repaso teórico, recorrido de esferas (línea y árbol), conexión al Akasha y búsqueda de respuestas.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    <strong className="text-foreground/80">Clase 2:</strong> recorrido de esferas (vidas pasadas y flujos temporales paralelos), conexión y búsqueda de respuestas.
+<span className="flex-1 min-w-0">                    <strong className="text-foreground/80">Clase 2:</strong> recorrido de esferas (vidas pasadas y flujos temporales paralelos), conexión y búsqueda de respuestas.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    <strong className="text-foreground/80">Clase 3:</strong> repaso, conexión al Akasha y búsqueda de respuestas.
+<span className="flex-1 min-w-0">                    <strong className="text-foreground/80">Clase 3:</strong> repaso, conexión al Akasha y búsqueda de respuestas.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    <strong className="text-foreground/80">Clase 4:</strong> mentoría sobre lectura offline, resolución de dudas, envío de una lectura completa al consultante y cierre.
+<span className="flex-1 min-w-0">                    <strong className="text-foreground/80">Clase 4:</strong> mentoría sobre lectura offline, resolución de dudas, envío de una lectura completa al consultante y cierre.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    Las primeras 2 clases son ejercicios prácticos, no lecturas completas. Las 2 últimas incluyen una lectura offline completa.
+<span className="flex-1 min-w-0">                    Las primeras 2 clases son ejercicios prácticos, no lecturas completas. Las 2 últimas incluyen una lectura offline completa.</span>
                   </li>
                 </ul>
               </div>
@@ -442,15 +442,15 @@ export default function N2Page() {
                 <ul className="space-y-2 text-sm text-foreground/60">
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    La formación debe completarse dentro de los <strong className="text-foreground/80">2 meses</strong> posteriores a la inscripción (plazo máximo: 2 meses y medio). Luego tendrá costo adicional para continuar o se dará por finalizada.
+<span className="flex-1 min-w-0">                    La formación debe completarse dentro de los <strong className="text-foreground/80">2 meses</strong> posteriores a la inscripción (plazo máximo: 2 meses y medio). Luego tendrá costo adicional para continuar o se dará por finalizada.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    Necesitarás contar con <strong className="text-foreground/80">3 horas consecutivas</strong> disponibles, 1 o 2 veces por semana. En este momento tengo disponibilidad de lunes a viernes de 13.30 a 20 hs ARG, y sábados por la mañana.
+<span className="flex-1 min-w-0">                    Necesitarás contar con <strong className="text-foreground/80">3 horas consecutivas</strong> disponibles, 1 o 2 veces por semana. En este momento tengo disponibilidad de lunes a viernes de 13.30 a 20 hs ARG, y sábados por la mañana.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    Toda la información compartida durante tus prácticas es confidencial.
+<span className="flex-1 min-w-0">                    Toda la información compartida durante tus prácticas es confidencial.</span>
                   </li>
                 </ul>
               </div>
@@ -463,19 +463,19 @@ export default function N2Page() {
                 <ul className="space-y-2 text-sm text-foreground/60">
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    Argentina: <strong className="text-foreground/80">$60.000 ARS</strong>, mediante Mercado Pago o transferencia bancaria. También podés abonar en cuotas.
+<span className="flex-1 min-w-0">                    Argentina: <strong className="text-foreground/80">$60.000 ARS</strong>, mediante Mercado Pago o transferencia bancaria. También podés abonar en cuotas.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    Fuera de Argentina: <strong className="text-foreground/80">USD 50</strong>, mediante PayPal o Western Union.
+<span className="flex-1 min-w-0">                    Fuera de Argentina: <strong className="text-foreground/80">USD 50</strong>, mediante PayPal o Western Union.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    Si estás en Argentina y abonás por PayPal, el valor es USD 50.
+<span className="flex-1 min-w-0">                    Si estás en Argentina y abonás por PayPal, el valor es USD 50.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    <strong className="text-foreground/80">Beneficio:</strong> quienes hayan realizado conmigo el Nivel 1 tienen un 10% de descuento ($54.000 ARS / USD 45).
+<span className="flex-1 min-w-0">                    <strong className="text-foreground/80">Beneficio:</strong> quienes hayan realizado conmigo el Nivel 1 tienen un 10% de descuento ($54.000 ARS / USD 45).</span>
                   </li>
                 </ul>
               </div>

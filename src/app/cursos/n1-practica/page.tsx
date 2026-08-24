@@ -382,19 +382,19 @@ export default function N1PracticaPage() {
                 <ul className="space-y-2 text-sm text-foreground/60">
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    Argentina: <strong className="text-foreground/80">$45.000 ARS</strong>, mediante Mercado Pago o transferencia bancaria.
+<span className="flex-1 min-w-0">                    Argentina: <strong className="text-foreground/80">$45.000 ARS</strong>, mediante Mercado Pago o transferencia bancaria.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    Fuera de Argentina: <strong className="text-foreground/80">USD 35</strong>, mediante PayPal o Western Union.
+<span className="flex-1 min-w-0">                    Fuera de Argentina: <strong className="text-foreground/80">USD 35</strong>, mediante PayPal o Western Union.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    Si estás en Argentina y querés abonar por PayPal el valor es 35 USD.
+<span className="flex-1 min-w-0">                    Si estás en Argentina y querés abonar por PayPal el valor es 35 USD.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    <strong className="text-foreground/80">Beneficio:</strong> tenés 10% de descuento si luego querés inscribirte en el Nivel 2.
+<span className="flex-1 min-w-0">                    <strong className="text-foreground/80">Beneficio:</strong> tenés 10% de descuento si luego querés inscribirte en el Nivel 2.</span>
                   </li>
                 </ul>
               </div>

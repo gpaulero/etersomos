@@ -391,35 +391,35 @@ export default function AmbosPage() {
                 <ul className="space-y-2 text-sm text-foreground/60">
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    Recibirás por email el material de cada nivel y tendrás <strong className="text-foreground/80">1 semana</strong> para revisarlo antes de comenzar sus prácticas. Los PDF y la meditación podrán descargarse antes de finalizar el curso; los videos no son descargables.
+<span className="flex-1 min-w-0">                    Recibirás por email el material de cada nivel y tendrás <strong className="text-foreground/80">1 semana</strong> para revisarlo antes de comenzar sus prácticas. Los PDF y la meditación podrán descargarse antes de finalizar el curso; los videos no son descargables.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    Luego comenzaremos con las clases, que son individuales por videollamada, coordinadas según la disponibilidad de ambos.
+<span className="flex-1 min-w-0">                    Luego comenzaremos con las clases, que son individuales por videollamada, coordinadas según la disponibilidad de ambos.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    <strong className="text-foreground/80">Prácticas del Nivel 1:</strong> son 2 encuentros 1:1, de hasta 2 horas cada uno, para aprender a conectar y consultar tus propios Registros.
+<span className="flex-1 min-w-0">                    <strong className="text-foreground/80">Prácticas del Nivel 1:</strong> son 2 encuentros 1:1, de hasta 2 horas cada uno, para aprender a conectar y consultar tus propios Registros.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    <strong className="text-foreground/80">Prácticas del Nivel 2:</strong> son 4 encuentros semanales: 3 clases de 2:30 hs y una clase final de 1 hora.
+<span className="flex-1 min-w-0">                    <strong className="text-foreground/80">Prácticas del Nivel 2:</strong> son 4 encuentros semanales: 3 clases de 2:30 hs y una clase final de 1 hora.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    Deberás conseguir <strong className="text-foreground/80">3 consultantes voluntarios</strong> (nombre completo, fecha de nacimiento y una pregunta o tema). Recibirás un formulario para que completen y es importante contar con los 3 antes de comenzar las prácticas.
+<span className="flex-1 min-w-0">                    Deberás conseguir <strong className="text-foreground/80">3 consultantes voluntarios</strong> (nombre completo, fecha de nacimiento y una pregunta o tema). Recibirás un formulario para que completen y es importante contar con los 3 antes de comenzar las prácticas.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    <strong className="text-foreground/80">Clase 1:</strong> repaso, recorrido de esferas (línea y árbol), conexión al Akasha y búsqueda de respuestas. <strong className="text-foreground/80">Clase 2:</strong> vidas pasadas y flujos temporales paralelos. <strong className="text-foreground/80">Clase 3:</strong> repaso, conexión al Akasha y búsqueda de respuestas. <strong className="text-foreground/80">Clase 4:</strong> mentoría de lectura offline, resolución de dudas, envío de una lectura completa y cierre.
+<span className="flex-1 min-w-0">                    <strong className="text-foreground/80">Clase 1:</strong> repaso, recorrido de esferas (línea y árbol), conexión al Akasha y búsqueda de respuestas. <strong className="text-foreground/80">Clase 2:</strong> vidas pasadas y flujos temporales paralelos. <strong className="text-foreground/80">Clase 3:</strong> repaso, conexión al Akasha y búsqueda de respuestas. <strong className="text-foreground/80">Clase 4:</strong> mentoría de lectura offline, resolución de dudas, envío de una lectura completa y cierre.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    Las primeras 2 clases son ejercicios prácticos, no lecturas completas. Las 2 últimas incluyen una lectura offline completa.
+<span className="flex-1 min-w-0">                    Las primeras 2 clases son ejercicios prácticos, no lecturas completas. Las 2 últimas incluyen una lectura offline completa.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    Toda la información compartida durante tus prácticas es confidencial.
+<span className="flex-1 min-w-0">                    Toda la información compartida durante tus prácticas es confidencial.</span>
                   </li>
                 </ul>
               </div>
@@ -432,15 +432,15 @@ export default function AmbosPage() {
                 <ul className="space-y-2 text-sm text-foreground/60">
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    Ambos niveles tienen una duración aproximada de <strong className="text-foreground/80">2 meses</strong>. Contarás con un plazo máximo de <strong className="text-foreground/80">2 meses y medio</strong> desde tu inscripción para completar la formación. Pasado este plazo, tendrá costo adicional para continuar o se dará por finalizada.
+<span className="flex-1 min-w-0">                    Ambos niveles tienen una duración aproximada de <strong className="text-foreground/80">2 meses</strong>. Contarás con un plazo máximo de <strong className="text-foreground/80">2 meses y medio</strong> desde tu inscripción para completar la formación. Pasado este plazo, tendrá costo adicional para continuar o se dará por finalizada.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    Necesitás contar con <strong className="text-foreground/80">3 horas consecutivas</strong> disponibles, 1 o 2 veces por semana. En este momento tengo disponibilidad de lunes a viernes de 13.30 a 20 hs ARG, y sábados por la mañana.
+<span className="flex-1 min-w-0">                    Necesitás contar con <strong className="text-foreground/80">3 horas consecutivas</strong> disponibles, 1 o 2 veces por semana. En este momento tengo disponibilidad de lunes a viernes de 13.30 a 20 hs ARG, y sábados por la mañana.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    Si no tenés una práctica de meditación, introspección y conexión con tu Maestro Interior, puede ser recomendable comenzar únicamente con el Nivel 1.
+<span className="flex-1 min-w-0">                    Si no tenés una práctica de meditación, introspección y conexión con tu Maestro Interior, puede ser recomendable comenzar únicamente con el Nivel 1.</span>
                   </li>
                 </ul>
               </div>
@@ -453,11 +453,11 @@ export default function AmbosPage() {
                 <ul className="space-y-2 text-sm text-foreground/60">
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    Argentina: <strong className="text-foreground/80">$85.000 ARS</strong>, mediante Mercado Pago o transferencia bancaria. Se aceptan cuotas con tarjeta.
+<span className="flex-1 min-w-0">                    Argentina: <strong className="text-foreground/80">$85.000 ARS</strong>, mediante Mercado Pago o transferencia bancaria. Se aceptan cuotas con tarjeta.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    Fuera de Argentina: <strong className="text-foreground/80">USD 65</strong> (valor en promoción), mediante PayPal o Western Union.
+<span className="flex-1 min-w-0">                    Fuera de Argentina: <strong className="text-foreground/80">USD 65</strong> (valor en promoción), mediante PayPal o Western Union.</span>
                   </li>
                 </ul>
               </div>

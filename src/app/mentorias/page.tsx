@@ -86,6 +86,7 @@ export default function MentoriasPage() {
   const [cantEncuentros, setCantEncuentros] = useState("1");
   const [motivo, setMotivo] = useState("");
   const [disponibilidad, setDisponibilidad] = useState("");
+  const [compartirExperiencias, setCompartirExperiencias] = useState("");
   const [comoSeEnteraste, setComoSeEnteraste] = useState("");
   const [recomendadoNombre, setRecomendadoNombre] = useState("");
   const [metodoPago, setMetodoPago] = useState("");
@@ -374,7 +375,10 @@ export default function MentoriasPage() {
                 <p>
                   Para quienes hayan realizado el Segundo Nivel, los acompañaré en sus primeras lecturas a terceros, abriendo juntos los Registros de sus consultantes y guiando el proceso paso a paso.
                 </p>
-              </div>
+              <p className="text-violet-300">
+                  Importante: completá este formulario únicamente si estás segurx de que podrás comenzar tus clases a la brevedad.
+                </p>
+                </div>
 
               <Separator className="my-5 bg-mystic-700/30" />
 
@@ -387,36 +391,48 @@ export default function MentoriasPage() {
                 <ul className="space-y-2 text-sm text-foreground/60">
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    Los encuentros son personalizados, en formato{" "}
+<span className="flex-1 min-w-0">                    Los encuentros son personalizados, en formato{" "}
                     <strong className="text-foreground/80">
                       videollamada 1:1
-                    </strong>, con una duración de 2 horas.
+                    </strong>, con una duración de 2 horas.</span>
                   </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-violet-400 mt-0.5">•</span>
+                      <span className="flex-1 min-w-0">En el exterior, el valor por encuentro es de <strong className="text-foreground/80">USD 20</strong>, y pactando 3 o más encuentros queda en <strong className="text-foreground/80">USD 15</strong> cada uno.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-violet-400 mt-0.5">•</span>
+                      <span className="flex-1 min-w-0">Las clases extras no tienen recuperación, por lo que es importante confirmar tu disponibilidad antes de reservar.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-violet-400 mt-0.5">•</span>
+                      <span className="flex-1 min-w-0">Los horarios se reservan una vez realizada la contribución. Podés enviar tu comprobante por WhatsApp o email.</span>
+                    </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    El valor por un solo encuentro es de{" "}
+<span className="flex-1 min-w-0">                    El valor por un solo encuentro es de{" "}
                     <strong className="text-foreground/80">
                       ${PRICE_SINGLE.toLocaleString("es-AR")}
-                    </strong>.
+                    </strong>.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    Pactando 3 o más encuentros al mes, el valor queda en{" "}
+<span className="flex-1 min-w-0">                    Pactando 3 o más encuentros al mes, el valor queda en{" "}
                     <strong className="text-foreground/80">
                       ${PRICE_PACK.toLocaleString("es-AR")} por encuentro
-                    </strong>. Válido al abonar todos los encuentros juntos.
+                    </strong>. Válido al abonar todos los encuentros juntos.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    Se recomienda realizar un encuentro semanal durante al menos un mes para sostener e integrar el proceso.
+<span className="flex-1 min-w-0">                    Se recomienda realizar un encuentro semanal durante al menos un mes para sostener e integrar el proceso.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    No se realizan reembolsos.
+<span className="flex-1 min-w-0">                    No se realizan reembolsos.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    Fernanda se reserva el derecho de admisión.
+<span className="flex-1 min-w-0">                    Fernanda se reserva el derecho de admisión.</span>
                   </li>
                 </ul>
               </div>
