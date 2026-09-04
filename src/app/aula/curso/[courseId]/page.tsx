@@ -24,7 +24,8 @@ import {
   BookOpen,
   Home,
   Circle,
-, Lock } from "lucide-react";
+  Lock,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
