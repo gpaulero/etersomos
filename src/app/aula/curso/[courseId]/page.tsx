@@ -24,7 +24,7 @@ import {
   BookOpen,
   Home,
   Circle,
-} from "lucide-react";
+, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -203,6 +203,7 @@ export default function CursoPage() {
   const [activeContent, setActiveContent] = useState<ContentItem | null>(null);
   const [completedItems, setCompletedItems] = useState<Set<string>>(new Set());
   const playerContainerRef = useRef<HTMLDivElement>(null);
+  const [enrollmentId, setEnrollmentId] = useState<string | null>(null);
 
   const verifyAndLoad = useCallback(async () => {
     try {
@@ -211,6 +212,13 @@ export default function CursoPage() {
         router.push("/aula/login");
         return;
       }
+      const enrRes = await fetch("/api/student/enrollments");
+      let enr: any = null;
+      if (enrRes.ok) {
+        const ed = await enrRes.json();
+        enr = (ed.enrollments || []).find((e: any) => e.type === "curso" && e.referenceId === courseId) || null;
+        if (enr) setEnrollmentId(enr.id);
+      }
       const res = await fetch(`/api/student/course-content?courseId=${courseId}`);
       if (res.ok) {
         const data = await res.json();
@@ -218,7 +226,12 @@ export default function CursoPage() {
         setContents(items);
         if (items.length > 0) {
           const sorted = [...items].sort((a: ContentItem, b: ContentItem) => (a.sortOrder || 0) - (b.sortOrder || 0));
-          setActiveContent(sorted[0]);
+          if (enr) {
+            let done: string[] = []; try { done = JSON.parse(enr.completedContent || "[]") || []; } catch {}
+            setCompletedItems(new Set(done));
+            const last = sorted.find((c: ContentItem) => c.id === enr.lastContentId);
+            setActiveContent(last || sorted.find((c: ContentItem) => !done.includes(c.id)) || sorted[0]);
+          } else { setActiveContent(sorted[0]); }
         }
       }
     } catch {
@@ -249,25 +262,41 @@ export default function CursoPage() {
   }, []);
 
   const sortedContents = [...contents].sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+  const isUnlocked = (index: number) => index === 0 || completedItems.has(sortedContents[index - 1]?.id || "");
+  const persistProgress = async (action: string, contentId?: string) => {
+    if (!enrollmentId) return;
+    try { await fetch("/api/student/progress", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enrollmentId, contentId, action }) }); } catch {}
+  };
+  const markActiveComplete = () => {
+    if (!activeContent) return;
+    setCompletedItems((prev) => { const n = new Set(prev); n.add(activeContent.id); return n; });
+    persistProgress("complete", activeContent.id);
+    toast.success("Clase marcada como completada");
+  };
   const activeIndex = activeContent ? sortedContents.findIndex((c) => c.id === activeContent.id) : -1;
   const prevContent = activeIndex > 0 ? sortedContents[activeIndex - 1] : null;
   const nextContent = activeIndex < sortedContents.length - 1 ? sortedContents[activeIndex + 1] : null;
   const progressPct = contents.length > 0 ? Math.round((completedItems.size / contents.length) * 100) : 0;
 
   const handleContentSelect = (item: ContentItem) => {
+    const idx = sortedContents.findIndex((c) => c.id === item.id);
+    if (!isUnlocked(idx)) { toast("Completá la clase anterior para desbloquear esta"); return; }
     setActiveContent(item);
-    // Mark previous as completed when switching
-    if (activeContent) {
-      setCompletedItems((prev) => new Set(prev).add(activeContent.id));
+    persistProgress("last", item.id);
+    if (activeContent && activeContent.id !== item.id) {
+      setCompletedItems((prev) => { const n = new Set(prev); n.add(activeContent.id); return n; });
+      persistProgress("complete", activeContent.id);
     }
   };
 
   const handleNext = () => {
     if (nextContent) {
       if (activeContent) {
-        setCompletedItems((prev) => new Set(prev).add(activeContent.id));
+        setCompletedItems((prev) => { const n = new Set(prev); n.add(activeContent.id); return n; });
+        persistProgress("complete", activeContent.id);
       }
       setActiveContent(nextContent);
+      persistProgress("last", nextContent.id);
     }
   };
 
@@ -532,6 +561,10 @@ export default function CursoPage() {
                     </div>
                   </div>
 
+                  <button onClick={markActiveComplete} className="mx-4 mb-3 w-[calc(100%-2rem)] text-xs font-sans text-violet-300 hover:text-violet-200 border border-violet-500/25 rounded-md py-1.5 transition-colors hover:bg-violet-500/10">
+                    Marcar clase como completada
+                  </button>
+
                   {/* Playlist Items */}
                   <ScrollArea className="max-h-[calc(100vh-14rem)]">
                     <div className="p-2">
@@ -540,6 +573,7 @@ export default function CursoPage() {
                         const config = fileTypeConfig[ft] || fileTypeConfig.document;
                         const isActive = activeContent?.id === item.id;
                         const isCompleted = completedItems.has(item.id);
+                        const locked = !isUnlocked(index);
 
                         return (
                           <motion.button
@@ -563,9 +597,11 @@ export default function CursoPage() {
                                   ? "bg-emerald-500/15"
                                   : "bg-mystic-800/60"
                               }`}>
-                                {isActive ? (
+                                {locked ? (
+                                  <Lock className="w-3.5 h-3.5 text-mystic-500" />
+                                ) : isActive ? (
                                   <Play className="w-3.5 h-3.5 text-violet-300" />
-                                ) : isCompleted ? (
+                                ) : isCompleted ?(
                                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                                 ) : (
                                   <span className="text-mystic-500 text-xs font-sans">{index + 1}</span>
@@ -580,6 +616,9 @@ export default function CursoPage() {
                                     {config.icon}
                                     {config.label}
                                   </span>
+                                  {(item as any).module && (
+                                    <span className="text-xs text-mystic-500">· {(item as any).module}</span>
+                                  )}
                                 </div>
                               </div>
                               {!isActive && !isCompleted && (
