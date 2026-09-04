@@ -37,7 +37,7 @@ import {
   Image,
   Paperclip,
   ExternalLink,
-} from "lucide-react";
+, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -121,6 +121,7 @@ const navItems = [
   { id: "cursos", label: "Mis Cursos", icon: GraduationCap },
   { id: "lecturas", label: "Mis Lecturas", icon: BookOpen },
   { id: "mentorias", label: "Mentorías", icon: MessageCircle },
+  { id: "membresias", label: "Mis Membresías", icon: Crown },
   { id: "perfil", label: "Mi Perfil", icon: User },
 ];
 
@@ -519,8 +520,9 @@ export default function AulaDashboard() {
   const cursos = enrollments.filter((e) => e.type === "curso");
   const lecturas = enrollments.filter((e) => e.type === "lectura");
   const mentorias = enrollments.filter((e) => e.type === "mentoria");
+  const membresias = enrollments.filter((e) => e.type === "membresia");
   const completedCount = enrollments.filter((e) => e.status === "completada" || e.status === "entregada").length;
-  const visibleNav = ["inicio", ...(cursos.length ? ["cursos"] : []), ...(lecturas.length ? ["lecturas"] : []), ...(mentorias.length ? ["mentorias"] : []), "perfil"];
+  const visibleNav = ["inicio", ...(cursos.length ? ["cursos"] : []), ...(lecturas.length ? ["lecturas"] : []), ...(mentorias.length ? ["mentorias"] : []), ...(membresias.length ? ["membresias"] : []), "perfil"];
   const continueEnrollment = cursos.find((c: any) => c.lastContentId) || cursos[0] || null;
   const continueProgress = continueEnrollment ? (() => { const total = contentCounts[(continueEnrollment as any).referenceId] || 0; let done = 0; try { done = (JSON.parse((continueEnrollment as any).completedContent || "[]") || []).length; } catch {} if (!total) return null; return Math.min(100, Math.round((done / total) * 100)); })() : null;
   const quote = spiritualQuotes[Math.floor(Date.now() / 86400000) % spiritualQuotes.length];
@@ -837,7 +839,45 @@ export default function AulaDashboard() {
                   </section>
                 )}
 
-                {/* ─── PROFILE ─── */}
+                {membresias.length > 0 && (
+                  <section id="membresias">
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4, delay: 0.2 }}>
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-lg bg-violet-500/15 border border-violet-500/20 flex items-center justify-center">
+                            <Crown className="w-4 h-4 text-violet-300" />
+                          </div>
+                          <h2 className="font-serif text-xl sm:text-2xl text-foreground">Mis Membresías</h2>
+                        </div>
+                        <Badge variant="outline" className="border-violet-500/20 text-violet-300 text-xs">
+                          {membresias.length} {membresias.length === 1 ? "membresía" : "membresías"}
+                        </Badge>
+                      </div>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {membresias.map((enr, i) => (
+                          <motion.div key={enr.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: i * 0.05 }}>
+                            <Card className="bg-mystic-900/40 border-violet-500/20 overflow-hidden">
+                              <CardContent className="p-4">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Crown className="w-4 h-4 text-violet-300" />
+                                  <p className="font-serif text-base text-foreground truncate">{enr.title}</p>
+                                </div>
+                                <p className="text-mystic-400 text-xs font-sans mb-3">Contenido nuevo cada mes mientras tu membresía esté activa.</p>
+                                <Link href={`/aula/curso/${enr.referenceId || enr.id}`}>
+                                  <Button size="sm" className="w-full bg-violet-500 hover:bg-violet-400 text-white gap-2">
+                                    <Play className="w-3.5 h-3.5" /> Ver contenido del mes
+                                  </Button>
+                                </Link>
+                              </CardContent>
+                            </Card>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  </section>
+                )}
+
+                {/* ─── PROFILE ── */}
                 <section id="perfil">
                   <motion.div
                     initial={{ opacity: 0, y: 15 }}
