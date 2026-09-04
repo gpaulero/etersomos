@@ -777,7 +777,7 @@ export default function AdminPage() {
   const [courseContents, setCourseContents] = useState<any[]>([]);
   const [selectedCourseId, setSelectedCourseId] = useState<string>("");
   const [showContentUpload, setShowContentUpload] = useState(false);
-  const [contentUploadForm, setContentUploadForm] = useState({ title: "", description: "", fileType: "video" });
+  const [contentUploadForm, setContentUploadForm] = useState({ title: "", description: "", fileType: "video", module: "" });
   const [contentFile, setContentFile] = useState<File | null>(null);
   const [uploadingContent, setUploadingContent] = useState(false);
   const [newCourseId, setNewCourseId] = useState("");
@@ -1499,6 +1499,8 @@ export default function AdminPage() {
           fileName: contentFile.name,
           sortOrder: courseContents.length,
           active: 1,
+          module: contentUploadForm.module || "",
+          moduleOrder: courseContents.length,
         }),
       });
       const createData = await createRes.json();
@@ -1508,7 +1510,7 @@ export default function AdminPage() {
       }
 
       toast.success(`"${contentUploadForm.title}" subido correctamente`);
-      setContentUploadForm({ title: "", description: "", fileType: "video" });
+      setContentUploadForm({ title: "", description: "", fileType: "video", module: "" });
       setContentFile(null);
       setShowContentUpload(false);
       fetchCourseContents(selectedCourseId);
@@ -4080,6 +4082,15 @@ export default function AdminPage() {
                                     <SelectItem value="documento">Documento</SelectItem>
                                   </SelectContent>
                                 </Select>
+                              </div>
+                              <div>
+                                <label className="text-mystic-500 text-xs font-sans">Módulo (opcional)</label>
+                                <Input
+                                  placeholder="Ej: Módulo 1 - Preparación"
+                                  value={contentUploadForm.module}
+                                  onChange={(e) => setContentUploadForm({ ...contentUploadForm, module: e.target.value })}
+                                  className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm"
+                                />
                               </div>
                               <div className="sm:col-span-2">
                                 <label className="text-mystic-500 text-xs font-sans">Descripción (opcional)</label>
