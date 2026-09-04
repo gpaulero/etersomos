@@ -30,6 +30,8 @@ export async function GET(request: NextRequest) {
         fileName: c.fileName || '',
         sortOrder: c.sortOrder || 0,
         active: c.active,
+        module: c.module || '',
+        moduleOrder: c.moduleOrder || 0,
         createdAt: c.createdAt,
       }))
     })
@@ -42,7 +44,7 @@ export async function GET(request: NextRequest) {
 // POST /api/admin/course-content — create a content item (metadata only, file already uploaded)
 export async function POST(request: NextRequest) {
   try {
-    const { courseId, title, description, fileType, r2Key, fileName, sortOrder, active } = await request.json()
+    const { courseId, title, description, fileType, r2Key, fileName, sortOrder, active, module, moduleOrder } = await request.json()
 
     if (!courseId || !title || !r2Key) {
       return NextResponse.json({ error: 'courseId, título y r2Key son requeridos' }, { status: 400 })
@@ -63,6 +65,8 @@ export async function POST(request: NextRequest) {
         fileName: fileName || '',
         sortOrder: sortOrder || 0,
         active: active !== undefined ? active : 1,
+        module: module || '',
+        moduleOrder: moduleOrder || 0,
       }
     })
 
@@ -76,7 +80,7 @@ export async function POST(request: NextRequest) {
 // PUT /api/admin/course-content — update a content item
 export async function PUT(request: NextRequest) {
   try {
-    const { id, title, description, fileType, sortOrder, active } = await request.json()
+    const { id, title, description, fileType, sortOrder, active, module, moduleOrder } = await request.json()
 
     if (!id) {
       return NextResponse.json({ error: 'id es requerido' }, { status: 400 })
@@ -91,6 +95,8 @@ export async function PUT(request: NextRequest) {
     if (fileType !== undefined) data.fileType = fileType
     if (sortOrder !== undefined) data.sortOrder = sortOrder
     if (active !== undefined) data.active = active
+    if (module !== undefined) data.module = module
+    if (moduleOrder !== undefined) data.moduleOrder = moduleOrder
 
     const content = await (db as any).courseContent.update({
       where: { id },
