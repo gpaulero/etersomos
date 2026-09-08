@@ -734,6 +734,9 @@ export default function AdminPage() {
     { id: "n1-practica", label: "RA N1 con Práctica" },
     { id: "n2", label: "RA N2 Completo" },
     { id: "ambos", label: "Ambos Niveles (N1 + N2)" },
+    { id: "raiz-de-luz", label: "Membresía Raíz de Luz" },
+    { id: "corazon-solar", label: "Membresía Corazón Solar" },
+    { id: "puente-estelar", label: "Membresía Puente Estelar" },
   ];
 
   // Resources state
@@ -3784,6 +3787,7 @@ export default function AdminPage() {
                                   <SelectItem value="curso">Curso</SelectItem>
                                   <SelectItem value="lectura">Lectura</SelectItem>
                                   <SelectItem value="mentoria">Mentoría</SelectItem>
+                                  <SelectItem value="membresia">Membresía</SelectItem>
                                 </SelectContent>
                               </Select>
                             </div>

@@ -26,14 +26,15 @@ export async function GET(request: NextRequest) {
     const { db } = await import('@/lib/db')
     await ensureSchema()
 
-    const enrollment = await (db as any).studentEnrollment.findFirst({
-      where: { studentId: payload.id, type: 'curso', referenceId: courseId }
+    const allEnrollments = await (db as any).studentEnrollment.findMany({
+      where: { studentId: payload.id }
     })
-
-    // Also check by title match (for admin-assigned courses without referenceId)
-    const enrollmentByTitle = !enrollment ? await (db as any).studentEnrollment.findFirst({
-      where: { studentId: payload.id, type: 'curso' }
-    }) : enrollment
+    const enrollment = (allEnrollments || []).find((e: any) =>
+      (e.type === 'curso' || e.type === 'membresia') && e.referenceId === courseId
+    ) || null
+    const enrollmentByTitle = !enrollment ? (allEnrollments || []).find((e: any) =>
+      (e.type === 'curso' || e.type === 'membresia')
+    ) : enrollment
 
     if (!enrollment && !enrollmentByTitle) {
       return NextResponse.json({ error: 'No estás inscrito en este curso' }, { status: 403 })
@@ -56,6 +57,8 @@ export async function GET(request: NextRequest) {
         r2Key: c.r2Key,
         fileName: c.fileName,
         sortOrder: c.sortOrder,
+        module: c.module || '',
+        moduleOrder: c.moduleOrder || 0,
       }))
     })
   } catch (error) {
