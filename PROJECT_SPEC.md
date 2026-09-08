@@ -1,6 +1,6 @@
 # ETÉR SOMOS - Especificación Completa del Proyecto
 ## (Archivo de referencia CRÍTICO - NO BORRAR)
-## Última actualización: 2026-08-19 (sesión 50)
+## Última actualización: 2026-08-19 (sesión 51)
 
 Este documento describe TODO el estado actual, credenciales, estructura y requisitos del sitio web.
 **Siempre consultar antes de hacer cambios.**
@@ -1187,7 +1187,7 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 - Recursos usan modelo de contribución voluntaria: todos gratuitos, con links opcionales de MP/PayPal
 - ProtectedPlayer protege video/audio contra descarga (Blob URL, controlsList="nodownload", etc.)
 - SiteContentProvider en layout.tsx provee CMS a toda la app con auto-refresh cross-tab/focus/visibility
-- Commit actual: 701a7f8 (sesión 50)
+- Commit actual: aa8e08e (sesión 51)
 
 ### SESIÓN 19 (17/05/2026 — Revisión completa del sistema + Fix CMS revalidation)
 
@@ -1945,3 +1945,19 @@ FASE 3 — Membresías como biblioteca mensual:
 - Admin enrollment type incluye "membresia".
 Fixes de build: sintaxis de imports lucide (Lock en player, Crown en aula) corregida (commits 1ab0ba0, 701a7f8).
 Estado final: Aula Virtual completa y deployada (build READY 701a7f8).
+
+SESIÓN 51 (19/08/2026 — Importar desde Google Drive al admin)
+Commits: 945e2b5 (API), aa8e08e (admin UI).
+Feature: Fer sube el archivo a su Google Drive (compartido "cualquiera con el enlace"), pega el link en el admin y con un click el sitio lo descarga y lo guarda en Cloudflare R2; la reproducción sigue siendo protegida (ProtectedPlayer / stream).
+API: POST /api/admin/import-drive (protegida por middleware /api/admin/*):
+- Body: { url, title, description, fileType, target: "recursos"|"curso", courseId, module }
+- Extrae el file ID de formatos /file/d/ID, ?id=ID, o ID suelto.
+- Descarga via https://drive.usercontent.google.com/download?id=ID&export=download&confirm=t
+- Detecta y rechaza páginas HTML de confirmación de Drive (archivo no público) con mensaje claro.
+- Sube a R2 (uploadResource / uploadCourseResource) y crea metadata: Resource (target recursos) o CourseContent (target curso, con courseId y module).
+- maxDuration=60 (límite serverless; archivos muy pesados pueden excederlo).
+Admin UI:
+- Sección Recursos: card violeta "Importar desde Google Drive" (input link + título + botón Importar a R2).
+- Sección Contenido Cursos: bloque "…o importá desde Google Drive" dentro del form de subida (usa título/módulo/curso seleccionados).
+- Handler handleDriveImport(target) con authFetch + refresh de listas.
+Nota: Drive NO se usa como backend de reproducción (cuotas/ToS); solo como comodidad de subida. La reproducción siempre es desde R2 protegida.
