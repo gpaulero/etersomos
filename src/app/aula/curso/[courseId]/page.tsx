@@ -217,7 +217,7 @@ export default function CursoPage() {
       let enr: any = null;
       if (enrRes.ok) {
         const ed = await enrRes.json();
-        enr = (ed.enrollments || []).find((e: any) => e.type === "curso" && e.referenceId === courseId) || null;
+        enr = (ed.enrollments || []).find((e: any) => (e.type === "curso" || e.type === "membresia") && e.referenceId === courseId) || null;
         if (enr) setEnrollmentId(enr.id);
       }
       const res = await fetch(`/api/student/course-content?courseId=${courseId}`);
