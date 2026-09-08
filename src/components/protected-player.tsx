@@ -40,6 +40,7 @@ export function ProtectedVideoPlayer({
   onError,
 }: ProtectedVideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const native = src.includes("/api/student/stream");
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,6 +48,8 @@ export function ProtectedVideoPlayer({
   useEffect(() => {
     let cancelled = false;
     let objectUrl: string | null = null;
+
+    if (native) { setLoading(false); return; }
 
     async function loadVideo() {
       try {
@@ -139,6 +142,7 @@ export function ProtectedVideoPlayer({
       `}} />
       <video
         ref={videoRef}
+        src={native ? src : undefined}
         className="protected-video w-full rounded-xl bg-black"
         controls
         controlsList="nodownload nofullscreen noremoteplayback"
@@ -146,10 +150,11 @@ export function ProtectedVideoPlayer({
         disableRemotePlayback
         playsInline
         autoPlay
+        onLoadedMetadata={() => onLoaded?.()}
         poster={poster}
         aria-label={title || "Reproductor de video"}
       >
-        {blobUrl && <source src={blobUrl} />}
+        {!native && blobUrl && <source src={blobUrl} />}
         Tu navegador no soporta la reproducción de video.
       </video>
     </div>
@@ -173,6 +178,7 @@ export function ProtectedAudioPlayer({
   onLoaded,
   onError,
 }: ProtectedAudioPlayerProps) {
+  const native = src.includes("/api/student/stream");
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -180,6 +186,8 @@ export function ProtectedAudioPlayer({
   useEffect(() => {
     let cancelled = false;
     let objectUrl: string | null = null;
+
+    if (native) { setLoading(false); return; }
 
     async function loadAudio() {
       try {
@@ -259,13 +267,15 @@ export function ProtectedAudioPlayer({
         }
       `}} />
       <audio
+        src={native ? src : undefined}
         className="protected-audio w-full h-10 rounded-lg"
         controls
         controlsList="nodownload"
         disableRemotePlayback
+        onLoadedMetadata={() => onLoaded?.()}
         aria-label={title || "Reproductor de audio"}
       >
-        {blobUrl && <source src={blobUrl} />}
+        {!native && blobUrl && <source src={blobUrl} />}
         Tu navegador no soporta la reproducción de audio.
       </audio>
     </div>

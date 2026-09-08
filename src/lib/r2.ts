@@ -90,11 +90,12 @@ export async function getPresignedUploadUrl(fileName: string, contentType: strin
   return { url, key };
 }
 
-export async function getResourceStream(key: string) {
+export async function getResourceStream(key: string, range?: string) {
   const result = await r2Client.send(
     new GetObjectCommand({
       Bucket: BUCKET_NAME,
       Key: key,
+      ...(range ? { Range: range } : {}),
     })
   );
   return result;

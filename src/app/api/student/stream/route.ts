@@ -98,57 +98,52 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // 4. Stream from R2 with inline disposition (no download)
-    const result = await getResourceStream(key)
-
-    if (!result.Body) {
-      return NextResponse.json({ error: 'Archivo no encontrado' }, { status: 404 })
-    }
-
-    const fileName = key.split('/').pop() || 'media'
-    const contentType = result.ContentType || 'application/octet-stream'
-
-    // Determine if we should support range requests for video
+    // 4. Stream from R2 con soporte de Range (streaming progresivo + seek)
     const rangeHeader = request.headers.get('range')
+    const fileName = key.split('/').pop() || 'media'
 
-    // For video/audio files, use inline disposition with streaming support
-    const responseHeaders: Record<string, string> = {
-      'Content-Type': contentType,
+    const baseHeaders: Record<string, string> = {
       'Content-Disposition': `inline; filename*=UTF-8''${encodeURIComponent(fileName)}`,
       'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
       'X-Content-Type-Options': 'nosniff',
       'X-Frame-Options': 'SAMEORIGIN',
+      'Accept-Ranges': 'bytes',
     }
 
-    // If content length is known, add it
-    if (result.ContentLength) {
-      responseHeaders['Content-Length'] = String(result.ContentLength)
-    }
-
-    // Support range requests for video seeking
-    if (rangeHeader && result.ContentLength) {
-      const fileSize = result.ContentLength
+    if (rangeHeader) {
+      const ranged = await getResourceStream(key, rangeHeader)
+      if (!ranged.Body) {
+        return NextResponse.json({ error: 'Archivo no encontrado' }, { status: 404 })
+      }
+      const rangedType = ranged.ContentType || 'application/octet-stream'
+      const contentRange = ranged.ContentRange || ''
+      const totalStr = contentRange.split('/')[1]
+      const total = totalStr ? parseInt(totalStr, 10) : 0
       const parts = rangeHeader.replace(/bytes=/, '').split('-')
-      const start = parseInt(parts[0], 10)
-      const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1
-      const chunkSize = end - start + 1
-
-      responseHeaders['Content-Range'] = `bytes ${start}-${end}/${fileSize}`
-      responseHeaders['Content-Length'] = String(chunkSize)
-      responseHeaders['Accept-Ranges'] = 'bytes'
-
-      return new NextResponse(result.Body as ReadableStream, {
-        status: 206,
-        headers: responseHeaders,
-      })
+      const start = parseInt(parts[0], 10) || 0
+      const end = parts[1] ? parseInt(parts[1], 10) : (total ? total - 1 : start + (ranged.ContentLength || 1) - 1)
+      const headers: Record<string, string> = {
+        ...baseHeaders,
+        'Content-Type': rangedType,
+        'Content-Range': `bytes ${start}-${end}/${total || end + 1}`,
+        'Content-Length': String(ranged.ContentLength ?? end - start + 1),
+      }
+      return new NextResponse(ranged.Body as ReadableStream, { status: 206, headers })
     }
 
-    responseHeaders['Accept-Ranges'] = 'bytes'
-
-    return new NextResponse(result.Body as ReadableStream, {
-      status: 200,
-      headers: responseHeaders,
-    })
+    const result = await getResourceStream(key)
+    if (!result.Body) {
+      return NextResponse.json({ error: 'Archivo no encontrado' }, { status: 404 })
+    }
+    const contentType = result.ContentType || 'application/octet-stream'
+    const headers: Record<string, string> = {
+      ...baseHeaders,
+      'Content-Type': contentType,
+    }
+    if (result.ContentLength) {
+      headers['Content-Length'] = String(result.ContentLength)
+    }
+    return new NextResponse(result.Body as ReadableStream, { status: 200, headers })
   } catch (error) {
     console.error('[Student Stream Error]', error)
     return NextResponse.json({ error: 'Error interno' }, { status: 500 })
