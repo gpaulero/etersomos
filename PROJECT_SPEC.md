@@ -1,6 +1,6 @@
 # ETÉR SOMOS - Especificación Completa del Proyecto
 ## (Archivo de referencia CRÍTICO - NO BORRAR)
-## Última actualización: 2026-08-19 (sesión 49)
+## Última actualización: 2026-08-19 (sesión 50)
 
 Este documento describe TODO el estado actual, credenciales, estructura y requisitos del sitio web.
 **Siempre consultar antes de hacer cambios.**
@@ -1187,7 +1187,7 @@ cd /home/z/my-project && git add -A && git -c user.name="gpaulero" -c user.email
 - Recursos usan modelo de contribución voluntaria: todos gratuitos, con links opcionales de MP/PayPal
 - ProtectedPlayer protege video/audio contra descarga (Blob URL, controlsList="nodownload", etc.)
 - SiteContentProvider en layout.tsx provee CMS a toda la app con auto-refresh cross-tab/focus/visibility
-- Commit actual: 7f306cb (sesión 49)
+- Commit actual: 701a7f8 (sesión 50)
 
 ### SESIÓN 19 (17/05/2026 — Revisión completa del sistema + Fix CMS revalidation)
 
@@ -1927,3 +1927,21 @@ Mentorías — info completa sincronizada desde el Google Form (https://forms.gl
   "los horarios se reservan una vez realizada la contribución".
 - Nota importante agregada al intro: "completá este formulario únicamente si estás segurx de que podrás comenzar tus clases a la brevedad".
 - Nuevo campo de formulario "compartir experiencias" (RadioGroup sí/no, anónimo) con state + payload.
+
+SESIÓN 50 (19/08/2026 — AULA VIRTUAL COMPLETA: 3 fases)
+Commits: a5050af (fase 0 schema+API progreso), 41a9c93+834dd03 (fase 1), 4973a99+0c2b4ec+b380215 (fase 2), 77d4a44+d27c347+b0c3189+701a7f8 (fase 3).
+FASE 1 — Portal personal:
+- Menú dinámico: solo muestra secciones que el alumno compró (inicio/cursos/lecturas/mentorias/membresias/perfil según inscripciones).
+- Tarjeta "Continuar donde lo dejaste" en el inicio con barra de progreso % y botón Continuar (retoma lastContentId).
+FASE 2 — Campus con módulos + desbloqueo progresivo:
+- Reproductor de curso: desbloqueo progresivo (clase N+1 se abre al completar la N) aplicado a TODOS los cursos; ícono candado en bloqueadas.
+- Botón "Marcar clase como completada"; progreso persistido en StudentEnrollment.completedContent + lastContentId via POST /api/student/progress.
+- Campo "Módulo (opcional)" en admin Contenido Cursos (agrupa Módulos→Clases); etiqueta de módulo en cada clase del player.
+- API /api/admin/course-content acepta module/moduleOrder; /api/student/progress nueva.
+FASE 3 — Membresías como biblioteca mensual:
+- Aula: sección "Mis Membresías" (nav + dashboard) que lista inscripciones type=membresia y linkea a /aula/curso/[referenceId].
+- Admin: courseOptions incluye membresías (raiz-de-luz, corazon-solar, puente-estelar); Fer sube contenido por membresía usando module=mes (ej "Agosto 2026").
+- Reproductor acepta inscripciones type membresia (además de curso).
+- Admin enrollment type incluye "membresia".
+Fixes de build: sintaxis de imports lucide (Lock en player, Crown en aula) corregida (commits 1ab0ba0, 701a7f8).
+Estado final: Aula Virtual completa y deployada (build READY 701a7f8).
