@@ -781,6 +781,9 @@ export default function AdminPage() {
   const [selectedCourseId, setSelectedCourseId] = useState<string>("");
   const [showContentUpload, setShowContentUpload] = useState(false);
   const [contentUploadForm, setContentUploadForm] = useState({ title: "", description: "", fileType: "video", module: "" });
+  const [driveImport, setDriveImport] = useState({ url: "", title: "" });
+  const [courseDriveImport, setCourseDriveImport] = useState({ url: "", title: "" });
+  const [driveImporting, setDriveImporting] = useState(false);
   const [contentFile, setContentFile] = useState<File | null>(null);
   const [uploadingContent, setUploadingContent] = useState(false);
   const [newCourseId, setNewCourseId] = useState("");
@@ -1454,6 +1457,26 @@ export default function AdminPage() {
     } catch {
       toast.error("Error al cargar contenido del curso");
     }
+  };
+
+  const handleDriveImport = async (target: "recursos" | "curso") => {
+    const src = target === "recursos" ? driveImport : courseDriveImport;
+    if (!src.url.trim()) { toast.error("Pegá el link de Google Drive"); return; }
+    setDriveImporting(true);
+    try {
+      const res = await authFetch("/api/admin/import-drive", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: src.url, title: src.title || (target === "curso" ? contentUploadForm.title : ""), target, courseId: target === "curso" ? selectedCourseId : undefined, module: target === "curso" ? contentUploadForm.module : undefined }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error al importar");
+      toast.success("Importado desde Drive a R2 (reproducción protegida)");
+      if (target === "recursos") { setDriveImport({ url: "", title: "" }); fetchResources(); }
+      else { setCourseDriveImport({ url: "", title: "" }); if (selectedCourseId) fetchCourseContents(selectedCourseId); }
+    } catch (e: any) {
+      toast.error(e.message || "Error al importar desde Drive");
+    } finally { setDriveImporting(false); }
   };
 
   const handleUploadCourseContent = async () => {
@@ -2831,6 +2854,20 @@ export default function AdminPage() {
               </CardHeader>
               <CardContent className="px-5 pb-5 space-y-4">
 
+                {/* Importar desde Google Drive */}
+                <div className="p-4 rounded-xl border border-violet-500/20 bg-violet-500/5 space-y-3">
+                  <h3 className="text-sm font-josefin text-violet-300 font-medium">Importar desde Google Drive</h3>
+                  <p className="text-xs text-mystic-400">Compartí el archivo en Drive como "cualquiera con el enlace", pegá el link y queda guardado en R2 con reproducción protegida.</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <Input placeholder="https://drive.google.com/file/d/..." value={driveImport.url} onChange={(e) => setDriveImport({ ...driveImport, url: e.target.value })} className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 h-9" />
+                    <Input placeholder="Título (opcional)" value={driveImport.title} onChange={(e) => setDriveImport({ ...driveImport, title: e.target.value })} className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 h-9" />
+                  </div>
+                  <Button onClick={() => handleDriveImport("recursos")} disabled={driveImporting} className="bg-violet-500/20 hover:bg-violet-500/30 text-violet-200 gap-2">
+                    {driveImporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                    Importar a R2
+                  </Button>
+                </div>
+
                 {/* Upload form */}
                 {showUploadForm && (
                   <div className="p-4 rounded-xl border border-gold-400/20 bg-gold-400/5 space-y-4">
@@ -4063,6 +4100,14 @@ export default function AdminPage() {
                             <h5 className="text-blue-300 text-xs font-josefin uppercase tracking-wider">
                               Subir nuevo contenido
                             </h5>
+                            <div className="p-3 rounded-lg border border-violet-500/20 bg-violet-500/5 space-y-2">
+                              <p className="text-violet-300 text-xs font-josefin font-medium">…o importá desde Google Drive</p>
+                              <Input placeholder="https://drive.google.com/file/d/..." value={courseDriveImport.url} onChange={(e) => setCourseDriveImport({ ...courseDriveImport, url: e.target.value })} className="bg-mystic-800/60 border-mystic-700/50 text-cream-100 text-sm" />
+                              <Button onClick={() => handleDriveImport("curso")} disabled={driveImporting || !selectedCourseId} className="bg-violet-500/20 hover:bg-violet-500/30 text-violet-200 gap-2 w-full">
+                                {driveImporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                                Importar a R2 (usa el título de arriba)
+                              </Button>
+                            </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                               <div>
                                 <label className="text-mystic-500 text-xs font-sans">Título</label>
