@@ -144,12 +144,13 @@ const crystalCategories = [
 
 const navLinks = [
   { label: "Inicio", href: "/" },
-  { label: "Sesiones", href: "/lecturas" },
+  { label: "Lecturas", href: "/lecturas" },
   { label: "Cursos", href: "/cursos" },
-  { label: "Membresía", href: "/membresias" },
-  { label: "Expansión", href: "/recursos" },
+  { label: "Mentorías", href: "/mentorias" },
+  { label: "Membresías", href: "/membresias" },
+  { label: "Recursos", href: "/recursos" },
   { label: "Tienda", href: "/tienda" },
-  { label: "Contacto", href: "/#contacto" },
+  { label: "Aula", href: "/aula" },
 ];
 
 /* ======================================================================== */

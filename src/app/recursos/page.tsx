@@ -52,6 +52,7 @@ const navLinks = [
   { label: "Membresías", href: "/membresias" },
   { label: "Recursos", href: "/recursos" },
   { label: "Tienda", href: "/tienda" },
+  { label: "Aula", href: "/aula" },
 ];
 
 /* ======================================================================== */
