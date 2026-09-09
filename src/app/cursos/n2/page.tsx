@@ -446,7 +446,7 @@ export default function N2Page() {
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-<span className="flex-1 min-w-0">                    Necesitarás contar con <strong className="text-foreground/80">3 horas consecutivas</strong> disponibles, 1 o 2 veces por semana. En este momento tengo disponibilidad de lunes a viernes de 13.30 a 20 hs ARG, y sábados por la mañana.</span>
+<span className="flex-1 min-w-0">                    Necesitarás contar con <strong className="text-foreground/80">3 horas consecutivas</strong> disponibles, 1 o 2 veces por semana. Como fui mamá hace poquito estoy retomando actividades de a poco 🥰, por ahora mi disponibilidad es de lunes a viernes de 18 a 20 hs ARG. Y sábados de 10 a 14 hs ARG. Más abajo podrás indicarme la disponibilidad que prefieras así coordinamos.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>

@@ -345,9 +345,7 @@ export default function N1PracticaPage() {
                     1 o 2 veces por semana.
                   </p>
                   <p>
-                    En este momento mi disponibilidad es de lunes a viernes de 13.30 a 20 hs ARG,
-                    y sábados por la mañana. En el formulario podrás indicarme tu disponibilidad
-                    para encontrar un horario cómodo para ambos.
+                    Como fui mamá hace poquito estoy retomando actividades de a poco 🥰, por ahora mi disponibilidad es de lunes a viernes de 18 a 20 hs ARG. Y sábados de 10 a 14 hs ARG. Más abajo podrás indicarme la disponibilidad que prefieras así coordinamos.
                   </p>
                   <p>
                     Las 2 prácticas deben completarse dentro de los <strong className="text-foreground/80">30 días</strong> posteriores

@@ -59,7 +59,7 @@ CONDICIONES:
 - Pactando 3 o más encuentros al mes, el valor queda en $${PRICE_PACK.toLocaleString("es-AR")} por encuentro. Válido al abonar todos los encuentros juntos.
 - No se realizan reembolsos.
 - Fernanda se reserva el derecho de admisión.
-- Los horarios se acuerdan mutuamente según disponibilidad.`;
+- Como fui mamá hace poquito estoy retomando actividades de a poco 🥰, por ahora mi disponibilidad es de lunes a viernes de 18 a 20 hs ARG. Y sábados de 10 a 14 hs ARG. Más abajo podrás indicarme la disponibilidad que prefieras así coordinamos.`;
 
 /* ------------------------------------------------------------------ */
 /*  FORM FIELDS                                                       */
