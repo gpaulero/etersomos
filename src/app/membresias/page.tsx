@@ -34,6 +34,7 @@ import {
   Loader2,
   User,
 } from "lucide-react";
+import { ArrowUp } from "lucide-react";
 
 /* -------------------------------------------------------------------------- */
 /*                               ANIMATION VARS                               */
@@ -507,17 +508,27 @@ export default function MembresiasPage() {
 
   /* ---- Floating stars ---- */
   const [starsCount, setStarsCount] = useState(20);
+  const [showTop, setShowTop] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setShowTop(window.scrollY > 600);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
   useEffect(() => {
     setStarsCount(window.innerWidth < 640 ? 8 : 20);
   }, []);
-  const stars = Array.from({ length: starsCount }, (_, i) => ({
-    id: i,
-    left: `${Math.random() * 100}%`,
-    top: `${Math.random() * 100}%`,
-    size: Math.random() * 3 + 1,
-    delay: Math.random() * 5,
-    duration: Math.random() * 3 + 2,
-  }));
+  const stars = Array.from({ length: starsCount }, (_, i) => {
+    const topNum = Math.random() * 100;
+    return {
+      id: i,
+      left: `${Math.random() * 100}%`,
+      top: `${topNum}%`,
+      size: Math.random() * 2 + 1,
+      delay: Math.random() * 5,
+      duration: Math.random() * 3 + 2,
+      opacity: Math.max(0.15, 1 - topNum / 130),
+    };
+  });
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -549,7 +560,7 @@ export default function MembresiasPage() {
 
         {/* Bordes difuminados — integración con header y sección "Cómo suscribirte" */}
         <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-mystic-950 to-transparent z-[1]" />
-        <div className="absolute bottom-0 left-0 right-0 h-56 bg-gradient-to-t from-mystic-950 via-mystic-950/80 to-transparent z-[1]" />
+        <div className="absolute bottom-0 left-0 right-0 h-72 bg-gradient-to-t from-mystic-950 via-mystic-950/80 to-transparent z-[1]" />
         <div className="absolute inset-y-0 left-0 w-16 sm:w-32 bg-gradient-to-r from-mystic-950/90 to-transparent z-[1]" />
         <div className="absolute inset-y-0 right-0 w-16 sm:w-32 bg-gradient-to-l from-mystic-950/90 to-transparent z-[1]" />
 
@@ -565,6 +576,7 @@ export default function MembresiasPage() {
               height: star.size,
               animationDelay: `${star.delay}s`,
               animationDuration: `${star.duration}s`,
+              opacity: star.opacity,
             }}
           />
         ))}
@@ -761,6 +773,16 @@ export default function MembresiasPage() {
           </motion.div>
         </div>
       </AnimatedSection>
+      {/* Volver arriba */}
+      {showTop && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-violet-600 hover:bg-violet-500 text-white shadow-lg shadow-violet-900/30 flex items-center justify-center transition-all"
+          aria-label="Volver arriba"
+        >
+          <ArrowUp className="size-5" />
+        </button>
+      )}
     </div>
   );
 }
