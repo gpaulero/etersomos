@@ -84,6 +84,7 @@ import {
   Info,
   DollarSign,
   User,
+  CheckCheck,
   Heart,
   Gem,
   Power,
@@ -97,6 +98,13 @@ import { useRouter } from "next/navigation";
 /* ======================================================================== */
 
 
+
+const whatsappTestimonials = [
+  { time: "20:37", text: "ay dios, recién termino de escuchar los audios, que locura! realmente no pude evitar emocionarme con todo lo que me dijiste, todo me resonó demasiado, cuando dijiste lo de mi papa no pude evitar las lagrimas, es todo tan real, tan explicito!. No sabia lo mucho que necesitaba escuchar todo esto, realmente muchisimas gracias 💘💗😭" },
+  { time: "11:01", text: "Estoy muy Agradecida por tu lectura, la verdad fue exquisito 🫶✨🪄💫 cada palabra, cada pausa, llegaron a mi Alma, tanto las preguntas que envían mis Maestros, Gracias, Gracias, Gracias!!! Te Agradezco por tu claridad, Te Agradezco por tu Maravillosa trasmisión, Te Agradezco por tu simpleza, doy Gracias Universo de ser parte en esta vida de tus conocimientos!!! ✨🫶✨\nGracias Siempre y por Siempre 🙌" },
+  { time: "12:03", text: "Quería agradecerte por todos los niveles que hicimos de registros, me cambiaron la vida literal, me ayudaste mucho a cambiar paradigmas y estructuras.\nHoy estoy transitando un momento muy equilibrado y en gran parte es gracias a vos, siempre te recuerdo con amor y cariño" },
+  { time: "10:59", text: "Te estoy escuchando Fer y quiero agradecerte TANTO, TANTO!!!! No te imaginas lo bien que me hace escucharte!!! Sos tan clara, transmitís los mensajes de una forma q es imposible no emocionarse!! GRACIAS!! GRACIAS!! Hacía mucho q no escuchaba esta lectura." },
+];
 
 const testimonials = [
   {
@@ -1266,33 +1274,38 @@ export default function Home() {
             </h2>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {cmsTestimonials.map((testimonial) => (
-              <motion.div key={testimonial.name} variants={staggerItem}>
-                <div className="glass rounded-2xl p-6 sm:p-8 border-mystic-700/20 hover:border-violet-500/20 transition-all duration-500 h-full flex flex-col relative overflow-hidden">
-                  <div className="absolute top-3 right-5 text-7xl text-violet-400/5 font-serif leading-none select-none">
-                    &ldquo;
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {whatsappTestimonials.map((t, i) => (
+              <motion.div
+                key={i}
+                variants={staggerItem}
+                className="relative rounded-3xl border border-violet-500/30 bg-mystic-900/40 backdrop-blur overflow-hidden p-5 sm:p-7"
+              >
+                <div
+                  className="absolute inset-0 opacity-[0.07] pointer-events-none"
+                  style={{
+                    backgroundImage:
+                      "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cg fill='none' stroke='%23a78bfa' stroke-width='1.4'%3E%3Cpath d='M35 18l3.2 7.6 7.8 3.2-7.8 3.2-3.2 7.6-3.2-7.6-7.8-3.2 7.8-3.2z'/%3E%3Cpath d='M105 62a14 14 0 1 0 10 24 16 16 0 0 1-10-24'/%3E%3Ccircle cx='30' cy='100' r='9'/%3E%3Cpath d='M98 108l2.6 6 6.2 2.6-6.2 2.6-2.6 6-2.6-6-6.2-2.6 6.2-2.6z'/%3E%3Cpath d='M70 40l2 5 5 2-5 2-2 5-2-5-5-2 5-2z'/%3E%3C/g%3E%3C/svg%3E\")",
+                  }}
+                />
+                <div className="relative rounded-2xl bg-mystic-950/70 border border-violet-500/20 p-4 sm:p-5">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-11 h-11 rounded-full bg-gradient-to-br from-violet-500 to-violet-800 flex items-center justify-center shrink-0">
+                      <User className="size-5 text-violet-100" />
+                    </div>
+                    <div>
+                      <p className="text-violet-200 font-sans font-semibold leading-tight">Consultante</p>
+                      <p className="text-mystic-400 text-xs font-sans">en línea</p>
+                    </div>
                   </div>
-                  <div className="flex justify-center gap-0.5 mb-5 relative">
-                    {Array.from({ length: testimonial.rating }).map(
-                      (_, i) => (
-                        <Star
-                          key={i}
-                          className="size-4 text-violet-400 fill-violet-400"
-                        />
-                      )
-                    )}
-                  </div>
-                  <p className="text-foreground/60 italic leading-relaxed text-sm font-serif mb-6 flex-1 relative">
-                    &ldquo;{testimonial.quote}&rdquo;
-                  </p>
-                  <div className="text-center relative">
-                    <p className="font-semibold text-foreground text-sm font-sans">
-                      {testimonial.name}
+                  <div className="relative rounded-2xl rounded-tl-sm bg-violet-950/70 border border-violet-500/15 px-4 py-3 shadow-lg shadow-violet-950/40">
+                    <p className="text-foreground/85 text-sm sm:text-[15px] leading-relaxed font-sans whitespace-pre-line">
+                      {t.text}
                     </p>
-                    <p className="text-foreground/40 text-xs mt-0.5 font-sans">
-                      {testimonial.location}
-                    </p>
+                    <div className="flex items-center justify-end gap-1 mt-2 text-[11px] text-mystic-400 font-sans">
+                      {t.time}
+                      <CheckCheck className="size-3.5 text-sky-400" />
+                    </div>
                   </div>
                 </div>
               </motion.div>
