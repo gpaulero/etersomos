@@ -368,15 +368,6 @@ export default function MentoriasPage() {
           <CollapsibleContent>
             <CardContent className="pt-4">
               <div className="text-sm text-foreground/70 leading-relaxed whitespace-pre-line space-y-4">
-                <p>
-                  Las mentorías están orientadas a lectores/as de Registros Akáshicos que deseen profundizar su práctica y fortalecer la confianza en su conexión con el Akasha.
-                </p>
-                <p>
-                  Para quienes hayan realizado el Primer Nivel, trabajaremos sobre aquellos aspectos que necesiten ser iluminados, comprendidos o sanados, acompañando el proceso desde una mirada práctica y consciente.
-                </p>
-                <p>
-                  Para quienes hayan realizado el Segundo Nivel, los acompañaré en sus primeras lecturas a terceros, abriendo juntos los Registros de sus consultantes y guiando el proceso paso a paso.
-                </p>
               <p className="text-violet-300">
                   Importante: completá este formulario únicamente si estás segurx de que podrás comenzar tus clases a la brevedad.
                 </p>
