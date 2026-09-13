@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import {
+  ArrowUp,
   ChevronDown,
   Loader2,
   BookOpen,
@@ -44,13 +45,7 @@ const PRICE_PACK = 15000; // per session when 3+ sessions
 /* ------------------------------------------------------------------ */
 /*  AGREEMENT TEXT                                                    */
 /* ------------------------------------------------------------------ */
-const agreementText = `Las mentorías están orientadas a lectores/as de Registros Akáshicos que deseen profundizar su práctica y fortalecer la confianza en su conexión con el Akasha.
-
-Para quienes hayan realizado el Primer Nivel, trabajaremos sobre aquellos aspectos que necesiten ser iluminados, comprendidos o sanados, acompañando el proceso desde una mirada práctica y consciente.
-
-Para quienes hayan realizado el Segundo Nivel, los acompañaré en sus primeras lecturas a terceros, abriendo juntos los Registros de sus consultantes y guiando el proceso paso a paso.
-
-Los encuentros son personalizados, en formato videollamada 1:1, con una duración de 2 horas.
+const agreementText = `Los encuentros son personalizados, en formato videollamada 1:1, con una duración de 2 horas.
 
 Podemos acordar la cantidad de encuentros que necesites, aunque la recomendación es realizar un encuentro semanal durante al menos un mes para sostener e integrar el proceso.
 
@@ -74,6 +69,13 @@ export default function MentoriasPage() {
   const [agreementOpen, setAgreementOpen] = useState(true);
   const [formPaused, setFormPaused] = useState(false);
   const [accepted, setAccepted] = useState(false);
+  const [showTop, setShowTop] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setShowTop(window.scrollY > 600);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
 
@@ -442,12 +444,12 @@ export default function MentoriasPage() {
       </Card>
 
       {/* ── Accept terms checkbox ── */}
-      <div className="flex items-start gap-3 glass rounded-xl p-4 border border-mystic-700/30">
+      <div className="flex items-start gap-3 rounded-xl p-4 border-2 border-violet-500/40 bg-violet-500/10 backdrop-blur">
         <Checkbox
           id="accept-terms"
           checked={accepted}
           onCheckedChange={(checked) => setAccepted(checked === true)}
-          className="mt-0.5 data-[state=checked]:bg-violet-500 data-[state=checked]:border-violet-500 data-[state=checked]:text-mystic-950"
+          className="mt-0.5 h-5 w-5 border-violet-400/60 data-[state=checked]:bg-violet-500 data-[state=checked]:border-violet-500 data-[state=checked]:text-mystic-950"
         />
         <Label
           htmlFor="accept-terms"
@@ -923,6 +925,16 @@ export default function MentoriasPage() {
             </CardContent>
           </Card>
         </motion.div>
+      )}
+      {/* Volver arriba */}
+      {showTop && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-violet-600 hover:bg-violet-500 text-white shadow-lg shadow-violet-900/30 flex items-center justify-center transition-all"
+          aria-label="Volver arriba"
+        >
+          <ArrowUp className="size-5" />
+        </button>
       )}
     </motion.div>
   );
