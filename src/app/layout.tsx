@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Playfair_Display, Josefin_Sans } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import ChunkGuard from "@/components/chunk-guard";
 import { SiteContentProvider } from "@/hooks/use-site-content";
 import { LocalBusinessJsonLd, FAQJsonLd } from "@/components/json-ld";
 
@@ -118,6 +119,7 @@ export default function RootLayout({
         <FAQJsonLd />
         <SiteContentProvider>{children}</SiteContentProvider>
         <Toaster />
+        <ChunkGuard />
       </body>
     </html>
   );
