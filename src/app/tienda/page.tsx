@@ -426,7 +426,7 @@ export default function TiendaPage() {
               <span className="text-violet-400 font-serif font-semibold text-lg tracking-[0.2em] uppercase">ETER SOMOS</span>
             </Link>
             <div className="hidden lg:flex items-center gap-8">
-              {navLinks.filter(l => l.href !== "/tienda").map((link) => (
+              {navLinks.map((link) => (
                 <Link key={link.href} href={link.href} className="text-sm transition-colors duration-300 font-sans font-medium text-foreground/60 hover:text-violet-400">
                   {link.label}
                 </Link>
@@ -448,7 +448,7 @@ export default function TiendaPage() {
                     <SheetDescription className="text-foreground/60">Navegación</SheetDescription>
                   </SheetHeader>
                   <div className="flex flex-col gap-1 mt-8">
-                    {navLinks.filter(l => l.href !== "/tienda").map((link) => (
+                    {navLinks.map((link) => (
                       <Link key={link.href} href={link.href} onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-between px-4 py-3 rounded-xl hover:bg-mystic-900/50 transition-all duration-300 text-foreground/70 hover:text-violet-400">
                         {link.label}
                         <ChevronRight className="size-4" />
