@@ -603,7 +603,7 @@ export default function MentoriasPage() {
                   onValueChange={setCantEncuentros}
                   className="grid grid-cols-2 sm:grid-cols-4 gap-2"
                 >
-                  {["1", "3", "4", "5"].map((opt) => (
+                  {["1", "2", "3", "4"].map((opt) => (
                     <Label
                       key={opt}
                       htmlFor={`encuentros-${opt}`}
