@@ -100,10 +100,10 @@ import { useRouter } from "next/navigation";
 
 
 const whatsappTestimonials = [
-  { time: "20:37", text: "ay dios, recién termino de escuchar los audios, que locura! realmente no pude evitar emocionarme con todo lo que me dijiste, todo me resonó demasiado, cuando dijiste lo de mi papa no pude evitar las lagrimas, es todo tan real, tan explicito!. No sabia lo mucho que necesitaba escuchar todo esto, realmente muchisimas gracias 💘💗😭" },
-  { time: "11:01", text: "Estoy muy Agradecida por tu lectura, la verdad fue exquisito 🫶✨🪄💫 cada palabra, cada pausa, llegaron a mi Alma, tanto las preguntas que envían mis Maestros, Gracias, Gracias, Gracias!!! Te Agradezco por tu claridad, Te Agradezco por tu Maravillosa trasmisión, Te Agradezco por tu simpleza, doy Gracias Universo de ser parte en esta vida de tus conocimientos!!! ✨🫶✨\nGracias Siempre y por Siempre 🙌" },
-  { time: "12:03", text: "Quería agradecerte por todos los niveles que hicimos de registros, me cambiaron la vida literal, me ayudaste mucho a cambiar paradigmas y estructuras.\nHoy estoy transitando un momento muy equilibrado y en gran parte es gracias a vos, siempre te recuerdo con amor y cariño" },
-  { time: "10:59", text: "Te estoy escuchando Fer y quiero agradecerte TANTO, TANTO!!!! No te imaginas lo bien que me hace escucharte!!! Sos tan clara, transmitís los mensajes de una forma q es imposible no emocionarse!! GRACIAS!! GRACIAS!! Hacía mucho q no escuchaba esta lectura." },
+  { name: "Valentina", time: "20:37", text: "ay dios, recién termino de escuchar los audios, que locura! realmente no pude evitar emocionarme con todo lo que me dijiste, todo me resonó demasiado, cuando dijiste lo de mi papa no pude evitar las lagrimas, es todo tan real, tan explicito!. No sabia lo mucho que necesitaba escuchar todo esto, realmente muchisimas gracias 💘💗😭" },
+  { name: "Norma", time: "11:01", text: "Estoy muy Agradecida por tu lectura, la verdad fue exquisito 🫶✨🪄💫 cada palabra, cada pausa, llegaron a mi Alma, tanto las preguntas que envían mis Maestros, Gracias, Gracias, Gracias!!! Te Agradezco por tu claridad, Te Agradezco por tu Maravillosa trasmisión, Te Agradezco por tu simpleza, doy Gracias Universo de ser parte en esta vida de tus conocimientos!!! ✨🫶✨\nGracias Siempre y por Siempre 🙌" },
+  { name: "Daniel", time: "12:03", text: "Quería agradecerte por todos los niveles que hicimos de registros, me cambiaron la vida literal, me ayudaste mucho a cambiar paradigmas y estructuras.\nHoy estoy transitando un momento muy equilibrado y en gran parte es gracias a vos, siempre te recuerdo con amor y cariño" },
+  { name: "Rocío", time: "10:59", text: "Te estoy escuchando Fer y quiero agradecerte TANTO, TANTO!!!! No te imaginas lo bien que me hace escucharte!!! Sos tan clara, transmitís los mensajes de una forma q es imposible no emocionarse!! GRACIAS!! GRACIAS!! Hacía mucho q no escuchaba esta lectura." },
 ];
 
 const testimonials = [
@@ -1294,8 +1294,7 @@ export default function Home() {
                       <User className="size-5 text-violet-100" />
                     </div>
                     <div>
-                      <p className="text-violet-200 font-sans font-semibold leading-tight">Consultante</p>
-                      <p className="text-mystic-400 text-xs font-sans">en línea</p>
+                      <p className="text-violet-200 font-sans font-semibold leading-tight">{t.name}</p>
                     </div>
                   </div>
                   <div className="relative rounded-2xl rounded-tl-sm bg-violet-950/70 border border-violet-500/15 px-4 py-3 shadow-lg shadow-violet-950/40">
