@@ -89,7 +89,7 @@ export default function CursosPage() {
     },
     {
       id: "n2-completo",
-      name: "2do Nivel Completo",
+      name: "2do Nivel con Práctica",
       subtitle: "Aprendé a Consultar los Registros Akáshicos de Otras Personas",
       description:
         "Curso teórico/práctico para aprender a abrir y consultar los Registros de terceros. 10 módulos + 4 clases prácticas.",

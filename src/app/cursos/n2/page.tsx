@@ -79,7 +79,7 @@ export default function N2Page() {
     const confirmationItems = [
     "Declaro ser mayor de 18 años y que los datos proporcionados son verdaderos.",
     "Confirmo que ya aprendí a abrir mis propios Registros Akáshicos.",
-    "Me comprometo a contar con la disponibilidad horaria requerida y completar la formación dentro de los 2 meses.",
+    "Me comprometo a completar la formación dentro de los 2 meses.",
     "Comprendo que las clases prácticas no tienen opción de recuperación una vez definidos y aceptados los horarios.",
     "Comprendo que esta formación tiene un enfoque espiritual y no reemplaza atención, diagnóstico ni tratamiento médico o psicológico.",
     "Acepto que Fernanda Lucrecia Cardozo no se responsabiliza por decisiones o consecuencias derivadas de la formación ni de las consultas realizadas por quienes se encuentran en formación.",
@@ -329,7 +329,7 @@ export default function N2Page() {
           Aprendé a Consultar los Registros Akáshicos de Otras Personas
         </h1>
         <p className="text-foreground/50 font-serif italic">
-          (2° Nivel)
+          con PRÁCTICA INCLUIDA
         </p>
         <div className="inline-block glass rounded-full px-6 py-2 mt-2 space-y-1 text-center">
           <span className="text-violet-300 font-serif font-semibold text-lg block">
@@ -401,8 +401,9 @@ export default function N2Page() {
                   ))}
                 </ul>
                 <p className="text-sm text-foreground/60">
-                  Recibirás el material por email y tendrás 1 semana para revisarlo
-                  antes de comenzar las prácticas. Los PDF podrán descargarse; los videos no.
+                  Una vez realizada tu contribución te enviaremos las credenciales por mail
+                  para que puedas acceder al aula virtual. Allí encontrarás todo el material
+                  teórico para seguirlo a tu ritmo.
                 </p>
               </div>
 
@@ -455,7 +456,7 @@ export default function N2Page() {
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-<span className="flex-1 min-w-0">                    Necesitarás contar con <strong className="text-foreground/80">3 horas consecutivas</strong> disponibles, 1 o 2 veces por semana. Como fui mamá hace poquito estoy retomando actividades de a poco 🥰, por ahora mi disponibilidad es de lunes a viernes de 18 a 20 hs ARG. Y sábados de 10 a 14 hs ARG. Más abajo podrás indicarme la disponibilidad que prefieras así coordinamos.</span>
+<span className="flex-1 min-w-0">                    Como fui mamá hace poquito estoy retomando actividades de a poco 🥰, por ahora mi disponibilidad es de lunes a viernes de 18 a 20 hs ARG. Y sábados de 10 a 14 hs ARG. Más abajo podrás indicarme la disponibilidad que prefieras así coordinamos.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>

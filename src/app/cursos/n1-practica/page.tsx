@@ -49,7 +49,7 @@ export default function N1PracticaPage() {
   const [formPaused, setFormPaused] = useState(false);
   const confirmationItems = [
     "Declaro ser mayor de 18 años y que los datos proporcionados son verdaderos.",
-    "Me comprometo a contar con la disponibilidad horaria requerida y completar las prácticas dentro de los 30 días. Comprendo que las cancelaciones con menos de 24 hs no podrán recuperarse.",
+    "Me comprometo a completar las prácticas dentro de los 30 días. Comprendo que las clases canceladas con menos de 24 hs no podrán recuperarse.",
     "Comprendo que esta formación tiene un enfoque espiritual y no reemplaza atención, diagnóstico ni tratamiento médico o psicológico.",
     "Acepto que no se realizan reembolsos una vez abonada la formación.",
     "Comprendo que Fernanda Lucrecia Cardozo no se responsabiliza por decisiones o consecuencias derivadas del uso del material o de las prácticas.",
@@ -334,10 +334,6 @@ export default function N1PracticaPage() {
                     </li>
                   ))}
                 </ul>
-                <p className="text-sm text-foreground/60">
-                  Recibirás el material por email y tendrás 1 semana para
-                  revisarlo antes de comenzar las prácticas.
-                </p>
               </div>
 
               <Separator className="bg-mystic-700/30" />
@@ -348,11 +344,6 @@ export default function N1PracticaPage() {
                   Prácticas
                 </h3>
                 <div className="space-y-3 text-sm text-foreground/60 leading-relaxed">
-                  <p>
-                    Las 2 prácticas son encuentros individuales 1:1 por videollamada.
-                    Necesitarás disponer de <strong className="text-foreground/80">2 horas consecutivas</strong>,
-                    1 o 2 veces por semana.
-                  </p>
                   <p>
                     Como fui mamá hace poquito estoy retomando actividades de a poco 🥰, por ahora mi disponibilidad es de lunes a viernes de 18 a 20 hs ARG. Y sábados de 10 a 14 hs ARG. Más abajo podrás indicarme la disponibilidad que prefieras así coordinamos.
                   </p>
@@ -373,10 +364,17 @@ export default function N1PracticaPage() {
                 <h3 className="text-violet-300 font-serif font-semibold text-base">
                   Material
                 </h3>
-                <p className="text-sm text-foreground/60">
-                  Los PDF y la meditación podrán descargarse antes de finalizar
-                  el curso. Los videos no son descargables.
-                </p>
+                <div className="space-y-3 text-sm text-foreground/60 leading-relaxed">
+                  <p>
+                    Una vez realizada tu contribución te enviaremos las credenciales por mail
+                    para que puedas acceder al aula virtual. Allí encontrarás todo el material
+                    teórico para seguirlo a tu ritmo.
+                  </p>
+                  <p>
+                    Los PDF y la meditación podrán descargarse antes de finalizar
+                    el curso. Los videos no son descargables.
+                  </p>
+                </div>
               </div>
 
               <Separator className="bg-mystic-700/30" />

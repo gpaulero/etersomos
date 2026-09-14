@@ -67,7 +67,7 @@ export default function AmbosPage() {
   const [formPaused, setFormPaused] = useState(false);
     const confirmationItems = [
     "Declaro ser mayor de 18 años y que los datos proporcionados son verdaderos.",
-    "Me comprometo a contar con la disponibilidad horaria requerida y completar la formación dentro del plazo máximo de 2 meses y medio.",
+    "Me comprometo a completar la formación dentro de los 2 meses y medio.",
     "Comprendo que la formación requiere realizar todas las prácticas y que no se ofrece únicamente el material teórico.",
     "Comprendo que, una vez definidos y aceptados los horarios, las clases prácticas no tienen opción de recuperación.",
     "Comprendo que esta formación tiene un enfoque espiritual y no reemplaza atención, diagnóstico ni tratamiento médico o psicológico.",
@@ -400,15 +400,11 @@ export default function AmbosPage() {
                 <ul className="space-y-2 text-sm text-foreground/60">
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-<span className="flex-1 min-w-0">                    Recibirás por email el material de cada nivel y tendrás <strong className="text-foreground/80">1 semana</strong> para revisarlo antes de comenzar sus prácticas. Los PDF y la meditación podrán descargarse antes de finalizar el curso; los videos no son descargables.</span>
+<span className="flex-1 min-w-0">                    Una vez realizada tu contribución te enviaremos las credenciales por mail para que puedas acceder al aula virtual. Allí encontrarás todo el material teórico del primer nivel, contarás con <strong className="text-foreground/80">una semana</strong> para revisarlo, y luego comenzaremos con las prácticas 1:1. Finalizada la etapa del primer nivel, se habilitará en el aula virtual el material teórico del segundo nivel. Contarás con <strong className="text-foreground/80">una semana</strong> para revisar este material teórico y comenzaremos con las prácticas.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-<span className="flex-1 min-w-0">                    Luego comenzaremos con las clases, que son individuales por videollamada, coordinadas según la disponibilidad de ambos.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-violet-400 mt-0.5">•</span>
-<span className="flex-1 min-w-0">                    <strong className="text-foreground/80">Prácticas del Nivel 1:</strong> son 2 encuentros 1:1, de hasta 2 horas cada uno, para aprender a conectar y consultar tus propios Registros.</span>
+<span className="flex-1 min-w-0">                    Los PDF y la meditación podrán descargarse antes de finalizar el curso; los videos no son descargables.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
@@ -445,7 +441,7 @@ export default function AmbosPage() {
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-<span className="flex-1 min-w-0">                    Necesitás contar con <strong className="text-foreground/80">3 horas consecutivas</strong> disponibles, 1 o 2 veces por semana. Como fui mamá hace poquito estoy retomando actividades de a poco 🥰, por ahora mi disponibilidad es de lunes a viernes de 18 a 20 hs ARG. Y sábados de 10 a 14 hs ARG. Más abajo podrás indicarme la disponibilidad que prefieras así coordinamos.</span>
+<span className="flex-1 min-w-0">                    Como fui mamá hace poquito estoy retomando actividades de a poco 🥰, por ahora mi disponibilidad es de lunes a viernes de 18 a 20 hs ARG. Y sábados de 10 a 14 hs ARG. Más abajo podrás indicarme la disponibilidad que prefieras así coordinamos.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
