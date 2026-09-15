@@ -61,6 +61,7 @@ import {
   Sparkles,
   ArrowUp,
   ChevronRight,
+  ChevronLeft,
   ChevronDown,
   MessageCircle,
   Mail,
@@ -100,7 +101,7 @@ import { useRouter } from "next/navigation";
 
 
 const whatsappTestimonials = [
-  { name: "Valentina", time: "20:37", text: "ay dios, recién termino de escuchar los audios, que locura! realmente no pude evitar emocionarme con todo lo que me dijiste, todo me resonó demasiado, cuando dijiste lo de mi papa no pude evitar las lagrimas, es todo tan real, tan explicito!. No sabia lo mucho que necesitaba escuchar todo esto, realmente muchisimas gracias 💘💗😭" },
+  { name: "Valentina", time: "20:37", text: "ay dios, recién termino de escuchar los audios, que locura! realmente no pude evitar emocionarme con todo lo que me dijiste, todo me resonó demasiado, cuando dijiste lo de mi papa no pude evitar las lagrimas, es todo tan real, tan explicito!. No sabia lo mucho que necesitaba escuchar todo esto, realmente muchisimas gracias 💜💜" },
   { name: "Norma", time: "11:01", text: "Estoy muy Agradecida por tu lectura, la verdad fue exquisito 🫶✨🪄💫 cada palabra, cada pausa, llegaron a mi Alma, tanto las preguntas que envían mis Maestros, Gracias, Gracias, Gracias!!! Te Agradezco por tu claridad, Te Agradezco por tu Maravillosa trasmisión, Te Agradezco por tu simpleza, doy Gracias Universo de ser parte en esta vida de tus conocimientos!!! ✨🫶✨\nGracias Siempre y por Siempre 🙌" },
   { name: "Daniel", time: "12:03", text: "Quería agradecerte por todos los niveles que hicimos de registros, me cambiaron la vida literal, me ayudaste mucho a cambiar paradigmas y estructuras.\nHoy estoy transitando un momento muy equilibrado y en gran parte es gracias a vos, siempre te recuerdo con amor y cariño" },
   { name: "Rocío", time: "10:59", text: "Te estoy escuchando Fer y quiero agradecerte TANTO, TANTO!!!! No te imaginas lo bien que me hace escucharte!!! Sos tan clara, transmitís los mensajes de una forma q es imposible no emocionarse!! GRACIAS!! GRACIAS!! Hacía mucho q no escuchaba esta lectura." },
@@ -1269,6 +1270,11 @@ export default function Home() {
             <span className="inline-block text-violet-400 text-xs font-sans font-semibold tracking-[0.3em] uppercase mb-3">
               {testimonialsSectionTitle}
             </span>
+            <div className="flex items-center justify-center gap-2 mt-3 mb-4">
+              <span className="h-px w-12 bg-violet-500/40" />
+              <Sparkles className="size-3.5 text-violet-400" />
+              <span className="h-px w-12 bg-violet-500/40" />
+            </div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-semibold text-foreground mb-3">
               {testimonialsSectionSubtitle}
             </h2>
@@ -1279,31 +1285,28 @@ export default function Home() {
               <motion.div
                 key={i}
                 variants={staggerItem}
-                className="relative rounded-3xl border border-violet-500/30 bg-mystic-900/40 backdrop-blur overflow-hidden p-5 sm:p-7"
+                className="relative rounded-[2rem] border border-violet-500/40 bg-[#141021] overflow-hidden p-5 sm:p-7"
               >
                 <div
-                  className="absolute inset-0 opacity-[0.07] pointer-events-none"
-                  style={{
-                    backgroundImage:
-                      "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cg fill='none' stroke='%23a78bfa' stroke-width='1.4'%3E%3Cpath d='M35 18l3.2 7.6 7.8 3.2-7.8 3.2-3.2 7.6-3.2-7.6-7.8-3.2 7.8-3.2z'/%3E%3Cpath d='M105 62a14 14 0 1 0 10 24 16 16 0 0 1-10-24'/%3E%3Ccircle cx='30' cy='100' r='9'/%3E%3Cpath d='M98 108l2.6 6 6.2 2.6-6.2 2.6-2.6 6-2.6-6-6.2-2.6 6.2-2.6z'/%3E%3Cpath d='M70 40l2 5 5 2-5 2-2 5-2-5-5-2 5-2z'/%3E%3C/g%3E%3C/svg%3E\")",
-                  }}
+                  className="absolute inset-0 opacity-[0.13] pointer-events-none"
+                  style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'160'%20height%3D'160'%20viewBox%3D'0%200%20160%20160'%3E%3Cg%20fill%3D'none'%20stroke%3D'%23a78bfa'%20stroke-width%3D'1.6'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%3E%3Ccircle%20cx%3D'30'%20cy%3D'30'%20r%3D'12'%2F%3E%3Ccircle%20cx%3D'26'%20cy%3D'27'%20r%3D'1.4'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'27'%20r%3D'1.4'%2F%3E%3Cpath%20d%3D'M25%2034q5%204%2010%200'%2F%3E%3Cpath%20d%3D'M90%2018l3%207%207%203-7%203-3%207-3-7-7-3%207-3z'%2F%3E%3Cpath%20d%3D'M128%2058q6-8%2012%200-6%208-12%200z'%2F%3E%3Crect%20x%3D'18'%20y%3D'80'%20width%3D'26'%20height%3D'18'%20rx%3D'3'%2F%3E%3Cpath%20d%3D'M18%2084l13%209%2013-9'%2F%3E%3Cpath%20d%3D'M80%2092l30-8-12%2026-4-10z'%2F%3E%3Crect%20x%3D'118'%20y%3D'110'%20width%3D'24'%20height%3D'18'%20rx%3D'3'%2F%3E%3Ccircle%20cx%3D'130'%20cy%3D'119'%20r%3D'5'%2F%3E%3Cpath%20d%3D'M50%20132v-14l10-3v14'%2F%3E%3Ccircle%20cx%3D'47'%20cy%3D'132'%20r%3D'3'%2F%3E%3Ccircle%20cx%3D'57'%20cy%3D'129'%20r%3D'3'%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E\")" }}
                 />
-                <div className="relative rounded-2xl bg-mystic-950/70 border border-violet-500/20 p-4 sm:p-5">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-11 h-11 rounded-full bg-gradient-to-br from-violet-500 to-violet-800 flex items-center justify-center shrink-0">
+                <div className="relative">
+                  <div className="flex items-center gap-3 rounded-2xl bg-[#1b1630]/90 border border-violet-500/20 px-4 py-3 mb-7">
+                    <ChevronLeft className="size-5 text-violet-200/80" />
+                    <div className="w-11 h-11 rounded-full bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center shrink-0">
                       <User className="size-5 text-violet-100" />
                     </div>
-                    <div>
-                      <p className="text-violet-200 font-sans font-semibold leading-tight">{t.name}</p>
-                    </div>
+                    <p className="text-violet-100 font-sans text-base sm:text-lg font-medium">{t.name}</p>
                   </div>
-                  <div className="relative rounded-2xl rounded-tl-sm bg-violet-950/70 border border-violet-500/15 px-4 py-3 shadow-lg shadow-violet-950/40">
-                    <p className="text-foreground/85 text-sm sm:text-[15px] leading-relaxed font-sans whitespace-pre-line">
+                  <div className="relative ml-1 sm:ml-4 mr-1 sm:mr-6 rounded-3xl rounded-tl-lg bg-[#4d3f92] px-6 py-5 shadow-lg shadow-violet-950/40">
+                    <span className="absolute -left-2 top-5 w-0 h-0 border-y-[8px] border-y-transparent border-r-[12px] border-r-[#4d3f92]" />
+                    <p className="text-violet-50/95 font-sans text-base sm:text-lg leading-relaxed whitespace-pre-line">
                       {t.text}
                     </p>
-                    <div className="flex items-center justify-end gap-1 mt-2 text-[11px] text-mystic-400 font-sans">
-                      {t.time}
-                      <CheckCheck className="size-3.5 text-sky-400" />
+                    <div className="flex items-center justify-end gap-1.5 mt-3 text-violet-200/70 text-sm font-sans">
+                      <span>{t.time}</span>
+                      <CheckCheck className="size-4 text-violet-300" />
                     </div>
                   </div>
                 </div>
