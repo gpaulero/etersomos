@@ -38,6 +38,8 @@ import {
   Paperclip,
   ExternalLink,
   Crown,
+  Mail,
+  Gem,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -429,6 +431,19 @@ function SidebarContent({
           );
         })}
       </nav>
+      {/* Portal abierto */}
+      <div className="p-3 mt-auto">
+        <div className="rounded-xl border border-violet-500/20 bg-mystic-900/60 p-3 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-600/40 to-mystic-800/60 border border-violet-500/20 flex items-center justify-center shrink-0">
+            <Gem className="w-5 h-5 text-violet-300" />
+          </div>
+          <div>
+            <p className="text-violet-200 text-xs font-sans font-semibold">Portal Abierto</p>
+            <p className="text-mystic-500 text-[10px] font-sans">Confía. Estás siendo guiada.</p>
+          </div>
+        </div>
+      </div>
+
 
       {/* Bottom section */}
       <div className="p-3 border-t border-mystic-700/40 space-y-1">
@@ -1053,6 +1068,7 @@ function LecturaCard({
   const hasAudio = !!(enrollment.r2Key);
   const isExpired = enrollment.expiresAt ? new Date(enrollment.expiresAt).getTime() < Date.now() : false;
   const timeInfo = enrollment.expiresAt ? getTimeRemaining(enrollment.expiresAt) : null;
+  const remainPct = enrollment.expiresAt ? Math.max(0, Math.min(100, ((new Date(enrollment.expiresAt).getTime() - Date.now()) / (180 * 24 * 60 * 60 * 1000)) * 100)) : 100;
   const isRecent = (Date.now() - new Date(enrollment.createdAt).getTime()) < 7 * 24 * 60 * 60 * 1000;
   const hasAttachments = !!(enrollment.attachments && enrollment.attachments.length > 0);
 
@@ -1138,39 +1154,67 @@ function LecturaCard({
               transition={{ duration: 0.25 }}
               className="overflow-hidden"
             >
-              <div className="mt-4 pt-4 border-t border-mystic-700/40 space-y-3">
-                {enrollment.notes && (
-                  <div>
-                    <p className="text-mystic-500 text-xs font-sans mb-1">Notas</p>
-                    <p className="text-mystic-200 text-sm font-sans">{enrollment.notes}</p>
+              <div className="mt-4 pt-4 border-t border-mystic-700/40">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                  <div className="lg:col-span-2 space-y-4">
+                    {hasAudio && enrollment.r2Key ? (
+                      <LecturaAudioPlayer
+                        r2Key={enrollment.r2Key}
+                        title={enrollment.title}
+                        fileName={enrollment.fileName}
+                        expiresAt={enrollment.expiresAt}
+                      />
+                    ) : (
+                      <div className="bg-mystic-900/40 rounded-lg p-4 text-center border border-mystic-700/30">
+                        <Clock className="w-5 h-5 text-mystic-600 mx-auto mb-1" />
+                        <p className="text-mystic-500 text-xs font-sans">El audio de tu lectura estará disponible pronto</p>
+                      </div>
+                    )}
+                    <AttachmentsSection
+                      attachments={enrollment.attachments || []}
+                      isExpired={isExpired}
+                    />
                   </div>
-                )}
-                {enrollment.assignedBy && (
-                  <div>
-                    <p className="text-mystic-500 text-xs font-sans">
-                      Asignado por: <span className="text-mystic-200">{enrollment.assignedBy}</span>
-                    </p>
+                  <div className="space-y-4">
+                    <div className="rounded-xl border border-violet-500/20 bg-mystic-900/40 p-4">
+                      <h4 className="text-violet-300 text-sm font-serif font-semibold mb-2 flex items-center gap-2">
+                        <Sparkles className="w-4 h-4" /> Sobre tu lectura
+                      </h4>
+                      <p className="text-mystic-300 text-xs font-sans leading-relaxed mb-3">
+                        Esta lectura fue realizada especialmente para vos. Escuchala en un espacio de calma y apertura.
+                      </p>
+                      <div className="flex items-center gap-2 text-xs font-sans text-mystic-400">
+                        <Calendar className="w-3.5 h-3.5 text-violet-400" />
+                        <span>Fecha de entrega: {new Date(enrollment.createdAt).toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" })}</span>
+                      </div>
+                    </div>
+                    <div className="rounded-xl border border-violet-500/20 bg-mystic-900/40 p-4">
+                      <h4 className="text-violet-300 text-sm font-serif font-semibold mb-2 flex items-center gap-2">
+                        <Clock className="w-4 h-4" /> Disponible por
+                      </h4>
+                      <p className="text-mystic-300 text-xs font-sans leading-relaxed mb-3">
+                        Esta lectura estará disponible para vos durante 6 meses.
+                      </p>
+                      <div className="w-full h-1.5 bg-mystic-800/60 rounded-full overflow-hidden mb-1.5">
+                        <div className="h-full bg-violet-500 rounded-full" style={{ width: `${remainPct}%` }} />
+                      </div>
+                      <p className="text-mystic-500 text-[11px] font-sans">{timeInfo ? timeInfo.text : "6 meses"} restantes</p>
+                    </div>
+                    <div className="rounded-xl border border-violet-500/20 bg-mystic-900/40 p-4">
+                      <h4 className="text-violet-300 text-sm font-serif font-semibold mb-2 flex items-center gap-2">
+                        <Mail className="w-4 h-4" /> ¿Necesitás algo?
+                      </h4>
+                      <p className="text-mystic-300 text-xs font-sans leading-relaxed mb-3">
+                        Estoy aquí para acompañarte en tu camino.
+                      </p>
+                      <a href="mailto:etersomos@gmail.com" className="inline-block">
+                        <Button variant="outline" size="sm" className="border-violet-500/30 text-violet-200 hover:bg-violet-500/10 gap-2">
+                          <Mail className="w-3.5 h-3.5" /> Escribirme
+                        </Button>
+                      </a>
+                    </div>
                   </div>
-                )}
-                {hasAudio && enrollment.r2Key && (
-                  <LecturaAudioPlayer
-                    r2Key={enrollment.r2Key}
-                    title={enrollment.title}
-                    fileName={enrollment.fileName}
-                    expiresAt={enrollment.expiresAt}
-                  />
-                )}
-                {!hasAudio && (
-                  <div className="bg-mystic-900/40 rounded-lg p-4 text-center border border-mystic-700/30">
-                    <Clock className="w-5 h-5 text-mystic-600 mx-auto mb-1" />
-                    <p className="text-mystic-500 text-xs font-sans">El audio de tu lectura estará disponible pronto</p>
-                  </div>
-                )}
-                {/* Attachments section */}
-                <AttachmentsSection
-                  attachments={enrollment.attachments || []}
-                  isExpired={isExpired}
-                />
+                </div>
               </div>
             </motion.div>
           )}
