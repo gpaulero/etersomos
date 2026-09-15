@@ -549,14 +549,8 @@ export default function MembresiasPage() {
 
       {/* ============================================================ */}
       <section className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
-        {/* Background Image — starfield uniforme sin núcleo brillante (S40) */}
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: "url('/images/membresias-bg.webp')" }}
-        />
-
-        {/* Dark overlay para legibilidad del texto */}
-        <div className="absolute inset-0 bg-mystic-950/85" />
+        {/* Fondo gradiente místico con estrellas (mismo estilo que Recursos y Aula Virtual) */}
+        <div className="absolute inset-0 bg-gradient-to-br from-mystic-950 via-mystic-950 to-violet-950/40" />
 
         {/* Bordes difuminados — integración con header y sección "Cómo suscribirte" */}
         <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-mystic-950 to-transparent z-[1]" />

@@ -120,7 +120,7 @@ export default function CursosPage() {
       href: "/cursos/ambos",
       features: [
         "Todo el contenido del 1er Nivel con Práctica",
-        "Todo el contenido del 2do Nivel Completo",
+        "Todo el contenido del 2do Nivel con Práctica",
         "6 clases prácticas individuales",
         "Oración de apertura personalizada",
         "Seguimiento durante toda la formación",
