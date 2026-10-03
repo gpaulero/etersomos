@@ -2360,6 +2360,18 @@ export default function AdminPage() {
                               )}
                               {isOpen && (
                                 <div className="pt-2 border-t border-mystic-800/40 space-y-2">
+                                  <div className="text-[11px]">
+                                    <span className="text-gold-400/60 font-josefin uppercase">Email: </span>
+                                    <span className="text-cream-200 break-all">{b.email}</span>
+                                  </div>
+                                  <div className="text-[11px]">
+                                    <span className="text-gold-400/60 font-josefin uppercase">Teléfono: </span>
+                                    <span className="text-cream-200">{b.phone || "—"}</span>
+                                  </div>
+                                  <div className="text-[11px]">
+                                    <span className="text-gold-400/60 font-josefin uppercase">Tipo de lectura: </span>
+                                    <span className="text-cream-200">{b.readingType}</span>
+                                  </div>
                                   {b.preferredDate && (
                                     <div className="text-[11px]">
                                       <span className="text-gold-400/60 font-josefin uppercase">Fecha preferida: </span>
