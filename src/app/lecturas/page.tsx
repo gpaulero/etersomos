@@ -370,9 +370,9 @@ export default function LecturasPage() {
 
                       <div className="p-4 rounded-xl bg-violet-500/10 border border-violet-400/20">
                         <p>
-                          <span className="text-violet-300">Entrega:</span> tu lectura estará disponible en el
-                          Aula Virtual aproximadamente dentro de los 10 días hábiles posteriores a completar
-                          este formulario. Si necesitás una respuesta urgente, te recomiendo no solicitar la lectura.
+                          <span className="text-violet-300">Entrega:</span> tu lectura se entrega a los 10 días hábiles
+                          posteriores a completar este formulario y estará disponible en el Aula Virtual.
+                          Si necesitás una respuesta urgente, te recomiendo no solicitar la lectura.
                         </p>
                       </div>
 

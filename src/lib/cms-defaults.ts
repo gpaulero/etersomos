@@ -137,7 +137,7 @@ export const defaultSiteContent: SiteContentItem[] = [
   { key: "readings.price_ars", value: "20000", section: "readings", label: "Precio Lectura (ARS)", type: "number" },
   { key: "readings.price_usd", value: "20", section: "readings", label: "Precio Lectura (USD)", type: "number" },
   { key: "readings.description", value: "Traé claridad a los procesos que estás atravesando. Recibí una lectura personalizada grabada especialmente para vos.", section: "readings", label: "Descripción de Lecturas", type: "textarea" },
-  { key: "readings.deadline_badge", value: "5 días hábiles", section: "readings", label: "Badge de plazo de entrega", type: "text" },
+  { key: "readings.deadline_badge", value: "10 días hábiles", section: "readings", label: "Badge de plazo de entrega", type: "text" },
 
   // ── Courses ──
   { key: "courses.n1teorico_price_ars", value: "0", section: "courses", label: "N1 Teórico - Precio ARS", type: "number" },

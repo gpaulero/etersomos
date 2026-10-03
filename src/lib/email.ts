@@ -539,7 +539,7 @@ function buildCustomerHtml(params: CustomerConfirmationParams): string {
       description: "Tu solicitud de lectura akashica ha sido registrada exitosamente. Vas a recibir un email aparte con tus datos de acceso al Aula Virtual, donde podras ver tu lectura cuando este lista.",
       nextSteps: [
         "Vas a recibir tus credenciales de acceso al Aula Virtual por email.",
-        "Tu lectura estara disponible en el Aula Virtual en los proximos 5 dias habiles.",
+        "Tu lectura se entrega a los 10 dias habiles posteriores a tu solicitud y estara disponible en el Aula Virtual.",
         "Si necesitamos informacion adicional, te contactaremos.",
         "Recorda: las preguntas se responden de forma profunda y espiritual.",
       ],
