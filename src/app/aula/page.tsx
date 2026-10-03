@@ -1080,7 +1080,7 @@ function LecturaCard({
   const hasAudio = !!(enrollment.r2Key);
   const isExpired = enrollment.expiresAt ? new Date(enrollment.expiresAt).getTime() < Date.now() : false;
   const timeInfo = enrollment.expiresAt ? getTimeRemaining(enrollment.expiresAt) : null;
-  const remainPct = enrollment.expiresAt ? Math.max(0, Math.min(100, ((new Date(enrollment.expiresAt).getTime() - Date.now()) / (180 * 24 * 60 * 60 * 1000)) * 100)) : 100;
+  const remainPct = enrollment.expiresAt ? Math.max(0, Math.min(100, ((new Date(enrollment.expiresAt).getTime() - Date.now()) / (60 * 24 * 60 * 60 * 1000)) * 100)) : 100;
   const isRecent = (Date.now() - new Date(enrollment.createdAt).getTime()) < 7 * 24 * 60 * 60 * 1000;
   const hasAttachments = !!(enrollment.attachments && enrollment.attachments.length > 0);
 
@@ -1205,7 +1205,10 @@ function LecturaCard({
                         <Clock className="w-4 h-4" /> Disponible por
                       </h4>
                       <p className="text-mystic-300 text-xs font-sans leading-relaxed mb-3">
-                        Esta lectura estará disponible para vos durante 6 meses.
+                        Esta lectura estará disponible para vos durante 2 meses.
+                      </p>
+                      <p className="text-violet-300 text-xs font-sans mt-1">
+                        No te olvides de descargarla antes de ese plazo.
                       </p>
                       <div className="w-full h-1.5 bg-mystic-800/60 rounded-full overflow-hidden mb-1.5">
                         <div className="h-full bg-violet-500 rounded-full" style={{ width: `${remainPct}%` }} />

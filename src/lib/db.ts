@@ -551,6 +551,7 @@ export async function ensureSchema() {
         `ALTER TABLE CourseContent ADD COLUMN moduleOrder INTEGER NOT NULL DEFAULT 0`,
         `ALTER TABLE StudentEnrollment ADD COLUMN completedContent TEXT NOT NULL DEFAULT '[]'`,
         `ALTER TABLE StudentEnrollment ADD COLUMN lastContentId TEXT NOT NULL DEFAULT ''`,
+        `ALTER TABLE ReadingBooking ADD COLUMN formData TEXT`,
       ]) {
         try { await client.execute(stmt); console.log("[DB] Added aula column") }
         catch (e: unknown) {
@@ -572,6 +573,7 @@ export async function ensureSchema() {
         `ALTER TABLE CourseContent ADD COLUMN moduleOrder INTEGER NOT NULL DEFAULT 0`,
         `ALTER TABLE StudentEnrollment ADD COLUMN completedContent TEXT NOT NULL DEFAULT '[]'`,
         `ALTER TABLE StudentEnrollment ADD COLUMN lastContentId TEXT NOT NULL DEFAULT ''`,
+        `ALTER TABLE ReadingBooking ADD COLUMN formData TEXT`,
       ]) {
         try { await prisma.$executeRawUnsafe(stmt) } catch (e) {}
       }

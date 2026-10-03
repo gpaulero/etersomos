@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
         phone: phone.trim(),
         readingType: "Lectura Akáshica Individual",
         message: message?.trim() || null,
+        formData: formData ? JSON.stringify(formData) : null,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
