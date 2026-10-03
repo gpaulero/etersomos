@@ -128,6 +128,18 @@ const navItems = [
   { id: "perfil", label: "Mi Perfil", icon: User },
 ];
 
+/* ── Helper: sumar días hábiles ── */
+function addBusinessDays(start: Date, days: number): Date {
+  const d = new Date(start);
+  let added = 0;
+  while (added < days) {
+    d.setDate(d.getDate() + 1);
+    const day = d.getDay();
+    if (day !== 0 && day !== 6) added++;
+  }
+  return d;
+}
+
 /* ── Helper: time remaining until expiration ── */
 function getTimeRemaining(expiresAt: string): { text: string; urgent: boolean; expired: boolean } {
   const now = Date.now();
@@ -1185,7 +1197,7 @@ function LecturaCard({
                       </p>
                       <div className="flex items-center gap-2 text-xs font-sans text-mystic-400">
                         <Calendar className="w-3.5 h-3.5 text-violet-400" />
-                        <span>Fecha de entrega: {new Date(enrollment.createdAt).toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" })}</span>
+                        <span>Fecha de entrega: {addBusinessDays(new Date(enrollment.createdAt), 10).toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" })}</span>
                       </div>
                     </div>
                     <div className="rounded-xl border border-violet-500/20 bg-mystic-900/40 p-4">

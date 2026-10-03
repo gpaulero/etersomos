@@ -34,7 +34,7 @@ export default function LecturasGraciasPage() {
         <p className="text-foreground/70 text-base sm:text-lg leading-relaxed mb-6">
           Recibimos tu solicitud correctamente. Te enviaremos por email los accesos
           al Aula Virtual, donde podrás escuchar tu lectura cuando esté lista.
-          Tené en cuenta que el envío de las credenciales puede demorar hasta 10 días hábiles.
+          Tené en cuenta que el envío de las credenciales puede demorar unos instantes.
         </p>
         <div className="glass-light rounded-2xl p-6 text-sm text-foreground/70 leading-relaxed mb-8 text-left sm:text-center">
           Recordá que tu lectura comenzará una vez realizada tu contribución.
