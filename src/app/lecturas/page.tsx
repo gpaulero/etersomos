@@ -32,6 +32,7 @@ import { useSiteContent } from "@/hooks/use-site-content";
 /* -------------------------------------------------------------------------- */
 
 interface FormErrors {
+  telefono?: string;
   [key: string]: string;
 }
 
@@ -158,6 +159,7 @@ export default function LecturasPage() {
       e.email = "Ingresá un email válido";
 
     if (!formData.nombre.trim()) e.nombre = "Ingresá tu nombre y apellido completo";
+    if (!formData.telefono.trim()) e.telefono = "Ingresá tu teléfono de contacto";
     if (!formData.fechaNacimiento) e.fechaNacimiento = "Ingresá tu fecha de nacimiento";
     if (!formData.nacionalidad.trim()) e.nacionalidad = "Ingresá tu nacionalidad";
     if (!formData.ciudadNacimiento.trim()) e.ciudadNacimiento = "Ingresá tu ciudad de nacimiento";
@@ -549,7 +551,7 @@ export default function LecturasPage() {
                         {/* Teléfono */}
                         <div className="space-y-1.5">
                           <Label htmlFor="telefono" className="text-foreground/80 text-sm font-medium">
-                            Teléfono de contacto <span className="text-foreground/40">(opcional)</span>
+                            Teléfono de contacto <span className="text-violet-400"> *</span>
                           </Label>
                           <Input
                             id="telefono"
@@ -559,6 +561,7 @@ export default function LecturasPage() {
                             onChange={(e) => updateField("telefono", e.target.value)}
                             className="bg-mystic-900/50 border-mystic-700/40 focus:border-violet-400/60 text-foreground placeholder:text-foreground/30"
                           />
+                {errors.telefono && <p className="text-red-400 text-xs mt-1">{errors.telefono}</p>}
                         </div>
 
                         {/* Nacionalidad */}
