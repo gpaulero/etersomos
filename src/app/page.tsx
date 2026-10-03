@@ -101,10 +101,10 @@ import { useRouter } from "next/navigation";
 
 
 const whatsappTestimonials = [
-  { name: "Valentina", time: "20:37", text: "ay dios, recién termino de escuchar los audios, que locura! realmente no pude evitar emocionarme con todo lo que me dijiste, todo me resonó demasiado, cuando dijiste lo de mi papa no pude evitar las lagrimas, es todo tan real, tan explicito!. No sabia lo mucho que necesitaba escuchar todo esto, realmente muchisimas gracias 💜💜" },
-  { name: "Norma", time: "11:01", text: "Estoy muy Agradecida por tu lectura, la verdad fue exquisito 🫶✨🪄💫 cada palabra, cada pausa, llegaron a mi Alma, tanto las preguntas que envían mis Maestros, Gracias, Gracias, Gracias!!! Te Agradezco por tu claridad, Te Agradezco por tu Maravillosa trasmisión, Te Agradezco por tu simpleza, doy Gracias Universo de ser parte en esta vida de tus conocimientos!!! ✨🫶✨\nGracias Siempre y por Siempre 🙌" },
-  { name: "Daniel", time: "12:03", text: "Quería agradecerte por todos los niveles que hicimos de registros, me cambiaron la vida literal, me ayudaste mucho a cambiar paradigmas y estructuras.\nHoy estoy transitando un momento muy equilibrado y en gran parte es gracias a vos, siempre te recuerdo con amor y cariño" },
-  { name: "Rocío", time: "10:59", text: "Te estoy escuchando Fer y quiero agradecerte TANTO, TANTO!!!! No te imaginas lo bien que me hace escucharte!!! Sos tan clara, transmitís los mensajes de una forma q es imposible no emocionarse!! GRACIAS!! GRACIAS!! Hacía mucho q no escuchaba esta lectura." },
+  { name: "Valentina", tag: "Membresía Corazón Solar", time: "20:37", text: "ay dios, recién termino de escuchar los audios, que locura! realmente no pude evitar emocionarme con todo lo que me dijiste, todo me resonó demasiado, cuando dijiste lo de mi papa no pude evitar las lagrimas, es todo tan real, tan explicito!. No sabia lo mucho que necesitaba escuchar todo esto, realmente muchisimas gracias 💜💜" },
+  { name: "Norma", tag: "Lectura Akáshica", time: "11:01", text: "Estoy muy Agradecida por tu lectura, la verdad fue exquisito 🫶✨🪄💫 cada palabra, cada pausa, llegaron a mi Alma, tanto las preguntas que envían mis Maestros, Gracias, Gracias, Gracias!!! Te Agradezco por tu claridad, Te Agradezco por tu Maravillosa trasmisión, Te Agradezco por tu simpleza, doy Gracias Universo de ser parte en esta vida de tus conocimientos!!! ✨🫶✨\nGracias Siempre y por Siempre 🙌" },
+  { name: "Daniel", tag: "Formación en Registros", time: "12:03", text: "Quería agradecerte por todos los niveles que hicimos de registros, me cambiaron la vida literal, me ayudaste mucho a cambiar paradigmas y estructuras.\nHoy estoy transitando un momento muy equilibrado y en gran parte es gracias a vos, siempre te recuerdo con amor y cariño" },
+  { name: "Rocío", tag: "Lectura Akáshica", time: "10:59", text: "Te estoy escuchando Fer y quiero agradecerte TANTO, TANTO!!!! No te imaginas lo bien que me hace escucharte!!! Sos tan clara, transmitís los mensajes de una forma q es imposible no emocionarse!! GRACIAS!! GRACIAS!! Hacía mucho q no escuchaba esta lectura." },
 ];
 
 const testimonials = [
@@ -1285,28 +1285,27 @@ export default function Home() {
               <motion.div
                 key={i}
                 variants={staggerItem}
-                className="relative rounded-[2rem] border border-violet-500/40 bg-[#141021] overflow-hidden p-5 sm:p-7"
+                className="relative rounded-3xl bg-[#1e1b33] overflow-hidden p-6 sm:p-8"
               >
                 <div
-                  className="absolute inset-0 opacity-[0.13] pointer-events-none"
-                  style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'160'%20height%3D'160'%20viewBox%3D'0%200%20160%20160'%3E%3Cg%20fill%3D'none'%20stroke%3D'%23a78bfa'%20stroke-width%3D'1.6'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%3E%3Ccircle%20cx%3D'30'%20cy%3D'30'%20r%3D'12'%2F%3E%3Ccircle%20cx%3D'26'%20cy%3D'27'%20r%3D'1.4'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'27'%20r%3D'1.4'%2F%3E%3Cpath%20d%3D'M25%2034q5%204%2010%200'%2F%3E%3Cpath%20d%3D'M90%2018l3%207%207%203-7%203-3%207-3-7-7-3%207-3z'%2F%3E%3Cpath%20d%3D'M128%2058q6-8%2012%200-6%208-12%200z'%2F%3E%3Crect%20x%3D'18'%20y%3D'80'%20width%3D'26'%20height%3D'18'%20rx%3D'3'%2F%3E%3Cpath%20d%3D'M18%2084l13%209%2013-9'%2F%3E%3Cpath%20d%3D'M80%2092l30-8-12%2026-4-10z'%2F%3E%3Crect%20x%3D'118'%20y%3D'110'%20width%3D'24'%20height%3D'18'%20rx%3D'3'%2F%3E%3Ccircle%20cx%3D'130'%20cy%3D'119'%20r%3D'5'%2F%3E%3Cpath%20d%3D'M50%20132v-14l10-3v14'%2F%3E%3Ccircle%20cx%3D'47'%20cy%3D'132'%20r%3D'3'%2F%3E%3Ccircle%20cx%3D'57'%20cy%3D'129'%20r%3D'3'%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E\")" }}
+                  className="absolute inset-0 opacity-[0.05] pointer-events-none"
+                  style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'160'%20height%3D'160'%20viewBox%3D'0%200%20160%20160'%3E%3Cg%20fill%3D'none'%20stroke%3D'%238b7fd4'%20stroke-width%3D'1.6'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%3E%3Ccircle%20cx%3D'30'%20cy%3D'30'%20r%3D'12'%2F%3E%3Ccircle%20cx%3D'26'%20cy%3D'27'%20r%3D'1.4'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'27'%20r%3D'1.4'%2F%3E%3Cpath%20d%3D'M25%2034q5%204%2010%200'%2F%3E%3Cpath%20d%3D'M90%2018l3%207%207%203-7%203-3%207-3-7-7-3%207-3z'%2F%3E%3Cpath%20d%3D'M128%2058q6-8%2012%200-6%208-12%200z'%2F%3E%3Crect%20x%3D'18'%20y%3D'80'%20width%3D'26'%20height%3D'18'%20rx%3D'3'%2F%3E%3Cpath%20d%3D'M18%2084l13%209%2013-9'%2F%3E%3Cpath%20d%3D'M80%2092l30-8-12%2026-4-10z'%2F%3E%3Crect%20x%3D'118'%20y%3D'110'%20width%3D'24'%20height%3D'18'%20rx%3D'3'%2F%3E%3Ccircle%20cx%3D'130'%20cy%3D'119'%20r%3D'5'%2F%3E%3Cpath%20d%3D'M50%20132v-14l10-3v14'%2F%3E%3Ccircle%20cx%3D'47'%20cy%3D'132'%20r%3D'3'%2F%3E%3Ccircle%20cx%3D'57'%20cy%3D'129'%20r%3D'3'%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E\")" }}
                 />
                 <div className="relative">
-                  <div className="flex items-center gap-3 rounded-2xl bg-[#1b1630]/90 border border-violet-500/20 px-4 py-3 mb-7">
-                    <ChevronLeft className="size-5 text-violet-200/80" />
-                    <div className="w-11 h-11 rounded-full bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center shrink-0">
-                      <User className="size-5 text-violet-100" />
+                  <div className="flex items-center gap-3.5 mb-5">
+                    <div className="w-12 h-12 rounded-full shrink-0 bg-[radial-gradient(circle_at_35%_35%,#e9d5ff_0%,#a78bfa_35%,#6d28d9_65%,#312e81_100%)] shadow-lg shadow-violet-950/50" />
+                    <div>
+                      <p className="text-[#a78bfa] font-sans font-semibold text-base leading-tight">{t.name}</p>
+                      <p className="text-[#6f6a8f] text-[10px] font-sans uppercase tracking-[0.18em] mt-1">{t.tag}</p>
                     </div>
-                    <p className="text-violet-100 font-sans text-base sm:text-lg font-medium">{t.name}</p>
                   </div>
-                  <div className="relative ml-1 sm:ml-4 mr-1 sm:mr-6 rounded-3xl rounded-tl-lg bg-[#4d3f92] px-6 py-5 shadow-lg shadow-violet-950/40">
-                    <span className="absolute -left-2 top-5 w-0 h-0 border-y-[8px] border-y-transparent border-r-[12px] border-r-[#4d3f92]" />
-                    <p className="text-violet-50/95 font-sans text-base sm:text-lg leading-relaxed whitespace-pre-line">
+                  <div className="rounded-2xl rounded-tl-md bg-[#2e2b4a] px-5 py-4">
+                    <p className="text-[#cfc9e8] font-sans text-sm sm:text-[15px] leading-relaxed whitespace-pre-line">
                       {t.text}
                     </p>
-                    <div className="flex items-center justify-end gap-1.5 mt-3 text-violet-200/70 text-sm font-sans">
+                    <div className="flex items-center justify-end gap-1.5 mt-2.5 text-[#6f6a8f] text-xs font-sans">
                       <span>{t.time}</span>
-                      <CheckCheck className="size-4 text-violet-300" />
+                      <CheckCheck className="size-3.5 text-[#8b7fd4]" />
                     </div>
                   </div>
                 </div>
