@@ -1309,8 +1309,8 @@ export default function Home() {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="hidden md:flex" />
-            <CarouselNext className="hidden md:flex" />
+            <CarouselPrevious className="left-2 top-auto bottom-4 -translate-y-0 md:-left-12 md:top-1/2 md:bottom-auto md:-translate-y-1/2" />
+            <CarouselNext className="right-2 top-auto bottom-4 -translate-y-0 md:-right-12 md:top-1/2 md:bottom-auto md:-translate-y-1/2" />
           </Carousel>
         </div>
       </AnimatedSection>
