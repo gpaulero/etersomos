@@ -1080,7 +1080,9 @@ function LecturaCard({
   const hasAudio = !!(enrollment.r2Key);
   const isExpired = enrollment.expiresAt ? new Date(enrollment.expiresAt).getTime() < Date.now() : false;
   const timeInfo = enrollment.expiresAt ? getTimeRemaining(enrollment.expiresAt) : null;
-  const remainPct = enrollment.expiresAt ? Math.max(0, Math.min(100, ((new Date(enrollment.expiresAt).getTime() - Date.now()) / (60 * 24 * 60 * 60 * 1000)) * 100)) : 100;
+  const windowEnd = new Date(new Date(enrollment.createdAt).getTime() + 60 * 24 * 60 * 60 * 1000);
+  const windowInfo = getTimeRemaining(windowEnd.toISOString());
+  const remainPct = Math.max(0, Math.min(100, ((windowEnd.getTime() - Date.now()) / (60 * 24 * 60 * 60 * 1000)) * 100));
   const isRecent = (Date.now() - new Date(enrollment.createdAt).getTime()) < 7 * 24 * 60 * 60 * 1000;
   const hasAttachments = !!(enrollment.attachments && enrollment.attachments.length > 0);
 
@@ -1213,7 +1215,7 @@ function LecturaCard({
                       <div className="w-full h-1.5 bg-mystic-800/60 rounded-full overflow-hidden mb-1.5">
                         <div className="h-full bg-violet-500 rounded-full" style={{ width: `${remainPct}%` }} />
                       </div>
-                      <p className="text-mystic-500 text-[11px] font-sans">{timeInfo ? timeInfo.text : "6 meses"} restantes</p>
+                      <p className="text-mystic-500 text-[11px] font-sans">{windowInfo.text} restantes</p>
                     </div>
                     <div className="rounded-xl border border-violet-500/20 bg-mystic-900/40 p-4">
                       <h4 className="text-violet-300 text-sm font-serif font-semibold mb-2 flex items-center gap-2">
