@@ -726,6 +726,16 @@ export default function N2Page() {
           </Card>
         </motion.div>
       )}
+      {/* Volver arriba */}
+      {showTop && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-violet-600 hover:bg-violet-500 text-white shadow-lg shadow-violet-900/30 flex items-center justify-center transition-all"
+          aria-label="Volver arriba"
+        >
+          <ArrowUp className="size-5" />
+        </button>
+      )}
     </motion.div>
   );
 }
@@ -844,16 +854,6 @@ function PaymentSection({ method, onChange, error, submitting, priceArs, priceUs
             {submitting ? <Loader2 className="size-5 animate-spin" /> : "Registrar inscripción"}
           </Button>
         </div>
-      )}
-      {/* Volver arriba */}
-      {showTop && (
-        <button
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-violet-600 hover:bg-violet-500 text-white shadow-lg shadow-violet-900/30 flex items-center justify-center transition-all"
-          aria-label="Volver arriba"
-        >
-          <ArrowUp className="size-5" />
-        </button>
       )}
     </div>
   );
