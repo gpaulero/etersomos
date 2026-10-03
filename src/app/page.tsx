@@ -24,6 +24,7 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import {
   Dialog,
   DialogContent,
@@ -101,10 +102,10 @@ import { useRouter } from "next/navigation";
 
 
 const whatsappTestimonials = [
-  { name: "Valentina", tag: "Membresía Corazón Solar", time: "20:37", text: "ay dios, recién termino de escuchar los audios, que locura! realmente no pude evitar emocionarme con todo lo que me dijiste, todo me resonó demasiado, cuando dijiste lo de mi papa no pude evitar las lagrimas, es todo tan real, tan explicito!. No sabia lo mucho que necesitaba escuchar todo esto, realmente muchisimas gracias 💜💜" },
-  { name: "Norma", tag: "Lectura Akáshica", time: "11:01", text: "Estoy muy Agradecida por tu lectura, la verdad fue exquisito 🫶✨🪄💫 cada palabra, cada pausa, llegaron a mi Alma, tanto las preguntas que envían mis Maestros, Gracias, Gracias, Gracias!!! Te Agradezco por tu claridad, Te Agradezco por tu Maravillosa trasmisión, Te Agradezco por tu simpleza, doy Gracias Universo de ser parte en esta vida de tus conocimientos!!! ✨🫶✨\nGracias Siempre y por Siempre 🙌" },
-  { name: "Daniel", tag: "Formación en Registros", time: "12:03", text: "Quería agradecerte por todos los niveles que hicimos de registros, me cambiaron la vida literal, me ayudaste mucho a cambiar paradigmas y estructuras.\nHoy estoy transitando un momento muy equilibrado y en gran parte es gracias a vos, siempre te recuerdo con amor y cariño" },
-  { name: "Rocío", tag: "Lectura Akáshica", time: "10:59", text: "Te estoy escuchando Fer y quiero agradecerte TANTO, TANTO!!!! No te imaginas lo bien que me hace escucharte!!! Sos tan clara, transmitís los mensajes de una forma q es imposible no emocionarse!! GRACIAS!! GRACIAS!! Hacía mucho q no escuchaba esta lectura." },
+  { name: "Valentina", orb: "radial-gradient(circle at 35% 35%, #e9d5ff 0%, #a78bfa 35%, #6d28d9 65%, #312e81 100%)", time: "20:37", text: "ay dios, recién termino de escuchar los audios, que locura! realmente no pude evitar emocionarme con todo lo que me dijiste, todo me resonó demasiado, cuando dijiste lo de mi papa no pude evitar las lagrimas, es todo tan real, tan explicito!. No sabia lo mucho que necesitaba escuchar todo esto, realmente muchisimas gracias 💜💜" },
+  { name: "Norma", orb: "radial-gradient(circle at 35% 35%, #dbeafe 0%, #60a5fa 35%, #1d4ed8 65%, #1e3a8a 100%)", time: "11:01", text: "Estoy muy Agradecida por tu lectura, la verdad fue exquisito 🫶✨🪄💫 cada palabra, cada pausa, llegaron a mi Alma, tanto las preguntas que envían mis Maestros, Gracias, Gracias, Gracias!!! Te Agradezco por tu claridad, Te Agradezco por tu Maravillosa trasmisión, Te Agradezco por tu simpleza, doy Gracias Universo de ser parte en esta vida de tus conocimientos!!! ✨🫶✨\nGracias Siempre y por Siempre 🙌" },
+  { name: "Daniel", orb: "radial-gradient(circle at 35% 35%, #fce7f3 0%, #f472b6 35%, #be185d 65%, #500724 100%)", time: "12:03", text: "Quería agradecerte por todos los niveles que hicimos de registros, me cambiaron la vida literal, me ayudaste mucho a cambiar paradigmas y estructuras.\nHoy estoy transitando un momento muy equilibrado y en gran parte es gracias a vos, siempre te recuerdo con amor y cariño" },
+  { name: "Rocío", orb: "radial-gradient(circle at 35% 35%, #cffafe 0%, #22d3ee 35%, #0e7490 65%, #083344 100%)", time: "10:59", text: "Te estoy escuchando Fer y quiero agradecerte TANTO, TANTO!!!! No te imaginas lo bien que me hace escucharte!!! Sos tan clara, transmitís los mensajes de una forma q es imposible no emocionarse!! GRACIAS!! GRACIAS!! Hacía mucho q no escuchaba esta lectura." },
 ];
 
 const testimonials = [
@@ -1280,38 +1281,37 @@ export default function Home() {
             </h2>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {whatsappTestimonials.map((t, i) => (
-              <motion.div
-                key={i}
-                variants={staggerItem}
-                className="relative rounded-3xl bg-[#1e1b33] overflow-hidden p-6 sm:p-8"
-              >
-                <div
-                  className="absolute inset-0 opacity-[0.05] pointer-events-none"
-                  style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'160'%20height%3D'160'%20viewBox%3D'0%200%20160%20160'%3E%3Cg%20fill%3D'none'%20stroke%3D'%238b7fd4'%20stroke-width%3D'1.6'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%3E%3Ccircle%20cx%3D'30'%20cy%3D'30'%20r%3D'12'%2F%3E%3Ccircle%20cx%3D'26'%20cy%3D'27'%20r%3D'1.4'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'27'%20r%3D'1.4'%2F%3E%3Cpath%20d%3D'M25%2034q5%204%2010%200'%2F%3E%3Cpath%20d%3D'M90%2018l3%207%207%203-7%203-3%207-3-7-7-3%207-3z'%2F%3E%3Cpath%20d%3D'M128%2058q6-8%2012%200-6%208-12%200z'%2F%3E%3Crect%20x%3D'18'%20y%3D'80'%20width%3D'26'%20height%3D'18'%20rx%3D'3'%2F%3E%3Cpath%20d%3D'M18%2084l13%209%2013-9'%2F%3E%3Cpath%20d%3D'M80%2092l30-8-12%2026-4-10z'%2F%3E%3Crect%20x%3D'118'%20y%3D'110'%20width%3D'24'%20height%3D'18'%20rx%3D'3'%2F%3E%3Ccircle%20cx%3D'130'%20cy%3D'119'%20r%3D'5'%2F%3E%3Cpath%20d%3D'M50%20132v-14l10-3v14'%2F%3E%3Ccircle%20cx%3D'47'%20cy%3D'132'%20r%3D'3'%2F%3E%3Ccircle%20cx%3D'57'%20cy%3D'129'%20r%3D'3'%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E\")" }}
-                />
-                <div className="relative">
-                  <div className="flex items-center gap-3.5 mb-5">
-                    <div className="w-12 h-12 rounded-full shrink-0 bg-[radial-gradient(circle_at_35%_35%,#e9d5ff_0%,#a78bfa_35%,#6d28d9_65%,#312e81_100%)] shadow-lg shadow-violet-950/50" />
-                    <div>
-                      <p className="text-[#a78bfa] font-sans font-semibold text-base leading-tight">{t.name}</p>
-                      <p className="text-[#6f6a8f] text-[10px] font-sans uppercase tracking-[0.18em] mt-1">{t.tag}</p>
+                    <Carousel opts={{ align: "start", loop: true }} className="w-full">
+            <CarouselContent className="-ml-4">
+              {whatsappTestimonials.map((t, i) => (
+                <CarouselItem key={i} className="pl-4 md:basis-1/2">
+                  <div className="relative rounded-3xl bg-[#1e1b33] overflow-hidden p-6 sm:p-8 h-full">
+                    <div
+                      className="absolute inset-0 opacity-[0.05] pointer-events-none"
+                      style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'160'%20height%3D'160'%20viewBox%3D'0%200%20160%20160'%3E%3Cg%20fill%3D'none'%20stroke%3D'%238b7fd4'%20stroke-width%3D'1.6'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%3E%3Ccircle%20cx%3D'30'%20cy%3D'30'%20r%3D'12'%2F%3E%3Ccircle%20cx%3D'26'%20cy%3D'27'%20r%3D'1.4'%2F%3E%3Ccircle%20cx%3D'34'%20cy%3D'27'%20r%3D'1.4'%2F%3E%3Cpath%20d%3D'M25%2034q5%204%2010%200'%2F%3E%3Cpath%20d%3D'M90%2018l3%207%207%203-7%203-3%207-3-7-7-3%207-3z'%2F%3E%3Cpath%20d%3D'M128%2058q6-8%2012%200-6%208-12%200z'%2F%3E%3Crect%20x%3D'18'%20y%3D'80'%20width%3D'26'%20height%3D'18'%20rx%3D'3'%2F%3E%3Cpath%20d%3D'M18%2084l13%209%2013-9'%2F%3E%3Cpath%20d%3D'M80%2092l30-8-12%2026-4-10z'%2F%3E%3Crect%20x%3D'118'%20y%3D'110'%20width%3D'24'%20height%3D'18'%20rx%3D'3'%2F%3E%3Ccircle%20cx%3D'130'%20cy%3D'119'%20r%3D'5'%2F%3E%3Cpath%20d%3D'M50%20132v-14l10-3v14'%2F%3E%3Ccircle%20cx%3D'47'%20cy%3D'132'%20r%3D'3'%2F%3E%3Ccircle%20cx%3D'57'%20cy%3D'129'%20r%3D'3'%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E\")" }}
+                    />
+                    <div className="relative">
+                      <div className="flex items-center gap-3.5 mb-5">
+                        <div className="w-12 h-12 rounded-full shrink-0 shadow-lg shadow-violet-950/50" style={{ background: t.orb }} />
+                        <p className="text-[#a78bfa] font-sans font-semibold text-base leading-tight">{t.name}</p>
+                      </div>
+                      <div className="rounded-2xl rounded-tl-md bg-[#2e2b4a] px-5 py-4">
+                        <p className="text-[#cfc9e8] font-sans text-sm sm:text-[15px] leading-relaxed whitespace-pre-line">
+                          {t.text}
+                        </p>
+                        <div className="flex items-center justify-end gap-1.5 mt-2.5 text-[#6f6a8f] text-xs font-sans">
+                          <span>{t.time}</span>
+                          <CheckCheck className="size-3.5 text-[#8b7fd4]" />
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <div className="rounded-2xl rounded-tl-md bg-[#2e2b4a] px-5 py-4">
-                    <p className="text-[#cfc9e8] font-sans text-sm sm:text-[15px] leading-relaxed whitespace-pre-line">
-                      {t.text}
-                    </p>
-                    <div className="flex items-center justify-end gap-1.5 mt-2.5 text-[#6f6a8f] text-xs font-sans">
-                      <span>{t.time}</span>
-                      <CheckCheck className="size-3.5 text-[#8b7fd4]" />
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="hidden md:flex" />
+            <CarouselNext className="hidden md:flex" />
+          </Carousel>
         </div>
       </AnimatedSection>
 
