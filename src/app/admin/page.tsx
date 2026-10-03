@@ -117,6 +117,7 @@ interface Booking {
   name: string;
   email: string;
   phone: string;
+  formData?: string | null;
   readingType: string;
   preferredDate?: string | null;
   preferredTime?: string | null;
@@ -2372,6 +2373,36 @@ export default function AdminPage() {
                                     <span className="text-gold-400/60 font-josefin uppercase">Tipo de lectura: </span>
                                     <span className="text-cream-200">{b.readingType}</span>
                                   </div>
+                                  {(() => {
+                                    let fd: Record<string, string> = {};
+                                    try { fd = b.formData ? JSON.parse(b.formData) : {}; } catch { fd = {}; }
+                                    const labels: Record<string, string> = {
+                                      fechaNacimiento: "Fecha de nacimiento",
+                                      nacionalidad: "Nacionalidad",
+                                      ciudadNacimiento: "Ciudad de nacimiento",
+                                      ciudadResidencia: "Ciudad de residencia",
+                                      enfermedadCronica: "Enfermedad crónica",
+                                      terapiaPsicologica: "Terapia psicológica",
+                                      terapiaPsicologicaDuracion: "Duración terapia psicológica",
+                                      terapiaPsiquiatrica: "Terapia psiquiátrica",
+                                      terapiaPsiquiatricaDuracion: "Duración terapia psiquiátrica",
+                                      medicacionPsiquiatrica: "Medicación psiquiátrica",
+                                      pregunta1: "Pregunta 1",
+                                      pregunta2: "Pregunta 2",
+                                      contextoAdicional: "Contexto adicional",
+                                      comoSeEntero: "Cómo se enteró",
+                                      nombreRecomendo: "Quién la recomendó",
+                                      paymentMethod: "Método de pago",
+                                    };
+                                    return Object.entries(fd)
+                                      .filter(([k, v]) => v && !["nombre", "email", "telefono"].includes(k))
+                                      .map(([k, v]) => (
+                                        <div key={k} className="text-[11px]">
+                                          <span className="text-gold-400/60 font-josefin uppercase">{labels[k] || k}: </span>
+                                          <span className="text-cream-200 whitespace-pre-wrap break-words">{String(v)}</span>
+                                        </div>
+                                      ));
+                                  })()}
                                   {b.preferredDate && (
                                     <div className="text-[11px]">
                                       <span className="text-gold-400/60 font-josefin uppercase">Fecha preferida: </span>
