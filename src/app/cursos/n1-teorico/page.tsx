@@ -377,19 +377,23 @@ export default function N1TeoricoPage() {
                 <ul className="space-y-2 text-sm text-foreground/60">
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    El material audiovisual{" "}
-                    <strong className="text-foreground/80">
-                      NO se puede descargar
-                    </strong>
-                    , se accede de forma online.
+                    <span>
+                      El material audiovisual{" "}
+                      <strong className="text-foreground/80">
+                        NO se puede descargar
+                      </strong>
+                      , se accede de forma online.
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
-                    El acceso al material es por{" "}
-                    <strong className="text-foreground/80">
-                      1 mes desde la fecha de inscripción
-                    </strong>
-                    .
+                    <span>
+                      El acceso al material es por{" "}
+                      <strong className="text-foreground/80">
+                        1 mes desde la fecha de inscripción
+                      </strong>
+                      .
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
@@ -413,12 +417,12 @@ export default function N1TeoricoPage() {
       </Card>
 
       {/* ── Accept terms checkbox ── */}
-      <div className="flex items-start gap-3 glass rounded-xl p-4 border border-mystic-700/30">
+      <div className="flex items-start gap-3 rounded-xl p-4 border-2 border-violet-500/40 bg-violet-500/10 backdrop-blur">
         <Checkbox
           id="accept-terms"
           checked={accepted}
           onCheckedChange={(checked) => setAccepted(checked === true)}
-          className="mt-0.5 data-[state=checked]:bg-violet-500 data-[state=checked]:border-violet-500 data-[state=checked]:text-mystic-950"
+          className="mt-0.5 h-5 w-5 border-violet-400/60 data-[state=checked]:bg-violet-500 data-[state=checked]:border-violet-500 data-[state=checked]:text-mystic-950"
         />
         <Label
           htmlFor="accept-terms"
