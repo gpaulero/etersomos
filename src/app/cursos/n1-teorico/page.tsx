@@ -168,10 +168,8 @@ export default function N1TeoricoPage() {
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       e.email = "Ingresá un email válido";
     if (!nombre.trim()) e.nombre = "Ingresá tu nombre y apellido completo";
-    if (!fechaHoy) e.fechaHoy = "Ingresá la fecha de hoy";
     if (!nacionalidad.trim()) e.nacionalidad = "Ingresá tu nacionalidad";
     if (!ciudad.trim()) e.ciudad = "Ingresá tu ciudad actual";
-    if (!lectorAkashico) e.lectorAkashico = "Seleccioná una opción";
     if (!comoSeEnteraste) e.comoSeEnteraste = "Seleccioná una opción";
     if (!monto || Number(monto) <= 0)
       e.monto = "Ingresá un monto mayor a 0";
@@ -483,23 +481,6 @@ export default function N1TeoricoPage() {
                 )}
               </div>
 
-              {/* Fecha de hoy */}
-              <div className="space-y-1.5">
-                <Label htmlFor="fecha" className="text-foreground/80 text-sm">
-                  Fecha de hoy <span className="text-violet-400">*</span>
-                </Label>
-                <Input
-                  id="fecha"
-                  type="date"
-                  value={fechaHoy}
-                  onChange={(e) => setFechaHoy(e.target.value)}
-                  className={errors.fechaHoy ? errorInputClass : inputClass}
-                />
-                {errors.fechaHoy && (
-                  <p className="text-red-400 text-xs">{errors.fechaHoy}</p>
-                )}
-              </div>
-
               {/* Nacionalidad */}
               <div className="space-y-1.5">
                 <Label
@@ -556,40 +537,6 @@ export default function N1TeoricoPage() {
 
               <Separator className="bg-mystic-800/30" />
 
-              {/* ¿Sos lector? */}
-              <div className="space-y-2.5">
-                <Label className="text-foreground/80 text-sm">
-                  ¿Sos lector de Registros Akashicos?{" "}
-                  <span className="text-violet-400">*</span>
-                </Label>
-                <RadioGroup
-                  value={lectorAkashico}
-                  onValueChange={setLectorAkashico}
-                  className="grid grid-cols-1 sm:grid-cols-3 gap-2"
-                >
-                  {["Sí", "No", "Otro"].map((opt) => (
-                    <Label
-                      key={opt}
-                      htmlFor={`lector-${opt}`}
-                      className={`flex items-center gap-2 cursor-pointer rounded-lg border p-3 text-sm transition-colors ${
-                        lectorAkashico === opt
-                          ? "border-violet-400/60 bg-violet-400/5 text-violet-300"
-                          : "border-mystic-700/40 text-foreground/60 hover:border-mystic-600"
-                      }`}
-                    >
-                      <RadioGroupItem
-                        value={opt}
-                        id={`lector-${opt}`}
-                        className="border-mystic-600"
-                      />
-                      {opt}
-                    </Label>
-                  ))}
-                </RadioGroup>
-                {errors.lectorAkashico && (
-                  <p className="text-red-400 text-xs">{errors.lectorAkashico}</p>
-                )}
-              </div>
 
               {/* ¿Cómo te enteraste? */}
               <div className="space-y-2.5">
@@ -668,7 +615,6 @@ export default function N1TeoricoPage() {
                   id="monto"
                   type="number"
                   min="1"
-                  placeholder="Ej: 5000"
                   value={monto}
                   onChange={(e) => setMonto(e.target.value)}
                   className={errors.monto ? errorInputClass : inputClass}
@@ -677,7 +623,7 @@ export default function N1TeoricoPage() {
                   <p className="text-red-400 text-xs">{errors.monto}</p>
                 )}
                 <p className="text-xs text-foreground/40">
-                  Ingresá el monto que desees contribuir de forma consciente.
+                  Ingresá el monto que consideres adecuado y justo por el intercambio.
                 </p>
               </div>
 
