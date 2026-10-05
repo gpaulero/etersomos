@@ -45,13 +45,9 @@ const PRICE_PACK = 15000; // per session when 3+ sessions
 /* ------------------------------------------------------------------ */
 /*  AGREEMENT TEXT                                                    */
 /* ------------------------------------------------------------------ */
-const agreementText = `Los encuentros son personalizados, en formato videollamada 1:1, con una duración de 2 horas.
-
-Podemos acordar la cantidad de encuentros que necesites, aunque la recomendación es realizar un encuentro semanal durante al menos un mes para sostener e integrar el proceso.
+const agreementText = `Podemos acordar la cantidad de encuentros que necesites.
 
 CONDICIONES:
-- El valor por un solo encuentro es de $${PRICE_SINGLE.toLocaleString("es-AR")}.
-- Pactando 3 o más encuentros al mes, el valor queda en $${PRICE_PACK.toLocaleString("es-AR")} por encuentro. Válido al abonar todos los encuentros juntos.
 - No se realizan reembolsos.
 - Fernanda se reserva el derecho de admisión.
 - Como fui mamá hace poquito estoy retomando actividades de a poco 🥰, por ahora mi disponibilidad es de lunes a viernes de 18 a 20 hs ARG. Y sábados de 10 a 14 hs ARG. Más abajo podrás indicarme la disponibilidad que prefieras así coordinamos.`;
@@ -347,7 +343,7 @@ export default function MentoriasPage() {
               <p className="text-2xl font-serif font-semibold text-violet-400">
                 ${PRICE_PACK.toLocaleString("es-AR")}
               </p>
-              <p className="text-foreground/40 text-xs mt-1">Por encuentro (pago conjunto)</p>
+              <p className="text-foreground/40 text-xs mt-1">Por encuentro (al abonar todos los encuentros juntos)</p>
             </div>
           </div>
         </CardContent>
