@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { uploadLecturaResource } from '@/lib/r2'
 
 export const dynamic = 'force-dynamic'
+export const maxDuration = 60
+
+function extractDriveId(url: string): string | null {
+  const m =
+    url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) ||
+    url.match(/[?&]id=([a-zA-Z0-9_-]+)/) ||
+    url.match(/^([a-zA-Z0-9_-]{20,})$/)
+  return m ? m[1] : null
+}
 
 /**
  * POST /api/admin/lectura-upload
@@ -12,7 +21,21 @@ export const dynamic = 'force-dynamic'
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData()
-    const file = formData.get('file') as File | null
+    let file = formData.get('file') as File | null
+    const driveUrl = String(formData.get('driveUrl') || '')
+
+    if (!file && driveUrl) {
+      const id = extractDriveId(driveUrl)
+      if (!id) return NextResponse.json({ error: 'Link de Drive no válido' }, { status: 400 })
+      const res = await fetch(`https://drive.usercontent.google.com/download?id=${id}&export=download&confirm=t`)
+      if (!res.ok) return NextResponse.json({ error: `Drive devolvió ${res.status}. Revisá que el archivo sea público ("cualquiera con el enlace").` }, { status: 502 })
+      const contentType = res.headers.get('content-type') || ''
+      if (contentType.includes('text/html')) return NextResponse.json({ error: 'Drive devolvió una página de confirmación. Compartí el archivo como "cualquiera con el enlace".' }, { status: 502 })
+      const buf = Buffer.from(await res.arrayBuffer())
+      const cd = res.headers.get('content-disposition') || ''
+      const cdName = (cd.match(/filename\*?=(?:UTF-8'')?"?([^";]+)"?/i) || [])[1]
+      file = new File([buf], cdName || `lectura-${id}.mp3`, { type: contentType || 'audio/mpeg' })
+    }
 
     if (!file) {
       return NextResponse.json({ error: 'No se envió ningún archivo' }, { status: 400 })

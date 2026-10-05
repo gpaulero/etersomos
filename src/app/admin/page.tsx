@@ -767,6 +767,7 @@ export default function AdminPage() {
   const [lecturaAudioFile, setLecturaAudioFile] = useState<File | null>(null);
   const [uploadingLecturaAudio, setUploadingLecturaAudio] = useState(false);
   const [lecturaUploadStep, setLecturaUploadStep] = useState<string>(""); // progress message
+  const [lecturaDriveUrl, setLecturaDriveUrl] = useState<Record<string, string>>({});
   // Attachment upload state
   const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
   const [uploadingAttachment, setUploadingAttachment] = useState(false);
@@ -1308,6 +1309,38 @@ export default function AdminPage() {
     } catch (err) {
       console.error("[Admin] Error al subir audio:", err);
       toast.error("Error al subir audio");
+      setLecturaUploadStep("");
+    } finally {
+      setUploadingLecturaAudio(false);
+    }
+  };
+
+  const handleImportDriveToLectura = async (enrollmentId: string) => {
+    const url = (lecturaDriveUrl[enrollmentId] || "").trim();
+    if (!url) { toast.error("Pegá el link de Drive del audio"); return; }
+    setUploadingLecturaAudio(true);
+    setLecturaUploadStep("Importando audio desde Drive...");
+    try {
+      const fd = new FormData();
+      fd.append("driveUrl", url);
+      fd.append("enrollmentId", enrollmentId);
+      const uploadRes = await authFetch(`/api/admin/lectura-upload`, { method: "POST", body: fd });
+      const uploadData = await uploadRes.json();
+      if (!uploadRes.ok) { toast.error(uploadData.error || "Error al importar"); setLecturaUploadStep(""); return; }
+      setLecturaUploadStep("Audio importado. Actualizando inscripción...");
+      const updateRes = await authFetch(`/api/admin/enrollments/${enrollmentId}/upload-audio`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ r2Key: uploadData.r2Key, fileName: uploadData.fileName }),
+      });
+      if (!updateRes.ok) { toast.error("Error al actualizar inscripción"); setLecturaUploadStep(""); return; }
+      toast.success("Lectura importada desde Drive y asignada al consultante");
+      setLecturaDriveUrl(prev => ({ ...prev, [enrollmentId]: "" }));
+      setLecturaUploadStep("");
+      handleSelectStudent(selectedStudent);
+    } catch (err) {
+      console.error("[Admin] Error import Drive lectura:", err);
+      toast.error("Error al importar desde Drive");
       setLecturaUploadStep("");
     } finally {
       setUploadingLecturaAudio(false);
@@ -3747,6 +3780,25 @@ export default function AdminPage() {
                                               >
                                                 {uploadingLecturaAudio ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
                                                 {uploadingLecturaAudio ? "Subiendo..." : "Subir audio"}
+                                              </Button>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                              <Input
+                                                placeholder="…o pegá el link de Drive del audio"
+                                                value={lecturaDriveUrl[enr.id] || ""}
+                                                onChange={(e) => setLecturaDriveUrl({ ...lecturaDriveUrl, [enr.id]: e.target.value })}
+                                                className="bg-mystic-900/40 border-mystic-700/40 text-cream-100 text-xs h-8 flex-1"
+                                                disabled={uploadingLecturaAudio}
+                                              />
+                                              <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="border-violet-400/30 text-violet-300 hover:bg-violet-400/10 h-8 text-xs"
+                                                disabled={uploadingLecturaAudio || !(lecturaDriveUrl[enr.id] || "").trim()}
+                                                onClick={() => handleImportDriveToLectura(enr.id)}
+                                              >
+                                                {uploadingLecturaAudio ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
+                                                Importar de Drive
                                               </Button>
                                             </div>
                                             {uploadingLecturaAudio && lecturaUploadStep && (
