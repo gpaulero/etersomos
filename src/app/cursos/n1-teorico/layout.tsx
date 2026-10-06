@@ -1,40 +1,26 @@
 import type { Metadata } from "next";
-import { BreadcrumbJsonLd } from "@/components/json-ld";
-
-const SITE_URL = "https://www.etersomos.com";
 
 export const metadata: Metadata = {
-  title: "1er Nivel Solo Teórico — Registros Akáshicos",
-  description:
-    "Curso de introducción a los Registros Akáshicos. Aprendé los fundamentos teóricos de la lectura akáshica con Fer Cardozo. Contribución voluntaria.",
-  alternates: {
-    canonical: `${SITE_URL}/cursos/n1-teorico`,
-  },
+  title: "Curso Nivel 1 Teórico de Registros Akáshicos | Eter Somos",
+  description: "Aprendé a conectar con tus propios Registros Akáshicos: 8 módulos audiovisuales, PDFs y meditación guiada. Contribución voluntaria consciente.",
+  alternates: { canonical: "https://www.etersomos.com/cursos/n1-teorico" },
   openGraph: {
-    title: "1er Nivel Solo Teórico — Registros Akáshicos | Eter Somos",
-    description:
-      "Curso introductorio de Registros Akáshicos. Contribución voluntaria.",
-    url: `${SITE_URL}/cursos/n1-teorico`,
-    type: "website",
+    title: "Curso Nivel 1 Teórico de Registros Akáshicos | Eter Somos",
+    description: "Aprendé a conectar con tus propios Registros Akáshicos: 8 módulos audiovisuales, PDFs y meditación guiada. Contribución voluntaria consciente.",
+    url: "https://www.etersomos.com/cursos/n1-teorico",
+    siteName: "Eter Somos",
     locale: "es_AR",
+    type: "website",
+    images: [{ url: "https://www.etersomos.com/hero-bg-v2.webp", width: 1920, height: 1080, alt: "Eter Somos - Registros Akáshicos" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Curso Nivel 1 Teórico de Registros Akáshicos | Eter Somos",
+    description: "Aprendé a conectar con tus propios Registros Akáshicos: 8 módulos audiovisuales, PDFs y meditación guiada. Contribución voluntaria consciente.",
+    images: ["https://www.etersomos.com/hero-bg-v2.webp"],
   },
 };
 
-export default function N1TeoricoLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <>
-      <BreadcrumbJsonLd
-        items={[
-          { name: "Inicio", url: SITE_URL },
-          { name: "Cursos", url: `${SITE_URL}/cursos` },
-          { name: "N1 Teórico", url: `${SITE_URL}/cursos/n1-teorico` },
-        ]}
-      />
-      {children}
-    </>
-  );
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return children;
 }

@@ -1,40 +1,26 @@
 import type { Metadata } from "next";
-import { BreadcrumbJsonLd } from "@/components/json-ld";
-
-const SITE_URL = "https://www.etersomos.com";
 
 export const metadata: Metadata = {
-  title: "2do Nivel Completo — Registros Akáshicos",
-  description:
-    "Curso avanzado de Registros Akáshicos Nivel 2. Profundizá tu práctica akáshica con Fer Cardozo. $45.000 ARS / US$45. 10% descuento si ya completaste Nivel 1.",
-  alternates: {
-    canonical: `${SITE_URL}/cursos/n2`,
-  },
+  title: "Curso Nivel 2 de Registros Akáshicos | Eter Somos",
+  description: "Aprendé a consultar los Registros Akáshicos de otras personas: formación Nivel 2 con práctica incluida y acompañamiento personalizado.",
+  alternates: { canonical: "https://www.etersomos.com/cursos/n2" },
   openGraph: {
-    title: "2do Nivel Completo — Registros Akáshicos | Eter Somos",
-    description:
-      "Curso avanzado Nivel 2 de Registros Akáshicos. $45.000 ARS / US$45.",
-    url: `${SITE_URL}/cursos/n2`,
-    type: "website",
+    title: "Curso Nivel 2 de Registros Akáshicos | Eter Somos",
+    description: "Aprendé a consultar los Registros Akáshicos de otras personas: formación Nivel 2 con práctica incluida y acompañamiento personalizado.",
+    url: "https://www.etersomos.com/cursos/n2",
+    siteName: "Eter Somos",
     locale: "es_AR",
+    type: "website",
+    images: [{ url: "https://www.etersomos.com/hero-bg-v2.webp", width: 1920, height: 1080, alt: "Eter Somos - Registros Akáshicos" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Curso Nivel 2 de Registros Akáshicos | Eter Somos",
+    description: "Aprendé a consultar los Registros Akáshicos de otras personas: formación Nivel 2 con práctica incluida y acompañamiento personalizado.",
+    images: ["https://www.etersomos.com/hero-bg-v2.webp"],
   },
 };
 
-export default function N2Layout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <>
-      <BreadcrumbJsonLd
-        items={[
-          { name: "Inicio", url: SITE_URL },
-          { name: "Cursos", url: `${SITE_URL}/cursos` },
-          { name: "N2 Completo", url: `${SITE_URL}/cursos/n2` },
-        ]}
-      />
-      {children}
-    </>
-  );
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return children;
 }

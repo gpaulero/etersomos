@@ -1,40 +1,26 @@
 import type { Metadata } from "next";
-import { BreadcrumbJsonLd } from "@/components/json-ld";
-
-const SITE_URL = "https://www.etersomos.com";
 
 export const metadata: Metadata = {
-  title: "Ambos Cursos — Pack Nivel 1 + Nivel 2 Registros Akáshicos",
-  description:
-    "Pack completo: Nivel 1 + Nivel 2 de Registros Akáshicos con el mejor precio. $70.000 ARS / US$55. Formación integral con Fer Cardozo.",
-  alternates: {
-    canonical: `${SITE_URL}/cursos/ambos`,
-  },
+  title: "Formación Completa en Registros Akáshicos | Eter Somos",
+  description: "Nivel 1 y Nivel 2 completos: formación integral en Registros Akáshicos con práctica 1:1, materiales y acompañamiento de Fer Cardozo.",
+  alternates: { canonical: "https://www.etersomos.com/cursos/ambos" },
   openGraph: {
-    title: "Ambos Cursos — Pack Completo | Eter Somos",
-    description:
-      "Pack Nivel 1 + Nivel 2 de Registros Akáshicos. $70.000 ARS / US$55.",
-    url: `${SITE_URL}/cursos/ambos`,
-    type: "website",
+    title: "Formación Completa en Registros Akáshicos | Eter Somos",
+    description: "Nivel 1 y Nivel 2 completos: formación integral en Registros Akáshicos con práctica 1:1, materiales y acompañamiento de Fer Cardozo.",
+    url: "https://www.etersomos.com/cursos/ambos",
+    siteName: "Eter Somos",
     locale: "es_AR",
+    type: "website",
+    images: [{ url: "https://www.etersomos.com/hero-bg-v2.webp", width: 1920, height: 1080, alt: "Eter Somos - Registros Akáshicos" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Formación Completa en Registros Akáshicos | Eter Somos",
+    description: "Nivel 1 y Nivel 2 completos: formación integral en Registros Akáshicos con práctica 1:1, materiales y acompañamiento de Fer Cardozo.",
+    images: ["https://www.etersomos.com/hero-bg-v2.webp"],
   },
 };
 
-export default function AmbosLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <>
-      <BreadcrumbJsonLd
-        items={[
-          { name: "Inicio", url: SITE_URL },
-          { name: "Cursos", url: `${SITE_URL}/cursos` },
-          { name: "Ambos Cursos", url: `${SITE_URL}/cursos/ambos` },
-        ]}
-      />
-      {children}
-    </>
-  );
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return children;
 }

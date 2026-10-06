@@ -1,54 +1,26 @@
 import type { Metadata } from "next";
-import { LecturaJsonLd, BreadcrumbJsonLd } from "@/components/json-ld";
-
-const SITE_URL = "https://www.etersomos.com";
 
 export const metadata: Metadata = {
-  title: "Lectura de Registros Akáshicos",
-  description:
-    "Solicitá tu lectura personalizada del Campo Akáshico con Fer Cardozo. Respuestas grabadas en audio a 2 preguntas de tu alma. $20.000 ARS / US$20. Desde Córdoba al mundo.",
-  alternates: {
-    canonical: `${SITE_URL}/lecturas`,
-  },
+  title: "Lecturas Akáshicas Online | Eter Somos",
+  description: "Pedí tu lectura akáshica personalizada en audio. Recibila en tu aula virtual, escuchala cuando quieras y acompañala con una guía en PDF. Lecturas de Registros Akáshicos por Fer Cardozo.",
+  alternates: { canonical: "https://www.etersomos.com/lecturas" },
   openGraph: {
-    title: "Lectura de Registros Akáshicos | Eter Somos",
-    description:
-      "Accedé a la sabiduría de tu alma. Lectura akáshica personalizada en audio con Fer Cardozo.",
-    url: `${SITE_URL}/lecturas`,
-    type: "website",
+    title: "Lecturas Akáshicas Online | Eter Somos",
+    description: "Pedí tu lectura akáshica personalizada en audio. Recibila en tu aula virtual, escuchala cuando quieras y acompañala con una guía en PDF. Lecturas de Registros Akáshicos por Fer Cardozo.",
+    url: "https://www.etersomos.com/lecturas",
+    siteName: "Eter Somos",
     locale: "es_AR",
-    images: [
-      {
-        url: `${SITE_URL}/images/akashic-bg.png`,
-        width: 1200,
-        height: 630,
-        alt: "Lectura de Registros Akáshicos — Eter Somos",
-      },
-    ],
+    type: "website",
+    images: [{ url: "https://www.etersomos.com/hero-bg-v2.webp", width: 1920, height: 1080, alt: "Eter Somos - Registros Akáshicos" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Lectura de Registros Akáshicos | Eter Somos",
-    description:
-      "Accedé a la sabiduría de tu alma. Lectura akáshica personalizada en audio.",
+    title: "Lecturas Akáshicas Online | Eter Somos",
+    description: "Pedí tu lectura akáshica personalizada en audio. Recibila en tu aula virtual, escuchala cuando quieras y acompañala con una guía en PDF. Lecturas de Registros Akáshicos por Fer Cardozo.",
+    images: ["https://www.etersomos.com/hero-bg-v2.webp"],
   },
 };
 
-export default function LecturasLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <>
-      <LecturaJsonLd />
-      <BreadcrumbJsonLd
-        items={[
-          { name: "Inicio", url: SITE_URL },
-          { name: "Lecturas Akáshicas", url: `${SITE_URL}/lecturas` },
-        ]}
-      />
-      {children}
-    </>
-  );
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return children;
 }
