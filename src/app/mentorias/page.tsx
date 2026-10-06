@@ -378,13 +378,6 @@ export default function MentoriasPage() {
                   Condiciones Importantes
                 </h3>
                 <ul className="space-y-2 text-sm text-foreground/60">
-                  <li className="flex items-start gap-2">
-                    <span className="text-violet-400 mt-0.5">•</span>
-<span className="flex-1 min-w-0">                    Los encuentros son personalizados, en formato{" "}
-                    <strong className="text-foreground/80">
-                      videollamada 1:1
-                    </strong>, con una duración de 2 horas.</span>
-                  </li>
                     <li className="flex items-start gap-2">
                       <span className="text-violet-400 mt-0.5">•</span>
                       <span className="flex-1 min-w-0">En el exterior, el valor por encuentro es de <strong className="text-foreground/80">USD 20</strong>, y pactando 3 o más encuentros queda en <strong className="text-foreground/80">USD 15</strong> cada uno.</span>
@@ -397,24 +390,6 @@ export default function MentoriasPage() {
                       <span className="text-violet-400 mt-0.5">•</span>
                       <span className="flex-1 min-w-0">Los horarios se reservan una vez realizada la contribución. Podés enviar tu comprobante por WhatsApp o email.</span>
                     </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-violet-400 mt-0.5">•</span>
-<span className="flex-1 min-w-0">                    El valor por un solo encuentro es de{" "}
-                    <strong className="text-foreground/80">
-                      ${PRICE_SINGLE.toLocaleString("es-AR")}
-                    </strong>.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-violet-400 mt-0.5">•</span>
-<span className="flex-1 min-w-0">                    Pactando 3 o más encuentros al mes, el valor queda en{" "}
-                    <strong className="text-foreground/80">
-                      ${PRICE_PACK.toLocaleString("es-AR")} por encuentro
-                    </strong>. Válido al abonar todos los encuentros juntos.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-violet-400 mt-0.5">•</span>
-<span className="flex-1 min-w-0">                    Se recomienda realizar un encuentro semanal durante al menos un mes para sostener e integrar el proceso.</span>
-                  </li>
                   <li className="flex items-start gap-2">
                     <span className="text-violet-400 mt-0.5">•</span>
 <span className="flex-1 min-w-0">                    No se realizan reembolsos.</span>

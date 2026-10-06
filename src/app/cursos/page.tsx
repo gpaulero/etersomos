@@ -51,8 +51,7 @@ export default function CursosPage() {
       id: "n1-teorico",
       name: "1er Nivel Solo Teórico",
       subtitle: "Aprendé a Conectar con tus Registros Akáshicos",
-      description:
-        "Contribución voluntaria consciente. Material audiovisual de 8 módulos + material complementario en PDF.",
+      description: "",
       duration: "A tu ritmo",
       priceLabel: n1TeoricoPriceLabel,
       badge: n1TeoricoBadge,
@@ -71,8 +70,7 @@ export default function CursosPage() {
       id: "n1-practica",
       name: "1er Nivel con Práctica",
       subtitle: "Aprendé a Conectar con el Campo Akashico",
-      description:
-        "Todo el material teórico + 2 clases prácticas individuales por videollamada de hasta 2 horas cada una.",
+      description: "",
       duration: "~3 semanas",
       priceLabel: n1PracticaPriceLabel,
       badge: n1PracticaBadge,
@@ -91,8 +89,7 @@ export default function CursosPage() {
       id: "n2-completo",
       name: "2do Nivel con Práctica",
       subtitle: "Aprendé a Consultar los Registros Akáshicos de Otras Personas",
-      description:
-        "Curso teórico/práctico para aprender a abrir y consultar los Registros de terceros. 10 módulos + 4 clases prácticas.",
+      description: "",
       duration: "~4 semanas",
       priceLabel: n2PriceLabel,
       badge: n2Badge,
@@ -142,10 +139,6 @@ export default function CursosPage() {
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-foreground mb-4">
           Cursos de Registros Akáshicos
         </h1>
-        <p className="text-foreground/70 max-w-2xl mx-auto font-sans text-base sm:text-lg leading-relaxed">
-          Aprendé a conectar con el Campo Akáshico, acceder a la sabiduría de tu alma y realizar
-          lecturas akáshicas para vos mismo y para otros.
-        </p>
         <p className="text-foreground/50 max-w-2xl mx-auto font-sans text-sm sm:text-base leading-relaxed mt-3">
           Elegí la opción que mejor se adapte a tu camino de aprendizaje.
           Todas las opciones incluyen material de estudio audiovisual, meditaciones guiadas
@@ -203,9 +196,11 @@ export default function CursosPage() {
                 </div>
 
                 {/* Description */}
-                <p className="text-foreground/60 text-sm leading-relaxed text-center mb-4 font-sans">
-                  {course.description}
-                </p>
+                {course.description && (
+                  <p className="text-foreground/60 text-sm leading-relaxed text-center mb-4 font-sans">
+                    {course.description}
+                  </p>
+                )}
 
                 {/* Price */}
                 <div className="text-center mb-5">
