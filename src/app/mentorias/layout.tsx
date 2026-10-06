@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { MentoriaJsonLd, BreadcrumbJsonLd } from "@/components/json-ld";
 
 export const metadata: Metadata = {
   title: "Mentorías en Registros Akáshicos | Eter Somos",
@@ -22,5 +23,11 @@ export const metadata: Metadata = {
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return children;
+  return (
+    <>
+      <MentoriaJsonLd />
+      <BreadcrumbJsonLd items={[{ name: "Inicio", url: "https://www.etersomos.com/" }, { name: "Mentorías", url: "https://www.etersomos.com/mentorias" }]} />
+      {children}
+    </>
+  );
 }

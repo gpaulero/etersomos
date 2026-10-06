@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CoursesJsonLd } from "@/components/json-ld";
 
 export const metadata: Metadata = {
   title: "Cursos de Registros Akáshicos Online | Eter Somos",
@@ -22,5 +23,10 @@ export const metadata: Metadata = {
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return children;
+  return (
+    <>
+      <CoursesJsonLd />
+      {children}
+    </>
+  );
 }

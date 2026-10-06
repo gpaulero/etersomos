@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
+import { BreadcrumbJsonLd } from "@/components/json-ld";
 
 export const metadata: Metadata = {
-  title: "Formación Completa en Registros Akáshicos | Eter Somos",
-  description: "Nivel 1 y Nivel 2 completos: formación integral en Registros Akáshicos con práctica 1:1, materiales y acompañamiento de Fer Cardozo.",
+  title: "Curso Formación Completa de Registros Akáshicos | Eter Somos",
+  description: "Formación en Registros Akáshicos Formación Completa con acompañamiento 1:1 de Fer Cardozo. Materiales, práctica y aula virtual incluida.",
   alternates: { canonical: "https://www.etersomos.com/cursos/ambos" },
   openGraph: {
-    title: "Formación Completa en Registros Akáshicos | Eter Somos",
-    description: "Nivel 1 y Nivel 2 completos: formación integral en Registros Akáshicos con práctica 1:1, materiales y acompañamiento de Fer Cardozo.",
+    title: "Curso Formación Completa de Registros Akáshicos | Eter Somos",
+    description: "Formación en Registros Akáshicos Formación Completa con acompañamiento 1:1 de Fer Cardozo. Materiales, práctica y aula virtual incluida.",
     url: "https://www.etersomos.com/cursos/ambos",
     siteName: "Eter Somos",
     locale: "es_AR",
@@ -15,12 +16,17 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Formación Completa en Registros Akáshicos | Eter Somos",
-    description: "Nivel 1 y Nivel 2 completos: formación integral en Registros Akáshicos con práctica 1:1, materiales y acompañamiento de Fer Cardozo.",
+    title: "Curso Formación Completa de Registros Akáshicos | Eter Somos",
+    description: "Formación en Registros Akáshicos Formación Completa con acompañamiento 1:1 de Fer Cardozo. Materiales, práctica y aula virtual incluida.",
     images: ["https://www.etersomos.com/hero-bg-v2.webp"],
   },
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return children;
+  return (
+    <>
+      <BreadcrumbJsonLd items={[{ name: "Inicio", url: "https://www.etersomos.com/" }, { name: "Cursos", url: "https://www.etersomos.com/cursos" }, { name: "Formación Completa", url: "https://www.etersomos.com/cursos/ambos" }]} />
+      {children}
+    </>
+  );
 }

@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
+import { BreadcrumbJsonLd } from "@/components/json-ld";
 
 export const metadata: Metadata = {
   title: "Curso Nivel 1 Teórico de Registros Akáshicos | Eter Somos",
-  description: "Aprendé a conectar con tus propios Registros Akáshicos: 8 módulos audiovisuales, PDFs y meditación guiada. Contribución voluntaria consciente.",
+  description: "Formación en Registros Akáshicos Nivel 1 Teórico con acompañamiento 1:1 de Fer Cardozo. Materiales, práctica y aula virtual incluida.",
   alternates: { canonical: "https://www.etersomos.com/cursos/n1-teorico" },
   openGraph: {
     title: "Curso Nivel 1 Teórico de Registros Akáshicos | Eter Somos",
-    description: "Aprendé a conectar con tus propios Registros Akáshicos: 8 módulos audiovisuales, PDFs y meditación guiada. Contribución voluntaria consciente.",
+    description: "Formación en Registros Akáshicos Nivel 1 Teórico con acompañamiento 1:1 de Fer Cardozo. Materiales, práctica y aula virtual incluida.",
     url: "https://www.etersomos.com/cursos/n1-teorico",
     siteName: "Eter Somos",
     locale: "es_AR",
@@ -16,11 +17,16 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Curso Nivel 1 Teórico de Registros Akáshicos | Eter Somos",
-    description: "Aprendé a conectar con tus propios Registros Akáshicos: 8 módulos audiovisuales, PDFs y meditación guiada. Contribución voluntaria consciente.",
+    description: "Formación en Registros Akáshicos Nivel 1 Teórico con acompañamiento 1:1 de Fer Cardozo. Materiales, práctica y aula virtual incluida.",
     images: ["https://www.etersomos.com/hero-bg-v2.webp"],
   },
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return children;
+  return (
+    <>
+      <BreadcrumbJsonLd items={[{ name: "Inicio", url: "https://www.etersomos.com/" }, { name: "Cursos", url: "https://www.etersomos.com/cursos" }, { name: "Nivel 1 Teórico", url: "https://www.etersomos.com/cursos/n1-teorico" }]} />
+      {children}
+    </>
+  );
 }
