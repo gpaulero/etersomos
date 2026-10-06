@@ -1,31 +1,44 @@
 import type { Metadata } from "next";
 import { BreadcrumbJsonLd } from "@/components/json-ld";
 
+const SITE_URL = "https://www.etersomos.com";
+
 export const metadata: Metadata = {
-  title: "Recursos Espirituales Gratuitos | Eter Somos",
-  description: "Meditaciones guiadas, PDFs y recursos espirituales gratuitos para tu camino de autoconocimiento. Descargalos o escuchalos online.",
-  alternates: { canonical: "https://www.etersomos.com/recursos" },
+  title: "Recursos Espirituales Gratuitos",
+  description:
+    "Meditaciones, guías y contenidos con contribución voluntaria para tu expansión espiritual. Descargá recursos gratuitos y accedé a meditaciones guiadas.",
+  alternates: {
+    canonical: `${SITE_URL}/recursos`,
+  },
   openGraph: {
-    title: "Recursos Espirituales Gratuitos | Eter Somos",
-    description: "Meditaciones guiadas, PDFs y recursos espirituales gratuitos para tu camino de autoconocimiento. Descargalos o escuchalos online.",
-    url: "https://www.etersomos.com/recursos",
-    siteName: "Eter Somos",
-    locale: "es_AR",
+    title: "Recursos Espirituales | Eter Somos",
+    description:
+      "Meditaciones, guías y contenidos gratuitos para tu camino espiritual.",
+    url: `${SITE_URL}/recursos`,
     type: "website",
-    images: [{ url: "https://www.etersomos.com/hero-bg-v2.webp", width: 1920, height: 1080, alt: "Eter Somos - Registros Akáshicos" }],
+    locale: "es_AR",
   },
   twitter: {
-    card: "summary_large_image",
-    title: "Recursos Espirituales Gratuitos | Eter Somos",
-    description: "Meditaciones guiadas, PDFs y recursos espirituales gratuitos para tu camino de autoconocimiento. Descargalos o escuchalos online.",
-    images: ["https://www.etersomos.com/hero-bg-v2.webp"],
+    card: "summary",
+    title: "Recursos Espirituales | Eter Somos",
+    description:
+      "Meditaciones y guías gratuitas para tu camino espiritual.",
   },
 };
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function RecursosLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <>
-      <BreadcrumbJsonLd items={[{ name: "Inicio", url: "https://www.etersomos.com/" }, { name: "Recursos", url: "https://www.etersomos.com/recursos" }]} />
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Inicio", url: SITE_URL },
+          { name: "Recursos", url: `${SITE_URL}/recursos` },
+        ]}
+      />
       {children}
     </>
   );

@@ -1,31 +1,52 @@
 import type { Metadata } from "next";
 import { BreadcrumbJsonLd } from "@/components/json-ld";
 
+const SITE_URL = "https://www.etersomos.com";
+
 export const metadata: Metadata = {
-  title: "Tienda de Cristales y Minerales | Eter Somos",
-  description: "Cristales y minerales elegidos intuitivamente para acompañar tu proceso energético. Envíos a todo el país.",
-  alternates: { canonical: "https://www.etersomos.com/tienda" },
+  title: "Tienda de Cristales Energéticos",
+  description:
+    "Cristales seleccionados con amor e intención: Amatista, Cuarzo Rosa, Cuarzo Claro, Citrino, Turmalina Negra y Selinita. Envío a toda Argentina por MercadoPago.",
+  alternates: {
+    canonical: `${SITE_URL}/tienda`,
+  },
   openGraph: {
-    title: "Tienda de Cristales y Minerales | Eter Somos",
-    description: "Cristales y minerales elegidos intuitivamente para acompañar tu proceso energético. Envíos a todo el país.",
-    url: "https://www.etersomos.com/tienda",
-    siteName: "Eter Somos",
-    locale: "es_AR",
+    title: "Tienda de Cristales Energéticos | Eter Somos",
+    description:
+      "Cristales seleccionados con amor e intención para tu camino espiritual. Envío a toda Argentina.",
+    url: `${SITE_URL}/tienda`,
     type: "website",
-    images: [{ url: "https://www.etersomos.com/hero-bg-v2.webp", width: 1920, height: 1080, alt: "Eter Somos - Registros Akáshicos" }],
+    locale: "es_AR",
+    images: [
+      {
+        url: `${SITE_URL}/images/crystals-banner.webp`,
+        width: 1200,
+        height: 630,
+        alt: "Tienda de Cristales Energéticos — Eter Somos",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Tienda de Cristales y Minerales | Eter Somos",
-    description: "Cristales y minerales elegidos intuitivamente para acompañar tu proceso energético. Envíos a todo el país.",
-    images: ["https://www.etersomos.com/hero-bg-v2.webp"],
+    title: "Tienda de Cristales | Eter Somos",
+    description:
+      "Cristales seleccionados con amor para tu camino espiritual. Envío a toda Argentina.",
   },
 };
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function TiendaLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <>
-      <BreadcrumbJsonLd items={[{ name: "Inicio", url: "https://www.etersomos.com/" }, { name: "Tienda", url: "https://www.etersomos.com/tienda" }]} />
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Inicio", url: SITE_URL },
+          { name: "Tienda de Cristales", url: `${SITE_URL}/tienda` },
+        ]}
+      />
       {children}
     </>
   );

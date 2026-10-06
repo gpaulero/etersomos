@@ -1,32 +1,71 @@
 import type { Metadata } from "next";
-import { CoursesJsonLd } from "@/components/json-ld";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { CoursesJsonLd, BreadcrumbJsonLd } from "@/components/json-ld";
+
+const SITE_URL = "https://www.etersomos.com";
 
 export const metadata: Metadata = {
-  title: "Cursos de Registros Akáshicos Online | Eter Somos",
-  description: "Formación en Registros Akáshicos: Nivel 1 teórico y con práctica, Nivel 2 y formación completa. Aprendé a conectar y consultar tus propios Registros con acompañamiento 1:1.",
-  alternates: { canonical: "https://www.etersomos.com/cursos" },
+  title: "Cursos de Registros Akáshicos",
+  description:
+    "Formación completa en Registros Akáshicos: Nivel 1 Teórico (contribución voluntaria), Nivel 1 con Práctica ($45.000 ARS), Nivel 2 ($60.000 ARS) y pack de ambos cursos ($85.000 ARS).",
+  alternates: {
+    canonical: `${SITE_URL}/cursos`,
+  },
   openGraph: {
-    title: "Cursos de Registros Akáshicos Online | Eter Somos",
-    description: "Formación en Registros Akáshicos: Nivel 1 teórico y con práctica, Nivel 2 y formación completa. Aprendé a conectar y consultar tus propios Registros con acompañamiento 1:1.",
-    url: "https://www.etersomos.com/cursos",
-    siteName: "Eter Somos",
-    locale: "es_AR",
+    title: "Cursos de Registros Akáshicos | Eter Somos",
+    description:
+      "Formación en Registros Akáshicos: desde Nivel 1 hasta Nivel 2 con práctica incluida.",
+    url: `${SITE_URL}/cursos`,
     type: "website",
-    images: [{ url: "https://www.etersomos.com/hero-bg-v2.webp", width: 1920, height: 1080, alt: "Eter Somos - Registros Akáshicos" }],
+    locale: "es_AR",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Cursos de Registros Akáshicos Online | Eter Somos",
-    description: "Formación en Registros Akáshicos: Nivel 1 teórico y con práctica, Nivel 2 y formación completa. Aprendé a conectar y consultar tus propios Registros con acompañamiento 1:1.",
-    images: ["https://www.etersomos.com/hero-bg-v2.webp"],
+    title: "Cursos de Registros Akáshicos | Eter Somos",
+    description:
+      "Formación completa en Registros Akáshicos: Nivel 1 y Nivel 2 con clases prácticas individuales.",
   },
 };
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function CursosLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <>
+    <div className="min-h-screen bg-mystic-950">
       <CoursesJsonLd />
-      {children}
-    </>
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Inicio", url: SITE_URL },
+          { name: "Cursos", url: `${SITE_URL}/cursos` },
+        ]}
+      />
+      {/* Top nav bar */}
+      <header className="sticky top-0 z-50 backdrop-blur-xl bg-mystic-950/80 border-b border-mystic-700/30">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 flex items-center">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-mystic-900/60 border border-mystic-700/40 text-foreground/70 hover:text-violet-400 hover:border-violet-400/30 transition-all text-sm font-medium group"
+          >
+            <ArrowLeft className="size-4 group-hover:-translate-x-1 transition-transform" />
+            Volver a Inicio
+          </Link>
+        </div>
+      </header>
+
+      {/* Main content */}
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        {children}
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t border-mystic-700/20 mt-auto">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 text-center text-xs text-foreground/30">
+          <p>Eter Somos &middot; Registros Ak&aacute;shicos</p>
+        </div>
+      </footer>
+    </div>
   );
 }
