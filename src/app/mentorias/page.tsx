@@ -13,7 +13,6 @@ import {
   Users,
   Clock,
   Video,
-  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -282,7 +281,7 @@ export default function MentoriasPage() {
       </div>
 
       {/* ── Info cards ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="glass rounded-xl p-5 border border-violet-500/20 text-center">
           <Video className="size-8 text-violet-400 mx-auto mb-3" />
           <h3 className="font-serif font-semibold text-foreground text-sm mb-1">Videollamada 1:1</h3>
@@ -292,11 +291,6 @@ export default function MentoriasPage() {
           <Clock className="size-8 text-violet-400 mx-auto mb-3" />
           <h3 className="font-serif font-semibold text-foreground text-sm mb-1">2 horas</h3>
           <p className="text-foreground/50 text-xs">Duración de cada encuentro</p>
-        </div>
-        <div className="glass rounded-xl p-5 border border-violet-500/20 text-center">
-          <Sparkles className="size-8 text-violet-400 mx-auto mb-3" />
-          <h3 className="font-serif font-semibold text-foreground text-sm mb-1">Semanal</h3>
-          <p className="text-foreground/50 text-xs">Se recomienda un encuentro semanal durante al menos un mes</p>
         </div>
       </div>
 
