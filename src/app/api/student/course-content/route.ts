@@ -4,6 +4,16 @@ import { ensureSchema } from '@/lib/db'
 
 export const dynamic = 'force-dynamic'
 
+// Mapa de inclusion: cada curso incluye el contenido de estos courseIds.
+// Permite subir el material UNA sola vez (por nivel) y que cada alumno vea
+// todo lo que corresponde a lo que suscribio, sin duplicar archivos.
+const COURSE_INCLUDES: Record<string, string[]> = {
+  'n1-teorico': ['n1-teorico'],
+  'n1-practica': ['n1-teorico', 'n1-practica'],
+  'n2': ['n2'],
+  'ambos': ['n1-teorico', 'n1-practica', 'n2'],
+}
+
 // GET /api/student/course-content?courseId=xxx
 export async function GET(request: NextRequest) {
   try {
@@ -40,12 +50,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'No estás inscrito en este curso' }, { status: 403 })
     }
 
-    // Get course content
-    const contents = await (db as any).courseContent.findMany({
-      where: { courseId }
-    })
-
-    const activeContents = contents.filter((c: any) => c.active === 1 || c.active === true)
+    // Get course content (incluye contenidos de los niveles que abarca el curso suscripto)
+    const allowed = COURSE_INCLUDES[courseId] || [courseId]
+    const allContents = await (db as any).courseContent.findMany({})
+    const activeContents = (allContents || [])
+      .filter((c: any) => (c.active === 1 || c.active === true) && allowed.includes(c.courseId))
+      .sort((a: any, b: any) =>
+        ((a.moduleOrder || 0) - (b.moduleOrder || 0)) || ((a.sortOrder || 0) - (b.sortOrder || 0))
+      )
 
     return NextResponse.json({
       contents: activeContents.map((c: any) => ({
