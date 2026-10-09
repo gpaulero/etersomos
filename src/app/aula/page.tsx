@@ -93,13 +93,13 @@ interface Enrollment {
 
 /* ── Status & Type Config ── */
 const statusConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
-  activa: { label: "Activa", color: "bg-violet-500/15 text-violet-300 border-violet-500/30", icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
+  activa: { label: "Activa", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30", icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
   pendiente: { label: "Pendiente", color: "bg-amber-500/20 text-amber-300 border-amber-500/30", icon: <Clock className="w-3.5 h-3.5" /> },
   en_progreso: { label: "En progreso", color: "bg-blue-500/20 text-blue-300 border-blue-500/30", icon: <Eye className="w-3.5 h-3.5" /> },
   completada: { label: "Completada", color: "bg-violet-500/20 text-violet-300 border-violet-500/30", icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
   entregada: { label: "Entregada", color: "bg-violet-500/20 text-violet-300 border-violet-500/30", icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
-  cancelada: { label: "Cancelada", color: "bg-amber-400/10 text-amber-300 border-amber-400/30", icon: <AlertCircle className="w-3.5 h-3.5" /> },
-  expirada: { label: "Expirada", color: "bg-amber-400/10 text-amber-300 border-amber-400/30", icon: <AlertCircle className="w-3.5 h-3.5" /> },
+  cancelada: { label: "Cancelada", color: "bg-red-500/20 text-red-300 border-red-500/30", icon: <AlertCircle className="w-3.5 h-3.5" /> },
+  expirada: { label: "Expirada", color: "bg-red-500/20 text-red-300 border-red-500/30", icon: <AlertCircle className="w-3.5 h-3.5" /> },
 };
 
 const typeConfig: Record<string, { label: string; icon: React.ReactNode; color: string; gradient: string }> = {
@@ -238,12 +238,12 @@ function LecturaAudioPlayer({
 
   if (isExpired) {
     return (
-      <div className="bg-amber-400/10 rounded-xl border border-amber-400/30 p-4 mt-3">
+      <div className="bg-red-950/30 rounded-xl border border-red-500/20 p-4 mt-3">
         <div className="flex items-center gap-2 mb-2">
-          <AlertTriangle className="w-4 h-4 text-amber-300" />
-          <span className="text-amber-300 text-xs font-sans font-medium">Lectura expirada</span>
+          <AlertTriangle className="w-4 h-4 text-red-400" />
+          <span className="text-red-300 text-xs font-sans font-medium">Lectura expirada</span>
         </div>
-        <p className="text-amber-300/70 text-xs font-sans">
+        <p className="text-red-400/70 text-xs font-sans">
           El audio de esta lectura ya no está disponible porque expiró el{" "}
           {expiresAt && new Date(expiresAt).toLocaleDateString("es-AR", { year: "numeric", month: "long", day: "numeric" })}.
         </p>
@@ -467,7 +467,7 @@ function SidebarContent({
         </Link>
         <button
           onClick={onLogout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-sans text-mystic-400 hover:text-amber-300 hover:bg-amber-400/10 transition-all"
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-sans text-mystic-400 hover:text-red-300 hover:bg-red-500/10 transition-all"
         >
           <LogOut className="w-4 h-4" />
           <span>Cerrar sesión</span>
@@ -685,7 +685,7 @@ export default function AulaDashboard() {
                   { icon: GraduationCap, count: cursos.length, label: "Cursos", color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20", barColor: "bg-blue-500" },
                   { icon: BookOpen, count: lecturas.length, label: "Lecturas", color: "text-violet-400", bg: "bg-violet-500/10", border: "border-violet-500/20", barColor: "bg-violet-500" },
                   { icon: Sparkles, count: mentorias.length, label: "Mentorías", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20", barColor: "bg-amber-500" },
-                  { icon: CheckCircle2, count: completedCount, label: "Completados", color: "text-violet-300", bg: "bg-violet-500/15", border: "border-violet-500/30", barColor: "bg-violet-500/15" },
+                  { icon: CheckCircle2, count: completedCount, label: "Completados", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20", barColor: "bg-emerald-500" },
                 ].map((stat, i) => {
                   const Icon = stat.icon;
                   const maxVal = Math.max(enrollments.length, 1);
@@ -963,8 +963,8 @@ export default function AulaDashboard() {
 
 /* ── Attachment display helper ── */
 function getAttachmentIcon(fileType: string, mimeType: string) {
-  if (fileType === 'imagen' || mimeType.startsWith('image/')) return <Image className="w-4 h-4 text-violet-300" />;
-  if (fileType === 'pdf' || mimeType === 'application/pdf') return <FileText className="w-4 h-4 text-amber-300" />;
+  if (fileType === 'imagen' || mimeType.startsWith('image/')) return <Image className="w-4 h-4 text-emerald-400" />;
+  if (fileType === 'pdf' || mimeType === 'application/pdf') return <FileText className="w-4 h-4 text-red-400" />;
   return <FileText className="w-4 h-4 text-blue-400" />;
 }
 
@@ -1056,7 +1056,7 @@ function AttachmentsSection({
                   </a>
                 </div>
               ) : (
-                <span className="text-amber-300/60 text-xs font-sans shrink-0">Expirado</span>
+                <span className="text-red-400/60 text-xs font-sans shrink-0">Expirado</span>
               )}
             </div>
           );
@@ -1090,7 +1090,7 @@ function LecturaCard({
 
   return (
     <Card className={`bg-mystic-900/60 backdrop-blur hover:border-violet-500/30 transition-all group ${
-      isExpired ? "border-amber-400/30 opacity-70" : "border-mystic-700/40"
+      isExpired ? "border-red-500/20 opacity-70" : "border-mystic-700/40"
     }`}>
       <CardContent className="p-4 sm:p-5">
         <div className="flex items-start justify-between gap-3">
@@ -1098,13 +1098,13 @@ function LecturaCard({
             {/* Album art style icon */}
             <div className={`w-11 h-11 rounded-lg shrink-0 flex items-center justify-center border ${
               isExpired
-                ? "bg-amber-400/10 border-amber-400/30"
+                ? "bg-red-950/40 border-red-500/20"
                 : hasAudio
                 ? "bg-gradient-to-br from-violet-600/30 to-mystic-800/60 border-violet-500/20"
                 : "bg-mystic-800/60 border-mystic-700/40"
             }`}>
               {isExpired ? (
-                <AlertTriangle className="w-5 h-5 text-amber-300" />
+                <AlertTriangle className="w-5 h-5 text-red-400" />
               ) : hasAudio ? (
                 <Headphones className="w-5 h-5 text-violet-300" />
               ) : (
@@ -1133,7 +1133,7 @@ function LecturaCard({
                   </Badge>
                 )}
                 {hasAttachments && !isExpired && (
-                  <Badge variant="outline" className="text-xs border-violet-500/30 text-violet-300 gap-1">
+                  <Badge variant="outline" className="text-xs border-emerald-400/30 text-emerald-300 gap-1">
                     <Paperclip className="w-3 h-3" />
                     {enrollment.attachments!.length} {enrollment.attachments!.length === 1 ? 'adjunto' : 'adjuntos'}
                   </Badge>
