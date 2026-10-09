@@ -36,7 +36,7 @@ import {
   Download,
   Mail,
 } from "lucide-react"
-import OraculosSection from "@/components/oraculos-section";;
+import OraculosSection from "@/components/oraculos-section";
 import NextImage from "next/image";
 import Link from "next/link";
 import { ProtectedVideoPlayer, ProtectedAudioPlayer } from "@/components/protected-player";
@@ -604,8 +604,6 @@ export default function RecursosPage() {
       {/*                 CONSCIOUS CONTRIBUTION SECTION                  */}
       {/* ============================================================ */}
       {resources.length > 0 && (
-              <OraculosSection />
-
 <section className="py-10 sm:py-16 px-4 sm:px-6">
           <div className="max-w-2xl mx-auto">
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }}>
@@ -673,6 +671,7 @@ export default function RecursosPage() {
           </p>
         </div>
       </footer>
+      <OraculosSection />
     </div>
   );
 }
