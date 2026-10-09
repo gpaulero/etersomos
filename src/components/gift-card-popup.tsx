@@ -23,7 +23,7 @@ export default function GiftCardPopup() {
       try {
         sessionStorage.setItem("giftcard_shown", "1");
       } catch {}
-    }, 5 * 60 * 1000);
+    }, 3 * 60 * 1000);
     return () => clearTimeout(t);
   }, []);
 
