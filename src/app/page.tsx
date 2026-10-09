@@ -320,7 +320,7 @@ export default function Home() {
   // CMS-driven values with hardcoded fallbacks
   // SEO-optimized hero copy: incluye "Registros Akáshicos" como H1 principal
   const heroSubtitle = cmsValue(cmsMap, 'site.hero_subtitle', ""); // Eliminado subtítulo visible (SEO en H1 oculto)
-  const heroTagline = cmsValue(cmsMap, 'site.hero_tagline', "Un espacio para vivir tu espiritualidad de forma cercana, humana y sobre todo desde la consciencia");
+  const heroTagline = cmsValue(cmsMap, 'site.hero_tagline', "Un espacio para vivir tu espiritualidad de forma cercana, humana y sobre todo desde la conciencia");
   const contactEmail = cmsValue(cmsMap, 'site.contact_email', "etersomos@gmail.com");
   const contactWhatsapp = cmsValue(cmsMap, 'site.contact_whatsapp', "+54 9 3518 62-9325");
   const contactWhatsappNumber = cmsValue(cmsMap, 'site.contact_whatsapp_number', "5493518629325");

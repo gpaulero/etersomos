@@ -110,7 +110,7 @@ export const defaultSiteContent: SiteContentItem[] = [
   // ── Site (general) ──
   { key: "site.hero_title", value: "Eter Somos", section: "site", label: "Título principal del Hero", type: "text" },
   { key: "site.hero_subtitle", value: "", section: "site", label: "Subtítulo del Hero", type: "text" },
-  { key: "site.hero_tagline", value: "Un espacio para vivir tu espiritualidad de forma cercana, humana y sobre todo desde la consciencia", section: "site", label: "Tagline del Hero", type: "text" },
+  { key: "site.hero_tagline", value: "Un espacio para vivir tu espiritualidad de forma cercana, humana y sobre todo desde la conciencia", section: "site", label: "Tagline del Hero", type: "text" },
   { key: "site.contact_email", value: "etersomos@gmail.com", section: "site", label: "Email de contacto", type: "text" },
   { key: "site.contact_whatsapp", value: "+54 9 3518 62-9325", section: "site", label: "WhatsApp (display)", type: "text" },
   { key: "site.contact_whatsapp_number", value: "5493518629325", section: "site", label: "WhatsApp número (para link)", type: "text" },

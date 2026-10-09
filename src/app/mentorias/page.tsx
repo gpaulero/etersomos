@@ -372,6 +372,10 @@ export default function MentoriasPage() {
                   Condiciones Importantes
                 </h3>
                 <ul className="space-y-2 text-sm text-foreground/60">
+                  <li className="flex items-start gap-2">
+                    <span className="text-violet-400 mt-0.5">•</span>
+                    <span className="flex-1 min-w-0">Como fui mamá hace poquito estoy retomando actividades de a poco 🥰, por ahora mi disponibilidad es de lunes a viernes de 18 a 20 hs ARG. Y sábados de 10 a 14 hs ARG.</span>
+                  </li>
                     <li className="flex items-start gap-2">
                       <span className="text-violet-400 mt-0.5">•</span>
                       <span className="flex-1 min-w-0">En el exterior, el valor por encuentro es de <strong className="text-foreground/80">USD 20</strong>, y pactando 3 o más encuentros queda en <strong className="text-foreground/80">USD 15</strong> cada uno.</span>
