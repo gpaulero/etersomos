@@ -8,6 +8,15 @@ export async function GET(request: NextRequest) {
   try {
     const folderId = request.nextUrl.searchParams.get('folderId') || ''
     if (!folderId) return NextResponse.json({ error: 'Falta folderId' }, { status: 400 })
+    const apiKey = process.env.GOOGLE_DRIVE_API_KEY
+    if (apiKey) {
+      const q = encodeURIComponent(`'${folderId}' in parents and trashed=false`)
+      const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name,mimeType,size)&pageSize=300&key=${apiKey}`)
+      if (res.ok) {
+        const d = await res.json()
+        return NextResponse.json({ files: (d.files || []).map((f: any) => ({ id: f.id, name: f.name, size: f.size })) })
+      }
+    }
     const url = `https://drive.google.com/embeddedfolderview?id=${encodeURIComponent(folderId)}`
     const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } })
     if (!res.ok) return NextResponse.json({ error: `Drive devolvió ${res.status}` }, { status: 502 })

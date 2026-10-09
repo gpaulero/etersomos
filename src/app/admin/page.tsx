@@ -768,6 +768,13 @@ export default function AdminPage() {
   const [uploadingLecturaAudio, setUploadingLecturaAudio] = useState(false);
   const [lecturaUploadStep, setLecturaUploadStep] = useState<string>(""); // progress message
   const [lecturaDriveUrl, setLecturaDriveUrl] = useState<Record<string, string>>({});
+  const [bulkFolder, setBulkFolder] = useState("");
+  const [bulkLinks, setBulkLinks] = useState("");
+  const [bulkFiles, setBulkFiles] = useState<Array<{ id: string; name: string }>>([]);
+  const [bulkSelected, setBulkSelected] = useState<Record<string, boolean>>({});
+  const [bulkTarget, setBulkTarget] = useState("n1-teorico");
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [bulkProgress, setBulkProgress] = useState("");
   // Attachment upload state
   const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
   const [uploadingAttachment, setUploadingAttachment] = useState(false);
@@ -1315,6 +1322,46 @@ export default function AdminPage() {
     }
   };
 
+  const handleBulkList = async () => {
+    const m = bulkFolder.match(/\/folders\/([a-zA-Z0-9_-]+)/) || bulkFolder.match(/^([a-zA-Z0-9_-]{20,})$/);
+    if (!m) { toast.error("Pegá un link de carpeta de Drive válido"); return; }
+    setBulkBusy(true); setBulkProgress("Listando carpeta...");
+    try {
+      const res = await authFetch(`/api/admin/drive-list?folderId=${m[1]}`);
+      const d = await res.json();
+      if (!res.ok || !d.files || d.files.length === 0) { toast.error(d.error || "No se pudo listar la carpeta. Si no cargaste la API key de Google Drive, usá el modo de links."); setBulkProgress(""); return; }
+      setBulkFiles(d.files); setBulkSelected(Object.fromEntries(d.files.map((f: any) => [f.id, true])));
+      setBulkProgress(""); toast.success(`${d.files.length} archivos encontrados`);
+    } catch { toast.error("Error al listar"); setBulkProgress(""); }
+    finally { setBulkBusy(false); }
+  };
+  const handleBulkAddLinks = () => {
+    const lines = bulkLinks.split("\n").map(l => l.trim()).filter(Boolean);
+    const added: Array<{ id: string; name: string }> = [];
+    for (const l of lines) {
+      const m = l.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+      if (m) added.push({ id: m[1], name: l.split("/").pop()?.slice(0, 40) || m[1] });
+    }
+    if (!added.length) { toast.error("No se detectaron links de archivos"); return; }
+    setBulkFiles(prev => [...prev, ...added]); setBulkSelected(prev => ({ ...prev, ...Object.fromEntries(added.map(f => [f.id, true])) }));
+    setBulkLinks(""); toast.success(`${added.length} links agregados`);
+  };
+  const handleBulkImport = async () => {
+    const sel = bulkFiles.filter(f => bulkSelected[f.id]);
+    if (!sel.length) { toast.error("Seleccioná al menos un archivo"); return; }
+    setBulkBusy(true);
+    let ok = 0, fail = 0;
+    for (let i = 0; i < sel.length; i++) {
+      const f = sel[i];
+      setBulkProgress(`Importando ${i + 1}/${sel.length}: ${f.name}`);
+      try {
+        const res = await authFetch("/api/admin/import-drive", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: `https://drive.google.com/file/d/${f.id}/view`, target: "curso", courseId: bulkTarget, title: f.name }) });
+        if (res.ok) ok++; else fail++;
+      } catch { fail++; }
+    }
+    setBulkProgress(""); setBulkBusy(false); setBulkFiles([]); setBulkSelected({});
+    toast.success(`Importación completa: ${ok} OK, ${fail} fallidos`);
+  };
   const handleImportDriveToLectura = async (enrollmentId: string) => {
     const url = (lecturaDriveUrl[enrollmentId] || "").trim();
     if (!url) { toast.error("Pegá el link de Drive del audio"); return; }
@@ -4110,6 +4157,48 @@ export default function AdminPage() {
                   Limpiar lecturas expiradas
                 </Button>
               </div>
+
+              <Card className="bg-mystic-900/40 border-mystic-700/40">
+                <CardContent className="p-4 space-y-3">
+                  <h4 className="text-mystic-400 text-xs font-josefin uppercase tracking-wider flex items-center gap-2">
+                    <FolderOpen className="w-4 h-4" /> Importación masiva desde Drive
+                  </h4>
+                  <div className="flex items-center gap-2">
+                    <Input placeholder="Link de la carpeta de Drive…" value={bulkFolder} onChange={(e) => setBulkFolder(e.target.value)} className="bg-mystic-900/40 border-mystic-700/40 text-cream-100 text-xs h-8 flex-1" disabled={bulkBusy} />
+                    <Button variant="outline" size="sm" className="border-violet-400/30 text-violet-300 hover:bg-violet-400/10 h-8 text-xs" onClick={handleBulkList} disabled={bulkBusy || !bulkFolder.trim()}>Listar carpeta</Button>
+                  </div>
+                  <Textarea placeholder="…o pegá varios links de archivos (uno por línea)" rows={2} value={bulkLinks} onChange={(e) => setBulkLinks(e.target.value)} className="bg-mystic-900/40 border-mystic-700/40 text-cream-100 text-xs" disabled={bulkBusy} />
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" className="border-mystic-600/40 text-mystic-300 hover:bg-mystic-700/20 h-8 text-xs" onClick={handleBulkAddLinks} disabled={bulkBusy || !bulkLinks.trim()}>Agregar links</Button>
+                    <Select value={bulkTarget} onValueChange={setBulkTarget} disabled={bulkBusy}>
+                      <SelectTrigger className="bg-mystic-900/40 border-mystic-700/40 text-cream-100 text-xs h-8 w-44"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="n1-teorico">RA N1 Teórico</SelectItem>
+                        <SelectItem value="n1-practica">RA N1 con Práctica</SelectItem>
+                        <SelectItem value="n2">RA N2 Completo</SelectItem>
+                        <SelectItem value="ambos">Ambos Niveles</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {bulkFiles.length > 0 && (
+                    <div className="space-y-1.5 max-h-48 overflow-y-auto border border-mystic-700/30 rounded-lg p-2">
+                      {bulkFiles.map((f) => (
+                        <label key={f.id} className="flex items-center gap-2 text-xs text-cream-200 cursor-pointer hover:bg-mystic-800/30 rounded px-1 py-0.5">
+                          <input type="checkbox" checked={!!bulkSelected[f.id]} onChange={(e) => setBulkSelected(p => ({ ...p, [f.id]: e.target.checked }))} className="accent-violet-500" />
+                          <span className="truncate">{f.name}</span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                  {bulkFiles.length > 0 && (
+                    <Button size="sm" className="bg-violet-600 hover:bg-violet-500 text-white h-8 text-xs w-full" onClick={handleBulkImport} disabled={bulkBusy}>
+                      {bulkBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FolderOpen className="w-3.5 h-3.5" />}
+                      Importar seleccionados a {bulkTarget}
+                    </Button>
+                  )}
+                  {bulkProgress && <p className="text-violet-300 text-xs flex items-center gap-1.5"><Loader2 className="w-3 h-3 animate-spin" />{bulkProgress}</p>}
+                </CardContent>
+              </Card>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 {/* Course selector */}
