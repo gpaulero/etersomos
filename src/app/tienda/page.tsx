@@ -463,7 +463,7 @@ export default function TiendaPage() {
 
         <div className="flex-1 flex items-center justify-center pt-20 pb-16 px-4">
           <div className="w-full max-w-lg">
-            <FormPausedBanner formKey="tienda" customTitle="Tienda en construcción" customMessage="Pronto vas a poder explorar nuestros cristales seleccionados con amor e intención." />
+            <FormPausedBanner formKey="tienda" customTitle="Tienda en construcción" customMessage="Pronto vas a poder explorar las piezas consagradas que elegimos para acompañar tu camino espiritual." />
           </div>
         </div>
 
