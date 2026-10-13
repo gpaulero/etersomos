@@ -328,7 +328,7 @@ export default function LecturasPage() {
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-foreground leading-tight mb-4">
-              Lectura de Registros Akáshicos Personalizada
+              Lectura de Registros Akáshicos
             </h1>
             <p className="text-foreground/70 text-sm sm:text-base max-w-2xl mx-auto mb-5 leading-relaxed">
               Una lectura de Registros Akáshicos te conecta con la sabiduría de tu alma para responder
@@ -354,7 +354,7 @@ export default function LecturasPage() {
                     <button className="flex items-center justify-between w-full text-left group">
                       <CardTitle className="text-violet-300 font-serif text-lg flex items-center gap-2">
                         <AlertTriangle className="size-4 text-violet-400" />
-                        Acuerdo de Lectura Akáshica — Marco y Condiciones
+                        Acuerdo y Condiciones
                       </CardTitle>
                       <ChevronDown
                         className={`size-4 text-foreground/60 transition-transform duration-200 ${
@@ -365,11 +365,6 @@ export default function LecturasPage() {
                   </CollapsibleTrigger>
                   <CollapsibleContent>
                     <div className="pt-4 space-y-4 text-sm text-foreground/70 leading-relaxed">
-                      <p>
-                        Por favor tomate el tiempo de leer completo este acuerdo, es fundamental para que la
-                        Lectura se desarrolle en un marco de total armonía y comprensión.
-                      </p>
-
                       <div className="p-4 rounded-xl bg-violet-500/10 border border-violet-400/20">
                         <p>
                           <span className="text-violet-300">Entrega:</span> tu lectura se entrega a los 10 días hábiles
@@ -390,8 +385,7 @@ export default function LecturasPage() {
                       </p>
 
                       <p>
-                        Incluye 2 temas o preguntas sobre vos, respondidos mediante un audio personalizado
-                        enviado por email.
+                        Incluye 2 temas o preguntas sobre vos.
                       </p>
 
                       <div className="grid sm:grid-cols-2 gap-4">
