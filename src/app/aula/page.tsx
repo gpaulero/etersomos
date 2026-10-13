@@ -355,7 +355,7 @@ function LecturaAudioPlayer({
       </div>
 
       {/* Download button + expiration info */}
-      <div className="mt-3 pt-3 border-t border-mystic-700/40 flex items-center justify-between gap-3">
+      <div className="mt-3 pt-3 border-t border-mystic-700/20 flex items-center justify-between gap-3">
         <a
           href={downloadUrl}
           download={fileName || "lectura.mp3"}
@@ -400,7 +400,7 @@ function SidebarContent({
   return (
     <div className="flex flex-col h-full">
       {/* Logo area */}
-      <div className="p-4 border-b border-mystic-700/40">
+      <div className="p-4 border-b border-mystic-700/20">
         <Link href="/" className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-full overflow-hidden border border-violet-400/30 shrink-0">
             <img src="/images/logo-etersomos.jpg" alt="Eter Somos" className="w-full h-full object-cover" />
@@ -445,7 +445,7 @@ function SidebarContent({
       </nav>
       {/* Portal abierto */}
       <div className="p-3 mt-auto">
-        <div className="rounded-xl border border-violet-500/20 bg-mystic-900/60 p-3 flex items-center gap-3">
+        <div className="rounded-xl border border-violet-500/20 bg-mystic-900/35 p-3 flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-600/40 to-mystic-800/60 border border-violet-500/20 flex items-center justify-center shrink-0">
             <Gem className="w-5 h-5 text-violet-300" />
           </div>
@@ -458,7 +458,7 @@ function SidebarContent({
 
 
       {/* Bottom section */}
-      <div className="p-3 border-t border-mystic-700/40 space-y-1">
+      <div className="p-3 border-t border-mystic-700/20 space-y-1">
         <Link href="/">
           <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-sans text-mystic-400 hover:text-foreground hover:bg-mystic-800/40 transition-all">
             <Home className="w-4 h-4" />
@@ -578,7 +578,7 @@ export default function AulaDashboard() {
       <div className="fixed inset-0 bg-gradient-to-br from-mystic-950 via-mystic-950 to-violet-950/40 -z-10" />
 
       {/* Mobile Header */}
-      <header className="lg:hidden bg-mystic-900/80 backdrop-blur-xl border-b border-mystic-700/40 sticky top-0 z-50">
+      <header className="lg:hidden bg-mystic-900/80 backdrop-blur-xl border-b border-mystic-700/20 sticky top-0 z-50">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-full overflow-hidden border border-violet-400/30">
@@ -592,7 +592,7 @@ export default function AulaDashboard() {
                 <Menu className="w-5 h-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="bg-mystic-950 border-mystic-700/40 p-0 w-64">
+            <SheetContent side="left" className="bg-mystic-950 border-mystic-700/20 p-0 w-64">
               <SheetHeader className="sr-only">
                 <SheetTitle>Navegación</SheetTitle>
               </SheetHeader>
@@ -611,7 +611,7 @@ export default function AulaDashboard() {
 
       <div className="flex">
         {/* Desktop Sidebar */}
-        <aside className="hidden lg:block fixed left-0 top-0 bottom-0 w-60 bg-mystic-950/90 backdrop-blur-xl border-r border-mystic-700/40 z-40">
+        <aside className="hidden lg:block fixed left-0 top-0 bottom-0 w-60 bg-mystic-950/90 backdrop-blur-xl border-r border-mystic-700/20 z-40">
           <SidebarContent
             activeSection={activeSection}
             onNavClick={handleNavClick}
@@ -727,7 +727,7 @@ export default function AulaDashboard() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
               >
-                <Card className="bg-mystic-900/60 border-mystic-700/40 backdrop-blur">
+                <Card className="bg-mystic-900/35 border-mystic-700/20 backdrop-blur">
                   <CardContent className="p-12 text-center">
                     <BookOpen className="w-12 h-12 text-mystic-600 mx-auto mb-4" />
                     <h3 className="font-serif text-xl text-foreground mb-2">Tu aula está vacía</h3>
@@ -884,7 +884,7 @@ export default function AulaDashboard() {
                       <div className="grid gap-3 sm:grid-cols-2">
                         {membresias.map((enr, i) => (
                           <motion.div key={enr.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: i * 0.05 }}>
-                            <Card className="bg-mystic-900/40 border-violet-500/20 overflow-hidden">
+                            <Card className="bg-mystic-900/25 border-violet-500/20 overflow-hidden">
                               <CardContent className="p-4">
                                 <div className="flex items-center gap-2 mb-2">
                                   <Crown className="w-4 h-4 text-violet-300" />
@@ -913,12 +913,12 @@ export default function AulaDashboard() {
                     transition={{ duration: 0.4, delay: 0.3 }}
                   >
                     <div className="flex items-center gap-2.5 mb-4">
-                      <div className="w-8 h-8 rounded-lg bg-mystic-800/60 border border-mystic-700/40 flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-lg bg-mystic-800/60 border border-mystic-700/20 flex items-center justify-center">
                         <User className="w-4 h-4 text-mystic-300" />
                       </div>
                       <h2 className="font-serif text-xl sm:text-2xl text-foreground">Mi Perfil</h2>
                     </div>
-                    <Card className="bg-mystic-900/40 border-mystic-700/30">
+                    <Card className="bg-mystic-900/25 border-mystic-700/15">
                       <CardContent className="p-5 sm:p-6">
                         <div className="flex items-center gap-4 mb-5">
                           <div className="w-14 h-14 rounded-full bg-gradient-to-br from-violet-600/30 to-mystic-800/50 border border-violet-500/20 flex items-center justify-center">
@@ -1001,12 +1001,12 @@ function AttachmentsSection({
           return (
             <div
               key={att.id}
-              className="bg-mystic-900/50 border border-mystic-700/30 rounded-lg p-3 flex items-start gap-3 group/att hover:border-violet-500/20 transition-colors"
+              className="bg-mystic-900/50 border border-mystic-700/15 rounded-lg p-3 flex items-start gap-3 group/att hover:border-violet-500/20 transition-colors"
             >
               {/* Icon / Preview */}
               <div className="shrink-0">
                 {isImage && !isExpired ? (
-                  <div className="w-12 h-12 rounded-md overflow-hidden border border-mystic-700/40 bg-mystic-800/60">
+                  <div className="w-12 h-12 rounded-md overflow-hidden border border-mystic-700/20 bg-mystic-800/60">
                     <img
                       src={streamUrl}
                       alt={att.fileName}
@@ -1015,7 +1015,7 @@ function AttachmentsSection({
                     />
                   </div>
                 ) : (
-                  <div className="w-12 h-12 rounded-md border border-mystic-700/40 bg-mystic-800/60 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-md border border-mystic-700/20 bg-mystic-800/60 flex items-center justify-center">
                     {getAttachmentIcon(att.fileType, att.mimeType)}
                   </div>
                 )}
@@ -1026,7 +1026,7 @@ function AttachmentsSection({
                 <p className="text-mystic-200 text-sm font-sans truncate">{att.fileName}</p>
                 <div className="flex items-center gap-2 mt-0.5">
                   <span className="text-mystic-500 text-xs font-sans">{formatFileSize(att.fileSize)}</span>
-                  <Badge variant="outline" className="text-[10px] h-4 px-1.5 border-mystic-700/40 text-mystic-400">
+                  <Badge variant="outline" className="text-[10px] h-4 px-1.5 border-mystic-700/20 text-mystic-400">
                     {att.fileType === 'pdf' ? 'PDF' : att.fileType === 'imagen' ? 'Imagen' : 'Documento'}
                   </Badge>
                 </div>
@@ -1089,8 +1089,8 @@ function LecturaCard({
   const hasAttachments = !!(enrollment.attachments && enrollment.attachments.length > 0);
 
   return (
-    <Card className={`bg-mystic-900/60 backdrop-blur hover:border-violet-500/30 transition-all group ${
-      isExpired ? "border-amber-400/30 opacity-70" : "border-mystic-700/40"
+    <Card className={`bg-mystic-900/35 backdrop-blur hover:border-violet-500/30 transition-all group ${
+      isExpired ? "border-amber-400/30 opacity-70" : "border-mystic-700/20"
     }`}>
       <CardContent className="p-4 sm:p-5">
         <div className="flex items-start justify-between gap-3">
@@ -1101,7 +1101,7 @@ function LecturaCard({
                 ? "bg-amber-400/10 border-amber-400/30"
                 : hasAudio
                 ? "bg-gradient-to-br from-violet-600/30 to-mystic-800/60 border-violet-500/20"
-                : "bg-mystic-800/60 border-mystic-700/40"
+                : "bg-mystic-800/60 border-mystic-700/20"
             }`}>
               {isExpired ? (
                 <AlertTriangle className="w-5 h-5 text-amber-300" />
@@ -1170,7 +1170,7 @@ function LecturaCard({
               transition={{ duration: 0.25 }}
               className="overflow-hidden"
             >
-              <div className="mt-4 pt-4 border-t border-mystic-700/40">
+              <div className="mt-4 pt-4 border-t border-mystic-700/20">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                   <div className="lg:col-span-2 space-y-4">
                     {hasAudio && enrollment.r2Key ? (
@@ -1181,7 +1181,7 @@ function LecturaCard({
                         expiresAt={enrollment.expiresAt}
                       />
                     ) : (
-                      <div className="bg-mystic-900/40 rounded-lg p-4 text-center border border-mystic-700/30">
+                      <div className="bg-mystic-900/25 rounded-lg p-4 text-center border border-mystic-700/15">
                         <Clock className="w-5 h-5 text-mystic-600 mx-auto mb-1" />
                         <p className="text-mystic-500 text-xs font-sans">El audio de tu lectura estará disponible pronto</p>
                       </div>
@@ -1191,8 +1191,8 @@ function LecturaCard({
                       isExpired={isExpired}
                     />
                   </div>
-                  <div className="space-y-4">
-                    <div className="rounded-xl bg-mystic-900/30 p-4">
+                  <div className="rounded-2xl bg-mystic-900/30 border border-mystic-700/20 divide-y divide-mystic-700/20 overflow-hidden">
+                    <div className="p-4 sm:p-5">
                       <h4 className="text-violet-300 text-sm font-serif font-semibold mb-2 flex items-center gap-2">
                         <Sparkles className="w-4 h-4" /> Sobre tu lectura
                       </h4>
@@ -1204,7 +1204,7 @@ function LecturaCard({
                         <span>Fecha de entrega: {addBusinessDays(new Date(enrollment.createdAt), 10).toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" })}</span>
                       </div>
                     </div>
-                    <div className="rounded-xl bg-mystic-900/30 p-4">
+                    <div className="p-4 sm:p-5">
                       <h4 className="text-violet-300 text-sm font-serif font-semibold mb-2 flex items-center gap-2">
                         <Clock className="w-4 h-4" /> Disponible por
                       </h4>
@@ -1219,7 +1219,7 @@ function LecturaCard({
                       </div>
                       <p className="text-mystic-500 text-[11px] font-sans">{monthsText} restantes</p>
                     </div>
-                    <div className="rounded-xl bg-mystic-900/30 p-4">
+                    <div className="p-4 sm:p-5">
                       <h4 className="text-violet-300 text-sm font-serif font-semibold mb-2 flex items-center gap-2">
                         <Mail className="w-4 h-4" /> ¿Necesitás algo?
                       </h4>
@@ -1262,7 +1262,7 @@ function CourseCard({
 
   return (
     <motion.div whileHover={{ y: -2 }} transition={{ duration: 0.15 }}>
-      <Card className="bg-mystic-900/60 border-mystic-700/40 backdrop-blur hover:border-blue-500/30 transition-all overflow-hidden h-full flex flex-col">
+      <Card className="bg-mystic-900/35 border-mystic-700/20 backdrop-blur hover:border-blue-500/30 transition-all overflow-hidden h-full flex flex-col">
         {/* Gradient header */}
         <div className={`h-20 bg-gradient-to-r ${tc.gradient} relative flex items-end p-4`}>
           <div className="absolute top-3 right-3">
@@ -1272,7 +1272,7 @@ function CourseCard({
             </Badge>
           </div>
           <div className="absolute top-3 left-3">
-            <div className={`w-9 h-9 rounded-lg bg-mystic-950/50 backdrop-blur border border-mystic-700/40 flex items-center justify-center ${tc.color}`}>
+            <div className={`w-9 h-9 rounded-lg bg-mystic-950/50 backdrop-blur border border-mystic-700/20 flex items-center justify-center ${tc.color}`}>
               {tc.icon}
             </div>
           </div>
@@ -1335,7 +1335,7 @@ function CourseCard({
                 transition={{ duration: 0.25 }}
                 className="overflow-hidden"
               >
-                <div className="mt-3 pt-3 border-t border-mystic-700/40 space-y-2">
+                <div className="mt-3 pt-3 border-t border-mystic-700/20 space-y-2">
                   {enrollment.notes && (
                     <div>
                       <p className="text-mystic-500 text-xs font-sans mb-1">Notas</p>
@@ -1377,10 +1377,10 @@ function EnrollmentCard({
 
   return (
     <motion.div whileHover={{ y: -2 }} transition={{ duration: 0.15 }}>
-      <Card className="bg-mystic-900/60 border-mystic-700/40 backdrop-blur hover:border-amber-500/30 transition-all overflow-hidden h-full flex flex-col">
+      <Card className="bg-mystic-900/35 border-mystic-700/20 backdrop-blur hover:border-amber-500/30 transition-all overflow-hidden h-full flex flex-col">
         {/* Gradient header */}
         <div className={`h-16 bg-gradient-to-r ${tc.gradient} relative flex items-center px-4`}>
-          <div className="w-8 h-8 rounded-lg bg-mystic-950/50 backdrop-blur border border-mystic-700/40 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-mystic-950/50 backdrop-blur border border-mystic-700/20 flex items-center justify-center">
             <Calendar className="w-4 h-4 text-amber-400" />
           </div>
           <div className="ml-3">
@@ -1432,7 +1432,7 @@ function EnrollmentCard({
                 transition={{ duration: 0.25 }}
                 className="overflow-hidden"
               >
-                <div className="mt-3 pt-3 border-t border-mystic-700/40 space-y-2">
+                <div className="mt-3 pt-3 border-t border-mystic-700/20 space-y-2">
                   {enrollment.notes && (
                     <div>
                       <p className="text-mystic-500 text-xs font-sans mb-1">Notas</p>
