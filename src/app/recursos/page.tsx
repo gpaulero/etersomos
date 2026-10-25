@@ -652,7 +652,9 @@ export default function RecursosPage() {
       {/* ============================================================ */}
       {/*                          FOOTER                              */}
       {/* ============================================================ */}
-      <footer className="mt-auto py-8 px-4 sm:px-6 border-t border-mystic-700/20">
+            <OraculosSection />
+
+<footer className="mt-auto py-8 px-4 sm:px-6 border-t border-mystic-700/20">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2">
             <NextImage src="/images/logo-etersomos.jpg" alt="Eter Somos" width={28} height={28} className="rounded-full" />
@@ -671,7 +673,6 @@ export default function RecursosPage() {
           </p>
         </div>
       </footer>
-      <OraculosSection />
     </div>
   );
 }
