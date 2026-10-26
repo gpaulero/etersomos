@@ -460,18 +460,64 @@ export default function RecursosPage() {
                         <span className="text-[10px] font-sans uppercase tracking-[0.18em] text-violet-300">{o.oracle}</span>
                       </div>
                       <h3 className="font-serif font-semibold text-foreground text-lg">{o.title}</h3>
-                      <p className="text-foreground/60 font-sans text-xs leading-relaxed flex-1">{o.desc}</p>
-                      {o.activo ? (
-                        <button
-                          onClick={() => { setSelectedOracle(o); setOracleForm({ nombre: "", email: "", monto: "", metodo: "mercadopago" }); setOracleStep("form"); }}
-                          className="inline-flex items-center justify-center gap-2 rounded-full bg-violet-600 hover:bg-violet-500 text-white text-xs font-sans font-semibold px-4 py-2.5 transition-colors"
-                        >
-                          Completar formulario
-                        </button>
+                      {selectedOracle?.id === o.id ? (
+                        <div className="space-y-2.5 flex-1">
+                          <p className="text-foreground/60 font-sans text-[11px] leading-relaxed border-l-2 border-violet-500/40 pl-2">
+                            Importante: la tirada se inicia una vez realizada la contribución, no antes.
+                          </p>
+                          {oracleStep === "form" ? (
+                            <>
+                              <input value={oracleForm.nombre} onChange={(e) => setOracleForm({ ...oracleForm, nombre: e.target.value })} placeholder="Nombre y apellido" className="w-full px-3 py-2 rounded-lg bg-mystic-900/60 border border-mystic-700/30 text-foreground text-sm font-sans" />
+                              <input value={oracleForm.email} onChange={(e) => setOracleForm({ ...oracleForm, email: e.target.value })} placeholder="Email" type="email" className="w-full px-3 py-2 rounded-lg bg-mystic-900/60 border border-mystic-700/30 text-foreground text-sm font-sans" />
+                              <div>
+                                <label className="text-foreground/80 text-xs font-sans">Monto de contribución voluntaria (ARS)</label>
+                                <input value={oracleForm.monto} onChange={(e) => setOracleForm({ ...oracleForm, monto: e.target.value })} type="number" min={1} className="w-full px-3 py-2 rounded-lg bg-mystic-900/60 border border-mystic-700/30 text-foreground text-sm font-sans mt-1" />
+                                <p className="text-foreground/50 text-[11px] font-sans mt-1">Ingresá el monto que consideres adecuado y justo por el intercambio.</p>
+                              </div>
+                              <div className="grid grid-cols-3 gap-1.5">
+                                {(["mercadopago", "paypal", "transferencia"] as const).map((m) => (
+                                  <button key={m} onClick={() => setOracleForm({ ...oracleForm, metodo: m })} className={`px-1 py-2 rounded-lg border text-[11px] font-sans ${oracleForm.metodo === m ? "border-violet-400/60 bg-violet-400/5 text-violet-300" : "border-mystic-700/40 text-foreground/60"}`}>
+                                    {m === "mercadopago" ? "MercadoPago" : m === "paypal" ? "PayPal" : "Transferencia"}
+                                  </button>
+                                ))}
+                              </div>
+                              <button onClick={handleOracleSubmit} className="w-full rounded-full bg-violet-600 hover:bg-violet-500 text-white text-xs font-sans font-semibold px-4 py-2.5 transition-colors">
+                                Continuar
+                              </button>
+                              <button onClick={() => { setSelectedOracle(null); setOracleStep("form"); }} className="w-full text-foreground/50 hover:text-foreground/70 text-[11px] font-sans transition-colors">
+                                Cancelar
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <p className="text-foreground/70 font-sans text-xs leading-relaxed">
+                                Para completar tu tirada por transferencia, escribinos por WhatsApp y coordinamos el pago y el envío del formulario.
+                              </p>
+                              <a href="https://wa.me/5493518629325" target="_blank" rel="noopener noreferrer" className="block w-full text-center rounded-full bg-violet-600 hover:bg-violet-500 text-white text-xs font-sans font-semibold px-4 py-2.5">
+                                Abrir WhatsApp
+                              </a>
+                              <button onClick={() => setOracleStep("form")} className="w-full text-foreground/50 hover:text-foreground/70 text-[11px] font-sans transition-colors">
+                                Volver
+                              </button>
+                            </>
+                          )}
+                        </div>
                       ) : (
-                        <span className="inline-flex items-center justify-center gap-2 rounded-full border border-mystic-700/40 bg-mystic-900/40 text-foreground/50 text-xs font-sans font-semibold px-4 py-2.5">
-                          En construcción
-                        </span>
+                        <>
+                          <p className="text-foreground/60 font-sans text-xs leading-relaxed flex-1">{o.desc}</p>
+                          {o.activo ? (
+                            <button
+                              onClick={() => { setSelectedOracle(o); setOracleForm({ nombre: "", email: "", monto: "", metodo: "mercadopago" }); setOracleStep("form"); }}
+                              className="inline-flex items-center justify-center gap-2 rounded-full bg-violet-600 hover:bg-violet-500 text-white text-xs font-sans font-semibold px-4 py-2.5 transition-colors"
+                            >
+                              Completar formulario
+                            </button>
+                          ) : (
+                            <span className="inline-flex items-center justify-center gap-2 rounded-full border border-mystic-700/40 bg-mystic-900/40 text-foreground/50 text-xs font-sans font-semibold px-4 py-2.5">
+                              En construcción
+                            </span>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
@@ -742,43 +788,6 @@ export default function RecursosPage() {
         </div>
       </footer>
 
-      {/* ── Formulario de oráculo (in-site) ── */}
-      <Dialog open={!!selectedOracle} onOpenChange={(open) => { if (!open) { setSelectedOracle(null); setOracleStep("form"); } }}>
-        <DialogContent className="bg-mystic-950 border-mystic-700/40 text-foreground max-w-md">
-          <DialogHeader>
-            <DialogTitle className="font-serif text-violet-200">{selectedOracle?.title}</DialogTitle>
-            <DialogDescription className="text-foreground/60 font-sans">{selectedOracle?.oracle}</DialogDescription>
-          </DialogHeader>
-          {oracleStep === "form" ? (
-            <div className="space-y-3">
-              <input value={oracleForm.nombre} onChange={(e) => setOracleForm({ ...oracleForm, nombre: e.target.value })} placeholder="Nombre y apellido" className="w-full px-3 py-2 rounded-lg bg-mystic-900/60 border border-mystic-700/30 text-foreground text-sm font-sans" />
-              <input value={oracleForm.email} onChange={(e) => setOracleForm({ ...oracleForm, email: e.target.value })} placeholder="Email" type="email" className="w-full px-3 py-2 rounded-lg bg-mystic-900/60 border border-mystic-700/30 text-foreground text-sm font-sans" />
-              <div>
-                <label className="text-foreground/80 text-sm font-sans">Monto de contribución voluntaria (ARS)</label>
-                <input value={oracleForm.monto} onChange={(e) => setOracleForm({ ...oracleForm, monto: e.target.value })} type="number" min={1} className="w-full px-3 py-2 rounded-lg bg-mystic-900/60 border border-mystic-700/30 text-foreground text-sm font-sans mt-1" />
-                <p className="text-foreground/50 text-xs font-sans mt-1">Ingresá el monto que consideres adecuado y justo por el intercambio.</p>
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                {(["mercadopago", "paypal", "transferencia"] as const).map((m) => (
-                  <button key={m} onClick={() => setOracleForm({ ...oracleForm, metodo: m })} className={`px-2 py-2 rounded-lg border text-xs font-sans ${oracleForm.metodo === m ? "border-violet-400/60 bg-violet-400/5 text-violet-300" : "border-mystic-700/40 text-foreground/60"}`}>
-                    {m === "mercadopago" ? "MercadoPago" : m === "paypal" ? "PayPal" : "Transferencia"}
-                  </button>
-                ))}
-              </div>
-              <button onClick={handleOracleSubmit} className="w-full rounded-full bg-violet-600 hover:bg-violet-500 text-white text-sm font-sans font-semibold px-4 py-2.5 transition-colors">
-                Continuar
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-3 text-sm font-sans text-foreground/70">
-              <p>Para completar tu tirada por transferencia, escribinos por WhatsApp y coordinamos el pago y el envío del formulario.</p>
-              <a href="https://wa.me/5493518629325" target="_blank" rel="noopener noreferrer" className="block w-full text-center rounded-full bg-violet-600 hover:bg-violet-500 text-white text-sm font-sans font-semibold px-4 py-2.5">
-                Abrir WhatsApp
-              </a>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
