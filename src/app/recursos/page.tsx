@@ -35,8 +35,9 @@ import {
   Search,
   Download,
   Mail,
+  Sparkles,
 } from "lucide-react"
-import OraculosSection from "@/components/oraculos-section";
+import { initiateCoursePayment } from "@/lib/course-payment";
 import NextImage from "next/image";
 import Link from "next/link";
 import { ProtectedVideoPlayer, ProtectedAudioPlayer } from "@/components/protected-player";
@@ -154,6 +155,12 @@ const TYPE_LABELS: Record<string, string> = {
 /*                           MAIN PAGE                                       */
 /* ======================================================================== */
 
+const oraculos = [
+  { id: "camino-de-la-vida", title: "El camino de la vida", oracle: "Oráculo Guardianes de la Luz", desc: "Una tirada para iluminar tu momento presente y el sentido de tu camino.", activo: true },
+  { id: "portal-estelar", title: "Portal Estelar", oracle: "Oráculo Portal de Luz", desc: "Mensajes de apertura y conexión con tu potencial estelar.", activo: true },
+  { id: "vidas-pasadas", title: "Mensajes de vidas pasadas", oracle: "Oráculo de Brian Weiss", desc: "Lecturas de vidas pasadas para comprender patrones de esta encarnación.", activo: false },
+];
+
 export default function RecursosPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const constNavScrolled = useState(false);
@@ -164,6 +171,32 @@ export default function RecursosPage() {
   const [fetchError, setFetchError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("todos");
+  const [selectedOracle, setSelectedOracle] = useState<(typeof oraculos)[number] | null>(null);
+  const [oracleForm, setOracleForm] = useState({ nombre: "", email: "", monto: "", metodo: "mercadopago" as "mercadopago" | "paypal" | "transferencia" });
+  const [oracleStep, setOracleStep] = useState<"form" | "transferencia">("form");
+
+  const handleOracleSubmit = () => {
+    if (!selectedOracle) return;
+    if (!oracleForm.nombre.trim() || !oracleForm.email.includes("@") || !(Number(oracleForm.monto) > 0)) {
+      toast.error("Completá nombre, email y un monto válido");
+      return;
+    }
+    if (oracleForm.metodo === "transferencia") { setOracleStep("transferencia"); return; }
+    initiateCoursePayment({
+      courseId: selectedOracle.id,
+      courseName: selectedOracle.title,
+      email: oracleForm.email,
+      name: oracleForm.nombre,
+      phone: "",
+      price: Number(oracleForm.monto),
+      paymentMethod: oracleForm.metodo,
+      enrollmentData: { tipo: "oraculo", oraculo: selectedOracle.title, oracle: selectedOracle.oracle },
+      checkoutType: "resource_purchase",
+    });
+    setSelectedOracle(null);
+    setOracleStep("form");
+  };
+
   const [playerOpen, setPlayerOpen] = useState(false);
   const [playerResource, setPlayerResource] = useState<Resource | null>(null);
   const [inlineAudioOpen, setInlineAudioOpen] = useState<Record<string, boolean>>({});
@@ -364,6 +397,16 @@ export default function RecursosPage() {
                 >
                   Todos ({resources.length})
                 </button>
+                <button
+                  onClick={() => setTypeFilter("oraculo")}
+                  className={`px-4 py-1.5 rounded-full text-xs font-sans font-medium border transition-colors ${
+                    typeFilter === "oraculo"
+                      ? "bg-violet-500/20 border-violet-400/40 text-violet-300"
+                      : "bg-mystic-900/40 border-mystic-700/30 text-foreground/50 hover:text-foreground/70 hover:border-mystic-600/40"
+                  }`}
+                >
+                  Oráculos ({oraculos.length})
+                </button>
                 {availableTypes.map((t) => (
                   <button
                     key={t}
@@ -394,7 +437,7 @@ export default function RecursosPage() {
                 Estamos preparando meditaciones, guías y contenido para tu crecimiento espiritual. Suscribite al newsletter para enterarte cuando subamos algo nuevo.
               </p>
             </motion.div>
-          ) : filteredResources.length === 0 ? (
+          ) : filteredResources.length === 0 && typeFilter !== "oraculo" ? (
             <div className="text-center py-16">
               <Search className="size-10 text-foreground/10 mx-auto mb-4" />
               <p className="text-foreground/40 text-base font-serif mb-3">No encontramos recursos con esos filtros</p>
@@ -407,6 +450,33 @@ export default function RecursosPage() {
             </div>
           ) : (
             <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {(typeFilter === "todos" || typeFilter === "oraculo") && oraculos.map((o) => (
+                <motion.div key={o.id} variants={fadeInUp} transition={{ duration: 0.5 }}>
+                  <div className="group relative h-full flex flex-col rounded-2xl border border-violet-500/25 bg-mystic-900/40 overflow-hidden hover:border-violet-500/45 transition-all">
+                    <div className="h-1 w-full bg-violet-500/40" />
+                    <div className="p-5 flex flex-col gap-3 flex-1">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="size-4 text-violet-400" />
+                        <span className="text-[10px] font-sans uppercase tracking-[0.18em] text-violet-300">{o.oracle}</span>
+                      </div>
+                      <h3 className="font-serif font-semibold text-foreground text-lg">{o.title}</h3>
+                      <p className="text-foreground/60 font-sans text-xs leading-relaxed flex-1">{o.desc}</p>
+                      {o.activo ? (
+                        <button
+                          onClick={() => { setSelectedOracle(o); setOracleForm({ nombre: "", email: "", monto: "", metodo: "mercadopago" }); setOracleStep("form"); }}
+                          className="inline-flex items-center justify-center gap-2 rounded-full bg-violet-600 hover:bg-violet-500 text-white text-xs font-sans font-semibold px-4 py-2.5 transition-colors"
+                        >
+                          Completar formulario
+                        </button>
+                      ) : (
+                        <span className="inline-flex items-center justify-center gap-2 rounded-full border border-mystic-700/40 bg-mystic-900/40 text-foreground/50 text-xs font-sans font-semibold px-4 py-2.5">
+                          En construcción
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
               {filteredResources.map((resource) => {
                 const typeInfo = getFileTypeInfo(resource.fileType);
                 const TypeIcon = typeInfo.icon;
@@ -652,9 +722,7 @@ export default function RecursosPage() {
       {/* ============================================================ */}
       {/*                          FOOTER                              */}
       {/* ============================================================ */}
-            <OraculosSection />
-
-<footer className="mt-auto py-8 px-4 sm:px-6 border-t border-mystic-700/20">
+      <footer className="mt-auto py-8 px-4 sm:px-6 border-t border-mystic-700/20">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2">
             <NextImage src="/images/logo-etersomos.jpg" alt="Eter Somos" width={28} height={28} className="rounded-full" />
@@ -673,6 +741,44 @@ export default function RecursosPage() {
           </p>
         </div>
       </footer>
+
+      {/* ── Formulario de oráculo (in-site) ── */}
+      <Dialog open={!!selectedOracle} onOpenChange={(open) => { if (!open) { setSelectedOracle(null); setOracleStep("form"); } }}>
+        <DialogContent className="bg-mystic-950 border-mystic-700/40 text-foreground max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-serif text-violet-200">{selectedOracle?.title}</DialogTitle>
+            <DialogDescription className="text-foreground/60 font-sans">{selectedOracle?.oracle}</DialogDescription>
+          </DialogHeader>
+          {oracleStep === "form" ? (
+            <div className="space-y-3">
+              <input value={oracleForm.nombre} onChange={(e) => setOracleForm({ ...oracleForm, nombre: e.target.value })} placeholder="Nombre y apellido" className="w-full px-3 py-2 rounded-lg bg-mystic-900/60 border border-mystic-700/30 text-foreground text-sm font-sans" />
+              <input value={oracleForm.email} onChange={(e) => setOracleForm({ ...oracleForm, email: e.target.value })} placeholder="Email" type="email" className="w-full px-3 py-2 rounded-lg bg-mystic-900/60 border border-mystic-700/30 text-foreground text-sm font-sans" />
+              <div>
+                <label className="text-foreground/80 text-sm font-sans">Monto de contribución voluntaria (ARS)</label>
+                <input value={oracleForm.monto} onChange={(e) => setOracleForm({ ...oracleForm, monto: e.target.value })} type="number" min={1} className="w-full px-3 py-2 rounded-lg bg-mystic-900/60 border border-mystic-700/30 text-foreground text-sm font-sans mt-1" />
+                <p className="text-foreground/50 text-xs font-sans mt-1">Ingresá el monto que consideres adecuado y justo por el intercambio.</p>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {(["mercadopago", "paypal", "transferencia"] as const).map((m) => (
+                  <button key={m} onClick={() => setOracleForm({ ...oracleForm, metodo: m })} className={`px-2 py-2 rounded-lg border text-xs font-sans ${oracleForm.metodo === m ? "border-violet-400/60 bg-violet-400/5 text-violet-300" : "border-mystic-700/40 text-foreground/60"}`}>
+                    {m === "mercadopago" ? "MercadoPago" : m === "paypal" ? "PayPal" : "Transferencia"}
+                  </button>
+                ))}
+              </div>
+              <button onClick={handleOracleSubmit} className="w-full rounded-full bg-violet-600 hover:bg-violet-500 text-white text-sm font-sans font-semibold px-4 py-2.5 transition-colors">
+                Continuar
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3 text-sm font-sans text-foreground/70">
+              <p>Para completar tu tirada por transferencia, escribinos por WhatsApp y coordinamos el pago y el envío del formulario.</p>
+              <a href="https://wa.me/5493518629325" target="_blank" rel="noopener noreferrer" className="block w-full text-center rounded-full bg-violet-600 hover:bg-violet-500 text-white text-sm font-sans font-semibold px-4 py-2.5">
+                Abrir WhatsApp
+              </a>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
