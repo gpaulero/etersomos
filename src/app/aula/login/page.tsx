@@ -244,15 +244,6 @@ export default function AulaLoginPage() {
             </Link>
           </div>
 
-          <div className="mt-6 pt-5 border-t border-mystic-700/40 text-center">
-            <p className="text-mystic-400 text-sm mb-3 font-sans">¿Todavía no tenés cuenta?</p>
-            <Link href="/aula/registro">
-              <Button variant="outline" className="border-violet-400/40 text-violet-300 hover:bg-violet-400/10 gap-2">
-                <UserPlus className="w-4 h-4" />
-                Crear cuenta
-              </Button>
-            </Link>
-          </div>
         </motion.div>
 
         <motion.div
